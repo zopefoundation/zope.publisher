@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: xmlrpc.py,v 1.5 2003/04/11 12:55:41 ryzaja Exp $
+$Id: xmlrpc.py,v 1.6 2003/05/28 15:46:14 jim Exp $
 """
 import sys
 import xmlrpclib
@@ -25,7 +25,7 @@ from zope.publisher.interfaces.xmlrpc import IXMLRPCView
 
 from zope.publisher.http import HTTPRequest, HTTPResponse
 from zope.publisher.http import DefaultPublisher
-from zope.proxy.introspection import removeAllProxies
+from zope.proxy import removeAllProxies
 
 __metaclass__ = type # All classes are new style when run with Python 2.2+
 

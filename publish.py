@@ -15,12 +15,12 @@
 
 Provide an apply-like facility that works with any mapping object
 
-$Id: publish.py,v 1.10 2003/04/29 17:00:25 gvanrossum Exp $
+$Id: publish.py,v 1.11 2003/05/28 15:46:14 jim Exp $
 """
 
 import sys
 from zope.publisher.interfaces import Retry
-from zope.proxy.introspection import removeAllProxies
+from zope.proxy import removeAllProxies
 
 _marker = []  # Create a new marker object.
 
