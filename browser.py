@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: browser.py,v 1.13 2003/04/11 10:08:09 ryzaja Exp $
+$Id: browser.py,v 1.14 2003/04/11 12:47:43 mgedmin Exp $
 """
 
 import re
@@ -261,8 +261,8 @@ class BrowserRequest(HTTPRequest):
     def _decode(self, text):
         """Try to decode the text using one of the available charsets."""
         if self.charsets is None:
-            envadaptor = getAdapter(self, IUserPreferredCharsets)
-            self.charsets = envadaptor.getPreferredCharsets()
+            envadapter = getAdapter(self, IUserPreferredCharsets)
+            self.charsets = envadapter.getPreferredCharsets()
         for charset in self.charsets:
             try:
                 text = unicode(text, charset)

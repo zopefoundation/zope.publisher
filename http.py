@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.18 2003/04/11 12:38:00 mgedmin Exp $
+$Id: http.py,v 1.19 2003/04/11 12:47:43 mgedmin Exp $
 """
 
 import re, time, random
@@ -782,13 +782,13 @@ class HTTPResponse (BaseResponse):
 
     def setCharsetUsingRequest(self, request):
         'See IHTTPResponse'
-        envadaptor = queryAdapter(request, IUserPreferredCharsets)
-        if envadaptor is None:
+        envadapter = queryAdapter(request, IUserPreferredCharsets)
+        if envadapter is None:
             return
 
         # XXX This try/except looks rather suspicious :(
         try:
-            charset = envadaptor.getPreferredCharsets()[0]
+            charset = envadapter.getPreferredCharsets()[0]
         except:
             charset = 'UTF-8'
         self.setCharset(charset)
