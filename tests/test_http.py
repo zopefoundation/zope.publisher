@@ -14,7 +14,7 @@
 ##############################################################################
 """HTTP Publisher Tests
 
-$Id: test_http.py,v 1.28 2004/03/19 20:26:44 srichter Exp $
+$Id: test_http.py,v 1.29 2004/03/20 16:27:21 srichter Exp $
 """
 import unittest
 
@@ -107,6 +107,28 @@ class HTTPTests(unittest.TestCase):
             "\r\n"
             "'5', 6")
 
+    def testRedirect(self):
+        # test HTTP/1.0
+        env = {'SERVER_PROTOCOL':'HTTP/1.0'}
+
+        request = self._createRequest(env, '')
+        location = request.response.redirect('http://foobar.com/redirected')
+        self.assertEquals(location, 'http://foobar.com/redirected')
+        self.assertEquals(request.response.getStatus(), 302)
+        self.assertEquals(request.response._headers['location'], location)
+        
+        # test HTTP/1.1
+        env = {'SERVER_PROTOCOL':'HTTP/1.1'}
+
+        request = self._createRequest(env, '')
+        location = request.response.redirect('http://foobar.com/redirected')
+        self.assertEquals(request.response.getStatus(), 303)
+
+        # test explicit status
+        request = self._createRequest(env, '')
+        request.response.redirect('http://foobar.com/explicit', 304)
+        self.assertEquals(request.response.getStatus(), 304)
+        
     def testRequestEnvironment(self):
         req = self._createRequest()
         publish(req, handle_errors=0) # Force expansion of URL variables
