@@ -162,6 +162,10 @@ class IPublishTraverse(Interface):
         The request argument is the publisher request object.
 
         If a lookup is not possible, raise a NotFound error.
+
+        This method should return an object having the specified name and
+        `self` as parent. The method can use the request to determine the
+        correct object. 
         """
 
 
