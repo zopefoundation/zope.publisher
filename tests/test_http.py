@@ -32,6 +32,7 @@ from zope.i18n.interfaces.locales import ILocale
 from zope.interface.verify import verifyObject
 
 from StringIO import StringIO
+from Cookie import SimpleCookie, CookieError
 
 
 class UserStub:
@@ -212,7 +213,8 @@ class HTTPTests(unittest.TestCase):
 
     def testCookies(self):
         cookies = {
-            'HTTP_COOKIE': 'foo=bar; spam="eggs", this="Should be accepted"'
+            'HTTP_COOKIE':
+                'foo=bar; path=/; spam="eggs", this="Should be accepted"'
         }
         req = self._createRequest(extra_env=cookies)
 
@@ -224,6 +226,15 @@ class HTTPTests(unittest.TestCase):
 
         self.assertEquals(req.cookies[u'this'], u'Should be accepted')
         self.assertEquals(req[u'this'], u'Should be accepted')
+
+        # Reserved key
+        self.failIf(req.cookies.has_key('path'))
+
+    def testCookiesUnicode(self):
+        # Cookie values are assumed to be UTF-8 encoded
+        cookies = {'HTTP_COOKIE': r'key="\342\230\243";'}
+        req = self._createRequest(extra_env=cookies)
+        self.assertEquals(req.cookies[u'key'], u'\N{BIOHAZARD SIGN}')
 
     def testHeaders(self):
         headers = {
@@ -421,7 +432,15 @@ class TestHTTPResponse(unittest.TestCase):
         headers = {}
         for line in hdrs_text.splitlines():
             key, val = line.split(":", 1)
-            headers[key.strip()] = val.strip()
+            key = key.strip()
+            val = val.strip()
+            if headers.has_key(key):
+                if type(headers[key]) == type([]):
+                    headers[key].append(val)
+                else:
+                    headers[key] = [headers[key], val]
+            else:
+                headers[key] = val
         return headers, body
 
     def _getResultFromResponse(self, body, charset=None, headers=None):
@@ -475,6 +494,67 @@ class TestHTTPResponse(unittest.TestCase):
             {"content-type": "image/gif"})
         eq("image/gif", headers["Content-Type"])
         eq("test", body)
+
+    def _getCookieFromResponse(self, cookies):
+        # Shove the cookies through request, parse the Set-Cookie header
+        # and spit out a list of headers for examination
+        response, stream = self._createResponse()
+        for name, value, kw in cookies:
+            response.setCookie(name, value, **kw)
+        response.setBody('test')
+        response.outputBody()
+        headers, body = self._parseResult(stream.getvalue())
+        c = SimpleCookie()
+        cookie_headers = headers["Set-Cookie"]
+        if type(cookie_headers) != type([]):
+            cookie_headers = [cookie_headers]
+        return cookie_headers
+
+    def testSetCookie(self):
+        c = self._getCookieFromResponse([
+                ('foo', 'bar', {}),
+                ])
+        self.failUnless('foo=bar;' in c, 'foo=bar not in %r' % c)
+
+        c = self._getCookieFromResponse([
+                ('foo', 'bar', {}),
+                ('alpha', 'beta', {}),
+                ])
+        self.failUnless('foo=bar;' in c)
+        self.failUnless('alpha=beta;' in c)
+
+        c = self._getCookieFromResponse([
+                ('sign', u'\N{BIOHAZARD SIGN}', {}),
+                ])
+        self.failUnless(r'sign="\342\230\243";' in c)
+
+        self.assertRaises(
+                CookieError,
+                self._getCookieFromResponse,
+                [('path', 'invalid key', {}),]
+                )
+
+        c = self._getCookieFromResponse([
+                ('foo', 'bar', {
+                    'Expires': 'Sat, 12 Jul 2014 23:26:28 GMT',
+                    'domain': 'example.com',
+                    'pAth': '/froboz',
+                    'max_age': 3600,
+                    'comment': u'blah;\N{BIOHAZARD SIGN}?',
+                    'seCure': True,
+                    }),
+                ])[0]
+        self.failUnless('foo=bar;' in c)
+        self.failUnless('expires=Sat, 12 Jul 2014 23:26:28 GMT;' in c, repr(c))
+        self.failUnless('Domain=example.com;' in c)
+        self.failUnless('Path=/froboz;' in c)
+        self.failUnless('Max-Age=3600;' in c)
+        self.failUnless('Comment=blah%3B%E2%98%A3?;' in c, repr(c))
+        self.failUnless('secure;' in c)
+
+        c = self._getCookieFromResponse([('foo', 'bar', {'secure': False})])[0]
+        self.failUnless('foo=bar;' in c)
+        self.failIf('secure' in c)
 
 
 def test_suite():

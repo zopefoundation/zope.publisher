@@ -19,6 +19,7 @@ import re, time, random
 from urllib import quote, unquote, splitport
 from types import StringTypes, ClassType
 from cgi import escape
+from Cookie import SimpleCookie
 
 from zope.interface import implements
 
@@ -324,36 +325,15 @@ class HTTPRequest(BaseRequest):
 
         return '%s://%s' % (protocol, host)
 
-    _cookieFormat = re.compile('[\x00- ]*'
-            # Cookie name
-            '([^\x00- ;,="]+)='
-            # Cookie value (either correct quoted or MSIE)
-            '(?:"([^"]*)"|([^\x00- ;,"]*))'
-            '(?:[\x00- ]*[;,])?[\x00- ]*')
-
     def _parseCookies(self, text, result=None):
         """Parse 'text' and return found cookies as 'result' dictionary."""
 
         if result is None:
             result = {}
 
-        cookieFormat = self._cookieFormat
-
-        pos = 0
-        ln = len(text)
-        while pos < ln:
-            match = cookieFormat.match(text, pos)
-            if match is None:
-                break
-
-            name  = unicode(match.group(1), ENCODING)
-            if name not in result:
-                value, ms_value = match.group(2, 3)
-                if value is None:
-                    value = ms_value
-                result[name] = unicode(value, ENCODING)
-
-            pos = match.end()
+        c = SimpleCookie(text)
+        for k,v in c.items():
+            result[unicode(k, ENCODING)] = unicode(v.value, ENCODING)
 
         return result
 
@@ -720,7 +700,7 @@ class HTTPResponse(BaseResponse):
 
         for k, v in kw.items():
             if v is not None:
-                cookie[k] = v
+                cookie[k.lower()] = v
 
         cookie['value'] = value
 
@@ -829,35 +809,24 @@ class HTTPResponse(BaseResponse):
         return location
 
     def _cookie_list(self):
-        cookie_list = []
+        c = SimpleCookie()
         for name, attrs in self._cookies.items():
-
-            # Note that as of May 98, IE4 ignores cookies with
-            # quoted cookie attr values, so only the value part
-            # of name=value pairs may be quoted.
-
-            cookie='Set-Cookie: %s="%s"' % (name, attrs['value'])
-            for name, value in attrs.items():
-                name = name.lower()
-                if name == 'expires':
-                    cookie = '%s; Expires=%s' % (cookie,value)
-                elif name == 'domain':
-                    cookie = '%s; Domain=%s' % (cookie,value)
-                elif name == 'path':
-                    cookie = '%s; Path=%s' % (cookie,value)
-                elif name == 'max_age':
-                    cookie = '%s; Max-Age=%s' % (cookie,value)
-                elif name == 'comment':
-                    cookie = '%s; Comment=%s' % (cookie,value)
-                elif name == 'secure' and value:
-                    cookie = '%s; Secure' % cookie
-            cookie_list.append(cookie)
-
-        # TODO: Should really check size of cookies here!
-        # Why?
-
-        return cookie_list
-
+            name = str(name)
+            c[name] = attrs['value'].encode(ENCODING)
+            for k,v in attrs.items():
+                if k == 'value':
+                    continue
+                if k == 'secure':
+                    if v:
+                        c[name]['secure'] = True
+                    continue
+                if k == 'max_age':
+                    k = 'max-age'
+                elif k == 'comment':
+                    # Encode rather than throw an exception
+                    v = quote(v.encode('utf-8'), safe="/?:@&+")
+                c[name][k] = str(v)
+        return str(c).splitlines()
 
     def getHeaderText(self, m):
         lst = ['Status: %s %s' % (self._status, self._reason)]
