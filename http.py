@@ -420,7 +420,7 @@ class HTTPRequest(BaseRequest):
     headers = RequestDataProperty(HeaderGetter)
 
     def getCookies(self):
-        'See IHTTPRequest'
+        'See IHTTPApplicationRequest'
         return self._cookies
 
     cookies = RequestDataProperty(CookieMapper)
