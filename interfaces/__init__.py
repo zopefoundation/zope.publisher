@@ -236,12 +236,8 @@ class IPublication(Interface):
         """Invokes any traversal hooks associated with the object.
         """
 
-    def traverseName(request, ob, name, check_auth=True):
+    def traverseName(request, ob, name):
         """Traverses to the next object.
-
-        If check_auth is set,
-        performs idenitification, authentication, and authorization.
-        Returns the subobject.
         """
 
     def afterTraversal(request, ob):
