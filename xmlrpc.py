@@ -26,7 +26,8 @@ from zope.publisher.interfaces.xmlrpc import IXMLRPCPublisher
 from zope.publisher.interfaces.xmlrpc import IXMLRPCRequest
 
 from zope.publisher.http import HTTPRequest, HTTPResponse
-from zope.proxy import removeAllProxies
+
+from zope.security.proxy import isinstance
 
 class XMLRPCRequest(HTTPRequest):
     implements(IXMLRPCRequest)
@@ -93,21 +94,17 @@ class XMLRPCResponse(HTTPResponse):
         If is_error is true then the HTML will be formatted as a Zope error
         message instead of a generic HTML page.
         """
-        # We have to call removeAllProxies() to allow the type
-        # introspection to work, and allow the serialization provided
-        # by the xmlrpclib module to operate on the actual object.
-        body = removeAllProxies(body)
+        body = premarshal(body)
         if isinstance(body, xmlrpclib.Fault):
             # Convert Fault object to XML-RPC response.
-            body = xmlrpclib.dumps(body, methodresponse=1)
+            body = xmlrpclib.dumps(body, methodresponse=True)
         else:
             # Marshall our body as an XML-RPC response. Strings will be sent
             # strings, integers as integers, etc. We do *not* convert
             # everything to a string first.
-            if body is None:
-                body = xmlrpclib.False # Argh, XML-RPC doesn't handle null
             try:
-                body = xmlrpclib.dumps((body,), methodresponse=1)
+                body = xmlrpclib.dumps((body,), methodresponse=True,
+                                       allow_none=True)
             except:
                 # We really want to catch all exceptions at this point!
                 self.handleException(sys.exc_info())
@@ -146,3 +143,83 @@ class XMLRPCResponse(HTTPResponse):
         # Do the damage.
         self.setBody(fault_text)
         self.setStatus(200)
+
+
+def premarshal_dict(data):
+    return dict([(premarshal(k), premarshal(v))
+                 for (k, v) in data.items()])
+
+def premarshal_list(data):
+    return map(premarshal, data)
+
+def premarshal_fault(data):
+    return xmlrpclib.Fault(
+        premarshal(data.faultCode),
+        premarshal(data.faultString),
+        )
+
+premarshal_dispatch_table = {
+    dict: premarshal_dict,
+    list: premarshal_list,
+    tuple: premarshal_list,
+    xmlrpclib.Fault: premarshal_fault,
+    }
+premarshal_dispatch = premarshal_dispatch_table.get
+
+def premarshal(data):
+    """Premarshal data before handing it to xmlrpclib for marhalling
+
+    The initial putpuse of this function is to remove security proxies
+    without resorting to removeSecurityProxy.   This way, we can avoid
+    inadvertently providing access to data that should be protected.
+
+    Suppose we have a sample data structure:
+
+      >>> sample = {'foo': (1, ['x', 'y', 1.2])}
+
+    if we put the sample in a security procy:
+
+      >>> from zope.security.checker import ProxyFactory
+      >>> proxied_sample = ProxyFactory(sample)
+
+    We can still get to the data, but the non-rock data is proxied:
+
+      >>> from zope.security.proxy import Proxy
+      >>> proxied_sample['foo']
+      (1, ['x', 'y', 1.2])
+      
+      >>> type(proxied_sample['foo']) is Proxy
+      True
+      >>> type(proxied_sample['foo'][1]) is Proxy
+      True
+
+    But we can strip the proxies using premarshal:
+
+      >>> stripped = premarshal(proxied_sample)
+      >>> stripped
+      {'foo': [1, ['x', 'y', 1.2]]}
+
+      >>> type(stripped['foo']) is Proxy
+      False
+      >>> type(stripped['foo'][1]) is Proxy
+      False
+
+    So xmlrpclib will be happy. :)
+
+    We can also use premarshal to strip proxies off of Fault objects.
+    We have to make a security declaration first though:
+
+      >>> from zope.security.checker import NamesChecker, defineChecker
+      >>> defineChecker(xmlrpclib.Fault,
+      ...               NamesChecker(['faultCode', 'faultString']))
+    
+      >>> fault = xmlrpclib.Fault(1, 'waaa')
+      >>> proxied_fault = ProxyFactory(fault)
+      >>> stripped_fault = premarshal(proxied_fault)
+      >>> type(stripped_fault) is Proxy
+      False
+    """
+    premarshaller = premarshal_dispatch(data.__class__)
+    if premarshaller is not None:
+        return premarshaller(data)
+    return data
