@@ -108,6 +108,10 @@ class ILayer(IInterface):
     """A layer contains views of similar layout."""
 
 
+class IDefaultLayer(ILayer):
+    """The default layer."""
+
+
 class ISkin(IInterface):
     """A skin is a set of layers."""
 
