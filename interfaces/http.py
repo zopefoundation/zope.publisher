@@ -13,7 +13,7 @@
 ##############################################################################
 """HTTP-related publisher interfaces.
 
-$Id: http.py,v 1.7 2003/02/28 14:21:26 stevea Exp $
+$Id: http.py,v 1.8 2003/02/28 22:56:03 jim Exp $
 """
 
 from zope.interface import Interface
@@ -130,6 +130,7 @@ class IHTTPApplicationRequest(IApplicationRequest):
         """Request header data
 
         This is a read-only mapping from variable name to value.
+        It does *not* support iteration.
         """)
 
     URL = Attribute(
