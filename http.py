@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.4 2002/12/31 02:52:18 jim Exp $
+$Id: http.py,v 1.5 2003/01/26 12:11:52 stevea Exp $
 """
 
 import re, time, random, sys
@@ -702,10 +702,10 @@ class HTTPResponse (BaseResponse):
 
     def expireCookie(self, name, **kw):
         'See IHTTPResponse'
-        dict={'max_age':0, 'expires':'Wed, 31-Dec-97 23:59:59 GMT'}
+        dict = {'max_age':0, 'expires':'Wed, 31-Dec-97 23:59:59 GMT'}
         for k, v in kw.items():
-            dict[k]=v
-        cookies=self._cookies
+            dict[k] = v
+        cookies = self._cookies
         if name in cookies:
             # Cancel previous setCookie().
             del cookies[name]
@@ -715,16 +715,13 @@ class HTTPResponse (BaseResponse):
     def setCookie(self, name, value, **kw):
         'See IHTTPResponse'
 
-        cookies=self._cookies
-        if name in cookies:
-            cookie=cookies[name]
-        else:
-            cookie=cookies[name]={}
+        cookies = self._cookies
+        cookie = cookies.setdefault(name, {})
 
         for k, v in kw.items():
-            cookie[k]=v
+            cookie[k] = v
 
-        cookie['value']=value
+        cookie['value'] = value
 
 
     def setCharset(self, charset=None):
