@@ -14,7 +14,7 @@
 """
 
 Revision information:
-$Id: basetestipublicationrequest.py,v 1.4 2003/11/21 17:12:29 jim Exp $
+$Id$
 """
 
 import sys

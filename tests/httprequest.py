@@ -16,7 +16,7 @@ Test request for writing tests that need HTTP requests.
 
 Note that this is used by tests in other packages.
 
-$Id: httprequest.py,v 1.2 2002/12/25 14:15:19 jim Exp $
+$Id$
 """
 
 from StringIO import StringIO

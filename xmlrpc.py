@@ -16,7 +16,7 @@
 This module contains the MethodPublisher, XMLRPCView, XMLRPCRequest and
 XMLRPCResponse
 
-$Id: xmlrpc.py,v 1.12 2004/05/06 10:12:13 philikon Exp $
+$Id$
 """
 import sys
 import xmlrpclib

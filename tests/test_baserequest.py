@@ -13,7 +13,7 @@
 ##############################################################################
 """baserequest tests
 
-$Id: test_baserequest.py,v 1.5 2004/03/20 16:27:20 srichter Exp $
+$Id$
 """
 
 from unittest import TestCase, main, makeSuite

@@ -16,7 +16,7 @@
 Specifically, 'BaseRequest', 'BaseResponse', and 'DefaultPublication' are
 specified here.
 
-$Id: base.py,v 1.19 2004/05/06 10:12:13 philikon Exp $
+$Id$
 """
 import traceback
 from cStringIO import StringIO

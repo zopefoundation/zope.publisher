@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-Revision information: $Id: xmlrpcviews.py,v 1.3 2003/06/03 14:32:07 ryzaja Exp $
+Revision information: $Id$
 """
 
 from zope.interface import Interface, implements

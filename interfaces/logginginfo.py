@@ -13,7 +13,7 @@
 ##############################################################################
 """An interface for LoggingInfo.
 
-$Id: logginginfo.py,v 1.1 2003/07/22 15:09:44 ryzaja Exp $
+$Id$
 """
 
 from zope.interface import Interface

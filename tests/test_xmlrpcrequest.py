@@ -13,7 +13,7 @@
 ##############################################################################
 """XML-RPC Request Tests
 
-$Id: test_xmlrpcrequest.py,v 1.9 2004/03/19 20:26:44 srichter Exp $
+$Id$
 """
 import unittest
 from StringIO import StringIO

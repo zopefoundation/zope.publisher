@@ -13,7 +13,7 @@
 ##############################################################################
 """Tests for BaseResponse
 
-$Id: test_baseresponse.py,v 1.1 2003/04/25 10:36:39 ryzaja Exp $
+$Id$
 """
 
 from unittest import TestCase, TestSuite, main, makeSuite

@@ -12,7 +12,7 @@
 #
 ##############################################################################
 """
-$Id: publication.py,v 1.4 2004/03/20 13:38:16 philikon Exp $
+$Id$
 """
 
 from zope.publisher.interfaces import IPublication

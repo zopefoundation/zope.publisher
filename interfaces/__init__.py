@@ -13,7 +13,7 @@
 ##############################################################################
 """Interfaces for the publisher.
 
-$Id: __init__.py,v 1.16 2004/03/20 13:38:16 philikon Exp $
+$Id$
 """
 
 from zope.interface import Interface

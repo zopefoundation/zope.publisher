@@ -13,7 +13,7 @@
 ##############################################################################
 """HTTP Publisher
 
-$Id: http.py,v 1.53 2004/05/06 10:12:13 philikon Exp $
+$Id$
 """
 import re, time, random
 from urllib import quote, unquote, splitport

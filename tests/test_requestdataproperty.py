@@ -14,7 +14,7 @@
 """
 
 Revision information:
-$Id: test_requestdataproperty.py,v 1.3 2003/04/11 12:55:41 ryzaja Exp $
+$Id$
 """
 
 from unittest import TestCase, main, makeSuite

@@ -15,7 +15,7 @@
 
 Provide an apply-like facility that works with any mapping object
 
-$Id: publish.py,v 1.13 2004/03/20 13:38:15 philikon Exp $
+$Id$
 """
 import sys
 from zope.publisher.interfaces import Retry

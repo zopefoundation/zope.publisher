@@ -13,7 +13,7 @@
 ##############################################################################
 """Browser Request Tests
 
-$Id: test_browserrequest.py,v 1.13 2004/04/12 13:51:40 hdima Exp $
+$Id$
 """
 import unittest
 

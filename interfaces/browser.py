@@ -13,7 +13,7 @@
 ##############################################################################
 """Browser Interfaces
 
-$Id: browser.py,v 1.9 2004/03/19 20:26:44 srichter Exp $
+$Id$
 """
 from zope.interface import Attribute
 

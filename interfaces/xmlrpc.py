@@ -13,7 +13,7 @@
 ##############################################################################
 """Interfaces for the XMLRPC publisher.
 
-$Id: xmlrpc.py,v 1.6 2004/03/19 20:26:44 srichter Exp $
+$Id$
 """
 from zope.publisher.interfaces import IPublication
 from zope.publisher.interfaces import IPublishTraverse

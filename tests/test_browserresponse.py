@@ -15,7 +15,7 @@
 
 XXX longer description goes here.
 
-$Id: test_browserresponse.py,v 1.4 2003/04/25 10:36:39 ryzaja Exp $
+$Id$
 """
 
 from unittest import TestCase, TestSuite, main, makeSuite

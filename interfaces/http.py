@@ -13,7 +13,7 @@
 ##############################################################################
 """HTTP-related publisher interfaces.
 
-$Id: http.py,v 1.21 2004/03/19 20:26:44 srichter Exp $
+$Id$
 """
 from zope.interface import Interface
 from zope.interface import Attribute

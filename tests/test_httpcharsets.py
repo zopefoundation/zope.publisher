@@ -13,7 +13,7 @@
 ##############################################################################
 """Retrieval of HTTP character set information.
 
-$Id: test_httpcharsets.py,v 1.3 2003/04/11 12:55:41 ryzaja Exp $
+$Id$
 """
 import unittest
 

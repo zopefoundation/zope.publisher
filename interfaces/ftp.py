@@ -13,7 +13,7 @@
 ##############################################################################
 """Virtual File System interfaces for the publisher.
 
-$Id: ftp.py,v 1.4 2004/03/19 20:26:44 srichter Exp $
+$Id$
 """
 from zope.interface import Interface
 

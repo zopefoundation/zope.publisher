@@ -18,7 +18,7 @@ big improvement of the 'BrowserRequest' to 'HTTPRequest' is that is can handle
 HTML form data and convert them into a Python-native format. Even file data is
 packaged into a nice, Python-friendly 'FileUpload' object.
 
-$Id: browser.py,v 1.31 2004/05/06 10:12:13 philikon Exp $
+$Id$
 """
 import re
 from types import ListType, TupleType, StringType, StringTypes

@@ -14,7 +14,7 @@
 """
 
 Revision information:
-$Id: basetestiapplicationrequest.py,v 1.3 2003/04/11 12:55:41 ryzaja Exp $
+$Id$
 """
 
 from zope.interface.verify import verifyObject
