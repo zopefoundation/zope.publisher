@@ -13,7 +13,7 @@
 ##############################################################################
 """HTTP-related publisher interfaces.
 
-$Id: http.py,v 1.19 2004/03/17 18:24:47 philikon Exp $
+$Id: http.py,v 1.20 2004/03/19 18:31:38 philikon Exp $
 """
 
 from zope.interface import Interface
@@ -22,6 +22,8 @@ from zope.interface import Attribute
 from zope.publisher.interfaces import IApplicationRequest
 from zope.publisher.interfaces import IApplicationResponse
 from zope.publisher.interfaces import IPublishTraverse
+from zope.publisher.interfaces import IRequest
+from zope.publisher.interfaces import IResponse
 
 from zope.component.interfaces import IPresentation
 from zope.component.interfaces import IResource
@@ -33,7 +35,7 @@ class IHTTPPresentation(IPresentation):
     """
 
 class IHTTPView(IHTTPPresentation, IView):
-    "HTTP View"
+    """HTTP View"""
 
 
 class IVirtualHostRequest(Interface):
@@ -202,9 +204,7 @@ class IHTTPPublisher(IPublishTraverse):
     """HTTP Publisher"""
 
 
-# XXX Should we extend IRequest?
-
-class IHTTPRequest(Interface):
+class IHTTPRequest(IRequest):
 
     method = Attribute("Request method, normalized to upper case")
 
@@ -240,7 +240,7 @@ class IHTTPApplicationResponse(IApplicationResponse):
         """
 
 
-class IHTTPResponse(Interface):
+class IHTTPResponse(IResponse):
     """An object representation of an HTTP response.
 
     The Response type encapsulates all possible responses to HTTP
