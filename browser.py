@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: browser.py,v 1.11 2003/04/07 11:27:01 stevea Exp $
+$Id: browser.py,v 1.12 2003/04/08 07:29:35 mgedmin Exp $
 """
 
 import re
@@ -218,7 +218,7 @@ class record:
     def __str__(self):
         L1 = self.__dict__.items()
         L1.sort()
-        return ", ".join(["%s: %s" for item in L1])
+        return ", ".join(["%s: %s" % item for item in L1])
 
     def __repr__(self):
         L1 = self.__dict__.items()

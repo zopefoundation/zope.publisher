@@ -220,6 +220,8 @@ class BrowserTests(HTTPTests, PlacelessSetup):
         self.assertEqual(request.form[u'b'], u'1')
         self.assertEqual(request.form[u'a'].keys(), [u'x'])
         self.assertEqual(request.form[u'a'][u'x'], [u'5',u'6'])
+        self.assertEqual(str(request.form[u'a']), "x: [u'5', u'6']")
+        self.assertEqual(repr(request.form[u'a']), "x: [u'5', u'6']")
 
     def testFormListTypes2(self):
         extra = {'QUERY_STRING':'a=5&a=6&b=1'}
