@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: browser.py,v 1.17 2003/04/25 10:36:38 ryzaja Exp $
+$Id: browser.py,v 1.18 2003/05/22 22:48:34 jim Exp $
 """
 
 import re
@@ -707,8 +707,12 @@ class RedirectingBrowserRequest(BrowserRequest):
     use_redirect = 1
 
 class TestRequest(BrowserRequest):
+    """Browser request with a constructor convenient for testing
+    """
 
-    def __init__(self, body_instream=None, outstream=None, environ=None, **kw):
+    def __init__(self,
+                 body_instream=None, outstream=None, environ=None, form=None,
+                 **kw):
 
         _testEnv =  {
             'SERVER_URL':         'http://127.0.0.1',
@@ -730,7 +734,8 @@ class TestRequest(BrowserRequest):
             outstream = StringIO()
 
         super(TestRequest, self).__init__(body_instream, outstream, _testEnv)
-
+        if form:
+            self.form.update(form)
 
 class BrowserResponse(HTTPResponse):
     """Browser response
