@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.5 2003/01/26 12:11:52 stevea Exp $
+$Id: http.py,v 1.6 2003/02/03 15:01:17 jim Exp $
 """
 
 import re, time, random, sys
@@ -540,6 +540,11 @@ class HTTPRequest(BaseRequest):
                     or self._app_server)
 
     URL = RequestDataProperty(URLGetter)
+
+    def __repr__(self):
+        # Returns a *short* string.
+        return '<%s instance at 0x%x, URL=%s>' % (
+            str(self.__class__), id(self), `self.URL`)
 
     def get(self, key, default=None):
         'See Interface.Common.Mapping.IReadMapping'
