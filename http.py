@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.30 2003/07/29 19:50:44 srichter Exp $
+$Id: http.py,v 1.31 2003/07/30 15:06:53 sidnei Exp $
 """
 
 import re, time, random
@@ -937,7 +937,6 @@ class HTTPResponse(BaseResponse):
             # Write directly to outstream.
             headers_text = self.getHeaderText(headers)
             self._outstream.write(encode(headers_text))
-
 
     def write(self, string):
         """See IApplicationResponse
