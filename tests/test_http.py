@@ -242,9 +242,18 @@ class HTTPTests(unittest.TestCase):
 
     def test_setVirtualHostRoot(self):
         req = self._createRequest()
+        self.assertEquals(req._vh_trunc, 0)
         req._traversed_names = ['x', 'y']
+        req._last_obj_traversed = object()
         req.setVirtualHostRoot()
         self.assertEquals(req._vh_trunc, 3)
+        self.assertEquals(req._vh_root, req._last_obj_traversed)
+
+    def test_getVirtualHostRoot(self):
+        req = self._createRequest()
+        self.assertEquals(req.getVirtualHostRoot(), None)
+        req._vh_root = object()
+        self.assertEquals(req.getVirtualHostRoot(), req._vh_root)
 
     def test_traverse(self):
         # setting _vh_trunc *before* traversal is a no-op
@@ -255,11 +264,13 @@ class HTTPTests(unittest.TestCase):
 
         # setting it during traversal matters
         req = self._createRequest()
-        def hook(self, object, req=req):
-            req._vh_trunc = 1
+        def hook(self, object, req=req, app=self.app):
+            if object is app:
+                req.setVirtualHostRoot()
         req.publication.callTraversalHooks = hook
         req.traverse(self.app)
         self.assertEquals(req._traversed_names, ['item'])
+        self.assertEquals(req._vh_root, self.app)
 
     def testInterface(self):
         from zope.publisher.interfaces.http import IHTTPCredentials

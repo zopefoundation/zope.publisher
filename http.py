@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.23 2003/04/25 10:36:38 ryzaja Exp $
+$Id: http.py,v 1.24 2003/04/28 13:14:21 mgedmin Exp $
 """
 
 import re, time, random
@@ -279,6 +279,7 @@ class HTTPRequest(BaseRequest):
         '_endswithslash', # Does the given path end with /
         'method',         # The upper-cased request method (REQUEST_METHOD)
         '_locale',        # The locale for the request
+        '_vh_root',       # Object at the root of the virtual host
         '_vh_trunc',      # The number of path elements to be removed
                           # from _traversed_names
         )
@@ -309,6 +310,7 @@ class HTTPRequest(BaseRequest):
         self.__setupPath()
         self.__setupURLBase()
         self._vh_trunc = 0
+        self._vh_root = None
 
         self.response.setCharsetUsingRequest(self)
         langs = BrowserLanguages(self).getPreferredLanguages()
@@ -439,6 +441,7 @@ class HTTPRequest(BaseRequest):
 
         if self._vh_trunc:
             del self._traversed_names[:self._vh_trunc]
+            self._vh_trunc = 0
 
         return ob
 
@@ -554,6 +557,10 @@ class HTTPRequest(BaseRequest):
 
     def setVirtualHostRoot(self):
         self._vh_trunc = len(self._traversed_names) + 1
+        self._vh_root = self._last_obj_traversed
+
+    def getVirtualHostRoot(self):
+        return self._vh_root
 
     URL = RequestDataProperty(URLGetter)
 

@@ -14,7 +14,7 @@
 """
 
 Revision information:
-$Id: test_baserequest.py,v 1.3 2003/04/11 12:55:41 ryzaja Exp $
+$Id: test_baserequest.py,v 1.4 2003/04/28 13:14:22 mgedmin Exp $
 """
 
 from unittest import TestCase, main, makeSuite
@@ -65,10 +65,13 @@ class TestBaseRequest(BaseTestIPublicationRequest,
 
         request.setTraversalStack([])
         self.assertEqual(request.traverse(app).name, '')
+        self.assertEqual(request._last_obj_traversed, app)
         request.setTraversalStack(['ZopeCorp'])
         self.assertEqual(request.traverse(app).name, 'ZopeCorp')
+        self.assertEqual(request._last_obj_traversed, app.ZopeCorp)
         request.setTraversalStack(['Engineering', 'ZopeCorp'])
         self.assertEqual(request.traverse(app).name, 'Engineering')
+        self.assertEqual(request._last_obj_traversed, app.ZopeCorp.Engineering)
 
     def test_IPublisherRequest_processInputs(self):
         self._Test__new().processInputs()

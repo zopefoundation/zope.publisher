@@ -13,7 +13,7 @@
 ##############################################################################
 '''Response Output formatter
 
-$Id: base.py,v 1.5 2003/04/25 10:36:38 ryzaja Exp $
+$Id: base.py,v 1.6 2003/04/28 13:14:21 mgedmin Exp $
 '''
 
 
@@ -165,6 +165,7 @@ class BaseRequest(object):
     __slots__ = (
         '_held',             # Objects held until the request is closed
         '_traversed_names',  # The names that have been traversed
+        '_last_obj_traversed', # Object that was traversed last
         '_traversal_stack',  # Names to be traversed, in reverse order
         '_environ',          # The request environment variables
         '_response',         # The response
@@ -181,6 +182,7 @@ class BaseRequest(object):
     def __init__(self, body_instream, outstream, environ, response=None,
                  positional=()):
         self._traversal_stack = []
+        self._last_obj_traversed = None
         self._traversed_names = []
         self._environ = environ
 
@@ -224,8 +226,11 @@ class BaseRequest(object):
         traversal_stack = self._traversal_stack
         traversed_names = self._traversed_names
 
+        self._last_obj_traversed = object
+
         prev_object = None
         while 1:
+
             if object is not prev_object:
                 # Invoke hooks (but not more than once).
                 publication.callTraversalHooks(self, object)
@@ -238,7 +243,7 @@ class BaseRequest(object):
                 subobject = publication.traverseName(
                     self, object, entry_name)
                 traversed_names.append(entry_name)
-                object = subobject
+                self._last_obj_traversed = object = subobject
             else:
                 # Finished traversal.
                 break

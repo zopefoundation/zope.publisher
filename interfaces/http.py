@@ -13,7 +13,7 @@
 ##############################################################################
 """HTTP-related publisher interfaces.
 
-$Id: http.py,v 1.14 2003/04/15 09:37:28 alga Exp $
+$Id: http.py,v 1.15 2003/04/28 13:14:21 mgedmin Exp $
 """
 
 from zope.interface import Interface
@@ -59,6 +59,11 @@ class IVirtualHostRequest(Interface):
         virtual host.
 
         Should be called during traversal."""
+
+    def getVirtualHostRoot():
+        """Returns the object which is the virtual host root for this request,
+        or None if setVirtualHostRoot hasn't been called.
+        """
 
     def setApplicationNames(names):
         """Set the names which compose the application path.
