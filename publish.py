@@ -15,7 +15,7 @@
 
 Provide an apply-like facility that works with any mapping object
 
-$Id: publish.py,v 1.6 2003/02/11 16:00:08 sidnei Exp $
+$Id: publish.py,v 1.7 2003/03/13 18:35:14 stevea Exp $
 """
 
 import os
@@ -113,7 +113,7 @@ def mapply(object, positional=(), request={}):
 
     if __debug__:
         return debug_call(object, args)
-    
+
     return object(*args)
 
 def debug_call(object, args):
