@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.20 2003/04/11 12:55:41 ryzaja Exp $
+$Id: http.py,v 1.21 2003/04/15 09:37:28 alga Exp $
 """
 
 import re, time, random
@@ -273,14 +273,14 @@ class HTTPRequest(BaseRequest):
         '_cookies',       # The request cookies
         '_path_suffix',   # Extra traversal steps after normal traversal
         '_retry_count',   # How many times the request has been retried
-        '_app_url',       # The application URL
         '_app_names',     # The application path as a sequence
-        '_app_base',      # The application URL without the last name
         '_app_server',    # The server path of the application url
         '_orig_env',      # The original environment
         '_endswithslash', # Does the given path end with /
         'method',         # The upper-cased request method (REQUEST_METHOD)
         '_locale',        # The locale for the request
+        '_vh_trunc',      # The number of path elements to be removed
+                          # from _traversed_names
         )
 
     retry_max_count = 3    # How many times we're willing to retry
@@ -308,6 +308,7 @@ class HTTPRequest(BaseRequest):
         self.__setupCookies()
         self.__setupPath()
         self.__setupURLBase()
+        self._vh_trunc = 0
 
         self.response.setCharsetUsingRequest(self)
         langs = BrowserLanguages(self).getPreferredLanguages()
@@ -347,21 +348,6 @@ class HTTPRequest(BaseRequest):
         # _script and the other _names are meant for URL construction
         self._app_names = app_names = filter(None, script.split('/'))
 
-        # Remove trailing /'s
-        while base and base.endswith('/'):
-            base = base[:-1]
-
-        # strip off last element of the URL
-        p = base.rfind('/')
-        if p >= 0:
-            base = base[:p+1]
-        else:
-            base = ''
-
-        # strip off leading /'s
-        while base and base.startswith('/'):
-            base = base[1:]
-
         # get server URL and store it too, since we are already looking it up
         server_url = get_env('SERVER_URL', None)
         if server_url is not None:
@@ -372,25 +358,12 @@ class HTTPRequest(BaseRequest):
         if server_url.endswith('/'):
             server_url = server_url[:-1]
 
-        # put the complete base URL together
-        if base:
-            self._app_base = "%s/%s" % (server_url, base)
-        else:
-            self._app_base = server_url
 
         # strip off leading /'s of script
         while script.startswith('/'):
             script = script[1:]
 
         self._app_server = server_url
-
-        # put the script URL together
-        if script:
-            script = "%s/%s" % (server_url,script)
-        else:
-            script = server_url
-
-        self._app_url = script
 
     def __deduceServerURL(self):
         environ = self._environ
@@ -465,10 +438,14 @@ class HTTPRequest(BaseRequest):
     def traverse(self, object):
         'See IPublisherRequest'
 
+        self._vh_trunc = 0
         ob = super(HTTPRequest, self).traverse(object)
         if self._path_suffix:
             self._traversal_stack = self._path_suffix
             ob = super(HTTPRequest, self).traverse(ob)
+
+        if self._vh_trunc:
+            del self._traversed_names[:self._vh_trunc]
 
         return ob
 
@@ -557,6 +534,7 @@ class HTTPRequest(BaseRequest):
             return "%s/%s" % (self._app_server, '/'.join(names))
 
     def getApplicationURL(self, depth=0, path_only=False):
+        """See IHTTPApplicationRequest"""
         if depth:
             names = self._traversed_names
             if depth > len(names):
@@ -572,6 +550,17 @@ class HTTPRequest(BaseRequest):
         else:
             return (names and ("%s/%s" % (self._app_server, '/'.join(names)))
                     or self._app_server)
+
+    def setApplicationServer(self, host, proto='http', port=None):
+        if port:
+            host = '%s:%s' % (host, port)
+        self._app_server = '%s://%s' % (proto, host)
+
+    def setApplicationNames(self, names):
+        self._app_names = list(names)
+
+    def setVirtualHostRoot(self):
+        self._vh_trunc = len(self._traversed_names) + 1
 
     URL = RequestDataProperty(URLGetter)
 

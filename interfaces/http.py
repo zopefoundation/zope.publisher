@@ -13,7 +13,7 @@
 ##############################################################################
 """HTTP-related publisher interfaces.
 
-$Id: http.py,v 1.13 2003/03/29 17:00:46 sidnei Exp $
+$Id: http.py,v 1.14 2003/04/15 09:37:28 alga Exp $
 """
 
 from zope.interface import Interface
@@ -46,8 +46,35 @@ class IHTTPView(IHTTPPresentation, IView):
     "HTTP View"
 
 
+class IVirtualHostRequest(Interface):
+    """The support for virtual hosts in Zope is very important.
 
-class IHTTPApplicationRequest(IApplicationRequest):
+    In order to make virtual hosts working, we need to support several
+    methods in our Request object. This interface defines the required
+    methods.
+    """
+
+    def setVirtualHostRoot():
+        """Marks the currently traversed object as the root of a
+        virtual host.
+
+        Should be called during traversal."""
+
+    def setApplicationNames(names):
+        """Set the names which compose the application path.
+
+        These are the path elements that appear in the beginning of
+        the generated URLs."""
+
+    def setApplicationServer(host, proto='http', port=None):
+        """Override the host, protocol and port parts of generated URLs.
+
+        This affects automatically inserted <base> tags and URL getters
+        in the request, but not things like @@absolute_url views.
+        """
+
+
+class IHTTPApplicationRequest(IApplicationRequest, IVirtualHostRequest):
     """HTTP request data.
 
     This object provides access to request data.  This includes, the

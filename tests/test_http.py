@@ -213,8 +213,52 @@ class HTTPTests(unittest.TestCase):
         r = self._createRequest(extra_env={'REQUEST_METHOD':'eggs'})
         self.assertEqual(r.method, 'EGGS')
 
+    def test_setApplicationServer(self):
+        req = self._createRequest()
+        req.setApplicationServer('foo')
+        self.assertEquals(req._app_server, 'http://foo')
+        req.setApplicationServer('foo', proto='https')
+        self.assertEquals(req._app_server, 'https://foo')
+        req.setApplicationServer('foo', proto='https', port=8080)
+        self.assertEquals(req._app_server, 'https://foo:8080')
+
+    def test_setApplicationNames(self):
+        req = self._createRequest()
+        names = ['x', 'y', 'z']
+        req.setApplicationNames(names)
+        self.assertEquals(req._app_names, ['x', 'y', 'z'])
+        names[0] = 'muahahahaha'
+        self.assertEquals(req._app_names, ['x', 'y', 'z'])
+
+    def test_setVirtualHostRoot(self):
+        req = self._createRequest()
+        req._traversed_names = ['x', 'y']
+        req.setVirtualHostRoot()
+        self.assertEquals(req._vh_trunc, 3)
+
+    def test_traverse(self):
+        # setting _vh_trunc *before* traversal is a no-op
+        req = self._createRequest()
+        req._vh_trunc = 1
+        req.traverse(self.app)
+        self.assertEquals(req._traversed_names, ['folder', 'item'])
+
+        # setting it during traversal matters
+        req = self._createRequest()
+        def hook(self, object, req=req):
+            req._vh_trunc = 1
+        req.publication.callTraversalHooks = hook
+        req.traverse(self.app)
+        self.assertEquals(req._traversed_names, ['item'])
+
     def testInterface(self):
-        verifyObject(IHTTPRequest, self._createRequest())
+        from zope.publisher.interfaces.http import IHTTPCredentials
+        from zope.publisher.interfaces.http import IHTTPApplicationRequest
+        rq = self._createRequest()
+        verifyObject(IHTTPRequest, rq)
+        verifyObject(IHTTPCredentials, rq)
+        verifyObject(IHTTPApplicationRequest, rq)
+
 
 def test_suite():
     loader = unittest.TestLoader()

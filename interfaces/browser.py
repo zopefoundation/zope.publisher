@@ -14,7 +14,7 @@
 """
 
 Revision information:
-$Id: browser.py,v 1.3 2003/04/11 10:08:09 ryzaja Exp $
+$Id: browser.py,v 1.4 2003/04/15 09:37:28 alga Exp $
 """
 
 from zope.interface import Interface
@@ -91,41 +91,6 @@ class IBrowserPublication(IPublication):
 
         Allows a default view to be added to traversal.
         Returns (ob, steps_reversed).
-        """
-
-
-class IVirtualHostRequest(Interface):
-    """The support for virtual hosts in Zope is very important.
-
-    In order to make virtual hosts working, we need to support several
-    methods in our Request object. This interface defines the required
-    methods.
-    """
-
-    def setVirtualRoot(path, hard=0):
-        """Treat the current publishing object as a VirtualRoot.
-        """
-
-
-    def convertPhysicalPathToVirtualPath(path):
-        """Remove the path to the VirtualRoot from a physical path.
-        """
-
-
-    def convertPhysicalPathToURL(path, relative=0):
-        """Convert a physical path into a URL in the current context.
-        """
-
-
-    def getPhysicalPathFromURL(URL):
-        """Convert a URL into a physical path in the current context.
-
-        If the URL makes no sense in light of the current virtual
-        hosting context, a ValueError is raised.
-        """
-
-    def getEffectiveURL():
-        """Return the effective URL.
         """
 
 
