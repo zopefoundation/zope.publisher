@@ -13,12 +13,12 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.34 2003/08/08 18:08:07 jim Exp $
+$Id: http.py,v 1.35 2003/08/17 06:09:14 philikon Exp $
 """
 
 import re, time, random
 from urllib import quote, splitport
-from types import StringTypes, UnicodeType, ClassType
+from types import StringTypes, ClassType
 from cgi import escape
 
 from zope.interface import implements

@@ -15,7 +15,7 @@ import unittest
 
 from zope.app.services.tests.placefulsetup import PlacefulSetup
 from zope.app.interfaces.security import IPrincipal
-from zope.interface import Interface, implements
+from zope.interface import implements
 from zope.component.adapter import provideAdapter
 from zope.publisher.interfaces.logginginfo import ILoggingInfo
 from zope.publisher.http import HTTPRequest

@@ -13,7 +13,7 @@
 ##############################################################################
 '''Response Output formatter
 
-$Id: base.py,v 1.10 2003/08/08 18:08:01 jim Exp $
+$Id: base.py,v 1.11 2003/08/17 06:09:14 philikon Exp $
 '''
 
 
@@ -28,7 +28,6 @@ from zope.publisher.interfaces import IPublication
 from zope.publisher.interfaces import NotFound, DebugError, Unauthorized
 from zope.publisher.interfaces import IRequest, IResponse
 from zope.publisher.publish import mapply
-from zope.server.interfaces import IHeaderOutput
 
 _marker = object()
 
