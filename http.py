@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.14 2003/03/25 14:32:20 bwarsaw Exp $
+$Id: http.py,v 1.15 2003/03/25 15:13:11 bwarsaw Exp $
 """
 
 import re, time, random
@@ -333,8 +333,9 @@ class HTTPRequest(BaseRequest):
             # which is guaranteed to exist
             self._locale = locales.getLocale(None, None, None)
 
-    def getLocale(self):
+    def _getLocale(self):
         return self._locale
+    locale = property(_getLocale)
 
     def __setupURLBase(self):
 
