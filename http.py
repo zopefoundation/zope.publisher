@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.42 2004/03/18 20:03:55 srichter Exp $
+$Id: http.py,v 1.43 2004/03/19 04:26:28 srichter Exp $
 """
 
 import re, time, random
@@ -405,11 +405,10 @@ class HTTPRequest(BaseRequest):
         # encoding for unsafe octets is recommended.
         #
         # See: http://www.ietf.org/rfc/rfc2718.txt, Section 2.2.5
-        path = self.get("PATH_INFO", "/")
-        path = unquote(path)
-        path = path.decode('UTF-8')
-        self._environ["PATH_INFO"] = path
         self._setupPath_helper("PATH_INFO")
+        stack = self.getTraversalStack()
+        stack = [unquote(seg).decode('utf-8') for seg in stack]
+        self.setTraversalStack(stack)
 
     def supportsRetry(self):
         'See IPublisherRequest'
