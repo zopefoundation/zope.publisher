@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.25 2003/06/03 14:32:06 ryzaja Exp $
+$Id: http.py,v 1.26 2003/06/09 16:39:14 alga Exp $
 """
 
 import re, time, random
@@ -505,6 +505,22 @@ class HTTPRequest(BaseRequest):
         'See IHTTPCredentials'
         self._response.setHeader("WWW-Authenticate", challenge, True)
         self._response.setStatus(401)
+
+    def setUser(self, user):
+        'See IPublicationRequest'
+        super(HTTPRequest, self).setUser(user)
+
+        # XXX: under the publishing conditions,
+        # self.response._outstream is an HTTPTask.  It needs to know
+        # the username for logging purposes.  It would make sense to
+        # do this in the server, when the actual hit log entry is
+        # written, but it would require a major refactoring.
+        #
+        # When removing this wart after the server refactoring, grep
+        # the source for setAuthUserName, we had to stub that in
+        # several tests.
+
+        self.response._outstream.setAuthUserName(user.getId())
 
     #
     ############################################################

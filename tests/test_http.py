@@ -25,6 +25,11 @@ from zope.interface.verify import verifyObject
 
 from StringIO import StringIO
 
+class UserStub:
+    def __init__(self, id):
+        self._id = id
+    def getId(self):
+        return self._id
 
 class HTTPTests(unittest.TestCase):
 
@@ -197,6 +202,15 @@ class HTTPTests(unittest.TestCase):
         req = self._createRequest(env)
         lpw = req._authUserPW()
         self.assertEquals(lpw, (login, password))
+
+    def testSetUser(self):
+        class HTTPTaskStub:
+            def setAuthUserName(self, name):
+                self.auth_user_name = name
+        task = HTTPTaskStub()
+        req = self._createRequest(outstream=task)
+        req.setUser(UserStub("jim"))
+        self.assertEquals(req.response._outstream.auth_user_name, "jim")
 
     def testIPresentationRequest(self):
         # test the IView request

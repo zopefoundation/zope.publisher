@@ -13,7 +13,7 @@
 ##############################################################################
 '''Response Output formatter
 
-$Id: base.py,v 1.8 2003/06/03 14:32:06 ryzaja Exp $
+$Id: base.py,v 1.9 2003/06/09 16:39:14 alga Exp $
 '''
 
 
@@ -28,6 +28,7 @@ from zope.publisher.interfaces import IPublication
 from zope.publisher.interfaces import NotFound, DebugError, Unauthorized
 from zope.publisher.interfaces import IRequest, IResponse
 from zope.publisher.publish import mapply
+from zope.server.interfaces import IHeaderOutput
 
 _marker = object()
 
@@ -177,7 +178,7 @@ class BaseRequest(object):
         '_body',             # The request body as a string
         '_publication',      # publication object
         '_presentation_skin', # View skin
-        'user'               # request user, set by publication
+        '_user'               # request user, set by publication
         )
 
     environment = RequestDataProperty(RequestEnvironment)
@@ -196,7 +197,12 @@ class BaseRequest(object):
             self._response = response
         self._body_instream = body_instream
         self._held = ()
-        self.user = None
+        self._user = None
+
+    def setUser(self, user):
+        self._user = user
+
+    user = property(lambda self: self._user)
 
     def _getPublication(self):
         'See IPublisherRequest'

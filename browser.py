@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: browser.py,v 1.19 2003/06/03 14:32:06 ryzaja Exp $
+$Id: browser.py,v 1.20 2003/06/09 16:39:14 alga Exp $
 """
 
 import re
@@ -30,6 +30,7 @@ from zope.publisher.interfaces.browser import IBrowserApplicationRequest
 from zope.publisher.interfaces.browser import IBrowserView
 from zope.component import getAdapter
 from zope.publisher.http import HTTPRequest, HTTPResponse
+from zope.publisher.base import BaseRequest
 
 __metaclass__ = type # All classes are new style when run with Python 2.2+
 
@@ -734,6 +735,11 @@ class TestRequest(BrowserRequest):
         super(TestRequest, self).__init__(body_instream, outstream, _testEnv)
         if form:
             self.form.update(form)
+
+    def setUser(self, user):
+        # HTTPRequest needs to notify the HTTPTask of the username.
+        # We don't want to have to stub HTTPTask in the tests.
+        BaseRequest.setUser(self, user)
 
 class BrowserResponse(HTTPResponse):
     """Browser response

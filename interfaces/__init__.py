@@ -13,7 +13,7 @@
 ##############################################################################
 """Interfaces for the publisher.
 
-$Id: __init__.py,v 1.12 2003/06/03 14:32:06 ryzaja Exp $
+$Id: __init__.py,v 1.13 2003/06/09 16:39:15 alga Exp $
 """
 
 from zope.interface import Interface
@@ -287,10 +287,10 @@ class IPublicationRequest(IPresentationRequest):
     user = Attribute("""User object associated with the request
 
                         It is up to the publication object to set this
-                        attribute.
+                        attribute by calling the setUser method.
                         """)
 
-    response = Attribute("""the request's response object
+    response = Attribute("""The request's response object
 
         Return an IPublisherResponse for the request.
         """)
@@ -324,6 +324,12 @@ class IPublicationRequest(IPresentationRequest):
         """Set the skin to be used for the request.
 
         It's up to the publication object to decide this.
+        """
+
+    def setUser(user):
+        """Set the user attribute.
+
+        It should be IPrincipal wrapped in it's AuthenticationService's context.
         """
 
 
