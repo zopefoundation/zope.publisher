@@ -14,7 +14,7 @@
 ##############################################################################
 """HTTP Publisher Tests
 
-$Id: test_http.py,v 1.30 2004/03/29 09:53:22 hdima Exp $
+$Id: test_http.py,v 1.31 2004/03/30 09:16:20 hdima Exp $
 """
 import unittest
 
@@ -144,6 +144,11 @@ class HTTPTests(unittest.TestCase):
         self.assertEquals(req.URL['1'], 'http://foobar.com/folder')
         self.assertEquals(req.URL['2'], 'http://foobar.com/folder/item')
         self.assertRaises(KeyError, req.URL.__getitem__, '3')
+
+        self.assertEquals(req.URL.get('0'), 'http://foobar.com')
+        self.assertEquals(req.URL.get('1'), 'http://foobar.com/folder')
+        self.assertEquals(req.URL.get('2'), 'http://foobar.com/folder/item')
+        self.assertEquals(req.URL.get('3', 'none'), 'none')
 
         self.assertEquals(req['SERVER_URL'], 'http://foobar.com')
         self.assertEquals(req['HTTP_HOST'], 'foobar.com')

@@ -13,7 +13,7 @@
 ##############################################################################
 """HTTP Publisher
 
-$Id: http.py,v 1.47 2004/03/29 14:23:36 hdima Exp $
+$Id: http.py,v 1.48 2004/03/30 09:16:17 hdima Exp $
 """
 
 import re, time, random
@@ -144,6 +144,12 @@ class URLGetter(object):
         return self.__request.getURL()
 
     def __getitem__(self, name):
+        url = self.get(name, None)
+        if url is None:
+            raise KeyError, name
+        return url
+
+    def get(self, name, default=None):
         i = int(name)
         try:
             if i < 0:
@@ -153,18 +159,6 @@ class URLGetter(object):
                 return self.__request.getApplicationURL(i)
         except IndexError, v:
             if v[0] == i:
-                raise KeyError, name
-            raise
-
-    def get(self, name, default=None):
-        i = int(name)
-        try:
-            if i < 0:
-                return self.__request.getURL(-i)
-            else:
-                return self.__request.getApplicationURL(i)
-        except IndexError, v:
-            if v == i:
                 return default
             raise
 
@@ -884,7 +878,7 @@ class HTTPResponse(BaseResponse):
         lst = ['Status: %s %s' % (self._status, self._reason)]
         items = m.items()
         items.sort()
-        lst.extend(map(lambda x: '%s: %s' % x, items))
+        lst.extend(['%s: %s' % i for i in items])
         lst.extend(self._cookie_list())
         lst.extend(self._accumulated_headers)
         return ('%s\r\n\r\n' % '\r\n'.join(lst))
@@ -900,11 +894,8 @@ class HTTPResponse(BaseResponse):
         encode = self._encode
         headers = self.getHeaders()
         # Clean these headers from unicode by possibly encoding them
-        items = headers.items()
-        items = map(lambda i: (encode(i[0]), encode(i[1])), items)
-        headers = {}
-        for key, value in items:
-            headers[key] = value
+        headers = dict([(encode(key), encode(val))
+                        for key, val in headers.iteritems()])
         # Cleaning done.
         header_output = self._header_output
         if header_output is not None:
