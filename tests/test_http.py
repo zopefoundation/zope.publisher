@@ -18,6 +18,7 @@ from zope.publisher.http import HTTPResponse
 
 from zope.publisher.publish import publish
 from zope.publisher.base import DefaultPublication
+from zope.publisher.interfaces.http import IHTTPPresentation
 
 from zope.interface.verify import verifyObject
 from zope.interface.implements import instancesOfObjectImplements
@@ -145,11 +146,17 @@ class HTTPTests(unittest.TestCase):
         # test the IView request
         r = self._createRequest()
 
-        self.failUnless( r.getPresentationType() is None)
-        self.assertEqual( r.getPresentationSkin(), '')
+        self.assertEquals(r.getPresentationType(), IHTTPPresentation)
+        self.assertEqual(r.getPresentationSkin(), '')
         r.setViewSkin( 'morefoo' )
         self.assertEqual( r.getPresentationSkin(), 'morefoo')
 
+    def test_method(self):
+        r = self._createRequest(extra_env={'REQUEST_METHOD':'SPAM'})
+        self.assertEqual(r.method, 'SPAM')
+        r = self._createRequest(extra_env={'REQUEST_METHOD':'eggs'})
+        self.assertEqual(r.method, 'EGGS')
+        
 
 def test_suite():
     loader = unittest.TestLoader()

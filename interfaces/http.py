@@ -13,7 +13,7 @@
 ##############################################################################
 """HTTP-related publisher interfaces.
 
-$Id: http.py,v 1.2 2002/12/25 14:15:18 jim Exp $
+$Id: http.py,v 1.3 2003/02/07 15:40:31 jim Exp $
 """
 
 from zope.interface import Interface
@@ -21,6 +21,30 @@ from zope.interface import Attribute
 
 from zope.publisher.interfaces import IApplicationRequest
 from zope.publisher.interfaces import IApplicationResponse
+
+from zope.component.interfaces import IPresentation
+from zope.component.interfaces import IResource
+from zope.component.interfaces import IView
+
+
+class IHTTPPresentation(IPresentation):
+    """HTTP presentations are for interaction with user's using Web HTTPs
+    """
+
+class IHTTPResource(IHTTPPresentation, IResource):
+    """HTTP View
+    """
+
+    def __call__():
+        """Return a URL for getting the resource
+
+        This URL should not be context dependent. Typically, the URL
+        will be based on the service that defined the resource.
+        """
+
+class IHTTPView(IHTTPPresentation, IView):
+    "HTTP View"
+
 
 
 class IHTTPApplicationRequest(IApplicationRequest):
@@ -152,6 +176,8 @@ class IHTTPPublisher(Interface):
 # XXX Should we extend IRequest?
 
 class IHTTPRequest(Interface):
+
+    method = Attribute("Request method, normalized to upper case")
 
     def setPathSuffix(steps):
         """Add additional traversal steps to be taken after all other traversal
