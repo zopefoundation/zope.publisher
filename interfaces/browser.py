@@ -15,12 +15,14 @@
 
 $Id$
 """
-from zope.interface import Attribute
+from zope.interface import Interface, Attribute
+from zope.interface.interfaces import IInterface
 
 from zope.publisher.interfaces import IPublication
 from zope.publisher.interfaces import IPublishTraverse
 from zope.publisher.interfaces.http import IHTTPApplicationRequest
 from zope.publisher.interfaces.http import IHTTPRequest
+
 
 class IBrowserApplicationRequest(IHTTPApplicationRequest):
     """Browser-specific requests
@@ -100,3 +102,19 @@ class IBrowserPublisher(IPublishTraverse):
         nonempty sequence of names), then the publisher will try to adjust
         the base href.
         """
+
+
+class ILayer(IInterface):
+    """A layer contains views of similar layout."""
+
+
+class ISkin(IInterface):
+    """A skin is a set of layers."""
+
+
+class IDefaultSkin(Interface):
+    """Any component providing this interface must be a skin.
+
+    This is a marker interface, so that we can register the default skin as an
+    adapter from the presentation type to `IDefaultSkin`.
+    """
