@@ -18,7 +18,7 @@ big improvement of the 'BrowserRequest' to 'HTTPRequest' is that is can handle
 HTML form data and convert them into a Python-native format. Even file data is
 packaged into a nice, Python-friendly 'FileUpload' object.
 
-$Id: browser.py,v 1.29 2004/04/08 08:31:30 hdima Exp $
+$Id: browser.py,v 1.30 2004/04/12 13:51:39 hdima Exp $
 """
 import re
 from types import ListType, TupleType, StringType, StringTypes
@@ -40,7 +40,7 @@ __ArrayTypes = (ListType, TupleType)
 start_of_header_search=re.compile('(<head[^>]*>)', re.I).search
 base_re_search=re.compile('(<base.*?>)',re.I).search
 isRelative = re.compile("[-_.!~*a-zA-z0-9'()@&=+$,]+(/|$)").match
-newline_search = re.compile('\r\n|\n\r').search
+newlines = re.compile('\r\n|\n\r|\r')
 
 
 def is_text_html(content_type):
@@ -57,94 +57,69 @@ DEFAULTABLE_METHODS = 'GET', 'POST', 'HEAD'
 
 
 def field2string(v):
-    if hasattr(v,'read'): v=v.read()
-    else: v=str(v)
-    return v
+    if hasattr(v, 'read'):
+        return v.read()
+    return str(v)
 
-def field2text(v, nl=newline_search):
-    if hasattr(v,'read'): v=v.read()
-    else: v=str(v)
-    mo = nl(v)
-    if mo is None: return v
-    l = mo.start(0)
-    r=[]
-    s=0
-    while l >= s:
-        r.append(v[s:l])
-        s=l+2
-        mo=nl(v,s)
-        if mo is None: l=-1
-        else:          l=mo.start(0)
-
-    r.append(v[s:])
-
-    return '\n'.join(r)
+def field2text(v, nl=newlines):
+    return nl.sub("\n", field2string(v))
 
 def field2required(v):
-    if hasattr(v,'read'): v=v.read()
-    else: v=str(v)
-    if v.strip(): return v
-    raise ValueError, 'No input for required field<p>'
+    v = field2string(v)
+    if not v.strip():
+        raise ValueError, 'No input for required field<p>'
+    return v
 
 def field2int(v):
     if isinstance(v, __ArrayTypes):
         return map(field2int, v)
-    if hasattr(v,'read'): v=v.read()
-    else: v=str(v)
-    if v:
-        try: return int(v)
-        except ValueError:
-            raise ValueError, (
-                "An integer was expected in the value '%s'" % v
-                )
-    raise ValueError, 'Empty entry when <strong>integer</strong> expected'
+    v = field2string(v)
+    if not v:
+        raise ValueError, 'Empty entry when <strong>integer</strong> expected'
+    try:
+        return int(v)
+    except ValueError:
+        raise ValueError, "An integer was expected in the value '%s'" % v
 
 def field2float(v):
     if isinstance(v, __ArrayTypes):
         return map(field2float, v)
-    if hasattr(v,'read'): v=v.read()
-    else: v=str(v)
-    if v:
-        try: return float(v)
-        except ValueError:
-            raise ValueError, (
+    v = field2string(v)
+    if not v:
+        raise ValueError, (
+            'Empty entry when <strong>floating-point number</strong> expected')
+    try:
+        return float(v)
+    except ValueError:
+        raise ValueError, (
                 "A floating-point number was expected in the value '%s'" % v
-                )
-    raise ValueError, (
-        'Empty entry when <strong>floating-point number</strong> expected')
+            )
 
 def field2long(v):
     if isinstance(v, __ArrayTypes):
         return map(field2long, v)
-    if hasattr(v,'read'): v=v.read()
-    else: v=str(v)
+    v = field2string(v)
 
     # handle trailing 'L' if present.
-    if v.lower().endswith('l'):
+    if v and v[-1].upper() == 'L':
         v = v[:-1]
-    if v:
-        try: return long(v)
-        except ValueError:
-            raise ValueError, (
-                "A long integer was expected in the value '%s'" % v
-                )
-    raise ValueError, 'Empty entry when <strong>integer</strong> expected'
+    if not v:
+        raise ValueError, 'Empty entry when <strong>integer</strong> expected'
+    try:
+        return long(v)
+    except ValueError:
+        raise ValueError, "A long integer was expected in the value '%s'" % v
 
 def field2tokens(v):
-    if hasattr(v,'read'): v=v.read()
-    else: v=str(v)
-    return v.split()
+    return field2string(v).split()
 
 def field2lines(v):
     if isinstance(v, __ArrayTypes):
-        result=[]
-        for item in v:
-            result.append(str(item))
-        return result
-    return field2text(v).split('\n')
+        return [str(item) for item in v]
+    return field2text(v).splitlines()
 
 def field2boolean(v):
-    return v
+    return bool(v)
 
 type_converters = {
     'float':    field2float,
@@ -155,10 +130,10 @@ type_converters = {
     'tokens':   field2tokens,
     'lines':    field2lines,
     'text':     field2text,
-    'boolean':     field2boolean,
+    'boolean':  field2boolean,
     }
 
-get_converter=type_converters.get
+get_converter = type_converters.get
 
 def registerTypeConverter(field_type, converter, replace=False):
     """Add a custom type converter to the registry.

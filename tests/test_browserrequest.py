@@ -13,7 +13,7 @@
 ##############################################################################
 """Browser Request Tests
 
-$Id: test_browserrequest.py,v 1.12 2004/04/08 08:31:31 hdima Exp $
+$Id: test_browserrequest.py,v 1.13 2004/04/12 13:51:40 hdima Exp $
 """
 import unittest
 
@@ -263,7 +263,86 @@ class BrowserTests(HTTPTests):
         extra = {'QUERY_STRING':'a=5&a=6&b=1'}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {'a':[u'5',u'6'], 'b':u'1'})
+        self.assertEqual(request.form, {u'a':[u'5',u'6'], u'b':u'1'})
+
+    def testFormIntTypes(self):
+        extra = {'QUERY_STRING':'a:int=5&b:int=-5&c:int=0&d:int=-0'}
+        request = self._createRequest(extra)
+        publish(request)
+        self.assertEqual(request.form, {u'a': 5, u'b': -5, u'c': 0, u'd': 0})
+
+        extra = {'QUERY_STRING':'a:int='}
+        request = self._createRequest(extra)
+        self.assertRaises(ValueError, publish, request)
+
+        extra = {'QUERY_STRING':'a:int=abc'}
+        request = self._createRequest(extra)
+        self.assertRaises(ValueError, publish, request)
+
+    def testFormFloatTypes(self):
+        extra = {'QUERY_STRING':'a:float=5&b:float=-5.01&c:float=0'}
+        request = self._createRequest(extra)
+        publish(request)
+        self.assertEqual(request.form, {u'a': 5.0, u'b': -5.01, u'c': 0.0})
+
+        extra = {'QUERY_STRING':'a:float='}
+        request = self._createRequest(extra)
+        self.assertRaises(ValueError, publish, request)
+
+        extra = {'QUERY_STRING':'a:float=abc'}
+        request = self._createRequest(extra)
+        self.assertRaises(ValueError, publish, request)
+
+    def testFormLongTypes(self):
+        extra = {'QUERY_STRING':'a:long=99999999999999&b:long=0L'}
+        request = self._createRequest(extra)
+        publish(request)
+        self.assertEqual(request.form, {u'a': 99999999999999, u'b': 0})
+
+        extra = {'QUERY_STRING':'a:long='}
+        request = self._createRequest(extra)
+        self.assertRaises(ValueError, publish, request)
+
+        extra = {'QUERY_STRING':'a:long=abc'}
+        request = self._createRequest(extra)
+        self.assertRaises(ValueError, publish, request)
+
+    def testFormTokensTypes(self):
+        extra = {'QUERY_STRING':'a:tokens=a%20b%20c%20d&b:tokens='}
+        request = self._createRequest(extra)
+        publish(request)
+        self.assertEqual(request.form, {u'a': [u'a', u'b', u'c', u'd'],
+                         u'b': []})
+
+    def testFormStringTypes(self):
+        extra = {'QUERY_STRING':'a:string=test&b:string='}
+        request = self._createRequest(extra)
+        publish(request)
+        self.assertEqual(request.form, {u'a': u'test', u'b': u''})
+
+    def testFormLinesTypes(self):
+        extra = {'QUERY_STRING':'a:lines=a%0ab%0ac%0ad&b:lines='}
+        request = self._createRequest(extra)
+        publish(request)
+        self.assertEqual(request.form, {u'a': [u'a', u'b', u'c', u'd'],
+                         u'b': []})
+
+    def testFormTextTypes(self):
+        extra = {'QUERY_STRING':'a:text=a%0a%0db%0d%0ac%0dd%0ae&b:text='}
+        request = self._createRequest(extra)
+        publish(request)
+        self.assertEqual(request.form, {u'a': u'a\nb\nc\nd\ne', u'b': u''})
+
+    def testFormRequiredTypes(self):
+        extra = {'QUERY_STRING':'a:required=%20'}
+        request = self._createRequest(extra)
+        self.assertRaises(ValueError, publish, request)
+
+    def testFormBooleanTypes(self):
+        extra = {'QUERY_STRING':'a:boolean=&b:boolean=1&c:boolean=%20'}
+        request = self._createRequest(extra)
+        publish(request)
+        self.assertEqual(request.form, {u'a': False, u'b': True, u'c': True})
 
     def testFormDefaults(self):
         extra = {'QUERY_STRING':'a:default=10&a=6&b=1'}
