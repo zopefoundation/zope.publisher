@@ -853,7 +853,8 @@ class HTTPResponse(BaseResponse):
                     cookie = '%s; Secure' % cookie
             cookie_list.append(cookie)
 
-        # XXX: Should really check size of cookies here!
+        # TODO: Should really check size of cookies here!
+        # Why?
 
         return cookie_list
 

@@ -305,7 +305,7 @@ class BaseRequest(object):
         if body is None:
             s = self._body_instream
             if s is None:
-                return None # XXX what should be returned here?
+                return None # TODO: what should be returned here?
             p = s.tell()
             s.seek(0)
             body = s.read()
