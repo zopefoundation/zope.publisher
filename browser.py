@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: browser.py,v 1.21 2003/11/03 21:37:50 jeremy Exp $
+$Id: browser.py,v 1.22 2003/11/21 17:12:34 jim Exp $
 """
 
 import re
@@ -23,7 +23,6 @@ from cgi import FieldStorage, escape
 from zope.interface import implements
 from zope.i18n.interfaces import IUserPreferredLanguages
 from zope.i18n.interfaces import IUserPreferredCharsets
-from zope.publisher.interfaces.browser import IBrowserPresentation
 from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.publisher.interfaces.browser import IBrowserApplicationRequest
 
@@ -236,11 +235,6 @@ class BrowserRequest(HTTPRequest):
 
     use_redirect = 0 # Set this to 1 in a subclass to redirect GET
                      # requests when the effective and actual URLs differ.
-
-    # _presentation_type is overridden from the BaseRequest
-    #  to implement IBrowserPresentation
-    _presentation_type = IBrowserPresentation
-
 
 
     def __init__(self, body_instream, outstream, environ, response=None):
@@ -711,6 +705,7 @@ class TestRequest(BrowserRequest):
 
     def __init__(self,
                  body_instream=None, outstream=None, environ=None, form=None,
+                 skin='default',
                  **kw):
 
         _testEnv =  {
@@ -735,6 +730,8 @@ class TestRequest(BrowserRequest):
         super(TestRequest, self).__init__(body_instream, outstream, _testEnv)
         if form:
             self.form.update(form)
+
+        self.setPresentationSkin(skin)
 
     def setUser(self, user):
         # HTTPRequest needs to notify the HTTPTask of the username.
