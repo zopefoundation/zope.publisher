@@ -15,7 +15,7 @@
 
 Provide an apply-like facility that works with any mapping object
 
-$Id: publish.py,v 1.4 2003/01/02 16:56:49 bwarsaw Exp $
+$Id: publish.py,v 1.5 2003/02/07 15:27:51 jim Exp $
 """
 
 import os
@@ -110,8 +110,14 @@ def mapply(object, positional=(), request={}):
         args.append(v)
 
     args = tuple(args)
+
+    if __debug__:
+        return debug_call(object, args)
+    
     return object(*args)
 
+def debug_call(object, args):
+    return object(*args)
 
 def publish(request, handle_errors=True):
     try: # finally to clean up to_raise and close request
