@@ -18,7 +18,7 @@ big improvement of the 'BrowserRequest' to 'HTTPRequest' is that is can handle
 HTML form data and convert them into a Python-native format. Even file data is
 packaged into a nice, Python-friendly 'FileUpload' object.
 
-$Id: browser.py,v 1.23 2004/02/16 21:37:19 srichter Exp $
+$Id: browser.py,v 1.24 2004/02/27 17:50:27 sidnei Exp $
 """
 import re
 from types import ListType, TupleType, StringType, StringTypes
@@ -836,6 +836,11 @@ class BrowserResponse(HTTPResponse):
         super(BrowserResponse, self).reset()
         self._base = ''
 
+def normalize_lang(lang):
+    lang = lang.strip().lower()
+    lang = lang.replace('_', '-')
+    lang = lang.replace(' ', '')
+    return lang
 
 class BrowserLanguages:
 
@@ -846,12 +851,49 @@ class BrowserLanguages:
 
     def getPreferredLanguages(self):
         '''See interface IUserPreferredLanguages'''
-        langs = []
-        for lang in self.request.get('HTTP_ACCEPT_LANGUAGE', '').split(','):
-            lang = lang.strip()
-            if lang:
-                langs.append(lang.split(';')[0])
-        return langs
+        request = self.request
+        accept_langs = request.get('HTTP_ACCEPT_LANGUAGE', '').split(',')
+
+        # Normalize lang strings
+        accept_langs = map(normalize_lang, accept_langs)
+        # Then filter out empty ones
+        accept_langs = filter(None, accept_langs)
+
+        length = len(accept_langs)
+        accepts = []
+
+        for index, lang in enumerate(accept_langs):
+            l = lang.split(';', 2)
+
+            quality = None
+
+            if len(l) == 2:
+                q = l[1]
+                if q.startswith('q='):
+                    q = q.split('=', 2)[1]
+                    quality = float(q)
+            else:
+                # If not supplied, quality defaults to 1
+                quality = 1.0
+
+            if quality == 1.0:
+                # ... but we use 1.9 - 0.001 * position to
+                # keep the ordering between all items with
+                # 1.0 quality, which may include items with no quality
+                # defined, and items with quality defined as 1.
+                quality = 1.9 - (0.001 * index)
+
+            accepts.append((quality, l[0]))
+
+        # Filter langs with q=0, which means
+        # unwanted lang according to the spec
+        # See: http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.4
+        accepts = filter(lambda acc: acc[0], accepts)
+
+        accepts.sort()
+        accepts.reverse()
+
+        return [lang for quality, lang in accepts]
 
 
 class BrowserView:
