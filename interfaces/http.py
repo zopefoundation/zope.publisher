@@ -13,7 +13,7 @@
 ##############################################################################
 """HTTP-related publisher interfaces.
 
-$Id: http.py,v 1.12 2003/03/25 15:13:26 bwarsaw Exp $
+$Id: http.py,v 1.13 2003/03/29 17:00:46 sidnei Exp $
 """
 
 from zope.interface import Interface
@@ -116,7 +116,7 @@ class IHTTPApplicationRequest(IApplicationRequest):
         This is a read-only mapping from variable name to value.
         """)
 
-    def getHeader(name, default=None):
+    def getHeader(name, default=None, literal=False):
         """Get a header value
 
         Return the named HTTP header, or an optional default
@@ -124,6 +124,9 @@ class IHTTPApplicationRequest(IApplicationRequest):
         both original and CGI-ified header names are recognized,
         e.g. 'Content-Type', 'CONTENT_TYPE' and 'HTTP_CONTENT_TYPE'
         should all return the Content-Type header, if available.
+
+        If the literal argument is passed, the header is searched
+        'as is', eg: only if the case matches.
         """
 
     headers = Attribute(

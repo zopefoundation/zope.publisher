@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.15 2003/03/25 15:13:11 bwarsaw Exp $
+$Id: http.py,v 1.16 2003/03/29 17:01:05 sidnei Exp $
 """
 
 import re, time, random
@@ -687,10 +687,11 @@ class HTTPResponse (BaseResponse):
         accum.append('%s: %s' % (name, value))
 
 
-    def getHeader(self, name, default=None):
+    def getHeader(self, name, default=None, literal=False):
         'See IHTTPResponse'
-        return self._headers.get(name.lower(), default)
-
+        key = name.lower()
+        name = literal and name or key
+        return self._headers.get(name, default)
 
     def getHeaders(self):
         'See IHTTPResponse'
