@@ -158,18 +158,22 @@ def premarshal_fault(data):
         premarshal(data.faultString),
         )
 
+def premarshal_datetime(data):
+    return xmlrpclib.DateTime(data.value)
+
 premarshal_dispatch_table = {
     dict: premarshal_dict,
     list: premarshal_list,
     tuple: premarshal_list,
     xmlrpclib.Fault: premarshal_fault,
+    xmlrpclib.DateTime: premarshal_datetime,
     }
 premarshal_dispatch = premarshal_dispatch_table.get
 
 def premarshal(data):
     """Premarshal data before handing it to xmlrpclib for marhalling
 
-    The initial putpuse of this function is to remove security proxies
+    The initial purpose of this function is to remove security proxies
     without resorting to removeSecurityProxy.   This way, we can avoid
     inadvertently providing access to data that should be protected.
 
