@@ -11,10 +11,9 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""
+"""baserequest tests
 
-Revision information:
-$Id: test_baserequest.py,v 1.4 2003/04/28 13:14:22 mgedmin Exp $
+$Id: test_baserequest.py,v 1.5 2004/03/20 16:27:20 srichter Exp $
 """
 
 from unittest import TestCase, main, makeSuite
@@ -88,7 +87,10 @@ class TestBaseRequest(BaseTestIPublicationRequest,
     def _IEnumerableMapping__absentKeys(self):
         return 'foo', 'bar'
 
-
+    def test_SetRequestInResponse(self):
+        request = self._Test__new()
+        self.assertEqual(request.response._request, request)
+        
 def test_suite():
     return makeSuite(TestBaseRequest)
 
