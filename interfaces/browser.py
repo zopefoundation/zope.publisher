@@ -105,7 +105,7 @@ class IBrowserPublisher(IPublishTraverse):
         """
 
 
-class IDefaultBrowserLayer(Interface):
+class IDefaultBrowserLayer(IBrowserRequest):
     """The default layer."""
 directlyProvides(IDefaultBrowserLayer, ILayer)
 
