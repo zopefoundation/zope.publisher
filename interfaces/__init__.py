@@ -390,6 +390,7 @@ class IDebugFlags(Interface):
     """Features that support debugging."""
 
     sourceAnnotations = Attribute("""Enable ZPT source annotations""")
+    showTAL = Attribute("""Leave TAL markup in rendered page templates""")
 
 
 class IApplicationRequest(IEnumerableMapping):

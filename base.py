@@ -159,6 +159,7 @@ class DebugFlags(object):
     implements(IDebugFlags)
 
     sourceAnnotations = False
+    showTAL = False
 
 
 class BaseRequest(object):
