@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.16 2003/03/29 17:01:05 sidnei Exp $
+$Id: http.py,v 1.17 2003/04/11 10:01:23 ryzaja Exp $
 """
 
 import re, time, random
@@ -493,10 +493,11 @@ class HTTPRequest(BaseRequest):
 
         return clean
 
-    def getHeader(self, name, default=None):
+    def getHeader(self, name, default=None, literal=False):
         'See IHTTPRequest'
         environ = self._environ
-        name = name.replace('-', '_').upper()
+        if not literal:
+            name = name.replace('-', '_').upper()
         val = environ.get(name, None)
         if val is not None:
             return val

@@ -18,7 +18,7 @@ from zope.publisher.http import HTTPResponse
 
 from zope.publisher.publish import publish
 from zope.publisher.base import DefaultPublication
-from zope.publisher.interfaces.http import IHTTPPresentation
+from zope.publisher.interfaces.http import IHTTPPresentation, IHTTPRequest
 
 from zope.i18n.interfaces import ILocale
 
@@ -154,6 +154,20 @@ class HTTPTests(unittest.TestCase):
         self.assertEquals(req.cookies[u'this'], u'Should be accepted')
         self.assertEquals(req[u'this'], u'Should be accepted')
 
+    def testHeaders(self):
+        headers = {
+            'TEST_HEADER': 'test',
+            'Another-Test': 'another',
+        }
+        req = self._createRequest(extra_env=headers)
+        self.assertEquals(req.headers[u'TEST_HEADER'], u'test')
+        self.assertEquals(req.headers[u'TEST-HEADER'], u'test')
+        self.assertEquals(req.headers[u'test_header'], u'test')
+        self.assertEquals(req.getHeader('TEST_HEADER', literal=True), u'test')
+        self.assertEquals(req.getHeader('TEST-HEADER', literal=True), None)
+        self.assertEquals(req.getHeader('test_header', literal=True), None)
+        self.assertEquals(req.getHeader('Another-Test', literal=True), 'another')
+
     def testBasicAuth(self):
         from zope.publisher.interfaces.http import IHTTPCredentials
         import base64
@@ -184,6 +198,8 @@ class HTTPTests(unittest.TestCase):
         r = self._createRequest(extra_env={'REQUEST_METHOD':'eggs'})
         self.assertEqual(r.method, 'EGGS')
 
+    def testInterface(self):
+        verifyObject(IHTTPRequest, self._createRequest())
 
 def test_suite():
     loader = unittest.TestLoader()
