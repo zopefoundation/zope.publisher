@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: browser.py,v 1.4 2002/12/31 02:52:18 jim Exp $
+$Id: browser.py,v 1.5 2003/02/07 15:42:36 jim Exp $
 """
 
 import re
@@ -53,7 +53,7 @@ RECORDS = 8
 REC = 12 # RECORD|RECORDS
 EMPTY = 16
 CONVERTED = 32
-DEFAULTABLE_METHODS = 'GET', 'POST'
+DEFAULTABLE_METHODS = 'GET', 'POST', 'HEAD'
 
 
 def field2string(v):
@@ -268,9 +268,8 @@ class BrowserRequest(HTTPRequest):
 
         environ = self._environ
         form = self.form
-        method = environ.get('REQUEST_METHOD', 'GET')
 
-        if method != 'GET':
+        if self.method != 'GET':
             # Process form if not a GET request.
             fp = self._body_instream
         else:
@@ -607,7 +606,7 @@ class BrowserRequest(HTTPRequest):
         'See IPublisherRequest'
 
         ob = super(BrowserRequest, self).traverse(object)
-        method = self._environ.get('REQUEST_METHOD', 'GET').upper()
+        method = self.method
 
         base_needed = 0
         if self._path_suffix:
