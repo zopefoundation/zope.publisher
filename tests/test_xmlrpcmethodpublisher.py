@@ -13,11 +13,14 @@
 ##############################################################################
 import unittest, sys
 
-from zope.publisher.xmlrpc import MethodPublisher
+from zope.publisher.xmlrpc import MethodPublisher, TestRequest
 from zope.publisher.interfaces.xmlrpc import IXMLRPCPublisher
 
 from zope.interface.verify import verifyClass
 from zope.interface.implements import instancesOfObjectImplements
+
+class ContentStub:
+    pass
 
 class Presentation(MethodPublisher):
     index = 'index'
@@ -27,7 +30,7 @@ class Presentation(MethodPublisher):
 
 class TestMethodPublisher(unittest.TestCase):
     def setUp(self):
-        self.pres = Presentation()
+        self.pres = Presentation(ContentStub(), TestRequest())
 
     def testImplementsIXMLRPCPublisher(self):
         self.failUnless(IXMLRPCPublisher.isImplementedBy(self.pres))
