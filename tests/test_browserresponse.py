@@ -15,16 +15,17 @@
 
 XXX longer description goes here.
 
-$Id: test_browserresponse.py,v 1.3 2003/03/02 18:09:03 stevea Exp $
+$Id: test_browserresponse.py,v 1.4 2003/04/25 10:36:39 ryzaja Exp $
 """
 
 from unittest import TestCase, TestSuite, main, makeSuite
 from zope.publisher.browser import BrowserResponse
 from StringIO import StringIO
+from zope.interface.verify import verifyObject
 
 # XXX Waaa need more tests
 
-class Test(TestCase):
+class TestBrowserResponse(TestCase):
 
     def test_contentType_DWIM_in_setBody(self):
         response = BrowserResponse(StringIO())
@@ -83,10 +84,19 @@ class Test(TestCase):
             "text/plain")
                      )
 
+    def test_interface(self):
+        from zope.publisher.interfaces.http import IHTTPResponse
+        from zope.publisher.interfaces.http import IHTTPApplicationResponse
+        from zope.publisher.interfaces import IResponse
+        rp = BrowserResponse(StringIO())
+        verifyObject(IHTTPResponse, rp)
+        verifyObject(IHTTPApplicationResponse, rp)
+        verifyObject(IResponse, rp)
+
 
 def test_suite():
     return TestSuite((
-        makeSuite(Test),
+        makeSuite(TestBrowserResponse),
         ))
 
 if __name__=='__main__':

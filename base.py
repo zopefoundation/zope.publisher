@@ -13,7 +13,7 @@
 ##############################################################################
 '''Response Output formatter
 
-$Id: base.py,v 1.4 2003/02/03 15:00:49 jim Exp $
+$Id: base.py,v 1.5 2003/04/25 10:36:38 ryzaja Exp $
 '''
 
 
@@ -58,6 +58,10 @@ class BaseResponse(object):
     def _getBody(self):
         'Returns a string representing the currently set body.'
         return self._body
+
+    def reset(self):
+        'See IPublisherResponse'
+        self._body = ""
 
     def handleException(self, exc_info):
         'See IPublisherResponse'
@@ -468,6 +472,7 @@ class DefaultPublication:
 
     def handleException(self, object, request, exc_info, retry_allowed=1):
         # Let the response handle it as best it can.
+        request.response.reset()
         request.response.handleException(exc_info)
 
 

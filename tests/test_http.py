@@ -290,10 +290,25 @@ class HTTPTests(unittest.TestCase):
         self.assertEquals(deduceServerURL(), 'http://example.com')
 
 
+class TestHTTPResponse(unittest.TestCase):
+
+    def testInterface(self):
+        from zope.publisher.http import HTTPResponse
+        from zope.publisher.interfaces.http import IHTTPResponse
+        from zope.publisher.interfaces.http import IHTTPApplicationResponse
+        from zope.publisher.interfaces import IResponse
+        rp = HTTPResponse(StringIO())
+        verifyObject(IHTTPResponse, rp)
+        verifyObject(IHTTPApplicationResponse, rp)
+        verifyObject(IResponse, rp)
+
+
 def test_suite():
-    loader = unittest.TestLoader()
-    return loader.loadTestsFromTestCase(HTTPTests)
+    suite = unittest.TestSuite()
+    suite.addTest(unittest.makeSuite(HTTPTests))
+    suite.addTest(unittest.makeSuite(TestHTTPResponse))
+    return suite
 
 
 if __name__ == '__main__':
-    unittest.TextTestRunner().run(test_suite())
+    unittest.main()

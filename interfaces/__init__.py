@@ -13,7 +13,7 @@
 ##############################################################################
 """Interfaces for the publisher.
 
-$Id: __init__.py,v 1.10 2003/02/24 14:41:12 stevea Exp $
+$Id: __init__.py,v 1.11 2003/04/25 10:36:38 ryzaja Exp $
 """
 
 from zope.interface import Interface
@@ -175,6 +175,10 @@ class IPublisherResponse(Interface):
 
     def setBody(result):
         """Sets the response result value.
+        """
+
+    def reset():
+        """Resets response state on exceptions.
         """
 
     def handleException(exc_info):

@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.22 2003/04/17 08:52:57 mgedmin Exp $
+$Id: http.py,v 1.23 2003/04/25 10:36:38 ryzaja Exp $
 """
 
 import re, time, random
@@ -605,6 +605,11 @@ class HTTPResponse (BaseResponse):
         self._header_output = header_output
 
         super(HTTPResponse, self).__init__(outstream)
+        self.reset()
+
+    def reset(self):
+        'See IResponse'
+        super(HTTPResponse, self).reset()
         self._headers = {}
         self._cookies = {}
         self._accumulated_headers = []
@@ -614,7 +619,6 @@ class HTTPResponse (BaseResponse):
         self._reason = 'No status set'
         self._status_set = False
         self._charset = None
-
 
     def setHeaderOutput(self, header_output):
         self._header_output = header_output

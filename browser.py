@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: browser.py,v 1.16 2003/04/16 06:57:49 mgedmin Exp $
+$Id: browser.py,v 1.17 2003/04/25 10:36:38 ryzaja Exp $
 """
 
 import re
@@ -821,6 +821,10 @@ class BrowserResponse(HTTPResponse):
         #     raise AssertionError('Cannot determine absolute location')
 
         super(BrowserResponse, self).redirect(location, status)
+
+    def reset(self):
+        super(BrowserResponse, self).reset()
+        self._base = ''
 
 
 class BrowserLanguages:
