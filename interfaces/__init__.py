@@ -125,8 +125,7 @@ class IRetry(IPublishingException):
         'Returns the original exception object.'
 
 class Retry(PublishingException):
-    """Raise this to retry a request.
-    """
+    """Raise this to retry a request."""
 
     implements(IRetry)
 
@@ -141,17 +140,18 @@ class Retry(PublishingException):
 
 
 class IExceptionSideEffects(Interface):
-    '''An exception caught by the publisher is adapted to this so that
-    it can have persistent side-effects.'''
+    """An exception caught by the publisher is adapted to this so that
+    it can have persistent side-effects."""
 
     def __call__(obj, request, exc_info):
-        '''Effect persistent side-effects.
+        """Effect persistent side-effects.
 
         Arguments are:
           obj                 context-wrapped object that was published
           request             the request
           exc_info            the exception info being handled
-        '''
+
+        """
 
 
 class IPublishTraverse(Interface):
