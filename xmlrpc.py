@@ -120,8 +120,30 @@ class XMLRPCResponse(HTTPResponse):
 
 
     def handleException(self, exc_info):
-        """Handle Errors during publsihing and wrap it in XML-RPC XML"""
+        """Handle Errors during publsihing and wrap it in XML-RPC XML
+
+        >>> import sys
+        >>> from StringIO import StringIO
+        >>> output = StringIO()
+        >>> resp = XMLRPCResponse(output)
+        >>> try:
+        ...     raise AttributeError('xyz')
+        ... except:
+        ...     exc_info = sys.exc_info()
+        ...     resp.handleException(exc_info)
+        ...     resp.outputBody()
+        ...     lines = output.getvalue().split('\\n')
+        ...     for line in lines:
+        ...         if 'Status:' in line or 'Content-Type:' in line:
+        ...             print line.strip()
+        ...         if '<value><string>' in line:
+        ...             print line[:61].strip()
+        Status: 200 Ok
+        Content-Type: text/xml;charset=utf-8
+        <value><string>Unexpected Zope exception: AttributeError: xyz
+        """
         t, value = exc_info[:2]
+        s = '%s: %s' % (getattr(t, '__name__', t), value)
 
         # Create an appropriate Fault object. Unfortunately, we throw away
         # most of the debugging information. More useful error reporting is
@@ -132,16 +154,15 @@ class XMLRPCResponse(HTTPResponse):
             if isinstance(value, Fault):
                 fault_text = value
             elif isinstance(value, Exception):
-                fault_text = Fault(-1, "Unexpected Zope exception: " +
-                                   str(value))
+                fault_text = Fault(-1, "Unexpected Zope exception: " + s)
             else:
-                fault_text = Fault(-2, "Unexpected Zope error value: " +
-                                   str(value))
+                fault_text = Fault(-2, "Unexpected Zope error value: " + s)
         except:
             fault_text = Fault(-3, "Unknown Zope fault type")
 
         # Do the damage.
         self.setBody(fault_text)
+        # XML-RPC prefers a status of 200 ("ok") even when reporting errors.
         self.setStatus(200)
 
 
