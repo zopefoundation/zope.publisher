@@ -27,7 +27,8 @@ from cgi import FieldStorage, escape
 from zope.interface import implements, directlyProvides
 from zope.i18n.interfaces import IUserPreferredLanguages
 from zope.i18n.interfaces import IUserPreferredCharsets
-from zope.publisher.interfaces.browser import IBrowserRequest, IDefaultLayer
+from zope.publisher.interfaces.browser import IBrowserRequest
+from zope.publisher.interfaces.browser import IDefaultBrowserLayer
 from zope.publisher.interfaces.browser import IBrowserApplicationRequest
 
 from zope.publisher.http import HTTPRequest, HTTPResponse
@@ -625,7 +626,7 @@ class TestRequest(BrowserRequest):
         if skin is not None:
             directlyProvides(self, skin)
         else:
-            directlyProvides(self, IDefaultLayer)
+            directlyProvides(self, IDefaultBrowserLayer)
 
     def setPrincipal(self, principal):
         # HTTPRequest needs to notify the HTTPTask of the username.

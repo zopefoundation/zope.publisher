@@ -20,6 +20,7 @@ from zope.interface.interfaces import IInterface
 
 from zope.publisher.interfaces import IPublication
 from zope.publisher.interfaces import IPublishTraverse
+from zope.publisher.interfaces import ILayer
 from zope.publisher.interfaces.http import IHTTPApplicationRequest
 from zope.publisher.interfaces.http import IHTTPRequest
 
@@ -104,11 +105,7 @@ class IBrowserPublisher(IPublishTraverse):
         """
 
 
-class ILayer(IInterface):
-    """A layer contains views of similar layout."""
-
-
-class IDefaultLayer(ILayer):
+class IDefaultBrowserLayer(ILayer):
     """The default layer."""
 
 
