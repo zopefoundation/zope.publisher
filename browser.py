@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: browser.py,v 1.10 2003/03/06 22:48:03 jim Exp $
+$Id: browser.py,v 1.11 2003/04/07 11:27:01 stevea Exp $
 """
 
 import re
@@ -218,13 +218,12 @@ class record:
     def __str__(self):
         L1 = self.__dict__.items()
         L1.sort()
-        return ", ".join(map(lambda item: "%s: %s" % item, L1))
+        return ", ".join(["%s: %s" for item in L1])
 
     def __repr__(self):
         L1 = self.__dict__.items()
         L1.sort()
-        return ', '.join(
-            map(lambda item: "%s: %s" % (item[0], repr(item[1])), L1))
+        return ', '.join(["%s: %s" % (key, repr(value)) for key, value in L1])
 
 
 class BrowserRequest(HTTPRequest):
