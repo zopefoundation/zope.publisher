@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: ftp.py,v 1.2 2003/02/07 15:43:57 jim Exp $
+$Id: ftp.py,v 1.3 2003/02/11 16:00:08 sidnei Exp $
 """
 
 from zope.publisher.interfaces.ftp import IFTPPresentation

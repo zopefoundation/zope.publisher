@@ -13,7 +13,7 @@
 ##############################################################################
 """Interfaces for the publisher.
 
-$Id: __init__.py,v 1.6 2003/02/05 11:38:32 stevea Exp $
+$Id: __init__.py,v 1.7 2003/02/11 16:00:09 sidnei Exp $
 """
 
 from zope.interface import Interface

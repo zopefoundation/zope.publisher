@@ -13,7 +13,7 @@
 ##############################################################################
 """HTTP-related publisher interfaces.
 
-$Id: http.py,v 1.3 2003/02/07 15:40:31 jim Exp $
+$Id: http.py,v 1.4 2003/02/11 16:00:09 sidnei Exp $
 """
 
 from zope.interface import Interface

@@ -15,7 +15,7 @@
 
 Provide an apply-like facility that works with any mapping object
 
-$Id: publish.py,v 1.5 2003/02/07 15:27:51 jim Exp $
+$Id: publish.py,v 1.6 2003/02/11 16:00:08 sidnei Exp $
 """
 
 import os
