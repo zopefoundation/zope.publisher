@@ -16,7 +16,7 @@
 Specifically, 'BaseRequest', 'BaseResponse', and 'DefaultPublication' are
 specified here.
 
-$Id: base.py,v 1.15 2004/03/18 20:03:51 srichter Exp $
+$Id: base.py,v 1.16 2004/03/20 13:38:15 philikon Exp $
 """
 import traceback
 from cStringIO import StringIO
@@ -468,7 +468,7 @@ class DefaultPublication:
     def callObject(self, request, ob):
         return mapply(ob, request.getPositionalArguments(), request)
 
-    def afterCall(self, request):
+    def afterCall(self, request, ob):
         pass
 
     def handleException(self, object, request, exc_info, retry_allowed=1):

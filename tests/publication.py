@@ -11,6 +11,9 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
+"""
+$Id: publication.py,v 1.4 2004/03/20 13:38:16 philikon Exp $
+"""
 
 from zope.publisher.interfaces import IPublication
 from zope.interface import implements
@@ -19,7 +22,7 @@ class TestPublication:
 
     implements(IPublication)
 
-    def afterCall(self, request):
+    def afterCall(self, request, ob):
         '''See interface IPublication'''
         self._afterCall = getattr(self, '_afterCall', 0) + 1
 

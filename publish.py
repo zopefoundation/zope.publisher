@@ -15,7 +15,7 @@
 
 Provide an apply-like facility that works with any mapping object
 
-$Id: publish.py,v 1.12 2004/02/16 21:37:19 srichter Exp $
+$Id: publish.py,v 1.13 2004/03/20 13:38:15 philikon Exp $
 """
 import sys
 from zope.publisher.interfaces import Retry
@@ -139,7 +139,7 @@ def publish(request, handle_errors=True):
                         if result is not response:
                             response.setBody(result)
 
-                        publication.afterCall(request)
+                        publication.afterCall(request, object)
 
                     except:
                         publication.handleException(

@@ -14,7 +14,7 @@
 """
 
 Revision information:
-$Id: test_ipublication.py,v 1.3 2003/04/11 12:55:41 ryzaja Exp $
+$Id: test_ipublication.py,v 1.4 2004/03/20 13:38:16 philikon Exp $
 """
 
 import sys
@@ -60,7 +60,7 @@ class Test(BaseIPublicationTest, TestCase):
     # good examples of tests for other implementations.
 
     def test_afterCall(self):
-        self._publication.afterCall(self._request)
+        self._publication.afterCall(self._request, None)
         self.assertEqual(self._publication._afterCall, 1)
 
     def test_traverseName(self):

@@ -13,7 +13,7 @@
 ##############################################################################
 """Interfaces for the publisher.
 
-$Id: __init__.py,v 1.15 2004/02/16 21:37:19 srichter Exp $
+$Id: __init__.py,v 1.16 2004/03/20 13:38:16 philikon Exp $
 """
 
 from zope.interface import Interface
@@ -253,7 +253,7 @@ class IPublication(Interface):
         a method of an adapter.
         """
 
-    def afterCall(request):
+    def afterCall(request, ob):
         """Post-callObject hook (if it was successful).
         """
 

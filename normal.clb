@@ -67,7 +67,7 @@ Publisher framework base collaboration
 
         response.setBody(result)
 
-        publication.afterCall(request)
+        publication.afterCall(request, bar)
 
         response.outputBody()
 
