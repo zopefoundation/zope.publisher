@@ -30,7 +30,6 @@ from zope.interface.verify import verifyObject
 from StringIO import StringIO
 
 
-
 class UserStub:
     implements(IPrincipal)
     def __init__(self, id):
@@ -79,6 +78,7 @@ class HTTPTests(PlacefulSetup, unittest.TestCase):
         self.app = AppRoot()
         self.app.folder = Folder()
         self.app.folder.item = Item()
+        self.app.xxx = Item()
 
     def _createRequest(self, extra_env={}, body="", outstream=None):
         env = self._testEnv.copy()
@@ -242,7 +242,7 @@ class HTTPTests(PlacefulSetup, unittest.TestCase):
 
         self.assertEquals(r.getPresentationType(), IHTTPPresentation)
         self.assertEqual(r.getPresentationSkin(), '')
-        r.setViewSkin('morefoo')
+        r.setPresentationSkin('morefoo')
         self.assertEqual(r.getPresentationSkin(), 'morefoo')
 
     def test_method(self):
@@ -273,18 +273,17 @@ class HTTPTests(PlacefulSetup, unittest.TestCase):
     def test_setApplicationNames(self):
         req = self._createRequest()
         names = ['x', 'y', 'z']
-        req.setApplicationNames(names)
+        req.setVirtualHostRoot(names)
         self.assertEquals(req._app_names, ['x', 'y', 'z'])
         names[0] = 'muahahahaha'
         self.assertEquals(req._app_names, ['x', 'y', 'z'])
 
     def test_setVirtualHostRoot(self):
         req = self._createRequest()
-        self.assertEquals(req._vh_trunc, 0)
         req._traversed_names = ['x', 'y']
         req._last_obj_traversed = object()
         req.setVirtualHostRoot()
-        self.assertEquals(req._vh_trunc, 3)
+        self.failIf(req._traversed_names)
         self.assertEquals(req._vh_root, req._last_obj_traversed)
 
     def test_getVirtualHostRoot(self):
@@ -294,21 +293,19 @@ class HTTPTests(PlacefulSetup, unittest.TestCase):
         self.assertEquals(req.getVirtualHostRoot(), req._vh_root)
 
     def test_traverse(self):
-        # setting _vh_trunc *before* traversal is a no-op
         req = self._createRequest()
-        req._vh_trunc = 1
         req.traverse(self.app)
         self.assertEquals(req._traversed_names, ['folder', 'item'])
 
         # setting it during traversal matters
         req = self._createRequest()
         def hook(self, object, req=req, app=self.app):
-            if object is app:
+            if object is app.folder:
                 req.setVirtualHostRoot()
         req.publication.callTraversalHooks = hook
         req.traverse(self.app)
         self.assertEquals(req._traversed_names, ['item'])
-        self.assertEquals(req._vh_root, self.app)
+        self.assertEquals(req._vh_root, self.app.folder)
 
     def testInterface(self):
         from zope.publisher.interfaces.http import IHTTPCredentials
@@ -339,6 +336,30 @@ class HTTPTests(PlacefulSetup, unittest.TestCase):
         self.assertEquals(deduceServerURL(), 'http://example.com')
 
 
+class ConcreteHTTPTests(HTTPTests):
+    """Tests that we don't have to worry about subclasses inheriting and breaking
+    """
+
+    def test_shiftNameToApplication(self):
+        r = self._createRequest()
+        publish(r, handle_errors=0)
+        appurl = r.getApplicationURL()
+
+        # Verify that we can shift. It would be a little more realistic
+        # if we could test this during traversal, but the api doesn't
+        # let us do that.
+        r = self._createRequest(extra_env={"PATH_INFO": "/xxx"})
+        publish(r, handle_errors=0)
+        r.shiftNameToApplication()
+        self.assertEquals(r.getApplicationURL(), appurl+"/xxx")
+        
+        # Verify that we can only shift if we've traversed only a single name
+        r = self._createRequest(extra_env={"PATH_INFO": "/folder/item"})
+        publish(r, handle_errors=0)
+        self.assertRaises(ValueError, r.shiftNameToApplication)
+
+
+
 class TestHTTPResponse(unittest.TestCase):
 
     def testInterface(self):
@@ -354,7 +375,7 @@ class TestHTTPResponse(unittest.TestCase):
 
 def test_suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(HTTPTests))
+    suite.addTest(unittest.makeSuite(ConcreteHTTPTests))
     suite.addTest(unittest.makeSuite(TestHTTPResponse))
     return suite
 
