@@ -561,7 +561,6 @@ class HTTPResponse(BaseResponse):
         '_cookies',
         '_accumulated_headers', # Headers that can have multiples
         '_wrote_headers',
-        '_streaming',
         '_status',              # The response status (usually an integer)
         '_reason',              # The reason that goes with the status
         '_status_set',          # Boolean: status explicitly set
@@ -584,7 +583,6 @@ class HTTPResponse(BaseResponse):
         self._cookies = {}
         self._accumulated_headers = []
         self._wrote_headers = False
-        self._streaming = False
         self._status = 599
         self._reason = 'No status set'
         self._status_set = False
@@ -656,7 +654,7 @@ class HTTPResponse(BaseResponse):
         result = {}
         headers = self._headers
 
-        if (not self._streaming and not ('content-length' in headers)
+        if (not ('content-length' in headers)
             and not ('transfer-encoding' in headers)):
             self._updateContentLength()
 
