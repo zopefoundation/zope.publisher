@@ -13,7 +13,7 @@
 ##############################################################################
 """HTTP-related publisher interfaces.
 
-$Id: http.py,v 1.9 2003/03/02 18:09:02 stevea Exp $
+$Id: http.py,v 1.10 2003/03/08 00:51:53 seanb Exp $
 """
 
 from zope.interface import Interface
@@ -28,7 +28,7 @@ from zope.component.interfaces import IView
 
 
 class IHTTPPresentation(IPresentation):
-    """HTTP presentations are for interaction with user's using Web HTTPs
+    """HTTP presentations are for interaction with users using Web HTTPs
     """
 
 class IHTTPResource(IHTTPPresentation, IResource):
