@@ -11,10 +11,10 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""
+"""FTP Publisher Tests
+
 $Id$
 """
-
 import sys
 from cStringIO import StringIO
 from unittest import TestCase, TestSuite, main, makeSuite

@@ -11,8 +11,7 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""
-Test request for writing tests that need HTTP requests.
+"""Test request for writing tests that need HTTP requests.
 
 Note that this is used by tests in other packages.
 
