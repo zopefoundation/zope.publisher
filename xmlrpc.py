@@ -13,8 +13,7 @@
 ##############################################################################
 """XML-RPC Publisher
 
-This module contains the MethodPublisher, XMLRPCView, XMLRPCRequest and
-XMLRPCResponse
+This module contains the MethodPublisher, XMLRPCRequest and XMLRPCResponse
 
 $Id$
 """
