@@ -159,6 +159,8 @@ class IPublishTraverse(Interface):
         """Lookup a name
 
         The request argument is the publisher request object.
+
+        If a lookup is not possible, raise a NotFound error.
         """
 
 
