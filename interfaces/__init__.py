@@ -234,7 +234,7 @@ class IPublication(Interface):
         """Invokes any traversal hooks associated with the object.
         """
 
-    def traverseName(request, ob, name, check_auth=1):
+    def traverseName(request, ob, name, check_auth=True):
         """Traverses to the next object.
 
         If check_auth is set,
@@ -414,6 +414,7 @@ class IApplicationRequest(IEnumerableMapping):
 class IResponse(IPublisherResponse, IApplicationResponse):
     """The basic response contract
     """
+
 
 class IRequest(IPublisherRequest, IPublicationRequest, IApplicationRequest):
     """The basic request contract
