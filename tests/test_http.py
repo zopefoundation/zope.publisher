@@ -27,7 +27,7 @@ from zope.publisher.publish import publish
 from zope.publisher.base import DefaultPublication
 from zope.publisher.interfaces.http import IHTTPRequest
 
-from zope.i18n.interfaces import ILocale
+from zope.i18n.interfaces.locales import ILocale
 
 from zope.interface.verify import verifyObject
 
@@ -148,20 +148,20 @@ class HTTPTests(PlacefulSetup, unittest.TestCase):
             unless(ILocale.isImplementedBy(locale))
             parts = httplang.split('-')
             lang = parts.pop(0).lower()
-            country = variant = None
+            territory = variant = None
             if parts:
-                country = parts.pop(0).upper()
+                territory = parts.pop(0).upper()
             if parts:
                 variant = parts.pop(0).upper()
             eq(locale.id.language, lang)
-            eq(locale.id.country, country)
+            eq(locale.id.territory, territory)
             eq(locale.id.variant, variant)
         # Now test for non-existant locale fallback
         req = self._createRequest({'HTTP_ACCEPT_LANGUAGE': 'xx'})
         locale = req.locale
         unless(ILocale.isImplementedBy(locale))
         eq(locale.id.language, None)
-        eq(locale.id.country, None)
+        eq(locale.id.territory, None)
         eq(locale.id.variant, None)
 
         # If the first language is not available we should try others
@@ -169,16 +169,16 @@ class HTTPTests(PlacefulSetup, unittest.TestCase):
         locale = req.locale
         unless(ILocale.isImplementedBy(locale))
         eq(locale.id.language, 'en')
-        eq(locale.id.country, None)
+        eq(locale.id.territory, None)
         eq(locale.id.variant, None)
 
-        # Regression test: there was a bug where country and variant were
+        # Regression test: there was a bug where territory and variant were
         # not reset
         req = self._createRequest({'HTTP_ACCEPT_LANGUAGE': 'xx-YY,en;q=0.5'})
         locale = req.locale
         unless(ILocale.isImplementedBy(locale))
         eq(locale.id.language, 'en')
-        eq(locale.id.country, None)
+        eq(locale.id.territory, None)
         eq(locale.id.variant, None)
 
     def testCookies(self):

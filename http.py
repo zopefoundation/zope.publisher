@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.38 2003/11/21 17:12:28 jim Exp $
+$Id: http.py,v 1.39 2004/02/05 22:52:35 srichter Exp $
 """
 
 import re, time, random
@@ -310,16 +310,16 @@ class HTTPRequest(BaseRequest):
         self.response.setCharsetUsingRequest(self)
         langs = BrowserLanguages(self).getPreferredLanguages()
         for httplang in langs:
-            language = country = variant = None
+            language = territory = variant = None
             parts = httplang.split('-')
             if parts:
                 language = parts.pop(0)
             if parts:
-                country = parts.pop(0)
+                territory = parts.pop(0)
             if parts:
                 variant = parts.pop(0)
             try:
-                self._locale = locales.getLocale(language, country, variant)
+                self._locale = locales.getLocale(language, territory, variant)
                 return
             except LoadLocaleError:
                 # Just try the next combination
