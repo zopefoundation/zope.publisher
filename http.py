@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.33 2003/08/08 13:10:10 srichter Exp $
+$Id: http.py,v 1.34 2003/08/08 18:08:07 jim Exp $
 """
 
 import re, time, random
@@ -282,8 +282,6 @@ class HTTPRequest(BaseRequest):
         'method',         # The upper-cased request method (REQUEST_METHOD)
         '_locale',        # The locale for the request
         '_vh_root',       # Object at the root of the virtual host
-        '_vh_trunc',      # The number of path elements to be removed
-                          # from _traversed_names
         )
 
     retry_max_count = 3    # How many times we're willing to retry
@@ -311,7 +309,6 @@ class HTTPRequest(BaseRequest):
         self.__setupCookies()
         self.__setupPath()
         self.__setupURLBase()
-        self._vh_trunc = 0
         self._vh_root = None
 
         self.response.setCharsetUsingRequest(self)
@@ -435,15 +432,10 @@ class HTTPRequest(BaseRequest):
     def traverse(self, object):
         'See IPublisherRequest'
 
-        self._vh_trunc = 0
         ob = super(HTTPRequest, self).traverse(object)
         if self._path_suffix:
             self._traversal_stack = self._path_suffix
             ob = super(HTTPRequest, self).traverse(ob)
-
-        if self._vh_trunc:
-            del self._traversed_names[:self._vh_trunc]
-            self._vh_trunc = 0
 
         return ob
 
@@ -543,10 +535,12 @@ class HTTPRequest(BaseRequest):
         names = [quote(name, safe='/+@') for name in names]
 
         if path_only:
-            if not names: return '/'
+            if not names:
+                return '/'
             return '/' + '/'.join(names)
         else:
-            if not names: return self._app_server
+            if not names:
+                return self._app_server
             return "%s/%s" % (self._app_server, '/'.join(names))
 
     def getApplicationURL(self, depth=0, path_only=False):
@@ -572,12 +566,25 @@ class HTTPRequest(BaseRequest):
             host = '%s:%s' % (host, port)
         self._app_server = '%s://%s' % (proto, host)
 
-    def setApplicationNames(self, names):
-        self._app_names = list(names)
+    def shiftNameToApplication(self):
+        """Add the name being traversed to the application name
 
-    def setVirtualHostRoot(self):
-        self._vh_trunc = len(self._traversed_names) + 1
+        This is only allowed in the case where the name is the first name.
+
+        A Value error is raise if the shift can't be performed.
+        """
+
+        if len(self._traversed_names) == 1:
+            self._app_names.append(self._traversed_names.pop())
+            return
+
+        raise ValueError("Can only shift leading traversal "
+                         "names to application names")
+
+    def setVirtualHostRoot(self, names=()):
+        del self._traversed_names[:]
         self._vh_root = self._last_obj_traversed
+        self._app_names = list(names)
 
     def getVirtualHostRoot(self):
         return self._vh_root
