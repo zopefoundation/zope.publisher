@@ -13,10 +13,10 @@
 ##############################################################################
 """
 
-$Id: ftp.py,v 1.5 2003/06/03 14:32:06 ryzaja Exp $
+$Id: ftp.py,v 1.6 2003/06/03 22:46:27 jim Exp $
 """
 
-from zope.interface import implements, implementedBy
+from zope.interface import implements
 from zope.publisher.interfaces.ftp import IFTPPresentation
 from zope.publisher.interfaces.ftp import IFTPCredentials
 from zope.publisher.base import BaseResponse, BaseRequest
