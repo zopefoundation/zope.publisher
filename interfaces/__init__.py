@@ -13,7 +13,7 @@
 ##############################################################################
 """Interfaces for the publisher.
 
-$Id: __init__.py,v 1.5 2003/01/15 15:32:20 ryzaja Exp $
+$Id: __init__.py,v 1.6 2003/02/05 11:38:32 stevea Exp $
 """
 
 from zope.interface import Interface
@@ -99,6 +99,20 @@ class Retry(PublishingException):
 
     def __str__(self):
         return repr(self.orig_exc)
+
+
+class IExceptionSideEffects(Interface):
+    '''An exception caught by the publisher is adapted to this so that
+    it can have persistent side-effects.'''
+
+    def __call__(obj, request, exc_info):
+        '''Effect persistent side-effects.
+
+        Arguments are:
+          obj                 context-wrapped object that was published
+          request             the request
+          exc_info            the exception info being handled
+        '''
 
 
 class IPublishTraverse(Interface):
