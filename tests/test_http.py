@@ -13,8 +13,12 @@
 ##############################################################################
 import unittest
 
+from zope.app.services.tests.placefulsetup import PlacefulSetup
+from zope.app.interfaces.security import IPrincipal
+from zope.interface import Interface, implements
+from zope.component.adapter import provideAdapter
+from zope.publisher.interfaces.logginginfo import ILoggingInfo
 from zope.publisher.http import HTTPRequest
-
 from zope.publisher.publish import publish
 from zope.publisher.base import DefaultPublication
 from zope.publisher.interfaces.http import IHTTPPresentation, IHTTPRequest
@@ -25,13 +29,26 @@ from zope.interface.verify import verifyObject
 
 from StringIO import StringIO
 
+
+
 class UserStub:
+    implements(IPrincipal)
     def __init__(self, id):
         self._id = id
     def getId(self):
         return self._id
 
-class HTTPTests(unittest.TestCase):
+class PrincipalLoggingStub:
+    implements(ILoggingInfo)
+
+    def __init__(self, object):
+        self.object = object
+
+    def getLogMessage(self):
+        return self.object.getId()
+
+
+class HTTPTests(PlacefulSetup, unittest.TestCase):
 
     _testEnv =  {
         'PATH_INFO':          '/folder/item',
@@ -47,6 +64,7 @@ class HTTPTests(unittest.TestCase):
     }
 
     def setUp(self):
+        PlacefulSetup.setUp(self)
         class AppRoot:
             " "
 
@@ -208,6 +226,7 @@ class HTTPTests(unittest.TestCase):
             auth_user_name = None
             def setAuthUserName(self, name):
                 self.auth_user_name = name
+        provideAdapter(IPrincipal, ILoggingInfo, PrincipalLoggingStub)
         task = HTTPTaskStub()
         req = self._createRequest(outstream=task)
         req.setUser(UserStub("jim"))
