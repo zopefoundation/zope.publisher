@@ -14,7 +14,7 @@
 """
 
 Revision information:
-$Id: browser.py,v 1.6 2003/07/15 04:47:03 anthony Exp $
+$Id: browser.py,v 1.7 2003/11/21 17:12:36 jim Exp $
 """
 
 from zope.interface import Attribute
@@ -27,12 +27,6 @@ from zope.publisher.interfaces import IPublication
 from zope.publisher.interfaces import IPublishTraverse
 from zope.publisher.interfaces.http import IHTTPApplicationRequest
 from zope.publisher.interfaces.http import IHTTPRequest
-
-
-class IBrowserPresentation(IPresentation):
-    """Browser presentations are for interaction with users using Web Browsers
-    """
-
 
 class IBrowserApplicationRequest(IHTTPApplicationRequest):
     """Browser-specific requests
@@ -67,18 +61,6 @@ class IBrowserApplicationRequest(IHTTPApplicationRequest):
 
         This is a read-only mapping from name to form value for the name.
         """)
-
-
-class IBrowserResource(IBrowserPresentation, IResource):
-    """Browser View
-    """
-
-    def __call__():
-        """Return a URL for getting the resource
-
-        This URL should not be context dependent. Typically, the URL
-        will be based on the service that defined the resource.
-        """
 
 
 class IBrowserPublication(IPublication):
@@ -126,5 +108,5 @@ class IBrowserPublisher(IPublishTraverse):
         """
 
 
-class IBrowserView(IBrowserPresentation, IView):
+class IBrowserView(IView):
     "Browser View"

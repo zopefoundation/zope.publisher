@@ -13,7 +13,7 @@
 ##############################################################################
 """HTTP-related publisher interfaces.
 
-$Id: http.py,v 1.17 2003/08/08 18:08:14 jim Exp $
+$Id: http.py,v 1.18 2003/11/21 17:12:36 jim Exp $
 """
 
 from zope.interface import Interface
@@ -30,17 +30,6 @@ from zope.component.interfaces import IView
 class IHTTPPresentation(IPresentation):
     """HTTP presentations are for interaction with users using Web HTTPs
     """
-
-class IHTTPResource(IHTTPPresentation, IResource):
-    """HTTP View
-    """
-
-    def __call__():
-        """Return a URL for getting the resource
-
-        This URL should not be context dependent. Typically, the URL
-        will be based on the service that defined the resource.
-        """
 
 class IHTTPView(IHTTPPresentation, IView):
     "HTTP View"
