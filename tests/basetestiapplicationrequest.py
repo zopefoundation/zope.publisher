@@ -11,12 +11,10 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""
+"""IApplicationRequest Base Test
 
-Revision information:
 $Id$
 """
-
 from zope.interface.verify import verifyObject
 from zope.publisher.interfaces import IApplicationRequest
 

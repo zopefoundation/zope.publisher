@@ -11,11 +11,10 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""
+"""Test Publisher
 
 $Id$
 """
-
 import unittest
 
 from zope.publisher.publish import publish

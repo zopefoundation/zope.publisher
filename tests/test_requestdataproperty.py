@@ -11,12 +11,10 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""
+"""Request Data-Property Tests
 
-Revision information:
 $Id$
 """
-
 from unittest import TestCase, main, makeSuite
 
 from zope.interface.common.tests.basemapping \
