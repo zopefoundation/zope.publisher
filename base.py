@@ -16,7 +16,7 @@
 Specifically, 'BaseRequest', 'BaseResponse', and 'DefaultPublication' are
 specified here.
 
-$Id: base.py,v 1.14 2004/02/16 21:37:19 srichter Exp $
+$Id: base.py,v 1.15 2004/03/18 20:03:51 srichter Exp $
 """
 import traceback
 from cStringIO import StringIO
@@ -382,7 +382,9 @@ class BaseRequest(object):
     def _setupPath_helper(self, attr):
         path = self.get(attr, "/").strip()
         if path.endswith('/'):
-            path = path[:-1] # XXX Why? Not sure
+            # Remove trailing backslash, so that we will not get an empty
+            # last entry when splitting the path. 
+            path = path[:-1]
             self._endswithslash = 1
         else:
             self._endswithslash = 0
