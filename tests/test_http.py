@@ -454,6 +454,24 @@ class TestHTTPResponse(unittest.TestCase):
         response.outputBody()
         return self._parseResult(stream.getvalue())
 
+    def testWrite(self):
+        response, stream = self._createResponse()
+        data = 'a'*10
+        # We have to set all the headers ourself
+        response.setHeader('Content-Type', 'text/plain;charset=us-ascii')
+        response.setHeader('Content-Length', str(len(data)))
+
+        # Stream the data
+        for ch in data:
+            response.write(ch)
+
+        headers, body = self._parseResult(stream.getvalue())
+        # Check that the data have been written, and that the header
+        # has been preserved   
+        self.assertEqual(headers['Content-Type'], 'text/plain;charset=us-ascii')
+        self.assertEqual(headers['Content-Length'], str(len(data)))
+        self.assertEqual(body, data)
+
     def testContentLength(self):
         eq = self.failUnlessEqual
 
