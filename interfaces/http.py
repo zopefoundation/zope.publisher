@@ -13,7 +13,7 @@
 ##############################################################################
 """HTTP-related publisher interfaces.
 
-$Id: http.py,v 1.4 2003/02/11 16:00:09 sidnei Exp $
+$Id: http.py,v 1.5 2003/02/19 15:24:49 stevea Exp $
 """
 
 from zope.interface import Interface
@@ -232,7 +232,6 @@ class IHTTPResponse(Interface):
         """Returns the current HTTP status code as an integer.
         """
 
-
     def setStatus(status, reason=None):
         """Sets the HTTP status code of the response
 
@@ -244,7 +243,6 @@ class IHTTPResponse(Interface):
         correct integer value.
         """
 
-
     def setHeader(name, value, literal=0):
         """Sets an HTTP return header "name" with value "value"
 
@@ -254,15 +252,12 @@ class IHTTPResponse(Interface):
         output.
         """
 
-
     def addHeader(name, value):
         """Add an HTTP Header
 
         Sets a new HTTP return header with the given value, while retaining
         any previously set headers with the same name.
-
         """
-
 
     def getHeader(name, default=None):
         """Gets a header value
@@ -272,11 +267,9 @@ class IHTTPResponse(Interface):
         yet.
         """
 
-
     def getHeaders():
         """Returns a mapping of correctly-cased header names to values.
         """
-
 
     def appendToCookie(name, value):
         """Append text to a cookie value
@@ -284,7 +277,6 @@ class IHTTPResponse(Interface):
         If a value for the cookie has previously been set, the new
         value is appended to the old one separated by a colon.
         """
-
 
     def expireCookie(name, **kw):
         """Causes an HTTP cookie to be removed from the browser
@@ -297,7 +289,6 @@ class IHTTPResponse(Interface):
         when creating the cookie. The path can be specified as a keyword
         argument.
         """
-
 
     def setCookie(name, value, **kw):
         """Sets an HTTP cookie on the browser
@@ -314,7 +305,6 @@ class IHTTPResponse(Interface):
         Sets an HTTP return header "name" with value "value",
         appending it following a comma if there was a previous value
         set for the header.
-
         """
 
     def setCharset(charset=None):
