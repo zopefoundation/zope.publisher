@@ -23,7 +23,7 @@ from cStringIO import StringIO
 
 from zope.interface import implements, providedBy
 from zope.interface.common.mapping import IReadMapping, IEnumerableMapping
-from zope.exceptions import NotFoundError
+from zope.publisher.interfaces import NotFound
 
 from zope.publisher.interfaces import IPublication
 from zope.publisher.interfaces import NotFound, DebugError, Unauthorized
@@ -406,7 +406,7 @@ class BaseRequest(object):
                 try:
                     del clean[-1]
                 except IndexError:
-                    raise NotFoundError('..')
+                    raise NotFound('..')
             else: clean.append(item)
 
         clean.reverse()
