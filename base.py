@@ -16,7 +16,7 @@
 Specifically, 'BaseRequest', 'BaseResponse', and 'DefaultPublication' are
 specified here.
 
-$Id: base.py,v 1.16 2004/03/20 13:38:15 philikon Exp $
+$Id: base.py,v 1.17 2004/03/20 16:27:15 srichter Exp $
 """
 import traceback
 from cStringIO import StringIO
@@ -39,6 +39,7 @@ class BaseResponse(object):
     __slots__ = (
         '_body',      # The response body
         '_outstream', # The output stream
+        '_request',    # The associated request (if any)
         )
 
     implements(IResponse)
@@ -195,6 +196,8 @@ class BaseRequest(object):
             self._response = self._createResponse(outstream)
         else:
             self._response = response
+        self._response._request = self
+        
         self._body_instream = body_instream
         self._held = ()
         self._user = None
