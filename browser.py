@@ -18,7 +18,7 @@ big improvement of the 'BrowserRequest' to 'HTTPRequest' is that is can handle
 HTML form data and convert them into a Python-native format. Even file data is
 packaged into a nice, Python-friendly 'FileUpload' object.
 
-$Id: browser.py,v 1.24 2004/02/27 17:50:27 sidnei Exp $
+$Id: browser.py,v 1.25 2004/03/06 16:50:39 jim Exp $
 """
 import re
 from types import ListType, TupleType, StringType, StringTypes
@@ -31,7 +31,6 @@ from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.publisher.interfaces.browser import IBrowserApplicationRequest
 
 from zope.publisher.interfaces.browser import IBrowserView
-from zope.component import getAdapter
 from zope.publisher.http import HTTPRequest, HTTPResponse
 from zope.publisher.base import BaseRequest
 
@@ -255,7 +254,7 @@ class BrowserRequest(HTTPRequest):
     def _decode(self, text):
         """Try to decode the text using one of the available charsets."""
         if self.charsets is None:
-            envadapter = getAdapter(self, IUserPreferredCharsets)
+            envadapter = IUserPreferredCharsets(self)
             self.charsets = envadapter.getPreferredCharsets()
         for charset in self.charsets:
             try:

@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.39 2004/02/05 22:52:35 srichter Exp $
+$Id: http.py,v 1.40 2004/03/06 16:50:39 jim Exp $
 """
 
 import re, time, random
@@ -22,7 +22,6 @@ from types import StringTypes, ClassType
 from cgi import escape
 
 from zope.interface import implements
-from zope.component import getAdapter
 
 from zope.publisher.interfaces.http import IHTTPCredentials
 from zope.publisher.interfaces.http import IHTTPRequest
@@ -510,7 +509,7 @@ class HTTPRequest(BaseRequest):
         # the source for setAuthUserName, we had to stub that in
         # several tests.
         if self.response.http_transaction is not None:
-            logging_info = getAdapter(user, ILoggingInfo)
+            logging_info = ILoggingInfo(user)
             message = logging_info.getLogMessage()
             self.response.http_transaction.setAuthUserName(message)
 
