@@ -208,6 +208,20 @@ class BrowserTests(HTTPTests):
         self.assertEqual(request.form,
                          {u'a':u'5', u'b':6})
 
+    def testFormNoEncodingUsesUTF8(self):
+        encoded = 'K\xc3\x83\xc2\xb6hlerstra\xc3\x83\xc2\x9fe'
+        extra = {
+            # if nothing else is specified, form data should be
+            # interpreted as UTF-8, as this stub query string is
+            'QUERY_STRING': 'a=5&b:int=6&street=' + encoded
+            }
+        request = self._createRequest(extra)
+        # many mainstream browsers do not send HTTP_ACCEPT_CHARSET
+        del request._environ['HTTP_ACCEPT_CHARSET']
+        publish(request)
+        self.assert_(isinstance(request.form[u'street'], unicode))
+        self.assertEqual(unicode(encoded, 'utf-8'), request.form['street'])
+
     def testFormListTypes(self):
         extra = {'QUERY_STRING':'a:list=5&a:list=6&b=1'}
         request = self._createRequest(extra)

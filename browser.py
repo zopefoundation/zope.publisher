@@ -229,7 +229,7 @@ class BrowserRequest(HTTPRequest):
         """Try to decode the text using one of the available charsets."""
         if self.charsets is None:
             envadapter = IUserPreferredCharsets(self)
-            self.charsets = envadapter.getPreferredCharsets()
+            self.charsets = envadapter.getPreferredCharsets() or ['utf-8']
         for charset in self.charsets:
             try:
                 text = unicode(text, charset)
