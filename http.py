@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.29 2003/07/22 15:09:41 ryzaja Exp $
+$Id: http.py,v 1.30 2003/07/29 19:50:44 srichter Exp $
 """
 
 import re, time, random
@@ -910,18 +910,33 @@ class HTTPResponse(BaseResponse):
 
 
     def outputHeaders(self):
+        """This method outputs all headers.
+
+        Since it is a final output method, it must take care of all possible
+        unicode strings and encode them! 
+        """
+        encode = self._encode
         headers = self.getHeaders()
+        # Clean these headers from unicode by possibly encoding them
+        items = headers.items()
+        items = map(lambda i: (encode(i[0]), encode(i[1])), items)
+        headers = {}
+        for key, value in items:
+            headers[key] = value
+        # Cleaning done.
         header_output = self._header_output
         if header_output is not None:
             # Use the IHeaderOutput interface.
-            header_output.setResponseStatus(self._status, self._reason)
+            header_output.setResponseStatus(self._status, encode(self._reason))
             header_output.setResponseHeaders(headers)
-            header_output.appendResponseHeaders(self._cookie_list())
-            header_output.appendResponseHeaders(self._accumulated_headers)
+            cookie_list = map(encode, self._cookie_list())
+            header_output.appendResponseHeaders(cookie_list)
+            accumulated_headers = map(encode, self._accumulated_headers)
+            header_output.appendResponseHeaders(accumulated_headers)
         else:
             # Write directly to outstream.
             headers_text = self.getHeaderText(headers)
-            self._outstream.write(headers_text)
+            self._outstream.write(encode(headers_text))
 
 
     def write(self, string):
@@ -947,9 +962,8 @@ class HTTPResponse(BaseResponse):
             self.outputHeaders()
             self._wrote_headers = True
 
-        if (self.getHeader('content-type', '').startswith('text') and
-               self._charset is not None and type(data) is UnicodeType):
-            data = data.encode(self._charset)
+        if self.getHeader('content-type', '').startswith('text'):
+            data = self._encode(data)
 
         self._outstream.write(data)
 
@@ -959,6 +973,12 @@ class HTTPResponse(BaseResponse):
         Outputs the response body.
         """
         self.output(self._body)
+
+
+    def _encode(self, text):
+        if self._charset is not None and isinstance(text, unicode):
+            return text.encode(self._charset)
+        return text
 
 
 class DefaultPublisher:
