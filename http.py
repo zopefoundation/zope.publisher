@@ -13,7 +13,7 @@
 ##############################################################################
 """HTTP Publisher
 
-$Id: http.py,v 1.46 2004/03/26 14:56:22 hdima Exp $
+$Id: http.py,v 1.47 2004/03/29 14:23:36 hdima Exp $
 """
 
 import re, time, random
@@ -49,64 +49,20 @@ class CookieMapper(RequestDataMapper):
 class HeaderGetter(RequestDataGetter):
     _gettrname = 'getHeader'
 
-_marker = object()
-
 base64 = None
 
 def sane_environment(env):
     # return an environment mapping which has been cleaned of
     # funny business such as REDIRECT_ prefixes added by Apache
     # or HTTP_CGI_AUTHORIZATION hacks.
-    dict={}
+    dict = {}
     for key, val in env.items():
         while key.startswith('REDIRECT_'):
-            key=key[9:]
-        dict[key]=val
+            key = key[9:]
+        dict[key] = val
     if 'HTTP_CGI_AUTHORIZATION' in dict:
-        dict['HTTP_AUTHORIZATION']=dict['HTTP_CGI_AUTHORIZATION']
-        try: del dict['HTTP_CGI_AUTHORIZATION']
-        except: pass
+        dict['HTTP_AUTHORIZATION'] = dict.pop('HTTP_CGI_AUTHORIZATION')
     return dict
-
-
-def parse_cookie(
-    text,
-    result=None,
-    qparmre=re.compile(
-    '([\x00- ]*([^\x00- ;,="]+)="([^"]*)"([\x00- ]*[;,])?[\x00- ]*)'),
-    parmre=re.compile(
-    '([\x00- ]*([^\x00- ;,="]+)=([^\x00- ;,"]*)([\x00- ]*[;,])?[\x00- ]*)'),
-    ):
-
-    if result is None: result={}
-    already_have=result.has_key
-
-    mo_q = qparmre.match(text)
-
-    if mo_q:
-        # Match quoted correct cookies
-
-        l     = len(mo_q.group(1))
-        name  = unicode(mo_q.group(2), ENCODING)
-        value = unicode(mo_q.group(3), ENCODING)
-
-    else:
-        # Match evil MSIE cookies ;)
-
-        mo_p = parmre.match(text)
-
-        if mo_p:
-            l     = len(mo_p.group(1))
-            name  = unicode(mo_p.group(2), ENCODING)
-            value = unicode(mo_p.group(3), ENCODING)
-
-        else:
-            return result
-
-    if not already_have(name): result[name]=value
-
-    return apply(parse_cookie,(text[l:],result))
-
 
 # Possible HTTP status responses
 status_reasons = {
@@ -176,10 +132,10 @@ def init_status_codes():
 
 init_status_codes()
 
-accumulate_header = {'set-cookie': 1}.has_key
 
+class URLGetter(object):
 
-class URLGetter:
+    __slots__ = "__request"
 
     def __init__(self, request):
         self.__request = request
@@ -281,9 +237,6 @@ class HTTPRequest(BaseRequest):
     retry_max_count = 3    # How many times we're willing to retry
 
     def __init__(self, body_instream, outstream, environ, response=None):
-        # Import here to break import loops
-        from zope.publisher.browser import BrowserLanguages
-
         super(HTTPRequest, self).__init__(
             body_instream, outstream, environ, response)
 
@@ -304,20 +257,18 @@ class HTTPRequest(BaseRequest):
         self.__setupPath()
         self.__setupURLBase()
         self._vh_root = None
+        self.__setupLocale()
+
+    def __setupLocale(self):
+        # Import here to break import loops
+        from zope.publisher.browser import BrowserLanguages
 
         self.response.setCharsetUsingRequest(self)
         langs = BrowserLanguages(self).getPreferredLanguages()
         for httplang in langs:
-            language = territory = variant = None
-            parts = httplang.split('-')
-            if parts:
-                language = parts.pop(0)
-            if parts:
-                territory = parts.pop(0)
-            if parts:
-                variant = parts.pop(0)
+            parts = (httplang.split('-') + [None, None])[:3]
             try:
-                self._locale = locales.getLocale(language, territory, variant)
+                self._locale = locales.getLocale(*parts)
                 return
             except LoadLocaleError:
                 # Just try the next combination
@@ -383,18 +334,49 @@ class HTTPRequest(BaseRequest):
 
         return '%s://%s' % (protocol, host)
 
+    _cookieFormat = re.compile('[\x00- ]*'
+            # Cookie name
+            '([^\x00- ;,="]+)='
+            # Cookie value (either correct quoted or MSIE)
+            '(?:"([^"]*)"|([^\x00- ;,"]*))'
+            '(?:[\x00- ]*[;,])?[\x00- ]*')
+
+    def _parseCookies(self, text, result=None):
+        """Parse 'text' and return found cookies as 'result' dictionary."""
+
+        if result is None:
+            result = {}
+
+        cookieFormat = self._cookieFormat
+
+        pos = 0
+        ln = len(text)
+        while pos < ln:
+            match = cookieFormat.match(text, pos)
+            if match is None:
+                break
+
+            name  = unicode(match.group(1), ENCODING)
+            if name not in result:
+                value, ms_value = match.group(2, 3)
+                if value is None:
+                    value = ms_value
+                result[name] = unicode(value, ENCODING)
+
+            pos = match.end()
+
+        return result
+
     def __setupCookies(self):
 
         ################################################################
         # Cookie values should *not* be appended to existing form
         # vars with the same name - they are more like default values
         # for names not otherwise specified in the form.
-        cookies={}
-        cookie_header = self._environ.get('HTTP_COOKIE','')
-        if cookie_header:
-            parse_cookie(cookie_header, cookies)
-
-        self._cookies = cookies
+        self._cookies = {}
+        cookie_header = self._environ.get('HTTP_COOKIE', None)
+        if cookie_header is not None:
+            self._parseCookies(cookie_header, self._cookies)
 
     def __setupPath(self):
         # The recommendation states that:
@@ -674,7 +656,7 @@ class HTTPResponse(BaseResponse):
         value = str(value)
 
         key = name.lower()
-        if accumulate_header(key):
+        if key == 'set-cookie':
             self.addHeader(name, value)
         else:
             name = literal and name or key
@@ -978,7 +960,6 @@ class HTTPResponse(BaseResponse):
 
         if self.getHeader('content-type', '').startswith('text'):
             data = self._encode(data)
-            # TODO: Need a test case
             self._updateContentLength(data)
 
         if not self._wrote_headers:
