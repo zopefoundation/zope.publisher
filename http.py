@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.11 2003/02/28 14:21:26 stevea Exp $
+$Id: http.py,v 1.12 2003/02/28 22:57:31 jim Exp $
 """
 
 import re, time, random
@@ -34,7 +34,6 @@ from zope.i18n.interfaces import IUserPreferredCharsets
 from zope.i18n.interfaces import IUserPreferredCharsets
 
 from zope.component import queryAdapter
-from zope.exceptions.exceptionformatter import format_exception
 from zope.exceptions import NotFoundError
 from zope.publisher.base import BaseRequest, BaseResponse
 from zope.publisher.base \
@@ -784,8 +783,8 @@ class HTTPResponse (BaseResponse):
         # for apps to control the status code.
         self.setStatus(tname)
 
-        tb = ''.join(format_exception(t, v, exc_info[2], as_html=True))
-        body = self._html(title, "%s" % tb)
+        status = self.getStatus()
+        body = self._html(title, "A server error occurred." )
         self.setBody(body)
 
 
