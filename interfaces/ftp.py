@@ -13,7 +13,7 @@
 ##############################################################################
 """Virtual File System interfaces for the publisher.
 
-$Id: ftp.py,v 1.2 2003/04/11 12:55:41 ryzaja Exp $
+$Id: ftp.py,v 1.3 2003/11/21 17:12:38 jim Exp $
 """
 
 from zope.interface import Interface
@@ -22,7 +22,11 @@ from zope.component.interfaces import IPresentation
 from zope.component.interfaces import IView
 
 from zope.publisher.interfaces import IPublishTraverse
+from zope.publisher.interfaces import IRequest
 
+class IFTPRequest(IRequest):
+    """FTP Request
+    """
 
 class IFTPCredentials(Interface):
 
