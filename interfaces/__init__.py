@@ -234,6 +234,10 @@ class IPublication(Interface):
 
     def callTraversalHooks(request, ob):
         """Invokes any traversal hooks associated with the object.
+
+        This is called before traversing each object.  The ob argument
+        is the object that is about to be traversed.
+        
         """
 
     def traverseName(request, ob, name):
@@ -242,6 +246,8 @@ class IPublication(Interface):
 
     def afterTraversal(request, ob):
         """Post-traversal hook.
+
+        This is called after all traversal.
         """
 
     def callObject(request, ob):
