@@ -728,7 +728,7 @@ def normalize_lang(lang):
     lang = lang.replace(' ', '')
     return lang
 
-class BrowserLanguages:
+class BrowserLanguages(object):
 
     implements(IUserPreferredLanguages)
 

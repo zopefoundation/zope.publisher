@@ -67,33 +67,33 @@ class BrowserTests(HTTPTests):
     def setUp(self):
         super(BrowserTests, self).setUp()
 
-        class AppRoot:
-            " "
+        class AppRoot(object):
+            """Required docstring for the publisher."""
 
-        class Folder:
-            " "
+        class Folder(object):
+            """Required docstring for the publisher."""
 
-        class Item:
-            " "
+        class Item(object):
+            """Required docstring for the publisher."""
             def __call__(self, a, b):
                 return "%s, %s" % (`a`, `b`)
 
-        class Item3:
-            " "
+        class Item3(object):
+            """Required docstring for the publisher."""
             def __call__(self, *args):
                 return "..."
 
-        class View:
-            " "
+        class View(object):
+            """Required docstring for the publisher."""
             def browserDefault(self, request):
                 return self, ['index']
 
             def index(self, a, b):
-                " "
+                """Required docstring for the publisher."""
                 return "%s, %s" % (`a`, `b`)
 
-        class Item2:
-            " "
+        class Item2(object):
+            """Required docstring for the publisher."""
             view = View()
 
             def browserDefault(self, request):
