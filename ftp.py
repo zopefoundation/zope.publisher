@@ -11,11 +11,10 @@
 # FOR A PARTICULAR PURPOSE
 #
 ##############################################################################
-"""
+"""FTP Publisher
 
-$Id: ftp.py,v 1.7 2003/11/21 17:12:28 jim Exp $
+$Id: ftp.py,v 1.8 2004/03/19 20:26:43 srichter Exp $
 """
-
 from zope.interface import implements
 from zope.publisher.interfaces.ftp import IFTPCredentials, IFTPRequest
 from zope.publisher.base import BaseResponse, BaseRequest

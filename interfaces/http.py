@@ -13,9 +13,8 @@
 ##############################################################################
 """HTTP-related publisher interfaces.
 
-$Id: http.py,v 1.20 2004/03/19 18:31:38 philikon Exp $
+$Id: http.py,v 1.21 2004/03/19 20:26:44 srichter Exp $
 """
-
 from zope.interface import Interface
 from zope.interface import Attribute
 
@@ -24,18 +23,6 @@ from zope.publisher.interfaces import IApplicationResponse
 from zope.publisher.interfaces import IPublishTraverse
 from zope.publisher.interfaces import IRequest
 from zope.publisher.interfaces import IResponse
-
-from zope.component.interfaces import IPresentation
-from zope.component.interfaces import IResource
-from zope.component.interfaces import IView
-
-
-class IHTTPPresentation(IPresentation):
-    """HTTP presentations are for interaction with users using Web HTTPs
-    """
-
-class IHTTPView(IHTTPPresentation, IView):
-    """HTTP View"""
 
 
 class IVirtualHostRequest(Interface):

@@ -11,15 +11,11 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""
-$Id: browser.py,v 1.8 2004/03/17 18:25:00 philikon Exp $
-"""
+"""Browser Interfaces
 
+$Id: browser.py,v 1.9 2004/03/19 20:26:44 srichter Exp $
+"""
 from zope.interface import Attribute
-
-from zope.component.interfaces import IPresentation
-from zope.component.interfaces import IResource
-from zope.component.interfaces import IView
 
 from zope.publisher.interfaces import IPublication
 from zope.publisher.interfaces import IPublishTraverse
@@ -104,7 +100,3 @@ class IBrowserPublisher(IPublishTraverse):
         nonempty sequence of names), then the publisher will try to adjust
         the base href.
         """
-
-
-class IBrowserView(IView):
-    """Browser View"""

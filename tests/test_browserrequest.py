@@ -11,14 +11,12 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
+"""Browser Request Tests
+
+$Id: test_browserrequest.py,v 1.11 2004/03/19 20:26:44 srichter Exp $
+"""
 import unittest
 
-from zope.component.tests.placelesssetup import PlacelessSetup
-from zope.app.tests import ztapi
-
-from zope.i18n.interfaces import IUserPreferredCharsets
-
-from zope.publisher.http import IHTTPRequest
 from zope.publisher.http import HTTPCharsets
 from zope.publisher.browser import BrowserRequest
 from zope.publisher.interfaces import NotFound
@@ -43,9 +41,16 @@ class Publication(DefaultPublication):
             return ob.browserDefault(request)
         return ob, ()
 
+class TestBrowserRequest(BrowserRequest, HTTPCharsets):
+    """Make sure that our request also implements IHTTPCharsets, so that we do
+    not need to register any adapters."""
+
+    def __init__(self, *args, **kw):
+        self.request = self
+        BrowserRequest.__init__(self, *args, **kw)
 
 
-class BrowserTests(HTTPTests, PlacelessSetup):
+class BrowserTests(HTTPTests):
 
     _testEnv =  {
         'PATH_INFO':           '/folder/item',
@@ -61,8 +66,6 @@ class BrowserTests(HTTPTests, PlacelessSetup):
 
     def setUp(self):
         super(BrowserTests, self).setUp()
-        ztapi.provideAdapter(IHTTPRequest, IUserPreferredCharsets,
-                             HTTPCharsets)
 
         class AppRoot:
             " "
@@ -113,7 +116,7 @@ class BrowserTests(HTTPTests, PlacelessSetup):
         if outstream is None:
             outstream = StringIO()
         instream = StringIO(body)
-        request = BrowserRequest(instream, outstream, env)
+        request = TestBrowserRequest(instream, outstream, env)
         request.setPublication(publication)
         return request
 

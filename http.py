@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.43 2004/03/19 04:26:28 srichter Exp $
+$Id: http.py,v 1.44 2004/03/19 20:26:43 srichter Exp $
 """
 
 import re, time, random
@@ -490,15 +490,6 @@ class HTTPRequest(BaseRequest):
         'See IPublicationRequest'
         super(HTTPRequest, self).setUser(user)
 
-        # XXX: under the publishing conditions,
-        # self.response.http_transaction is an HTTPTask.  It needs to know
-        # the username for logging purposes.  It would make sense to
-        # do this in the server, when the actual hit log entry is
-        # written, but it would require a major refactoring.
-        #
-        # When removing this wart after the server refactoring, grep
-        # the source for setAuthUserName, we had to stub that in
-        # several tests.
         if self.response.http_transaction is not None:
             logging_info = ILoggingInfo(user)
             message = logging_info.getLogMessage()

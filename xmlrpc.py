@@ -16,7 +16,7 @@
 This module contains the MethodPublisher, XMLRPCView, XMLRPCRequest and
 XMLRPCResponse
 
-$Id: xmlrpc.py,v 1.10 2003/11/21 17:12:28 jim Exp $
+$Id: xmlrpc.py,v 1.11 2004/03/19 20:26:43 srichter Exp $
 """
 import sys
 import xmlrpclib
@@ -25,13 +25,10 @@ from StringIO import StringIO
 from zope.interface import implements
 from zope.publisher.interfaces.xmlrpc import IXMLRPCPublisher
 from zope.publisher.interfaces.xmlrpc import IXMLRPCRequest
-from zope.publisher.interfaces.xmlrpc import IXMLRPCView
 
 from zope.publisher.http import HTTPRequest, HTTPResponse
 from zope.publisher.http import DefaultPublisher
 from zope.proxy import removeAllProxies
-
-__metaclass__ = type
 
 
 class MethodPublisher(DefaultPublisher):
@@ -39,16 +36,6 @@ class MethodPublisher(DefaultPublisher):
        except that it implements the IXMLRPCPublisher interface."""
 
     implements(IXMLRPCPublisher)
-
-    def __init__(self, context, request):
-        self.context = context
-        self.request = request
-
-
-class XMLRPCView:
-    """A base XML-RPC view that can be used as mix-in for XML-RPC views.""" 
-
-    implements(IXMLRPCView)
 
     def __init__(self, context, request):
         self.context = context

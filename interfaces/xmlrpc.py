@@ -13,11 +13,8 @@
 ##############################################################################
 """Interfaces for the XMLRPC publisher.
 
-$Id: xmlrpc.py,v 1.5 2004/03/17 18:25:00 philikon Exp $
+$Id: xmlrpc.py,v 1.6 2004/03/19 20:26:44 srichter Exp $
 """
-from zope.component.interfaces import IView
-
-from zope.component.interfaces import IPresentation
 from zope.publisher.interfaces import IPublication
 from zope.publisher.interfaces import IPublishTraverse
 from zope.publisher.interfaces.http import IHTTPRequest
@@ -36,13 +33,6 @@ class IXMLRPCPublication(IPublication):
         Allows a default view to be added to traversal.
         Returns (ob, steps_reversed).
         """
-
-class IXMLRPCPresentation(IPresentation):
-    """XML-RPC presentation
-    """
-
-class IXMLRPCView(IXMLRPCPresentation, IView):
-    """XMLRPC View"""
 
 class IXMLRPCRequest(IHTTPRequest):
     """XML-RPC Request

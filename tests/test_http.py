@@ -14,16 +14,9 @@
 ##############################################################################
 """HTTP Publisher Tests
 
-$Id: test_http.py,v 1.27 2004/03/18 20:03:56 srichter Exp $
+$Id: test_http.py,v 1.28 2004/03/19 20:26:44 srichter Exp $
 """
 import unittest
-
-# XXX evil zope.app imports :(
-from zope.app.site.tests.placefulsetup import PlacefulSetup
-from zope.app.security.interfaces import IPrincipal
-
-# XX, Hm, zope.component dependency is suspect
-import zope.component
 
 from zope.interface import implements
 from zope.publisher.interfaces.logginginfo import ILoggingInfo
@@ -40,23 +33,19 @@ from StringIO import StringIO
 
 
 class UserStub:
-    implements(IPrincipal)
+    implements(ILoggingInfo)
+
     def __init__(self, id):
         self._id = id
+
     def getId(self):
         return self._id
 
-class PrincipalLoggingStub:
-    implements(ILoggingInfo)
-
-    def __init__(self, object):
-        self.object = object
-
     def getLogMessage(self):
-        return self.object.getId()
+        return self._id
 
 
-class HTTPTests(PlacefulSetup, unittest.TestCase):
+class HTTPTests(unittest.TestCase):
 
     _testEnv =  {
         'PATH_INFO':          '/folder/item',
@@ -72,7 +61,6 @@ class HTTPTests(PlacefulSetup, unittest.TestCase):
     }
 
     def setUp(self):
-        PlacefulSetup.setUp(self)
         class AppRoot:
             " "
 
@@ -213,7 +201,8 @@ class HTTPTests(PlacefulSetup, unittest.TestCase):
         self.assertEquals(req.getHeader('TEST_HEADER', literal=True), u'test')
         self.assertEquals(req.getHeader('TEST-HEADER', literal=True), None)
         self.assertEquals(req.getHeader('test_header', literal=True), None)
-        self.assertEquals(req.getHeader('Another-Test', literal=True), 'another')
+        self.assertEquals(req.getHeader('Another-Test', literal=True),
+                          'another')
 
     def testBasicAuth(self):
         from zope.publisher.interfaces.http import IHTTPCredentials
@@ -236,8 +225,6 @@ class HTTPTests(PlacefulSetup, unittest.TestCase):
             def setAuthUserName(self, name):
                 self.auth_user_name = name
 
-        as = zope.component.getService(None, 'Adapters')
-        as.register([IPrincipal], ILoggingInfo, '', PrincipalLoggingStub)
         task = HTTPTaskStub()
         req = self._createRequest(outstream=task)
         req.setUser(UserStub("jim"))

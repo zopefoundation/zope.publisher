@@ -11,21 +11,16 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
+"""XML-RPC Request Tests
+
+$Id: test_xmlrpcrequest.py,v 1.9 2004/03/19 20:26:44 srichter Exp $
+"""
 import unittest
-
-from zope.component.tests.placelesssetup import PlacelessSetup
-import zope.component
-
-from zope.i18n.interfaces import IUserPreferredCharsets
-
-from zope.publisher.http import IHTTPRequest
-from zope.publisher.http import HTTPCharsets
-
-from zope.publisher.xmlrpc import XMLRPCRequest
+from StringIO import StringIO
 
 from zope.publisher.base import DefaultPublication
-
-from cStringIO import StringIO
+from zope.publisher.http import HTTPCharsets
+from zope.publisher.xmlrpc import XMLRPCRequest
 
 class Publication(DefaultPublication):
 
@@ -37,7 +32,16 @@ class Publication(DefaultPublication):
         return ob, ()
 
 
-xmlrpc_call = '''<?xml version='1.0'?>
+class TestXMLRPCRequest(XMLRPCRequest, HTTPCharsets):
+    """Make sure that our request also implements IHTTPCharsets, so that we do
+    not need to register any adapters."""
+
+    def __init__(self, *args, **kw):
+        self.request = self
+        XMLRPCRequest.__init__(self, *args, **kw)
+
+
+xmlrpc_call = u'''<?xml version='1.0'?>
 <methodCall>
   <methodName>action</methodName>
   <params>
@@ -49,7 +53,7 @@ xmlrpc_call = '''<?xml version='1.0'?>
 '''
 
 
-class XMLRPCTests(PlacelessSetup, unittest.TestCase):
+class XMLRPCTests(unittest.TestCase):
     """The only thing different to HTTP is the input processing; so there
        is no need to redo all the HTTP tests again.
     """
@@ -69,9 +73,6 @@ class XMLRPCTests(PlacelessSetup, unittest.TestCase):
 
     def setUp(self):
         super(XMLRPCTests, self).setUp()
-
-        as = zope.component.getService(None, 'Adapters')
-        as.register([IHTTPRequest], IUserPreferredCharsets, '', HTTPCharsets)
 
         class AppRoot:
             " "
@@ -113,7 +114,7 @@ class XMLRPCTests(PlacelessSetup, unittest.TestCase):
         if outstream is None:
             outstream = StringIO()
         instream = StringIO(body)
-        request = XMLRPCRequest(instream, outstream, env)
+        request = TestXMLRPCRequest(instream, outstream, env)
         request.setPublication(publication)
         return request
 
