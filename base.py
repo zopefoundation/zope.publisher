@@ -13,7 +13,7 @@
 ##############################################################################
 '''Response Output formatter
 
-$Id: base.py,v 1.9 2003/06/09 16:39:14 alga Exp $
+$Id: base.py,v 1.10 2003/08/08 18:08:01 jim Exp $
 '''
 
 
@@ -249,9 +249,9 @@ class BaseRequest(object):
             if traversal_stack:
                 # Traverse to the next step.
                 entry_name = traversal_stack.pop()
+                traversed_names.append(entry_name)
                 subobject = publication.traverseName(
                     self, object, entry_name)
-                traversed_names.append(entry_name)
                 self._last_obj_traversed = object = subobject
             else:
                 # Finished traversal.
@@ -287,7 +287,7 @@ class BaseRequest(object):
         'See IPublicationRequest'
         self._traversal_stack[:] = list(stack)
 
-    def setViewSkin(self, skin):
+    def setPresentationSkin(self, skin):
         'See IPublicationRequest'
         self._presentation_skin = skin
 
