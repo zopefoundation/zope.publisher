@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.31 2003/07/30 15:06:53 sidnei Exp $
+$Id: http.py,v 1.32 2003/08/08 00:18:39 srichter Exp $
 """
 
 import re, time, random
@@ -975,8 +975,11 @@ class HTTPResponse(BaseResponse):
 
 
     def _encode(self, text):
-        if self._charset is not None and isinstance(text, unicode):
-            return text.encode(self._charset)
+        # We **always** have to convert unicode to ASCII. If no character set
+        # is found, we just use unicode. That is still better than our server
+        # crashing.
+        if isinstance(text, unicode):
+            return text.encode(self._charset or 'UTF-8')
         return text
 
 
