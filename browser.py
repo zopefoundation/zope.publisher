@@ -33,8 +33,6 @@ from zope.publisher.interfaces.browser import IBrowserApplicationRequest
 from zope.publisher.http import HTTPRequest, HTTPResponse
 from zope.publisher.base import BaseRequest
 
-__metaclass__ = type # All classes are new style when run with Python 2.2+
-
 __ArrayTypes = (ListType, TupleType)
 
 start_of_header_search=re.compile('(<head[^>]*>)', re.I).search
@@ -177,7 +175,7 @@ hide_key={
     }.has_key
 
 
-class Record:
+class Record(object):
 
     def __getattr__(self, key, default=None):
         if key in ('get', 'keys', 'items', 'values', 'copy',
