@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: test_publisher.py,v 1.5 2003/06/07 06:54:25 stevea Exp $
+$Id: test_publisher.py,v 1.6 2004/03/05 22:09:30 jim Exp $
 """
 
 import unittest
@@ -76,7 +76,7 @@ class PublisherTests(unittest.TestCase):
         return outstream.getvalue()
 
     def testImplementsIPublication(self):
-        self.failUnless(IPublication.isImplementedBy(
+        self.failUnless(IPublication.providedBy(
                             DefaultPublication(self.app)))
 
     def testInterfacesVerify(self):

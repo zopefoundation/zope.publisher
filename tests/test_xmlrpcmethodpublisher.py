@@ -33,7 +33,7 @@ class TestMethodPublisher(unittest.TestCase):
         self.pres = Presentation(ContentStub(), TestRequest())
 
     def testImplementsIXMLRPCPublisher(self):
-        self.failUnless(IXMLRPCPublisher.isImplementedBy(self.pres))
+        self.failUnless(IXMLRPCPublisher.providedBy(self.pres))
 
     def testInterfacesVerify(self):
         for interface in implementedBy(Presentation):

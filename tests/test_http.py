@@ -145,7 +145,7 @@ class HTTPTests(PlacefulSetup, unittest.TestCase):
         for httplang in ('it', 'it-ch', 'it-CH', 'IT', 'IT-CH', 'IT-ch'):
             req = self._createRequest({'HTTP_ACCEPT_LANGUAGE': httplang})
             locale = req.locale
-            unless(ILocale.isImplementedBy(locale))
+            unless(ILocale.providedBy(locale))
             parts = httplang.split('-')
             lang = parts.pop(0).lower()
             territory = variant = None
@@ -159,7 +159,7 @@ class HTTPTests(PlacefulSetup, unittest.TestCase):
         # Now test for non-existant locale fallback
         req = self._createRequest({'HTTP_ACCEPT_LANGUAGE': 'xx'})
         locale = req.locale
-        unless(ILocale.isImplementedBy(locale))
+        unless(ILocale.providedBy(locale))
         eq(locale.id.language, None)
         eq(locale.id.territory, None)
         eq(locale.id.variant, None)
@@ -167,7 +167,7 @@ class HTTPTests(PlacefulSetup, unittest.TestCase):
         # If the first language is not available we should try others
         req = self._createRequest({'HTTP_ACCEPT_LANGUAGE': 'xx,en;q=0.5'})
         locale = req.locale
-        unless(ILocale.isImplementedBy(locale))
+        unless(ILocale.providedBy(locale))
         eq(locale.id.language, 'en')
         eq(locale.id.territory, None)
         eq(locale.id.variant, None)
@@ -176,7 +176,7 @@ class HTTPTests(PlacefulSetup, unittest.TestCase):
         # not reset
         req = self._createRequest({'HTTP_ACCEPT_LANGUAGE': 'xx-YY,en;q=0.5'})
         locale = req.locale
-        unless(ILocale.isImplementedBy(locale))
+        unless(ILocale.providedBy(locale))
         eq(locale.id.language, 'en')
         eq(locale.id.territory, None)
         eq(locale.id.variant, None)
