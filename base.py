@@ -469,7 +469,7 @@ class DefaultPublication(object):
 
     def traverseName(self, request, ob, name, check_auth=1):
         if name.startswith('_'):
-            raise Unauthorized("Name %s begins with an underscore" % `name`)
+            raise Unauthorized, name
         if hasattr(ob, name):
             subob = getattr(ob, name)
         else:
