@@ -13,11 +13,11 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.41 2004/03/06 17:48:56 jim Exp $
+$Id: http.py,v 1.42 2004/03/18 20:03:55 srichter Exp $
 """
 
 import re, time, random
-from urllib import quote, splitport
+from urllib import quote, unquote, splitport
 from types import StringTypes, ClassType
 from cgi import escape
 
@@ -397,6 +397,18 @@ class HTTPRequest(BaseRequest):
         self._cookies = cookies
 
     def __setupPath(self):
+        # The recommendation states that:
+        #
+        # Unless there is some compelling reason for a
+        # particular scheme to do otherwise, translating character sequences
+        # into UTF-8 (RFC 2279) [3] and then subsequently using the %HH
+        # encoding for unsafe octets is recommended.
+        #
+        # See: http://www.ietf.org/rfc/rfc2718.txt, Section 2.2.5
+        path = self.get("PATH_INFO", "/")
+        path = unquote(path)
+        path = path.decode('UTF-8')
+        self._environ["PATH_INFO"] = path
         self._setupPath_helper("PATH_INFO")
 
     def supportsRetry(self):
@@ -432,25 +444,6 @@ class HTTPRequest(BaseRequest):
             ob = super(HTTPRequest, self).traverse(ob)
 
         return ob
-
-    # This method is not part of the interface.
-    def _splitPath(self, path):
-        # Split and clean up the path.
-        if path.startswith('/'):
-            path = path[1:]
-
-        if path.endswith('/'):
-            path = path[:-1]
-
-        clean = []
-        for item in path.split('/'):
-            if not item or item == '.':
-                continue
-            elif item == '..':
-                del clean[-1]
-            else: clean.append(item)
-
-        return clean
 
     def getHeader(self, name, default=None, literal=False):
         'See IHTTPRequest'

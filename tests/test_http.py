@@ -1,3 +1,4 @@
+# -*- coding: latin-1 -*-
 ##############################################################################
 #
 # Copyright (c) 2001, 2002 Zope Corporation and Contributors.
@@ -13,7 +14,7 @@
 ##############################################################################
 """HTTP Publisher Tests
 
-$Id: test_http.py,v 1.26 2004/03/15 20:42:13 jim Exp $
+$Id: test_http.py,v 1.27 2004/03/18 20:03:56 srichter Exp $
 """
 import unittest
 
@@ -344,9 +345,16 @@ class HTTPTests(PlacefulSetup, unittest.TestCase):
         req._environ = {'SERVER_NAME': 'example.com'}
         self.assertEquals(deduceServerURL(), 'http://example.com')
 
+    def testUnicodeURLs(self):
+        req = self._createRequest(
+            {'PATH_INFO': '/%C3%A4%C3%B6/%C3%BC%C3%9F/foo/bar.html'})
+        self.assertEqual(req._traversal_stack,
+                         [u'bar.html', u'foo', u'ья', u'дц'])
+
 
 class ConcreteHTTPTests(HTTPTests):
-    """Tests that we don't have to worry about subclasses inheriting and breaking
+    """Tests that we don't have to worry about subclasses inheriting and
+    breaking.
     """
 
     def test_shiftNameToApplication(self):
