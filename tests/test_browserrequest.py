@@ -60,7 +60,7 @@ class BrowserTests(HTTPTests, PlacelessSetup):
     }
 
     def setUp(self):
-        PlacelessSetup.setUp(self)
+        super(BrowserTests, self).setUp()
         ztapi.provideAdapter(IHTTPRequest, IUserPreferredCharsets,
                              HTTPCharsets)
 

@@ -49,7 +49,7 @@ xmlrpc_call = '''<?xml version='1.0'?>
 '''
 
 
-class XMLRPCTests(unittest.TestCase, PlacelessSetup):
+class XMLRPCTests(PlacelessSetup, unittest.TestCase):
     """The only thing different to HTTP is the input processing; so there
        is no need to redo all the HTTP tests again.
     """
@@ -68,7 +68,7 @@ class XMLRPCTests(unittest.TestCase, PlacelessSetup):
     }
 
     def setUp(self):
-        PlacelessSetup.setUp(self)
+        super(XMLRPCTests, self).setUp()
 
         as = zope.component.getService(None, 'Adapters')
         as.provideAdapter(IHTTPRequest, IUserPreferredCharsets, [HTTPCharsets])
