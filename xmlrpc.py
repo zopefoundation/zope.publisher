@@ -13,7 +13,7 @@
 ##############################################################################
 """XML-RPC Publisher
 
-This module contains the MethodPublisher, XMLRPCRequest and XMLRPCResponse
+This module contains the XMLRPCRequest and XMLRPCResponse
 
 $Id$
 """
@@ -26,20 +26,7 @@ from zope.publisher.interfaces.xmlrpc import IXMLRPCPublisher
 from zope.publisher.interfaces.xmlrpc import IXMLRPCRequest
 
 from zope.publisher.http import HTTPRequest, HTTPResponse
-from zope.publisher.http import DefaultPublisher
 from zope.proxy import removeAllProxies
-
-
-class MethodPublisher(DefaultPublisher):
-    """Simple XML-RPC publisher that is identical to the HTTP Default Publisher
-       except that it implements the IXMLRPCPublisher interface."""
-
-    implements(IXMLRPCPublisher)
-
-    def __init__(self, context, request):
-        self.context = context
-        self.request = request
-
 
 class XMLRPCRequest(HTTPRequest):
     implements(IXMLRPCRequest)
