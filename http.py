@@ -884,7 +884,11 @@ class HTTPResponse(BaseResponse):
         after beginning stream-oriented output.
 
         """
-        self.output(string)
+        if not self._wrote_headers:
+            self.outputHeaders()
+            self._wrote_headers = True
+
+        self._outstream.write(string)
 
     def output(self, data):
         """Output the data to the world. There are a couple of steps we have
@@ -909,11 +913,7 @@ class HTTPResponse(BaseResponse):
             data = self._encode(data)
             self._updateContentLength(data)
 
-        if not self._wrote_headers:
-            self.outputHeaders()
-            self._wrote_headers = True
-
-        self._outstream.write(data)
+        self.write(data)
 
 
     def outputBody(self):
