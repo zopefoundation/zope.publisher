@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: browser.py,v 1.9 2003/02/13 17:46:20 tseaver Exp $
+$Id: browser.py,v 1.10 2003/03/06 22:48:03 jim Exp $
 """
 
 import re
@@ -729,6 +729,7 @@ class TestRequest(BrowserRequest):
             body_instream = StringIO('')
 
         if outstream is None:
+            from StringIO import StringIO
             outstream = StringIO()
 
         super(TestRequest, self).__init__(body_instream, outstream, _testEnv)
