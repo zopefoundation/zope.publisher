@@ -20,6 +20,8 @@ from zope.publisher.publish import publish
 from zope.publisher.base import DefaultPublication
 from zope.publisher.interfaces.http import IHTTPPresentation
 
+from zope.i18n.interfaces import ILocale
+
 from zope.interface.verify import verifyObject
 from zope.interface.implements import instancesOfObjectImplements
 
@@ -111,6 +113,32 @@ class HTTPTests(unittest.TestCase):
 
         self.assertRaises(KeyError, req.__getitem__,
                           'HTTP_WE_DID_NOT_PROVIDE_THIS')
+
+    def testRequestLocale(self):
+        eq = self.assertEqual
+        unless = self.failUnless
+        for httplang in ('it', 'it-ch', 'it-CH', 'IT', 'IT-CH', 'IT-ch'):
+            req = self._createRequest({'HTTP_ACCEPT_LANGUAGE': httplang})
+            locale = req.getLocale()
+            unless(ILocale.isImplementedBy(locale))
+            parts = httplang.split('-')
+            lang = parts.pop(0).lower()
+            country = variant = None
+            if parts:
+                country = parts.pop(0).upper()
+            if parts:
+                variant = parts.pop(0).upper()
+            eq(locale.getLocaleLanguageId(), lang)
+            eq(locale.getLocaleCountryId(), country)
+            eq(locale.getLocaleVariantId(), variant)
+        # Now test for non-existant locale fallback
+        req = self._createRequest({'HTTP_ACCEPT_LANGUAGE': 'xx'})
+        locale = req.getLocale()
+        unless(ILocale.isImplementedBy(locale))
+        eq(locale.getLocaleLanguageId(), None)
+        eq(locale.getLocaleCountryId(), None)
+        eq(locale.getLocaleVariantId(), None)
+        
 
     def testCookies(self):
         cookies = {
