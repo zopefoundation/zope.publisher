@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: browser.py,v 1.15 2003/04/11 12:55:41 ryzaja Exp $
+$Id: browser.py,v 1.16 2003/04/16 06:57:49 mgedmin Exp $
 """
 
 import re
@@ -811,6 +811,14 @@ class BrowserResponse(HTTPResponse):
             else:
                 base += '/'
             location = base + location
+
+        # XXX: HTTP redirects must provide an absolute location, see
+        #      http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.30
+        #      So, what if location is relative and base is unknown?  Uncomment
+        #      the following and you'll see that it actually happens.
+        #
+        # if isRelative(str(location)):
+        #     raise AssertionError('Cannot determine absolute location')
 
         super(BrowserResponse, self).redirect(location, status)
 
