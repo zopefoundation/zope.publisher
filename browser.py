@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: browser.py,v 1.8 2003/02/13 16:48:43 tseaver Exp $
+$Id: browser.py,v 1.9 2003/02/13 17:46:20 tseaver Exp $
 """
 
 import re
@@ -21,7 +21,6 @@ from types import ListType, TupleType, StringType, StringTypes
 from cgi import FieldStorage, escape
 from datetime import datetime
 
-from zope.app.datetimeutils import parse as parseDateTime
 from zope.i18n.interfaces import IUserPreferredLanguages
 from zope.i18n.interfaces import IUserPreferredCharsets
 from zope.publisher.interfaces.browser import IBrowserPresentation
@@ -146,32 +145,6 @@ def field2lines(v):
         return result
     return field2text(v).split('\n')
 
-def field2date(v):
-    if hasattr(v,'read'):
-        v = v.read()
-    else:
-        v = str(v)
-
-    # *Don't* force a timezone if not passed explicitly;  leave it as
-    # "naive" datetime.
-    year, month, day, hour, minute, second, tzname = parseDateTime(v, local=0)
-
-    # TODO:  look up a real tzinfo object using 'tzname'
-    #
-    # Option 1:  Use 'timezones' module as global registry::
-    #
-    #   from zope.app.timezones import getTimezoneInfo
-    #   tzinfo = getTimezoneInfo(tzname)
-    #
-    # Option 2:  Use a utility.
-    #
-    #   tz_lookup = getUtility(None, ITimezoneLookup)
-    #   tzinfo = tz_lookup(tzname)
-    #
-    return datetime(year, month, day, hour, minute, second,
-                  # tzinfo=tzinfo
-                   )
-
 def field2boolean(v):
     return v
 
@@ -180,7 +153,6 @@ type_converters = {
     'int':      field2int,
     'long':     field2long,
     'string':   field2string,
-    'date':     field2date,
     'required': field2required,
     'tokens':   field2tokens,
     'lines':    field2lines,
@@ -189,6 +161,20 @@ type_converters = {
     }
 
 get_converter=type_converters.get
+
+def registerTypeConverter(field_type, converter, replace=False):
+    """Add a custom type converter to the registry.
+
+    o If 'replace' is not true, raise a KeyError if a converter is
+      already registered for 'field_type'.
+    """
+    existing = type_converters.get(field_type)
+
+    if existing is not None and not replace:
+        raise KeyError, 'Existing converter for field_type: %s' % field_type
+
+    type_converters[field_type] = converter
+
 
 isCGI_NAME = {
     # These fields are placed in request.environ instead of request.form.
