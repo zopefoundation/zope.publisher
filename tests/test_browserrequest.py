@@ -130,10 +130,10 @@ class BrowserTests(HTTPTests, PlacelessSetup):
         # test the IView request
         r = self._createRequest()
 
-        self.failUnless( r.getPresentationType() is IBrowserPresentation)
-        self.assertEqual( r.getPresentationSkin(), '')
-        r.setViewSkin( 'morefoo' )
-        self.assertEqual( r.getPresentationSkin(), 'morefoo')
+        self.failUnless(r.getPresentationType() is IBrowserPresentation)
+        self.assertEqual(r.getPresentationSkin(), '')
+        r.setViewSkin('morefoo')
+        self.assertEqual(r.getPresentationSkin(), 'morefoo')
 
     def testNoDefault(self):
         request = self._createRequest()
@@ -260,4 +260,4 @@ def test_suite():
 
 
 if __name__ == '__main__':
-    unittest.TextTestRunner().run( test_suite() )
+    unittest.TextTestRunner().run(test_suite())

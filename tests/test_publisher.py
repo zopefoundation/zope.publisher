@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: test_publisher.py,v 1.2 2002/12/25 14:15:19 jim Exp $
+$Id: test_publisher.py,v 1.3 2003/03/13 18:49:15 alga Exp $
 """
 
 import unittest
@@ -105,4 +105,4 @@ def test_suite():
     return loader.loadTestsFromTestCase(PublisherTests)
 
 if __name__=='__main__':
-    unittest.TextTestRunner().run( test_suite() )
+    unittest.TextTestRunner().run(test_suite())

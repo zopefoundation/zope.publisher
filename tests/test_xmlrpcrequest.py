@@ -120,7 +120,7 @@ class XMLRPCTests(unittest.TestCase, PlacelessSetup):
 
     def testIPresentationRequest(self):
         r = self._createRequest()
-        self.failUnless( r.getPresentationType() is IXMLRPCPresentation)
+        self.failUnless(r.getPresentationType() is IXMLRPCPresentation)
 
 
     def testProcessInput(self):
@@ -143,4 +143,4 @@ def test_suite():
     return loader.loadTestsFromTestCase(XMLRPCTests)
 
 if __name__=='__main__':
-    unittest.TextTestRunner().run( test_suite() )
+    unittest.TextTestRunner().run(test_suite())

@@ -148,8 +148,8 @@ class HTTPTests(unittest.TestCase):
 
         self.assertEquals(r.getPresentationType(), IHTTPPresentation)
         self.assertEqual(r.getPresentationSkin(), '')
-        r.setViewSkin( 'morefoo' )
-        self.assertEqual( r.getPresentationSkin(), 'morefoo')
+        r.setViewSkin('morefoo')
+        self.assertEqual(r.getPresentationSkin(), 'morefoo')
 
     def test_method(self):
         r = self._createRequest(extra_env={'REQUEST_METHOD':'SPAM'})
@@ -164,4 +164,4 @@ def test_suite():
 
 
 if __name__ == '__main__':
-    unittest.TextTestRunner().run( test_suite() )
+    unittest.TextTestRunner().run(test_suite())
