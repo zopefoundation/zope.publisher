@@ -17,7 +17,7 @@ from zope.publisher.xmlrpc import MethodPublisher, TestRequest
 from zope.publisher.interfaces.xmlrpc import IXMLRPCPublisher
 
 from zope.interface.verify import verifyClass
-from zope.interface.implements import instancesOfObjectImplements
+from zope.interface import implementedBy
 
 class ContentStub:
     pass
@@ -36,16 +36,14 @@ class TestMethodPublisher(unittest.TestCase):
         self.failUnless(IXMLRPCPublisher.isImplementedBy(self.pres))
 
     def testInterfacesVerify(self):
-        for interface in instancesOfObjectImplements(Presentation):
+        for interface in implementedBy(Presentation):
             verifyClass(interface, Presentation)
 
     def testXMLRPCTraverseIndex(self):
-        self.assertEquals(self.pres.publishTraverse(None, 'index'),
-            'index')
+        self.assertEquals(self.pres.publishTraverse(None, 'index'), 'index')
 
     def testXMLRPCTraverseAction(self):
-        self.assertEquals(self.pres.publishTraverse(None, 'action'),
-            'action')
+        self.assertEquals(self.pres.publishTraverse(None, 'action'), 'action')
 
     def testXMLRPCTraverseNotFound(self):
         self.failUnlessRaises(AttributeError, self.pres.publishTraverse,

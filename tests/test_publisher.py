@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: test_publisher.py,v 1.4 2003/04/11 12:55:41 ryzaja Exp $
+$Id: test_publisher.py,v 1.5 2003/06/07 06:54:25 stevea Exp $
 """
 
 import unittest
@@ -25,7 +25,7 @@ from zope.publisher.interfaces import Unauthorized, NotFound, DebugError
 from zope.publisher.interfaces import IPublication
 
 from zope.interface.verify import verifyClass
-from zope.interface.implements import instancesOfObjectImplements
+from zope.interface import implementedBy
 
 from StringIO import StringIO
 
@@ -80,7 +80,7 @@ class PublisherTests(unittest.TestCase):
                             DefaultPublication(self.app)))
 
     def testInterfacesVerify(self):
-        for interface in instancesOfObjectImplements(DefaultPublication):
+        for interface in implementedBy(DefaultPublication):
             verifyClass(interface, DefaultPublication)
 
     def testTraversalToItem(self):
