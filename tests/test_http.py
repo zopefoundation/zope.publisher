@@ -424,7 +424,7 @@ class TestHTTPResponse(unittest.TestCase):
     def _getResultFromResponse(self, body, charset=None, headers=None):
         response, stream = self._createResponse()
         if charset is not None:
-            response.setCharset()
+            response.setCharset(charset)
         if headers is not None:
             for hdr, val in headers.iteritems():
                 response.setHeader(hdr, val)
