@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: xmlrpc.py,v 1.7 2003/06/03 14:32:06 ryzaja Exp $
+$Id: xmlrpc.py,v 1.8 2003/06/04 09:09:45 stevea Exp $
 """
 import sys
 import xmlrpclib
@@ -36,7 +36,7 @@ class MethodPublisher(DefaultPublisher):
        except that it implements the IXMLRPCPublisher interface.
     """
 
-    __implements__ = IXMLRPCPublisher
+    implements(IXMLRPCPublisher)
 
     def __init__(self, context, request):
         self.context = context
