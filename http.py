@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.6 2003/02/03 15:01:17 jim Exp $
+$Id: http.py,v 1.7 2003/02/07 15:36:28 jim Exp $
 """
 
 import re, time, random, sys
@@ -25,6 +25,8 @@ from zope.publisher.interfaces.http import IHTTPCredentials
 from zope.publisher.interfaces.http import IHTTPRequest
 from zope.publisher.interfaces.http import IHTTPApplicationRequest
 from zope.publisher.interfaces.http import IHTTPPublisher
+from zope.publisher.interfaces.http import IHTTPPresentation
+
 from zope.publisher.interfaces import Redirect
 from zope.publisher.interfaces.http import IHTTPResponse
 from zope.publisher.interfaces.http import IHTTPApplicationResponse
@@ -258,6 +260,9 @@ class HTTPRequest(BaseRequest):
     other variables, form data, and then cookies.
     """
 
+    _presentation_type = IHTTPPresentation
+
+
     __implements__ = (BaseRequest.__implements__,
                       IHTTPCredentials, IHTTPRequest, IHTTPApplicationRequest,
                       )
@@ -273,6 +278,7 @@ class HTTPRequest(BaseRequest):
         '_app_server',    # The server path of the application url
         '_orig_env',      # The original environment
         '_endswithslash', # Does the given path end with /
+        'method',         # The upper-cased request method (REQUEST_METHOD)
         )
 
     retry_max_count = 3    # How many times we're willing to retry
@@ -290,6 +296,8 @@ class HTTPRequest(BaseRequest):
             del environ['HTTP_AUTHORIZATION']
         else:
             self._auth = None
+
+        self.method = environ.get("REQUEST_METHOD", 'GET').upper()
 
         self._environ = environ
 
@@ -900,45 +908,6 @@ class HTTPResponse (BaseResponse):
         Outputs the response body.
         """
         self.output(self._body)
-
-
-    def _formatException(etype, value, tb, limit=None):
-        import traceback
-        result=['Traceback (innermost last):']
-        if limit is None:
-            if hasattr(sys, 'tracebacklimit'):
-                limit = sys.tracebacklimit
-        n = 0
-        while tb is not None and (limit is None or n < limit):
-            frame = tb.tb_frame
-            lineno = tb.tb_lineno
-            co = frame.f_code
-            filename = co.co_filename
-            name = co.co_name
-            locals = frame.f_locals
-            globals = frame.f_globals
-            modname = globals.get('__name__', filename)
-            result.append('  Module %s, line %d, in %s'
-                          % (modname,lineno,name))
-            try:
-                result.append('    (Object: %s)' %
-                               locals[co.co_varnames[0]].__name__)
-            except:
-                pass
-
-            try:
-                result.append('    (Info: %s)' %
-                               unicode(locals['__traceback_info__']))
-            except: pass
-            tb = tb.tb_next
-            n = n+1
-        result.append(' '.join(traceback.format_exception_only(etype, value)))
-        return result
-
-
-    def _createTracebackString(self, t, v, tb):
-        tb = self._formatException(t, v, tb, 200)
-        return '\n'.join(tb)
 
 
 class DefaultPublisher:
