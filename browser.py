@@ -515,7 +515,7 @@ class BrowserRequest(HTTPRequest):
                 ob = super(BrowserRequest, self).traverse(ob)
                 ob, add_steps = publication.getDefaultTraversal(self, ob)
 
-            if nsteps > self._endswithslash:
+            if nsteps != self._endswithslash:
                 base_needed = 1
                 redirect = self.use_redirect and method == 'GET'
 
