@@ -11,11 +11,15 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""
+"""Browser-specific Publisher classes
 
-$Id: browser.py,v 1.22 2003/11/21 17:12:34 jim Exp $
-"""
+Here we define the specific 'BrowserRequest' and 'BrowserResponse' class. The
+big improvement of the 'BrowserRequest' to 'HTTPRequest' is that is can handle
+HTML form data and convert them into a Python-native format. Even file data is
+packaged into a nice, Python-friendly 'FileUpload' object.
 
+$Id: browser.py,v 1.23 2004/02/16 21:37:19 srichter Exp $
+"""
 import re
 from types import ListType, TupleType, StringType, StringTypes
 from cgi import FieldStorage, escape

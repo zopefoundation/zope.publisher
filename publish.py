@@ -15,9 +15,8 @@
 
 Provide an apply-like facility that works with any mapping object
 
-$Id: publish.py,v 1.11 2003/05/28 15:46:14 jim Exp $
+$Id: publish.py,v 1.12 2004/02/16 21:37:19 srichter Exp $
 """
-
 import sys
 from zope.publisher.interfaces import Retry
 from zope.proxy import removeAllProxies
@@ -67,7 +66,7 @@ def unwrapMethod(object):
 def mapply(object, positional=(), request={}):
     __traceback_info__ = object
 
-    # we need deep access for intrspection. Waaa.
+    # we need deep access for introspection. Waaa.
     unwrapped = removeAllProxies(object)
 
     unwrapped, wrapperCount = unwrapMethod(unwrapped)

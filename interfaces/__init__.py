@@ -13,7 +13,7 @@
 ##############################################################################
 """Interfaces for the publisher.
 
-$Id: __init__.py,v 1.14 2003/08/08 18:07:19 jim Exp $
+$Id: __init__.py,v 1.15 2004/02/16 21:37:19 srichter Exp $
 """
 
 from zope.interface import Interface
@@ -215,7 +215,6 @@ class IPublication(Interface):
     application-specific tasks, such as connecting to databases,
     managing transactions, and setting security contexts to be invoked
     during the publishing process.
-
     """
     # The order of the hooks mostly corresponds with the order in which
     # they are invoked.
@@ -339,10 +338,9 @@ class IPublisherRequest(IPublicationRequest):
     The responsibility of requests is to encapsulate protocol
     specific details, especially wrt request inputs.
 
-    Request objects also serve as "context" objectsm providing
+    Request objects also serve as "context" objects, providing
     construction of and access to responses and storage of publication
     objects.
-
     """
 
     def supportsRetry():

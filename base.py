@@ -11,10 +11,13 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-'''Response Output formatter
+"""Base implementations of the Publisher objects
 
-$Id: base.py,v 1.13 2004/02/14 02:19:20 srichter Exp $
-'''
+Specifically, 'BaseRequest', 'BaseResponse', and 'DefaultPublication' are
+specified here.
+
+$Id: base.py,v 1.14 2004/02/16 21:37:19 srichter Exp $
+"""
 import traceback
 from cStringIO import StringIO
 
