@@ -12,9 +12,7 @@
 #
 ##############################################################################
 """
-
-Revision information:
-$Id: browser.py,v 1.7 2003/11/21 17:12:36 jim Exp $
+$Id: browser.py,v 1.8 2004/03/17 18:25:00 philikon Exp $
 """
 
 from zope.interface import Attribute
@@ -109,4 +107,4 @@ class IBrowserPublisher(IPublishTraverse):
 
 
 class IBrowserView(IView):
-    "Browser View"
+    """Browser View"""

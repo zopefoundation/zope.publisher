@@ -13,9 +13,8 @@
 ##############################################################################
 """Interfaces for the XMLRPC publisher.
 
-$Id: xmlrpc.py,v 1.4 2003/11/21 17:12:40 jim Exp $
+$Id: xmlrpc.py,v 1.5 2004/03/17 18:25:00 philikon Exp $
 """
-
 from zope.component.interfaces import IView
 
 from zope.component.interfaces import IPresentation
@@ -28,7 +27,7 @@ class IXMLRPCPublisher(IPublishTraverse):
     """XML-RPC Publisher"""
 
 
-class IXMLRPCPublication (IPublication):
+class IXMLRPCPublication(IPublication):
     """Object publication framework."""
 
     def getDefaultTraversal(request, ob):
