@@ -16,7 +16,7 @@
 Specifically, 'BaseRequest', 'BaseResponse', and 'DefaultPublication' are
 specified here.
 
-$Id: base.py,v 1.18 2004/05/01 14:37:18 philikon Exp $
+$Id: base.py,v 1.19 2004/05/06 10:12:13 philikon Exp $
 """
 import traceback
 from cStringIO import StringIO
@@ -424,11 +424,16 @@ class TestRequest(BaseRequest):
         super(TestRequest, self).__init__(body_instream, outstream, environ)
 
 
-class DefaultPublication:
+class DefaultPublication(object):
+    """A stub publication.
 
+    This works just like Zope2's ZPublisher. It rejects any name
+    starting with an underscore and any objects (specifically: method)
+    that doesn't have a docstring.
+    """
     implements(IPublication)
 
-    require_docstrings = 1
+    require_docstrings = True
 
     def __init__(self, app):
         self.app = app

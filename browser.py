@@ -18,7 +18,7 @@ big improvement of the 'BrowserRequest' to 'HTTPRequest' is that is can handle
 HTML form data and convert them into a Python-native format. Even file data is
 packaged into a nice, Python-friendly 'FileUpload' object.
 
-$Id: browser.py,v 1.30 2004/04/12 13:51:39 hdima Exp $
+$Id: browser.py,v 1.31 2004/05/06 10:12:13 philikon Exp $
 """
 import re
 from types import ListType, TupleType, StringType, StringTypes
@@ -200,7 +200,6 @@ class Record:
 
 
 class BrowserRequest(HTTPRequest):
-
     implements(IBrowserRequest, IBrowserApplicationRequest)
 
     __slots__ = (
@@ -211,9 +210,9 @@ class BrowserRequest(HTTPRequest):
         '__defaults',
         )
 
-    use_redirect = 0 # Set this to 1 in a subclass to redirect GET
-                     # requests when the effective and actual URLs differ.
-
+    # Set this to True in a subclass to redirect GET requests when the
+    # effective and actual URLs differ.
+    use_redirect = False 
 
     def __init__(self, body_instream, outstream, environ, response=None):
         self.form = {}
@@ -590,7 +589,7 @@ class RedirectingBrowserRequest(BrowserRequest):
     """Browser requests that redirect when the actual and effective URLs differ
     """
 
-    use_redirect = 1
+    use_redirect = True
 
 class TestRequest(BrowserRequest):
     """Browser request with a constructor convenient for testing

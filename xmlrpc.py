@@ -16,7 +16,7 @@
 This module contains the MethodPublisher, XMLRPCView, XMLRPCRequest and
 XMLRPCResponse
 
-$Id: xmlrpc.py,v 1.11 2004/03/19 20:26:43 srichter Exp $
+$Id: xmlrpc.py,v 1.12 2004/05/06 10:12:13 philikon Exp $
 """
 import sys
 import xmlrpclib
@@ -43,7 +43,6 @@ class MethodPublisher(DefaultPublisher):
 
 
 class XMLRPCRequest(HTTPRequest):
-
     implements(IXMLRPCRequest)
 
     _args = ()

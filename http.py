@@ -13,9 +13,8 @@
 ##############################################################################
 """HTTP Publisher
 
-$Id: http.py,v 1.52 2004/04/13 09:57:04 hdima Exp $
+$Id: http.py,v 1.53 2004/05/06 10:12:13 philikon Exp $
 """
-
 import re, time, random
 from urllib import quote, unquote, splitport
 from types import StringTypes, ClassType
@@ -36,8 +35,8 @@ from zope.i18n.interfaces import IUserPreferredCharsets
 from zope.i18n.locales import locales, LoadLocaleError
 
 from zope.publisher.base import BaseRequest, BaseResponse
-from zope.publisher.base \
-     import RequestDataProperty, RequestDataMapper, RequestDataGetter
+from zope.publisher.base import RequestDataProperty, RequestDataMapper
+from zope.publisher.base import RequestDataGetter
 
 
 # Default Encoding
@@ -166,8 +165,7 @@ DEFAULT_PORTS = {'http': '80', 'https': '443'}
 STAGGER_RETRIES = True
 
 class HTTPRequest(BaseRequest):
-    """
-    Model HTTP request data.
+    """Model HTTP request data.
 
     This object provides access to request data.  This includes, the
     input headers, form data, server data, and cookies.
@@ -211,7 +209,6 @@ class HTTPRequest(BaseRequest):
     values will be looked up in the order: environment variables,
     other variables, form data, and then cookies.
     """
-
     implements(IHTTPCredentials, IHTTPRequest, IHTTPApplicationRequest)
 
     __slots__ = (
@@ -277,13 +274,10 @@ class HTTPRequest(BaseRequest):
     locale = property(_getLocale)
 
     def __setupURLBase(self):
-
         get_env = self._environ.get
-
-        ################################################################
         # Get base info first. This isn't likely to cause
         # errors and might be useful to error handlers.
-        script = get_env('SCRIPT_NAME','').strip()
+        script = get_env('SCRIPT_NAME', '').strip()
 
         # _script and the other _names are meant for URL construction
         self._app_names = filter(None, script.split('/'))
@@ -297,7 +291,6 @@ class HTTPRequest(BaseRequest):
 
         if server_url.endswith('/'):
             server_url = server_url[:-1]
-
 
         # strip off leading /'s of script
         while script.startswith('/'):
@@ -362,8 +355,6 @@ class HTTPRequest(BaseRequest):
         return result
 
     def __setupCookies(self):
-
-        ################################################################
         # Cookie values should *not* be appended to existing form
         # vars with the same name - they are more like default values
         # for names not otherwise specified in the form.
@@ -471,9 +462,6 @@ class HTTPRequest(BaseRequest):
             message = logging_info.getLogMessage()
             self.response.http_transaction.setAuthUserName(message)
 
-    #
-    ############################################################
-
     def _createResponse(self, outstream):
         # Should be overridden by subclasses
         return HTTPResponse(outstream)
@@ -508,7 +496,7 @@ class HTTPRequest(BaseRequest):
             names = self._app_names
 
         # See: http://www.ietf.org/rfc/rfc2718.txt, Section 2.2.5
-        names =  [quote(name.encode("utf-8"), safe='/+@') for name in names]
+        names = [quote(name.encode("utf-8"), safe='/+@') for name in names]
 
         if path_only:
             return names and ('/' + '/'.join(names)) or '/'
@@ -528,7 +516,6 @@ class HTTPRequest(BaseRequest):
 
         A Value error is raise if the shift can't be performed.
         """
-
         if len(self._traversed_names) == 1:
             self._app_names.append(self._traversed_names.pop())
             return
@@ -571,7 +558,6 @@ class HTTPRequest(BaseRequest):
 
 
 class HTTPResponse(BaseResponse):
-
     implements(IHTTPResponse, IHTTPApplicationResponse)
 
     __slots__ = (
@@ -968,9 +954,7 @@ class HTTPResponse(BaseResponse):
 
 
     def outputBody(self):
-        """
-        Outputs the response body.
-        """
+        """Outputs the response body."""
         self.output(self._body)
 
 
@@ -983,7 +967,6 @@ class HTTPResponse(BaseResponse):
 
 
 class DefaultPublisher:
-
     implements(IHTTPPublisher)
 
     def publishTraverse(self, request, name):
@@ -1000,7 +983,6 @@ def sort_charsets(x, y):
 
 
 class HTTPCharsets:
-
     implements(IUserPreferredCharsets)
 
     def __init__(self, request):
