@@ -14,7 +14,7 @@
 """
 
 Revision information:
-$Id: browser.py,v 1.5 2003/05/01 19:35:46 faassen Exp $
+$Id: browser.py,v 1.6 2003/07/15 04:47:03 anthony Exp $
 """
 
 from zope.interface import Attribute
@@ -30,7 +30,7 @@ from zope.publisher.interfaces.http import IHTTPRequest
 
 
 class IBrowserPresentation(IPresentation):
-    """Browser presentations are for interaction with user's using Web Browsers
+    """Browser presentations are for interaction with users using Web Browsers
     """
 
 
@@ -41,7 +41,7 @@ class IBrowserApplicationRequest(IHTTPApplicationRequest):
     def __getitem__(key):
         """Return Browser request data
 
-        Request data sre retrieved from one of:
+        Request data are retrieved from one of:
 
         - Environment variables
 
