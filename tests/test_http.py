@@ -128,16 +128,16 @@ class HTTPTests(unittest.TestCase):
                 country = parts.pop(0).upper()
             if parts:
                 variant = parts.pop(0).upper()
-            eq(locale.getLocaleLanguageId(), lang)
-            eq(locale.getLocaleCountryId(), country)
-            eq(locale.getLocaleVariantId(), variant)
+            eq(locale.id.language, lang)
+            eq(locale.id.country, country)
+            eq(locale.id.variant, variant)
         # Now test for non-existant locale fallback
         req = self._createRequest({'HTTP_ACCEPT_LANGUAGE': 'xx'})
         locale = req.getLocale()
         unless(ILocale.isImplementedBy(locale))
-        eq(locale.getLocaleLanguageId(), None)
-        eq(locale.getLocaleCountryId(), None)
-        eq(locale.getLocaleVariantId(), None)
+        eq(locale.id.language, None)
+        eq(locale.id.country, None)
+        eq(locale.id.variant, None)
         
 
     def testCookies(self):
