@@ -13,10 +13,10 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.8 2003/02/11 16:00:08 sidnei Exp $
+$Id: http.py,v 1.9 2003/02/11 16:41:47 jeremy Exp $
 """
 
-import re, time, random, sys
+import re, time, random
 from urllib import quote, splitport
 from types import StringTypes, UnicodeType, ClassType
 from cgi import escape
@@ -160,19 +160,22 @@ status_reasons = {
 }
 
 status_codes={}
-# Add mappings for builtin exceptions and
-# provide text -> error code lookups.
-for key, val in status_reasons.items():
-    status_codes[val.replace(' ', '').lower()] = key
-    status_codes[val.lower()] = key
-    status_codes[key] = key
-    status_codes[str(key)] = key
 
-en = [n.lower() for n in dir(__builtins__) if n.endswith('Error')]
+def init_status_codes():
+    # Add mappings for builtin exceptions and
+    # provide text -> error code lookups.
+    for key, val in status_reasons.items():
+        status_codes[val.replace(' ', '').lower()] = key
+        status_codes[val.lower()] = key
+        status_codes[key] = key
+        status_codes[str(key)] = key
 
-for name in en:
-    status_codes[name] = 500
+    en = [n.lower() for n in dir(__builtins__) if n.endswith('Error')]
 
+    for name in en:
+        status_codes[name] = 500
+
+init_status_codes()
 
 accumulate_header = {'set-cookie': 1}.has_key
 
