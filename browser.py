@@ -654,7 +654,7 @@ class BrowserResponse(HTTPResponse):
                 c += ';charset=' + self._charset
             self.setHeader('content-type', c)
             self.setHeader('x-content-type-warning', 'guessed from content')
-            # XXX emit a warning once all page templates are changed to
+            # TODO: emit a warning once all page templates are changed to
             # specify their content type explicitly.
 
         body = self.__insertBase(body)
@@ -721,10 +721,10 @@ class BrowserResponse(HTTPResponse):
                 base += '/'
             location = base + location
 
-        # XXX: HTTP redirects must provide an absolute location, see
-        #      http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.30
-        #      So, what if location is relative and base is unknown?  Uncomment
-        #      the following and you'll see that it actually happens.
+        # TODO: HTTP redirects must provide an absolute location, see
+        #       http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.30
+        #       So, what if location is relative and base is unknown?  Uncomment
+        #       the following and you'll see that it actually happens.
         #
         # if isRelative(str(location)):
         #     raise AssertionError('Cannot determine absolute location')

@@ -13,8 +13,6 @@
 ##############################################################################
 """Browser response tests
 
-XXX longer description goes here.
-
 $Id$
 """
 
@@ -23,7 +21,7 @@ from zope.publisher.browser import BrowserResponse
 from StringIO import StringIO
 from zope.interface.verify import verifyObject
 
-# XXX Waaa need more tests
+# TODO: Waaa need more tests
 
 class TestBrowserResponse(TestCase):
 

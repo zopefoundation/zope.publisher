@@ -208,7 +208,7 @@ class IHTTPRequest(IRequest):
 
 class IHTTPCredentials(Interface):
 
-    # XXX Eventially this will be a different method
+    # TODO: Eventially this will be a different method
     def _authUserPW():
         """Return (login, password) if there are basic credentials;
         return None if there aren't."""
