@@ -14,7 +14,7 @@
 ##############################################################################
 """HTTP Publisher Tests
 
-$Id: test_http.py,v 1.32 2004/04/05 08:16:02 hdima Exp $
+$Id: test_http.py,v 1.33 2004/04/07 14:36:48 jim Exp $
 """
 import unittest
 
@@ -98,6 +98,13 @@ class HTTPTests(unittest.TestCase):
         request = self._createRequest(extra_env, body, outstream=outstream)
         publish(request, handle_errors=0)
         return outstream.getvalue()
+
+
+    def test_repr(self):
+        request = self._createRequest()
+        expect = '<%s.%s instance URL=http://foobar.com>' % (
+            request.__class__.__module__, request.__class__.__name__)
+        self.assertEqual(repr(request), expect)
 
     def testTraversalToItem(self):
         res = self._publisherResults()

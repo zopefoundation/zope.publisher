@@ -13,7 +13,7 @@
 ##############################################################################
 """HTTP Publisher
 
-$Id: http.py,v 1.50 2004/04/06 20:58:18 jim Exp $
+$Id: http.py,v 1.51 2004/04/07 14:36:47 jim Exp $
 """
 
 import re, time, random
@@ -546,8 +546,8 @@ class HTTPRequest(BaseRequest):
 
     def __repr__(self):
         # Returns a *short* string.
-        return '<%s instance URL=%s>' % (
-            str(self.__class__), id(self), `self.URL`)
+        return '<%s.%s instance URL=%s>' % (
+            self.__class__.__module__, self.__class__.__name__, str(self.URL))
 
     def get(self, key, default=None):
         'See Interface.Common.Mapping.IReadMapping'
