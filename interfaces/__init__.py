@@ -13,7 +13,7 @@
 ##############################################################################
 """Interfaces for the publisher.
 
-$Id: __init__.py,v 1.4 2003/01/02 15:01:58 stevea Exp $
+$Id: __init__.py,v 1.5 2003/01/15 15:32:20 ryzaja Exp $
 """
 
 from zope.interface import Interface
@@ -110,7 +110,7 @@ class IPublishTraverse(Interface):
         """
 
 
-def IPublisher(Interface):
+class IPublisher(Interface):
 
     def publish(request):
         """Publish a request
