@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.26 2003/06/09 16:39:14 alga Exp $
+$Id: http.py,v 1.27 2003/06/30 19:32:20 jeremy Exp $
 """
 
 import re, time, random
@@ -821,7 +821,6 @@ class HTTPResponse (BaseResponse):
         # for apps to control the status code.
         self.setStatus(tname)
 
-        status = self.getStatus()
         body = self._html(title, "A server error occurred." )
         self.setBody(body)
 
