@@ -13,7 +13,7 @@
 ##############################################################################
 """Interfaces for the publisher.
 
-$Id: __init__.py,v 1.13 2003/06/09 16:39:15 alga Exp $
+$Id: __init__.py,v 1.14 2003/08/08 18:07:19 jim Exp $
 """
 
 from zope.interface import Interface
@@ -320,7 +320,7 @@ class IPublicationRequest(IPresentationRequest):
         """Return the positional arguments given to the request.
         """
 
-    def setViewSkin(skin):
+    def setPresentationSkin(skin):
         """Set the skin to be used for the request.
 
         It's up to the publication object to decide this.

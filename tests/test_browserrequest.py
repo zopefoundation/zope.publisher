@@ -133,7 +133,7 @@ class BrowserTests(HTTPTests, PlacelessSetup):
 
         self.failUnless(r.getPresentationType() is IBrowserPresentation)
         self.assertEqual(r.getPresentationSkin(), '')
-        r.setViewSkin('morefoo')
+        r.setPresentationSkin('morefoo')
         self.assertEqual(r.getPresentationSkin(), 'morefoo')
 
     def testNoDefault(self):

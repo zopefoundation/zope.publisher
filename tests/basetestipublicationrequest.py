@@ -14,7 +14,7 @@
 """
 
 Revision information:
-$Id: basetestipublicationrequest.py,v 1.2 2002/12/25 14:15:19 jim Exp $
+$Id: basetestipublicationrequest.py,v 1.3 2003/08/08 18:07:21 jim Exp $
 """
 
 import sys
@@ -57,7 +57,7 @@ class BaseTestIPublicationRequest:
         request = self._Test__new()
         self.assertEqual(request.getPresentationSkin(), '')
         skin = 'terse'
-        request.setViewSkin(skin)
+        request.setPresentationSkin(skin)
         self.assertEqual(request.getPresentationSkin(), skin)
 
     def test_getPresentationType(self):
