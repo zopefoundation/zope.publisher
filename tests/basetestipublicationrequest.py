@@ -15,10 +15,12 @@
 
 $Id$
 """
-
 import sys
+
+from zope.interface import Interface, directlyProvides
 from zope.interface.verify import verifyObject
 from zope.publisher.interfaces import IPublicationRequest
+from zope.publisher.interfaces.browser import ISkin
 
 
 class BaseTestIPublicationRequest(object):
@@ -54,8 +56,12 @@ class BaseTestIPublicationRequest(object):
 
     def testSkinManagement(self):
         request = self._Test__new()
-        self.assertEqual(request.getPresentationSkin(), '')
-        skin = 'terse'
-        request.setPresentationSkin(skin)
-        self.assertEqual(request.getPresentationSkin(), skin)
+
+        class IMoreFoo(Interface):
+            pass
+        directlyProvides(IMoreFoo, ISkin)
+
+        self.assertEqual(IMoreFoo.providedBy(request), False)
+        directlyProvides(request, IMoreFoo)
+        self.assertEqual(IMoreFoo.providedBy(request), True)
 
