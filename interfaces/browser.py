@@ -14,10 +14,9 @@
 """
 
 Revision information:
-$Id: browser.py,v 1.4 2003/04/15 09:37:28 alga Exp $
+$Id: browser.py,v 1.5 2003/05/01 19:35:46 faassen Exp $
 """
 
-from zope.interface import Interface
 from zope.interface import Attribute
 
 from zope.component.interfaces import IPresentation
