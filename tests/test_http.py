@@ -281,14 +281,6 @@ class HTTPTests(unittest.TestCase):
         req.setPrincipal(UserStub("jim"))
         self.assertEquals(req.response.http_transaction.auth_user_name, "jim")
 
-    def testIPresentationRequest(self):
-        # test the IView request
-        r = self._createRequest()
-
-        self.assertEqual(r.getPresentationSkin(), '')
-        r.setPresentationSkin('morefoo')
-        self.assertEqual(r.getPresentationSkin(), 'morefoo')
-
     def test_method(self):
         r = self._createRequest(extra_env={'REQUEST_METHOD':'SPAM'})
         self.assertEqual(r.method, 'SPAM')

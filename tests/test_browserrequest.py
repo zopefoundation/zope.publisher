@@ -17,14 +17,16 @@ $Id$
 """
 import unittest
 
+from zope.interface import implements, directlyProvides, Interface
+from zope.interface.verify import verifyObject
+
 from zope.publisher.http import HTTPCharsets
 from zope.publisher.browser import BrowserRequest
 from zope.publisher.interfaces import NotFound
 
 from zope.publisher.base import DefaultPublication
 from zope.publisher.interfaces.browser import IBrowserApplicationRequest
-from zope.publisher.interfaces.browser import IBrowserRequest
-from zope.interface.verify import verifyObject
+from zope.publisher.interfaces.browser import IBrowserRequest, ISkin
 
 from StringIO import StringIO
 
@@ -131,14 +133,6 @@ class BrowserTests(HTTPTests):
             "X-Powered-By: Zope (www.zope.org), Python (www.python.org)\r\n"
             "\r\n"
             "u'5', 6")
-
-    def testIPresentationRequest(self):
-        # test the IView request
-        r = self._createRequest()
-
-        self.assertEqual(r.getPresentationSkin(), '')
-        r.setPresentationSkin('morefoo')
-        self.assertEqual(r.getPresentationSkin(), 'morefoo')
 
     def testNoDefault(self):
         request = self._createRequest()

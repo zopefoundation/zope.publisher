@@ -21,7 +21,7 @@ $Id$
 import traceback
 from cStringIO import StringIO
 
-from zope.interface import implements
+from zope.interface import implements, providedBy
 from zope.interface.common.mapping import IReadMapping, IEnumerableMapping
 from zope.exceptions import NotFoundError
 
@@ -178,6 +178,7 @@ class BaseRequest(object):
     implements(IRequest)
 
     __slots__ = (
+        '__provides__',      # Allow request to directly provide interfaces
         '_held',             # Objects held until the request is closed
         '_traversed_names',  # The names that have been traversed
         '_last_obj_traversed', # Object that was traversed last
@@ -188,7 +189,6 @@ class BaseRequest(object):
         '_body_instream',    # input stream
         '_body',             # The request body as a string
         '_publication',      # publication object
-        '_presentation_skin', # View skin
         '_principal',        # request principal, set by publication
         'interaction',       # interaction, set by interaction
         'debug',             # debug flags
@@ -303,14 +303,6 @@ class BaseRequest(object):
     def setTraversalStack(self, stack):
         'See IPublicationRequest'
         self._traversal_stack[:] = list(stack)
-
-    def setPresentationSkin(self, skin):
-        'See IPublicationRequest'
-        self._presentation_skin = skin
-
-    def getPresentationSkin(self):
-        'See IPresentationRequest'
-        return getattr(self, '_presentation_skin', '')
 
     def _getBody(self):
         body = getattr(self, '_body', None)

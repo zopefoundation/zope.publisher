@@ -170,7 +170,6 @@ class IPublisher(Interface):
         The request must be an IPublisherRequest.
         """
 
-
 class IPublisherResponse(Interface):
     """Interface used by the publsher
     """
@@ -316,12 +315,6 @@ class IPublicationRequest(IPresentationRequest, IParticipation):
 
     def getPositionalArguments():
         """Return the positional arguments given to the request.
-        """
-
-    def setPresentationSkin(skin):
-        """Set the skin to be used for the request.
-
-        It's up to the publication object to decide this.
         """
 
     def setPrincipal(principal):
