@@ -13,7 +13,7 @@
 ##############################################################################
 """HTTP-related publisher interfaces.
 
-$Id: http.py,v 1.18 2003/11/21 17:12:36 jim Exp $
+$Id: http.py,v 1.19 2004/03/17 18:24:47 philikon Exp $
 """
 
 from zope.interface import Interface
@@ -21,6 +21,7 @@ from zope.interface import Attribute
 
 from zope.publisher.interfaces import IApplicationRequest
 from zope.publisher.interfaces import IApplicationResponse
+from zope.publisher.interfaces import IPublishTraverse
 
 from zope.component.interfaces import IPresentation
 from zope.component.interfaces import IResource
@@ -197,13 +198,8 @@ class IHTTPApplicationRequest(IApplicationRequest, IVirtualHostRequest):
         """
 
 
-class IHTTPPublisher(Interface):
-
-    def publishTraverse(request, name):
-        """Lookup a name
-
-        The request argument is the publisher request object.
-        """
+class IHTTPPublisher(IPublishTraverse):
+    """HTTP Publisher"""
 
 
 # XXX Should we extend IRequest?
