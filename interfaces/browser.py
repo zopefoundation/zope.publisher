@@ -15,7 +15,7 @@
 
 $Id$
 """
-from zope.interface import Interface, Attribute
+from zope.interface import Interface, Attribute, directlyProvides
 from zope.interface.interfaces import IInterface
 
 from zope.publisher.interfaces import IPublication
@@ -105,9 +105,9 @@ class IBrowserPublisher(IPublishTraverse):
         """
 
 
-class IDefaultBrowserLayer(ILayer):
+class IDefaultBrowserLayer(Interface):
     """The default layer."""
-
+directlyProvides(IDefaultBrowserLayer, ILayer)
 
 class ISkin(IInterface):
     """A skin is a set of layers."""
