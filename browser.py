@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: browser.py,v 1.7 2003/02/13 05:06:24 tseaver Exp $
+$Id: browser.py,v 1.8 2003/02/13 16:48:43 tseaver Exp $
 """
 
 import re
@@ -42,6 +42,7 @@ search_type = re.compile('(:[a-zA-Z][a-zA-Z0-9_]+|\\.[xy])$').search
 start_of_header_search=re.compile('(<head[^>]*>)', re.IGNORECASE).search
 base_re_search=re.compile('(<base.*?>)',re.I).search
 isRelative = re.compile("[-_.!~*a-zA-z0-9'()@&=+$,]+(/|$)").match
+newline_search = re.compile('\r\n|\n\r').search
 
 
 def is_text_html(content_type):
@@ -63,7 +64,7 @@ def field2string(v):
     else: v=str(v)
     return v
 
-def field2text(v, nl=re.compile('\r\n|\n\r').search):
+def field2text(v, nl=newline_search):
     if hasattr(v,'read'): v=v.read()
     else: v=str(v)
     mo = nl(v)
@@ -690,8 +691,7 @@ class BrowserRequest(HTTPRequest):
         return default
 
 class FileUpload(object):
-    '''\
-    File upload objects
+    '''File upload objects
 
     File upload objects are used to represent file-uploaded data.
 
