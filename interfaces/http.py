@@ -159,14 +159,13 @@ class IHTTPApplicationRequest(IApplicationRequest, IVirtualHostRequest):
     URL = Attribute(
         """Request URL data
 
-        When convered to a string, this gives the effective published URL.
+        When converted to a string, this gives the effective published URL.
 
-        This is object can also be used as a mapping object. The keys
-        must be integers or strings that can be converted to
-        integers. A non-negative integer returns a URL n steps from
-        the URL of the top-level application objects. A negative
-        integer gives a URL that is -n steps back from the effective
-        URL.
+        This object can also be used as a mapping object. The key must
+        be an integer or a string that can be converted to an
+        integer. A non-negative integer returns a URL n steps from the
+        URL of the top-level application objects. A negative integer
+        gives a URL that is -n steps back from the effective URL.
 
         For example, 'request.URL[-2]' is equivalent to the Zope 2
         'request["URL2"]'. The notion is that this would be used in
