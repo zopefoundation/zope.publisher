@@ -634,10 +634,6 @@ class HTTPResponse(BaseResponse):
         result = {}
         headers = self._headers
 
-        if (not ('content-length' in headers)
-            and not ('transfer-encoding' in headers)):
-            self._updateContentLength()
-
         result["X-Powered-By"] = "Zope (www.zope.org), Python (www.python.org)"
 
         for key, val in headers.items():
@@ -890,8 +886,9 @@ class HTTPResponse(BaseResponse):
         self._outstream.write(string)
 
     def output(self, data):
-        """Output the data to the world. There are a couple of steps we have
-        to do:
+        """Output the data to the world.
+        
+        There are a couple of steps we have to do:
 
         1. Check that there is a character encoding for the data. If not,
            choose UTF-8. Note that if the charset is None, this is a sign of a
@@ -904,6 +901,9 @@ class HTTPResponse(BaseResponse):
 
         3. If the content type is text-based, let's encode the data and send
            it also out the door.
+
+        4. Make sure that a Content-Length or Transfer-Encoding header is
+           present.
         """
         if self._charset is None:
             self.setCharset('utf-8')
@@ -911,6 +911,10 @@ class HTTPResponse(BaseResponse):
         if self.getHeader('content-type', '').startswith('text'):
             data = self._encode(data)
             self._updateContentLength(data)
+        
+        if (not ('content-length' in self._headers)
+            and not ('transfer-encoding' in self._headers)):
+            self._updateContentLength()
 
         self.write(data)
 

@@ -472,6 +472,26 @@ class TestHTTPResponse(unittest.TestCase):
         self.assertEqual(headers['Content-Length'], str(len(data)))
         self.assertEqual(body, data)
 
+    def testWrite_noContentLength(self):
+        response, stream = self._createResponse()
+        data = 'a'*10
+        # We have to set all the headers ourself, we choose not to provide a
+        # content-length header
+        response.setHeader('Content-Type', 'text/plain;charset=us-ascii')
+
+        # Stream the data
+        for ch in data:
+            response.write(ch)
+
+        headers, body = self._parseResult(stream.getvalue())
+        # Check that the data have been written, and that the header
+        # has been preserved   
+        self.assertEqual(headers['Content-Type'], 'text/plain;charset=us-ascii')
+        self.assertEqual(body, data)
+
+        # Make sure that no Content-Length header was added
+        self.assert_('Content-Length' not in headers)
+
     def testContentLength(self):
         eq = self.failUnlessEqual
 
