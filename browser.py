@@ -18,7 +18,7 @@ big improvement of the 'BrowserRequest' to 'HTTPRequest' is that is can handle
 HTML form data and convert them into a Python-native format. Even file data is
 packaged into a nice, Python-friendly 'FileUpload' object.
 
-$Id: browser.py,v 1.25 2004/03/06 16:50:39 jim Exp $
+$Id: browser.py,v 1.26 2004/03/19 03:17:26 srichter Exp $
 """
 import re
 from types import ListType, TupleType, StringType, StringTypes
@@ -292,11 +292,14 @@ class BrowserRequest(HTTPRequest):
             for item in fslist:
 
                 # Check whether this field is a file upload object
+                # Note: A field exists for files, even if no filename was
+                # passed in and no data was uploaded. Therefore we can only
+                # tell by the empty filename that no upload was made. 
                 key = item.name
                 if (hasattr(item, 'file') and hasattr(item, 'filename')
                     and hasattr(item,'headers')):
                     if (item.file and
-                        (item.filename is not None
+                        (item.filename is not None and item.filename != ''
                          # RFC 1867 says that all fields get a content-type.
                          # or 'content-type' in map(lower, item.headers.keys())
                          )):
