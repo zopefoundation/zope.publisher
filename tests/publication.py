@@ -26,6 +26,10 @@ class TestPublication:
         '''See interface IPublication'''
         self._afterCall = getattr(self, '_afterCall', 0) + 1
 
+    def endRequest(self, request, ob):
+        '''See interface IPublication'''
+        self._endRequest = getattr(self, '_endRequest', 0) + 1
+
     def traverseName(self, request, ob, name, check_auth=1):
         '''See interface IPublication'''
         return getattr(ob, name, "%s value" % name)

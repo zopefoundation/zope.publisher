@@ -127,26 +127,29 @@ def publish(request, handle_errors=True):
                 try:
                     object = None
                     try:
-                        request.processInputs()
-                        publication.beforeTraversal(request)
+                        try:
+                            request.processInputs()
+                            publication.beforeTraversal(request)
 
-                        object = publication.getApplication(request)
-                        object = request.traverse(object)
-                        publication.afterTraversal(request, object)
+                            object = publication.getApplication(request)
+                            object = request.traverse(object)
+                            publication.afterTraversal(request, object)
 
-                        result = publication.callObject(request, object)
-                        response = request.response
-                        if result is not response:
-                            response.setBody(result)
+                            result = publication.callObject(request, object)
+                            response = request.response
+                            if result is not response:
+                                response.setBody(result)
 
-                        publication.afterCall(request, object)
+                            publication.afterCall(request, object)
 
-                    except:
-                        publication.handleException(
-                            object, request, sys.exc_info(), True)
+                        except:
+                            publication.handleException(
+                                object, request, sys.exc_info(), True)
 
-                        if not handle_errors:
-                            raise
+                            if not handle_errors:
+                                raise
+                    finally:
+                        publication.endRequest(request, object)
 
                     break # Successful.
 

@@ -482,6 +482,9 @@ class DefaultPublication(object):
     def afterCall(self, request, ob):
         pass
 
+    def endRequest(self, request, ob):
+        pass
+
     def handleException(self, object, request, exc_info, retry_allowed=1):
         # Let the response handle it as best it can.
         request.response.reset()

@@ -270,6 +270,10 @@ class IPublication(Interface):
         exc_info must be set to some other value before exiting the method.
         """
 
+    def endRequest(request, ob):
+        """Do any end-of-request cleanup
+        """
+
 
 class IApplicationResponse(Interface):
     """Features that support application logic
