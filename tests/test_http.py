@@ -139,6 +139,23 @@ class HTTPTests(unittest.TestCase):
         eq(locale.id.country, None)
         eq(locale.id.variant, None)
 
+        # If the first language is not available we should try others
+        req = self._createRequest({'HTTP_ACCEPT_LANGUAGE': 'xx,en;q=0.5'})
+        locale = req.locale
+        unless(ILocale.isImplementedBy(locale))
+        eq(locale.id.language, 'en')
+        eq(locale.id.country, None)
+        eq(locale.id.variant, None)
+
+        # Regression test: there was a bug where country and variant were
+        # not reset
+        req = self._createRequest({'HTTP_ACCEPT_LANGUAGE': 'xx-YY,en;q=0.5'})
+        locale = req.locale
+        unless(ILocale.isImplementedBy(locale))
+        eq(locale.id.language, 'en')
+        eq(locale.id.country, None)
+        eq(locale.id.variant, None)
+
     def testCookies(self):
         cookies = {
             'HTTP_COOKIE': 'foo=bar; spam="eggs", this="Should be accepted"'

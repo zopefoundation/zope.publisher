@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.17 2003/04/11 10:01:23 ryzaja Exp $
+$Id: http.py,v 1.18 2003/04/11 12:38:00 mgedmin Exp $
 """
 
 import re, time, random
@@ -313,8 +313,8 @@ class HTTPRequest(BaseRequest):
 
         self.response.setCharsetUsingRequest(self)
         langs = BrowserLanguages(self).getPreferredLanguages()
-        language = country = variant = None
         for httplang in langs:
+            language = country = variant = None
             parts = httplang.split('-')
             if parts:
                 language = parts.pop(0)
