@@ -16,7 +16,7 @@
 Specifically, 'BaseRequest', 'BaseResponse', and 'DefaultPublication' are
 specified here.
 
-$Id: base.py,v 1.17 2004/03/20 16:27:15 srichter Exp $
+$Id: base.py,v 1.18 2004/05/01 14:37:18 philikon Exp $
 """
 import traceback
 from cStringIO import StringIO
@@ -241,7 +241,7 @@ class BaseRequest(object):
         self._last_obj_traversed = object
 
         prev_object = None
-        while 1:
+        while True:
 
             if object is not prev_object:
                 # Invoke hooks (but not more than once).
@@ -388,16 +388,17 @@ class BaseRequest(object):
             # Remove trailing backslash, so that we will not get an empty
             # last entry when splitting the path. 
             path = path[:-1]
-            self._endswithslash = 1
+            self._endswithslash = True
         else:
-            self._endswithslash = 0
+            self._endswithslash = False
 
         clean = []
         for item in path.split('/'):
             if not item or item == '.':
                 continue
             elif item == '..':
-                try: del clean[-1]
+                try:
+                    del clean[-1]
                 except IndexError:
                     raise NotFoundError('..')
             else: clean.append(item)
