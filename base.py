@@ -27,7 +27,7 @@ from zope.exceptions import NotFoundError
 
 from zope.publisher.interfaces import IPublication
 from zope.publisher.interfaces import NotFound, DebugError, Unauthorized
-from zope.publisher.interfaces import IRequest, IResponse
+from zope.publisher.interfaces import IRequest, IResponse, IDebugFlags
 from zope.publisher.publish import mapply
 
 _marker = object()
@@ -152,6 +152,15 @@ class RequestDataProperty(object):
 class RequestEnvironment(RequestDataMapper):
     _mapname = '_environ'
 
+
+class DebugFlags(object):
+    """Debugging flags."""
+
+    implements(IDebugFlags)
+
+    sourceAnnotations = False
+
+
 class BaseRequest(object):
     """Represents a publishing request.
 
@@ -181,6 +190,7 @@ class BaseRequest(object):
         '_presentation_skin', # View skin
         '_principal',        # request principal, set by publication
         'interaction',       # interaction, set by interaction
+        'debug',             # debug flags
         )
 
     environment = RequestDataProperty(RequestEnvironment)
@@ -202,6 +212,7 @@ class BaseRequest(object):
         self._body_instream = body_instream
         self._held = ()
         self._principal = None
+        self.debug = DebugFlags()
         self.interaction = None
 
     def setPrincipal(self, principal):
