@@ -11,6 +11,10 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
+"""Test Browser Languages detector
+
+$Id$
+"""
 import unittest
 
 # Note: The expected output is in order of preference,
