@@ -386,12 +386,6 @@ class IPublisherRequest(IPublicationRequest):
         """
 
 
-class IDebugFlags(Interface):
-    """Features that support debugging."""
-
-    sourceAnnotations = Attribute("""Enable ZPT source annotations""")
-
-
 class IApplicationRequest(IEnumerableMapping):
     """Features that support application logic
     """
@@ -403,8 +397,6 @@ class IApplicationRequest(IEnumerableMapping):
     body = Attribute("""The body of the request as a string""")
 
     bodyFile = Attribute("""The body of the request as a file""")
-
-    debug = Attribute("""Debug flags (see IDebugFlags).""")
 
     def __getitem__(key):
         """Return request data

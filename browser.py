@@ -653,9 +653,6 @@ class BrowserResponse(HTTPResponse):
             if self._charset is not None:
                 c += ';charset=' + self._charset
             self.setHeader('content-type', c)
-            self.setHeader('x-content-type-warning', 'guessed from content')
-            # XXX emit a warning once all page templates are changed to
-            # specify their content type explicitly.
 
         body = self.__insertBase(body)
         self._body = body
@@ -664,17 +661,9 @@ class BrowserResponse(HTTPResponse):
             self.setStatus(200)
 
     def __isHTML(self, str):
-        """Try to determine whether str is HTML or not."""
-        s = str.lstrip().lower()
-        if s.startswith('<!doctype html'):
-            return True
-        if s.startswith('<html') and (s[5:6] in ' >'):
-            return True
-        if s.startswith('<!--'):
-            idx = s.find('<html')
-            return idx > 0 and (s[idx+5:idx+6] in ' >')
-        else:
-            return False
+        s = str.strip().lower()
+        return ((s.startswith('<html') and (s[5:6] in ' >'))
+                 or s.startswith('<!doctype html'))
 
 
     def __wrapInHTML(self, title, content):
