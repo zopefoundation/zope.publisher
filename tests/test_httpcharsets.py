@@ -53,6 +53,14 @@ class HTTPCharsetTest(unittest.TestCase):
         self.assertEqual(list(browser_charsets.getPreferredCharsets()),
                          ['iso-8859-1', 'utf-16'])
 
+    def testNoHTTP_ACCEPT_CHARSET(self):
+        # If the client doesn't provide a HTTP_ACCEPT_CHARSET, it should
+        # accept any charset
+        request = {}
+        browser_charsets = HTTPCharsets(request)
+        self.assertEqual(list(browser_charsets.getPreferredCharsets()),
+                         [])
+
 
 def test_suite():
     loader=unittest.TestLoader()

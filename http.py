@@ -992,6 +992,7 @@ class HTTPCharsets:
         '''See interface IUserPreferredCharsets'''
         charsets = []
         sawstar = sawiso88591 = 0
+        header_present = 'HTTP_ACCEPT_CHARSET' in self.request
         for charset in self.request.get('HTTP_ACCEPT_CHARSET', '').split(','):
             charset = charset.strip().lower()
             if charset:
@@ -1018,7 +1019,9 @@ class HTTPCharsets:
         # field, then all character sets not explicitly mentioned get a
         # quality value of 0, except for ISO-8859-1, which gets a quality
         # value of 1 if not explicitly mentioned.
-        if not sawstar and not sawiso88591:
+        # And quoting RFC 2616, $14.2: "If no Accept-Charset header is
+        # present, the default is that any character set is acceptable."
+        if not sawstar and not sawiso88591 and header_present:
             charsets.append((1.0, 'iso-8859-1'))
         # UTF-8 is **always** preferred over anything else.
         # Reason: UTF-8 is not specific and can encode the entire unicode
