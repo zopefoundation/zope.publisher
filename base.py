@@ -13,10 +13,8 @@
 ##############################################################################
 '''Response Output formatter
 
-$Id: base.py,v 1.12 2003/11/21 17:12:28 jim Exp $
+$Id: base.py,v 1.13 2004/02/14 02:19:20 srichter Exp $
 '''
-
-
 import traceback
 from cStringIO import StringIO
 
