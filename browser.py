@@ -18,7 +18,7 @@ big improvement of the 'BrowserRequest' to 'HTTPRequest' is that is can handle
 HTML form data and convert them into a Python-native format. Even file data is
 packaged into a nice, Python-friendly 'FileUpload' object.
 
-$Id: browser.py,v 1.27 2004/03/19 20:26:43 srichter Exp $
+$Id: browser.py,v 1.28 2004/03/20 16:27:17 srichter Exp $
 """
 import re
 from types import ListType, TupleType, StringType, StringTypes
@@ -813,7 +813,7 @@ class BrowserResponse(HTTPResponse):
     def setBase(self, base):
         self._base = base
 
-    def redirect(self, location, status=302):
+    def redirect(self, location, status=None):
         base = getattr(self, '_base', '')
         if base and isRelative(str(location)):
             l = base.rfind('/')
@@ -831,7 +831,7 @@ class BrowserResponse(HTTPResponse):
         # if isRelative(str(location)):
         #     raise AssertionError('Cannot determine absolute location')
 
-        super(BrowserResponse, self).redirect(location, status)
+        return super(BrowserResponse, self).redirect(location, status)
 
     def reset(self):
         super(BrowserResponse, self).reset()
