@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: browser.py,v 1.20 2003/06/09 16:39:14 alga Exp $
+$Id: browser.py,v 1.21 2003/11/03 21:37:50 jeremy Exp $
 """
 
 import re
@@ -289,7 +289,7 @@ class BrowserRequest(HTTPRequest):
             tuple_items = {}
             CGI_name = isCGI_NAME
             defaults = {}
-            converter = seqf = None
+            converter = None
 
             # process all entries in the field storage (form)
             for item in fslist:

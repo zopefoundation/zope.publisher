@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.35 2003/08/17 06:09:14 philikon Exp $
+$Id: http.py,v 1.36 2003/11/03 21:37:50 jeremy Exp $
 """
 
 import re, time, random
@@ -347,7 +347,7 @@ class HTTPRequest(BaseRequest):
         script = get_env('SCRIPT_NAME','').strip()
 
         # _script and the other _names are meant for URL construction
-        self._app_names = app_names = filter(None, script.split('/'))
+        self._app_names = filter(None, script.split('/'))
 
         # get server URL and store it too, since we are already looking it up
         server_url = get_env('SERVER_URL', None)
