@@ -13,7 +13,7 @@
 ##############################################################################
 '''Response Output formatter
 
-$Id: base.py,v 1.3 2002/12/27 16:40:24 k_vertigo Exp $
+$Id: base.py,v 1.4 2003/02/03 15:00:49 jim Exp $
 '''
 
 
@@ -114,10 +114,18 @@ class RequestDataMapper(object):
 
     has_key = __contains__
 
-    def keys(self): return self.__map.keys()
-    def items(self): return self.__map.items()
-    def values(self): return self.__map.values()
-    def __len__(self): return len(self.__map)
+    def keys(self):
+        return self.__map.keys()
+
+    def __iter__(self):
+        return iter(self.keys())
+
+    def items(self):
+        return self.__map.items()
+    def values(self):
+        return self.__map.values()
+    def __len__(self):
+        return len(self.__map)
 
 class RequestDataProperty(object):
 
@@ -321,6 +329,9 @@ class BaseRequest(object):
         'See Interface.Common.Mapping.IEnumerableMapping'
         return self._environ.keys()
 
+    def __iter__(self):
+        return iter(self.keys())
+
     def values(self):
         'See Interface.Common.Mapping.IEnumerableMapping'
         result = []
@@ -364,11 +375,6 @@ class BaseRequest(object):
         L1 = self.items()
         L1.sort()
         return "\n".join(map(lambda item: "%s:\t%s" % item, L1))
-
-    def __repr__(self):
-        # Returns a *short* string.
-        return '<%s instance at 0x%x, URL=%s>' % (
-            str(self.__class__), id(self), `self.URL`)
 
     def _setupPath_helper(self, attr):
         path = self.get(attr, "/").strip()
