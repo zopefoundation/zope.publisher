@@ -13,7 +13,7 @@
 ##############################################################################
 """HTTP Publisher
 
-$Id: http.py,v 1.45 2004/03/20 16:27:18 srichter Exp $
+$Id: http.py,v 1.46 2004/03/26 14:56:22 hdima Exp $
 """
 
 import re, time, random
@@ -845,8 +845,11 @@ class HTTPResponse(BaseResponse):
         return self.__class__(self._outstream,
                               self._header_output)
 
-    def _updateContentLength(self):
-        blen = str(len(self._body))
+    def _updateContentLength(self, data=None):
+        if data is None:
+            blen = str(len(self._body))
+        else:
+            blen = str(len(data))
         if blen.endswith('L'):
             blen = blen[:-1]
         self.setHeader('content-length', blen)
@@ -945,7 +948,8 @@ class HTTPResponse(BaseResponse):
         computation of a response to proceed.
 
         The published object should first set any output headers or
-        cookies on the response object.
+        cookies on the response object and encode the string into
+        appropriate encoding.
 
         Note that published objects must not generate any errors
         after beginning stream-oriented output.
@@ -971,13 +975,15 @@ class HTTPResponse(BaseResponse):
         """
         if self._charset is None:
             self.setCharset('utf-8')
-        
-        if not self._wrote_headers:
-            self.outputHeaders()
-            self._wrote_headers = True
 
         if self.getHeader('content-type', '').startswith('text'):
             data = self._encode(data)
+            # TODO: Need a test case
+            self._updateContentLength(data)
+
+        if not self._wrote_headers:
+            self.outputHeaders()
+            self._wrote_headers = True
 
         self._outstream.write(data)
 
