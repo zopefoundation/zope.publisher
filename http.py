@@ -13,7 +13,7 @@
 ##############################################################################
 """HTTP Publisher
 
-$Id: http.py,v 1.51 2004/04/07 14:36:47 jim Exp $
+$Id: http.py,v 1.52 2004/04/13 09:57:04 hdima Exp $
 """
 
 import re, time, random
@@ -485,7 +485,8 @@ class HTTPRequest(BaseRequest):
             if level > len(names):
                 raise IndexError, level
             names = names[:-level]
-        names = [quote(name, safe='/+@') for name in names]
+        # See: http://www.ietf.org/rfc/rfc2718.txt, Section 2.2.5
+        names = [quote(name.encode("utf-8"), safe='/+@') for name in names]
 
         if path_only:
             if not names:
@@ -506,7 +507,8 @@ class HTTPRequest(BaseRequest):
         else:
             names = self._app_names
 
-        names =  [quote(name, safe='/+@') for name in names]
+        # See: http://www.ietf.org/rfc/rfc2718.txt, Section 2.2.5
+        names =  [quote(name.encode("utf-8"), safe='/+@') for name in names]
 
         if path_only:
             return names and ('/' + '/'.join(names)) or '/'
