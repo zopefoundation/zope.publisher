@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.3 2002/12/27 16:40:24 k_vertigo Exp $
+$Id: http.py,v 1.4 2002/12/31 02:52:18 jim Exp $
 """
 
 import re, time, random, sys
@@ -28,8 +28,8 @@ from zope.publisher.interfaces.http import IHTTPPublisher
 from zope.publisher.interfaces import Redirect
 from zope.publisher.interfaces.http import IHTTPResponse
 from zope.publisher.interfaces.http import IHTTPApplicationResponse
-from zope.interfaces.i18n import IUserPreferredCharsets
-from zope.interfaces.i18n import IUserPreferredCharsets
+from zope.i18n.interfaces import IUserPreferredCharsets
+from zope.i18n.interfaces import IUserPreferredCharsets
 
 from zope.component import queryAdapter
 from zope.exceptions.exceptionformatter import format_exception

@@ -13,15 +13,15 @@
 ##############################################################################
 """
 
-$Id: browser.py,v 1.3 2002/12/27 16:40:24 k_vertigo Exp $
+$Id: browser.py,v 1.4 2002/12/31 02:52:18 jim Exp $
 """
 
 import re
 from types import ListType, TupleType, StringType, StringTypes
 from cgi import FieldStorage, escape
 
-from zope.interfaces.i18n import IUserPreferredLanguages
-from zope.interfaces.i18n import IUserPreferredCharsets
+from zope.i18n.interfaces import IUserPreferredLanguages
+from zope.i18n.interfaces import IUserPreferredCharsets
 from zope.publisher.interfaces.browser import IBrowserPresentation
 from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.publisher.interfaces.browser import IBrowserPublication
