@@ -13,13 +13,15 @@
 ##############################################################################
 """
 
-$Id: browser.py,v 1.6 2003/02/11 16:00:08 sidnei Exp $
+$Id: browser.py,v 1.7 2003/02/13 05:06:24 tseaver Exp $
 """
 
 import re
 from types import ListType, TupleType, StringType, StringTypes
 from cgi import FieldStorage, escape
+from datetime import datetime
 
+from zope.app.datetimeutils import parse as parseDateTime
 from zope.i18n.interfaces import IUserPreferredLanguages
 from zope.i18n.interfaces import IUserPreferredCharsets
 from zope.publisher.interfaces.browser import IBrowserPresentation
@@ -144,10 +146,30 @@ def field2lines(v):
     return field2text(v).split('\n')
 
 def field2date(v):
-    from DateTime import DateTime
-    if hasattr(v,'read'): v=v.read()
-    else: v=str(v)
-    return DateTime(v)
+    if hasattr(v,'read'):
+        v = v.read()
+    else:
+        v = str(v)
+
+    # *Don't* force a timezone if not passed explicitly;  leave it as
+    # "naive" datetime.
+    year, month, day, hour, minute, second, tzname = parseDateTime(v, local=0)
+
+    # TODO:  look up a real tzinfo object using 'tzname'
+    #
+    # Option 1:  Use 'timezones' module as global registry::
+    #
+    #   from zope.app.timezones import getTimezoneInfo
+    #   tzinfo = getTimezoneInfo(tzname)
+    #
+    # Option 2:  Use a utility.
+    #
+    #   tz_lookup = getUtility(None, ITimezoneLookup)
+    #   tzinfo = tz_lookup(tzname)
+    #
+    return datetime(year, month, day, hour, minute, second,
+                  # tzinfo=tzinfo
+                   )
 
 def field2boolean(v):
     return v
