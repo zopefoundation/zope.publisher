@@ -13,7 +13,7 @@
 ##############################################################################
 '''Response Output formatter
 
-$Id: base.py,v 1.6 2003/04/28 13:14:21 mgedmin Exp $
+$Id: base.py,v 1.7 2003/05/22 13:58:55 sidnei Exp $
 '''
 
 
@@ -126,8 +126,10 @@ class RequestDataMapper(object):
 
     def items(self):
         return self.__map.items()
+
     def values(self):
         return self.__map.values()
+
     def __len__(self):
         return len(self.__map)
 
