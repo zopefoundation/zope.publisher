@@ -14,16 +14,18 @@
 ##############################################################################
 """HTTP Publisher Tests
 
-$Id: test_http.py,v 1.29 2004/03/20 16:27:21 srichter Exp $
+$Id: test_http.py,v 1.30 2004/03/29 09:53:22 hdima Exp $
 """
 import unittest
 
 from zope.interface import implements
 from zope.publisher.interfaces.logginginfo import ILoggingInfo
-from zope.publisher.http import HTTPRequest
+from zope.publisher.http import HTTPRequest, HTTPResponse
 from zope.publisher.publish import publish
 from zope.publisher.base import DefaultPublication
-from zope.publisher.interfaces.http import IHTTPRequest
+from zope.publisher.interfaces.http import IHTTPRequest, IHTTPResponse
+from zope.publisher.interfaces.http import IHTTPApplicationResponse
+from zope.publisher.interfaces import IResponse
 
 from zope.i18n.interfaces.locales import ILocale
 
@@ -116,7 +118,7 @@ class HTTPTests(unittest.TestCase):
         self.assertEquals(location, 'http://foobar.com/redirected')
         self.assertEquals(request.response.getStatus(), 302)
         self.assertEquals(request.response._headers['location'], location)
-        
+
         # test HTTP/1.1
         env = {'SERVER_PROTOCOL':'HTTP/1.1'}
 
@@ -128,7 +130,7 @@ class HTTPTests(unittest.TestCase):
         request = self._createRequest(env, '')
         request.response.redirect('http://foobar.com/explicit', 304)
         self.assertEquals(request.response.getStatus(), 304)
-        
+
     def testRequestEnvironment(self):
         req = self._createRequest()
         publish(req, handle_errors=0) # Force expansion of URL variables
@@ -378,7 +380,7 @@ class ConcreteHTTPTests(HTTPTests):
         publish(r, handle_errors=0)
         r.shiftNameToApplication()
         self.assertEquals(r.getApplicationURL(), appurl+"/xxx")
-        
+
         # Verify that we can only shift if we've traversed only a single name
         r = self._createRequest(extra_env={"PATH_INFO": "/folder/item"})
         publish(r, handle_errors=0)
@@ -389,14 +391,48 @@ class ConcreteHTTPTests(HTTPTests):
 class TestHTTPResponse(unittest.TestCase):
 
     def testInterface(self):
-        from zope.publisher.http import HTTPResponse
-        from zope.publisher.interfaces.http import IHTTPResponse
-        from zope.publisher.interfaces.http import IHTTPApplicationResponse
-        from zope.publisher.interfaces import IResponse
         rp = HTTPResponse(StringIO())
         verifyObject(IHTTPResponse, rp)
         verifyObject(IHTTPApplicationResponse, rp)
         verifyObject(IResponse, rp)
+
+    def _createResponse(self):
+        stream = StringIO()
+        response = HTTPResponse(stream)
+        return response, stream
+
+    def _parseResult(self, result):
+        hdrs_text, body = result.split("\r\n\r\n", 1)
+        headers = {}
+        for line in hdrs_text.splitlines():
+            key, val = line.split(":", 1)
+            headers[key.strip()] = val.strip()
+        return headers, body
+
+    def _getResultFromResponse(self, body, charset=None, headers=None):
+        response, stream = self._createResponse()
+        if charset is not None:
+            response.setCharset()
+        if headers is not None:
+            for hdr, val in headers.iteritems():
+                response.setHeader(hdr, val)
+        response.setBody(body)
+        response.outputBody()
+        return self._parseResult(stream.getvalue())
+
+    def testContentLength(self):
+        eq = self.failUnlessEqual
+
+        headers, body = self._getResultFromResponse("test", "utf-8",
+            {"content-type": "text/plain"})
+        eq("4", headers["Content-Length"])
+        eq("test", body)
+
+        headers, body = self._getResultFromResponse(
+            u'\u0442\u0435\u0441\u0442', "utf-8",
+            {"content-type": "text/plain"})
+        eq("8", headers["Content-Length"])
+        eq('\xd1\x82\xd0\xb5\xd1\x81\xd1\x82', body)
 
 
 def test_suite():
