@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.27 2003/06/30 19:32:20 jeremy Exp $
+$Id: http.py,v 1.28 2003/07/22 09:33:34 ryzaja Exp $
 """
 
 import re, time, random
@@ -511,7 +511,7 @@ class HTTPRequest(BaseRequest):
         super(HTTPRequest, self).setUser(user)
 
         # XXX: under the publishing conditions,
-        # self.response._outstream is an HTTPTask.  It needs to know
+        # self.response.http_transaction is an HTTPTask.  It needs to know
         # the username for logging purposes.  It would make sense to
         # do this in the server, when the actual hit log entry is
         # written, but it would require a major refactoring.
@@ -519,8 +519,8 @@ class HTTPRequest(BaseRequest):
         # When removing this wart after the server refactoring, grep
         # the source for setAuthUserName, we had to stub that in
         # several tests.
-
-        self.response._outstream.setAuthUserName(user.getId())
+        if self.response.http_transaction is not None:
+            self.response.http_transaction.setAuthUserName(user.getId())
 
     #
     ############################################################
@@ -604,7 +604,7 @@ class HTTPRequest(BaseRequest):
         return d.keys()
 
 
-class HTTPResponse (BaseResponse):
+class HTTPResponse(BaseResponse):
 
     implements(IHTTPResponse, IHTTPApplicationResponse)
 
@@ -620,11 +620,13 @@ class HTTPResponse (BaseResponse):
         '_reason',              # The reason that goes with the status
         '_status_set',          # Boolean: status explicitly set
         '_charset',             # String: character set for the output
+        'http_transaction',     # HTTPTask object
         )
 
 
-    def __init__(self, outstream, header_output=None):
+    def __init__(self, outstream, header_output=None, http_transaction=None):
         self._header_output = header_output
+        self.http_transaction = http_transaction
 
         super(HTTPResponse, self).__init__(outstream)
         self.reset()
@@ -644,6 +646,9 @@ class HTTPResponse (BaseResponse):
 
     def setHeaderOutput(self, header_output):
         self._header_output = header_output
+
+    def setHTTPTransaction(self, http_transaction):
+        self.http_transaction = http_transaction
 
     def setStatus(self, status, reason=None):
         'See IHTTPResponse'

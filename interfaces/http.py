@@ -13,7 +13,7 @@
 ##############################################################################
 """HTTP-related publisher interfaces.
 
-$Id: http.py,v 1.15 2003/04/28 13:14:21 mgedmin Exp $
+$Id: http.py,v 1.16 2003/07/22 09:33:37 ryzaja Exp $
 """
 
 from zope.interface import Interface
@@ -366,4 +366,10 @@ class IHTTPResponse(Interface):
     def setCharsetUsingRequest(request):
         """This convinience function determines the character set based on the
            HTTP header information.
+        """
+
+    def setHTTPTransaction(http_transaction):
+        """Sets an HTTP transaction.
+
+        Returns an HTTPTask or None. It is used for logging.
         """
