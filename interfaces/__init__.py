@@ -13,7 +13,7 @@
 ##############################################################################
 """Interfaces for the publisher.
 
-$Id: __init__.py,v 1.9 2003/02/19 15:36:11 stevea Exp $
+$Id: __init__.py,v 1.10 2003/02/24 14:41:12 stevea Exp $
 """
 
 from zope.interface import Interface
@@ -371,7 +371,7 @@ class IPublisherRequest(IPublicationRequest):
         """
 
     def processInputs():
-        """Do any input processing that needs to bve done before traversing
+        """Do any input processing that needs to be done before traversing
 
         This is done after construction to allow the publisher to
         handle errors that arise.
