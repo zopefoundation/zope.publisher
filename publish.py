@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# Copyright (c) 2001, 2002 Zope Corporation and Contributors.
+# Copyright (c) 2001, 2002, 2003 Zope Corporation and Contributors.
 # All Rights Reserved.
 #
 # This software is subject to the provisions of the Zope Public License,
@@ -11,16 +11,15 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""
-Python Object Publisher -- Publish Python objects on web servers
+"""Python Object Publisher -- Publish Python objects on web servers
 
 Provide an apply-like facility that works with any mapping object
 
-$Id: publish.py,v 1.3 2002/12/27 16:40:25 k_vertigo Exp $
+$Id: publish.py,v 1.4 2003/01/02 16:56:49 bwarsaw Exp $
 """
 
-
-import sys, os
+import os
+import sys
 from zope.publisher.interfaces import Retry
 from zope.proxy.introspection import removeAllProxies
 
@@ -28,13 +27,12 @@ _marker = []  # Create a new marker object.
 
 
 def unwrapMethod(object):
-    """ object -> ( unwrapped, wrapperCount )
+    """object -> (unwrapped, wrapperCount)
 
-        Unwrap 'object' until we get to a real function, counting the
-        number of unwrappings.
+    Unwrap 'object' until we get to a real function, counting the number of
+    unwrappings.
 
-        Bail if we find a class or something we can't
-        idendify as callable.
+    Bail if we find a class or something we can't identify as callable.
     """
     wrapperCount = 0
     unwrapped = object
@@ -65,6 +63,7 @@ def unwrapMethod(object):
         )
 
     return unwrapped, wrapperCount
+
 
 def mapply(object, positional=(), request={}):
     __traceback_info__ = object
@@ -113,10 +112,11 @@ def mapply(object, positional=(), request={}):
     args = tuple(args)
     return object(*args)
 
-def publish(request, handle_errors=1):
+
+def publish(request, handle_errors=True):
     try: # finally to clean up to_raise and close request
         to_raise = None
-        while 1:
+        while True:
             publication = request.publication
             try:
                 try:
@@ -137,7 +137,8 @@ def publish(request, handle_errors=1):
                         publication.afterCall(request)
 
                     except:
-                        publication.handleException(object, request, sys.exc_info(), 1)
+                        publication.handleException(
+                            object, request, sys.exc_info(), True)
 
                         if not handle_errors:
                             raise
@@ -154,7 +155,8 @@ def publish(request, handle_errors=1):
                         # Output the original exception.
                         publication = request.publication
                         publication.handleException(
-                            object, request, retryException.getOriginalException(), 0)
+                            object, request,
+                            retryException.getOriginalException(), False)
                         break
                     else:
                         raise
