@@ -13,7 +13,7 @@
 ##############################################################################
 """HTTP Publisher
 
-$Id: http.py,v 1.48 2004/03/30 09:16:17 hdima Exp $
+$Id: http.py,v 1.49 2004/04/05 08:16:00 hdima Exp $
 """
 
 import re, time, random
@@ -752,10 +752,14 @@ class HTTPResponse(BaseResponse):
 
     def setCharset(self, charset=None):
         'See IHTTPResponse'
-        # XXX: Should set the appropriate response header for specifying the
-        #      encoding.
         self._charset = charset
 
+    def _updateContentType(self):
+        if self._charset is not None:
+            ctype = self.getHeader('content-type', '')
+            if ctype.startswith("text") and "charset" not in ctype:
+                self.setHeader('content-type',
+                        ctype + ";charset=" + self._charset)
 
     def setCharsetUsingRequest(self, request):
         'See IHTTPResponse'
@@ -891,6 +895,7 @@ class HTTPResponse(BaseResponse):
         """
         if self._charset is None:
             self.setCharset('utf-8')
+        self._updateContentType()
         encode = self._encode
         headers = self.getHeaders()
         # Clean these headers from unicode by possibly encoding them

@@ -14,7 +14,7 @@
 ##############################################################################
 """HTTP Publisher Tests
 
-$Id: test_http.py,v 1.31 2004/03/30 09:16:20 hdima Exp $
+$Id: test_http.py,v 1.32 2004/04/05 08:16:02 hdima Exp $
 """
 import unittest
 
@@ -438,6 +438,33 @@ class TestHTTPResponse(unittest.TestCase):
             {"content-type": "text/plain"})
         eq("8", headers["Content-Length"])
         eq('\xd1\x82\xd0\xb5\xd1\x81\xd1\x82', body)
+
+    def testContentType(self):
+        eq = self.failUnlessEqual
+
+        headers, body = self._getResultFromResponse("test", "utf-8")
+        eq("", headers.get("Content-Type", ""))
+        eq("test", body)
+
+        headers, body = self._getResultFromResponse("test",
+            headers={"content-type": "text/plain"})
+        eq("text/plain;charset=utf-8", headers["Content-Type"])
+        eq("test", body)
+
+        headers, body = self._getResultFromResponse("test", "utf-8",
+            {"content-type": "text/html"})
+        eq("text/html;charset=utf-8", headers["Content-Type"])
+        eq("test", body)
+
+        headers, body = self._getResultFromResponse("test", "utf-8",
+            {"content-type": "text/plain;charset=cp1251"})
+        eq("text/plain;charset=cp1251", headers["Content-Type"])
+        eq("test", body)
+
+        headers, body = self._getResultFromResponse("test", "utf-8",
+            {"content-type": "image/gif"})
+        eq("image/gif", headers["Content-Type"])
+        eq("test", body)
 
 
 def test_suite():
