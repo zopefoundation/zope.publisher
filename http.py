@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.36 2003/11/03 21:37:50 jeremy Exp $
+$Id: http.py,v 1.37 2003/11/04 04:04:22 jeremy Exp $
 """
 
 import re, time, random
@@ -487,12 +487,12 @@ class HTTPRequest(BaseRequest):
     def _authUserPW(self):
         'See IHTTPCredentials'
         global base64
-        auth=self._auth
-        if auth:
-            if auth.lower().startswith('basic '):
-                if base64 is None: import base64
+        if self._auth:
+            if self._auth.lower().startswith('basic '):
+                if base64 is None:
+                    import base64
                 name, password = base64.decodestring(
-                    auth.split()[-1]).split(':')
+                    self._auth.split()[-1]).split(':')
                 return name, password
 
     def unauthorized(self, challenge):
