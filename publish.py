@@ -15,7 +15,7 @@
 
 Provide an apply-like facility that works with any mapping object
 
-$Id: publish.py,v 1.8 2003/04/11 12:55:41 ryzaja Exp $
+$Id: publish.py,v 1.9 2003/04/22 16:49:36 gvanrossum Exp $
 """
 
 import sys
@@ -115,6 +115,8 @@ def mapply(object, positional=(), request={}):
 
     return object(*args)
 
+# XXX This is evidently a hook for something.
+# Maybe Jim could a clarifying comment explaining the use?
 def debug_call(object, args):
     return object(*args)
 
