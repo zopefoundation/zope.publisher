@@ -928,7 +928,7 @@ class HTTPResponse(BaseResponse):
         return text
 
 
-class DefaultPublisher:
+class DefaultPublisher(object):
     implements(IHTTPPublisher)
 
     def publishTraverse(self, request, name):
@@ -944,7 +944,7 @@ def sort_charsets(x, y):
     return cmp(y, x)
 
 
-class HTTPCharsets:
+class HTTPCharsets(object):
     implements(IUserPreferredCharsets)
 
     def __init__(self, request):

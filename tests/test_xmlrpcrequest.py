@@ -74,13 +74,13 @@ class XMLRPCTests(unittest.TestCase):
     def setUp(self):
         super(XMLRPCTests, self).setUp()
 
-        class AppRoot:
-            " "
+        class AppRoot(object):
+            pass
 
-        class Folder:
-            " "
+        class Folder(object):
+            pass
 
-        class Item:
+        class Item(object):
 
             def __call__(self, a, b):
                 return "%s, %s" % (`a`, `b`)
@@ -88,13 +88,13 @@ class XMLRPCTests(unittest.TestCase):
             def doit(self, a, b):
                 return 'do something %s %s' % (a, b)
 
-        class View:
+        class View(object):
 
             def action(self, a):
                 return "Parameter[type: %s; value: %s" %(
                     type(a).__name__, `a`)
 
-        class Item2:
+        class Item2(object):
             view = View()
 
 

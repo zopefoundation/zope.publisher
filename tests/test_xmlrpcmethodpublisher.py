@@ -11,6 +11,10 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
+"""XML-RPC Method Publisher tests
+
+$Id$
+"""
 import unittest
 
 from zope.publisher.xmlrpc import MethodPublisher, TestRequest
@@ -19,7 +23,7 @@ from zope.publisher.interfaces.xmlrpc import IXMLRPCPublisher
 from zope.interface.verify import verifyClass
 from zope.interface import implementedBy
 
-class ContentStub:
+class ContentStub(object):
     pass
 
 class Presentation(MethodPublisher):

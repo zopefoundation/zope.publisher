@@ -35,7 +35,7 @@ from StringIO import StringIO
 from Cookie import SimpleCookie, CookieError
 
 
-class UserStub:
+class UserStub(object):
     implements(ILoggingInfo)
 
     def __init__(self, id):
@@ -64,14 +64,14 @@ class HTTPTests(unittest.TestCase):
     }
 
     def setUp(self):
-        class AppRoot:
-            " "
+        class AppRoot(object):
+            """Required docstring for the publisher."""
 
-        class Folder:
-            " "
+        class Folder(object):
+            """Required docstring for the publisher."""
 
-        class Item:
-            " "
+        class Item(object):
+            """Required docstring for the publisher."""            
             def __call__(self, a, b):
                 return "%s, %s" % (`a`, `b`)
 
@@ -267,7 +267,7 @@ class HTTPTests(unittest.TestCase):
         self.assertEquals(lpw, (login, password))
 
     def testSetPrincipal(self):
-        class HTTPTaskStub:
+        class HTTPTaskStub(object):
             auth_user_name = None
             def setAuthUserName(self, name):
                 self.auth_user_name = name

@@ -11,14 +11,15 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""
+"""Publication test
+
 $Id$
 """
 
 from zope.publisher.interfaces import IPublication
 from zope.interface import implements
 
-class TestPublication:
+class TestPublication(object):
 
     implements(IPublication)
 
@@ -63,7 +64,7 @@ class TestPublication:
         self._callTraversalHooks = getattr(self, '_callTraversalHooks', 0) + 1
 
 
-class App:
+class App(object):
 
     def __init__(self, name):
         self.name = name

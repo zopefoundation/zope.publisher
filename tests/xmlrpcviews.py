@@ -11,17 +11,16 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""
+"""XML-RPC Views test objects
 
-Revision information: $Id$
+$Id$
 """
-
 from zope.interface import Interface, implements
 from zope.publisher.interfaces.xmlrpc import IXMLRPCPublisher
 
 class IC(Interface): pass
 
-class V1:
+class V1(object):
     implements(IXMLRPCPublisher)
 
     def __init__(self, context, request):
@@ -31,7 +30,7 @@ class V1:
 class VZMI(V1):
     pass
 
-class R1:
+class R1(object):
     def __init__(self, request):
         self.request = request
 

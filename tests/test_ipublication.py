@@ -11,9 +11,8 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""
+"""IPublication Test
 
-Revision information:
 $Id$
 """
 
@@ -24,7 +23,7 @@ from zope.interface.verify import verifyObject
 
 from zope.publisher.interfaces import IPublication
 
-class BaseIPublicationTest:
+class BaseIPublicationTest(object):
 
     # This test isn't as interesting as we'd like it to be because we
     # know too little about the semantics if a particular publication

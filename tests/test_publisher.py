@@ -36,14 +36,14 @@ class TestPublication(DefaultPublication):
 
 class PublisherTests(unittest.TestCase):
     def setUp(self):
-        class AppRoot:
-            " "
+        class AppRoot(object):
+            """Required docstring for the publisher."""
 
-        class Folder:
-            " "
+        class Folder(object):
+            """Required docstring for the publisher."""
 
-        class Item:
-            " "
+        class Item(object):
+            """Required docstring for the publisher."""
             def __call__(self):
                 return "item"
 

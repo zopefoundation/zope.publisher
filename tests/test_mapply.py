@@ -11,6 +11,10 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
+"""Test mapply() function
+
+$Id$
+"""
 import unittest
 
 from zope.publisher.publish import mapply
@@ -29,7 +33,7 @@ class MapplyTests(unittest.TestCase):
 
     def testClass(self):
         values = {'a':2, 'b':3, 'c':5}
-        class c:
+        class c(object):
             a = 3
             def __call__(self, b, c=4):
                 return '%d%d%d' % (self.a, b, c)
@@ -42,7 +46,9 @@ class MapplyTests(unittest.TestCase):
         v = mapply(cc.compute, (), values)
         self.failUnlessEqual(v, '334')
 
-        class c2: pass
+        class c2:
+            """Must be a classic class."""
+            
         c2inst = c2()
         c2inst.__call__ = cc
         v = mapply(c2inst, (), values)

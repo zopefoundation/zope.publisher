@@ -11,9 +11,8 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""
+"""IPublicationRequest base test
 
-Revision information:
 $Id$
 """
 
@@ -22,7 +21,7 @@ from zope.interface.verify import verifyObject
 from zope.publisher.interfaces import IPublicationRequest
 
 
-class BaseTestIPublicationRequest:
+class BaseTestIPublicationRequest(object):
     def testVerifyIPublicationRequest(self):
         verifyObject(IPublicationRequest, self._Test__new())
 

@@ -11,9 +11,9 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""
+"""Test objects and interfaces.
 
-Revision information: $Id$
+$Id$
 """
 
 from zope.interface import Interface, implements
@@ -25,7 +25,7 @@ class V1(BrowserView): pass
 
 class VZMI(V1): pass
 
-class R1:
+class R1(object):
     def __init__(self, request): self.request = request
 
 class RZMI(R1):
