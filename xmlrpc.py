@@ -100,7 +100,7 @@ class XMLRPCResponse(HTTPResponse):
             body = xmlrpclib.dumps(body, methodresponse=True)
         else:
             # Marshall our body as an XML-RPC response. Strings will be sent
-            # strings, integers as integers, etc. We do *not* convert
+            # as strings, integers as integers, etc.  We do *not* convert
             # everything to a string first.
             try:
                 body = xmlrpclib.dumps((body,), methodresponse=True,
