@@ -13,7 +13,7 @@
 ##############################################################################
 """HTTP-related publisher interfaces.
 
-$Id: http.py,v 1.11 2003/03/25 14:32:51 bwarsaw Exp $
+$Id: http.py,v 1.12 2003/03/25 15:13:26 bwarsaw Exp $
 """
 
 from zope.interface import Interface
@@ -186,8 +186,8 @@ class IHTTPRequest(Interface):
         and POST in the case of browser requests) and XML-RPC methods.
         """
 
-    def getLocale():
-        """Return the locale object associated with this request."""
+    locale = Attribute(
+        "Return the locale object associated with this request.")
 
 
 class IHTTPCredentials(Interface):
