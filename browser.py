@@ -648,6 +648,9 @@ class BrowserResponse(HTTPResponse):
         updates the "content-length" return header and sets the status to
         200 if it has not already been set.
         """
+        if body is None:
+            return
+
         if not isinstance(body, StringTypes):
             body = unicode(body)
 
@@ -665,6 +668,7 @@ class BrowserResponse(HTTPResponse):
         self._updateContentLength()
         if not self._status_set:
             self.setStatus(200)
+
 
     def __isHTML(self, str):
         """Try to determine whether str is HTML or not."""
