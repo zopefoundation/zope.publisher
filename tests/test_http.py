@@ -172,6 +172,14 @@ class HTTPTests(unittest.TestCase):
     def testRequestLocale(self):
         eq = self.assertEqual
         unless = self.failUnless
+
+        from zope.component import provideAdapter
+        from zope.publisher.browser import BrowserLanguages
+        from zope.publisher.interfaces.http import IHTTPRequest
+        from zope.i18n.interfaces import IUserPreferredLanguages
+        provideAdapter(BrowserLanguages, [IHTTPRequest],
+                       IUserPreferredLanguages)
+
         for httplang in ('it', 'it-ch', 'it-CH', 'IT', 'IT-CH', 'IT-ch'):
             req = self._createRequest({'HTTP_ACCEPT_LANGUAGE': httplang})
             locale = req.locale
@@ -210,6 +218,9 @@ class HTTPTests(unittest.TestCase):
         eq(locale.id.language, 'en')
         eq(locale.id.territory, None)
         eq(locale.id.variant, None)
+
+        from zope.component.testing import tearDown
+        tearDown()
 
     def testCookies(self):
         cookies = {

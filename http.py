@@ -33,6 +33,7 @@ from zope.publisher.interfaces.http import IHTTPResponse
 from zope.publisher.interfaces.http import IHTTPApplicationResponse
 from zope.publisher.interfaces.logginginfo import ILoggingInfo
 from zope.i18n.interfaces import IUserPreferredCharsets
+from zope.i18n.interfaces import IUserPreferredLanguages
 from zope.i18n.locales import locales, LoadLocaleError
 
 from zope.publisher.base import BaseRequest, BaseResponse
@@ -256,11 +257,13 @@ class HTTPRequest(BaseRequest):
         self.__setupLocale()
 
     def __setupLocale(self):
-        # Import here to break import loops
-        from zope.publisher.browser import BrowserLanguages
-
         self.response.setCharsetUsingRequest(self)
-        langs = BrowserLanguages(self).getPreferredLanguages()
+        envadapter = IUserPreferredLanguages(self, None)
+        if envadapter is None:
+            self._locale = None
+            return
+
+        langs = envadapter.getPreferredLanguages()
         for httplang in langs:
             parts = (httplang.split('-') + [None, None])[:3]
             try:
