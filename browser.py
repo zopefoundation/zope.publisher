@@ -13,13 +13,14 @@
 ##############################################################################
 """
 
-$Id: browser.py,v 1.18 2003/05/22 22:48:34 jim Exp $
+$Id: browser.py,v 1.19 2003/06/03 14:32:06 ryzaja Exp $
 """
 
 import re
 from types import ListType, TupleType, StringType, StringTypes
 from cgi import FieldStorage, escape
 
+from zope.interface import implements
 from zope.i18n.interfaces import IUserPreferredLanguages
 from zope.i18n.interfaces import IUserPreferredCharsets
 from zope.publisher.interfaces.browser import IBrowserPresentation
@@ -225,10 +226,7 @@ class record:
 
 class BrowserRequest(HTTPRequest):
 
-    __implements__ = (HTTPRequest.__implements__,
-                      IBrowserRequest,
-                      IBrowserApplicationRequest,
-                      )
+    implements(IBrowserRequest, IBrowserApplicationRequest)
 
     __slots__ = (
         'form',   # Form data
@@ -834,7 +832,7 @@ class BrowserResponse(HTTPResponse):
 
 class BrowserLanguages:
 
-    __implements__ =  IUserPreferredLanguages
+    implements(IUserPreferredLanguages)
 
     def __init__(self, request):
         self.request = request
@@ -851,7 +849,7 @@ class BrowserLanguages:
 
 class BrowserView:
 
-    __implements__ = IBrowserView
+    implements(IBrowserView)
 
     def __init__(self, context, request):
         self.context = context

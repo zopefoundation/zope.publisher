@@ -13,10 +13,11 @@
 ##############################################################################
 
 from zope.publisher.interfaces import IPublication
+from zope.interface import implements
 
 class TestPublication:
 
-    __implements__ =  IPublication
+    implements(IPublication)
 
     def afterCall(self, request):
         '''See interface IPublication'''

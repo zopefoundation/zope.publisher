@@ -13,11 +13,12 @@
 ##############################################################################
 """
 
-$Id: xmlrpc.py,v 1.6 2003/05/28 15:46:14 jim Exp $
+$Id: xmlrpc.py,v 1.7 2003/06/03 14:32:06 ryzaja Exp $
 """
 import sys
 import xmlrpclib
 
+from zope.interface import implements
 from zope.publisher.interfaces.xmlrpc import IXMLRPCPublisher
 from zope.publisher.interfaces.xmlrpc import IXMLRPCPublication
 from zope.publisher.interfaces.xmlrpc import IXMLRPCPresentation
@@ -44,7 +45,7 @@ class MethodPublisher(DefaultPublisher):
 
 class XMLRPCRequest(HTTPRequest):
 
-    __implements__ = HTTPRequest.__implements__, IXMLRPCPublication
+    implements(IXMLRPCPublication)
 
     # _presentation_type is overridden from the BaseRequest
     # to implement IXMLRPCPublisher
@@ -98,8 +99,6 @@ class TestRequest(XMLRPCRequest):
 class XMLRPCResponse(HTTPResponse):
     """XMLRPC response
     """
-
-    __implements__ = HTTPResponse.__implements__
 
 
     def setBody(self, body):
@@ -168,7 +167,7 @@ class XMLRPCResponse(HTTPResponse):
 
 class XMLRPCView:
 
-    __implements__ = IXMLRPCView
+    implements(IXMLRPCView)
 
     def __init__(self, context, request):
         self.context = context

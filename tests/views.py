@@ -13,10 +13,10 @@
 ##############################################################################
 """
 
-Revision information: $Id: views.py,v 1.2 2002/12/25 14:15:19 jim Exp $
+Revision information: $Id: views.py,v 1.3 2003/06/03 14:32:07 ryzaja Exp $
 """
 
-from zope.interface import Interface
+from zope.interface import Interface, implements
 from zope.publisher.browser import BrowserView
 from zope.publisher.interfaces.browser import IBrowserPresentation
 
@@ -27,7 +27,7 @@ class V1(BrowserView): pass
 class VZMI(V1): pass
 
 class R1:
-    __implements__ = IBrowserPresentation
+    implements(IBrowserPresentation)
     def __init__(self, request): self.request = request
 
 class RZMI(R1):

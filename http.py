@@ -13,13 +13,15 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.24 2003/04/28 13:14:21 mgedmin Exp $
+$Id: http.py,v 1.25 2003/06/03 14:32:06 ryzaja Exp $
 """
 
 import re, time, random
 from urllib import quote, splitport
 from types import StringTypes, UnicodeType, ClassType
 from cgi import escape
+
+from zope.interface import implements
 
 from zope.publisher.interfaces.http import IHTTPCredentials
 from zope.publisher.interfaces.http import IHTTPRequest
@@ -264,9 +266,7 @@ class HTTPRequest(BaseRequest):
     _presentation_type = IHTTPPresentation
 
 
-    __implements__ = (BaseRequest.__implements__,
-                      IHTTPCredentials, IHTTPRequest, IHTTPApplicationRequest,
-                      )
+    implements(IHTTPCredentials, IHTTPRequest, IHTTPApplicationRequest)
 
     __slots__ = (
         '_auth',          # The value of the HTTP_AUTHORIZATION header.
@@ -590,8 +590,7 @@ class HTTPRequest(BaseRequest):
 
 class HTTPResponse (BaseResponse):
 
-    __implements__ = (IHTTPResponse, IHTTPApplicationResponse,
-                      BaseResponse.__implements__)
+    implements(IHTTPResponse, IHTTPApplicationResponse)
 
     __slots__ = (
         '_header_output',       # Hook object to collaborate with a server
@@ -940,7 +939,7 @@ class HTTPResponse (BaseResponse):
 
 class DefaultPublisher:
 
-    __implements__ =  IHTTPPublisher
+    implements(IHTTPPublisher)
 
     def publishTraverse(self, request, name):
         'See IHTTPPublisher'
@@ -957,7 +956,7 @@ def sort_charsets(x, y):
 
 class HTTPCharsets:
 
-    __implements__ =  IUserPreferredCharsets
+    implements(IUserPreferredCharsets)
 
     def __init__(self, request):
         self.request = request

@@ -13,16 +13,16 @@
 ##############################################################################
 """
 
-Revision information: $Id: xmlrpcviews.py,v 1.2 2002/12/25 14:15:19 jim Exp $
+Revision information: $Id: xmlrpcviews.py,v 1.3 2003/06/03 14:32:07 ryzaja Exp $
 """
 
-from zope.interface import Interface
+from zope.interface import Interface, implements
 from zope.publisher.interfaces.xmlrpc import IXMLRPCPublisher
 
 class IC(Interface): pass
 
 class V1:
-    __implements__ = IXMLRPCPublisher
+    implements(IXMLRPCPublisher)
 
     def __init__(self, context, request):
         self.context = context
@@ -35,7 +35,7 @@ class R1:
     def __init__(self, request):
         self.request = request
 
-    __implements__ = IXMLRPCPublisher
+    implements(IXMLRPCPublisher)
 
 class RZMI(R1):
     pass

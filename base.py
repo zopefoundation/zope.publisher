@@ -13,13 +13,14 @@
 ##############################################################################
 '''Response Output formatter
 
-$Id: base.py,v 1.7 2003/05/22 13:58:55 sidnei Exp $
+$Id: base.py,v 1.8 2003/06/03 14:32:06 ryzaja Exp $
 '''
 
 
 import traceback
 from cStringIO import StringIO
 
+from zope.interface import implements
 from zope.interface.common.mapping import IReadMapping, IEnumerableMapping
 from zope.exceptions import NotFoundError
 
@@ -39,7 +40,7 @@ class BaseResponse(object):
         '_outstream', # The output stream
         )
 
-    __implements__ = IResponse
+    implements(IResponse)
 
 
     def __init__(self, outstream):
@@ -82,7 +83,7 @@ class BaseResponse(object):
 
 class RequestDataGetter(object):
 
-    __implements__ = IReadMapping
+    implements(IReadMapping)
 
     def __init__(self, request):
         self.__get = getattr(request, self._gettrname)
@@ -101,7 +102,7 @@ class RequestDataGetter(object):
 
 class RequestDataMapper(object):
 
-    __implements__ = IEnumerableMapping
+    implements(IEnumerableMapping)
 
     def __init__(self, request):
         self.__map = getattr(request, self._mapname)
@@ -162,7 +163,7 @@ class BaseRequest(object):
     collection of variable to value mappings.
     """
 
-    __implements__ = IRequest
+    implements(IRequest)
 
     __slots__ = (
         '_held',             # Objects held until the request is closed
@@ -428,7 +429,7 @@ class TestRequest(BaseRequest):
 
 class DefaultPublication:
 
-    __implements__ = IPublication
+    implements(IPublication)
 
     require_docstrings = 1
 

@@ -13,7 +13,7 @@
 ##############################################################################
 """Interfaces for the publisher.
 
-$Id: __init__.py,v 1.11 2003/04/25 10:36:38 ryzaja Exp $
+$Id: __init__.py,v 1.12 2003/06/03 14:32:06 ryzaja Exp $
 """
 
 from zope.interface import Interface
@@ -21,6 +21,7 @@ from zope.interface import Attribute
 from zope.exceptions import Unauthorized
 from zope.exceptions import NotFoundError, INotFoundError
 from zope.component.interfaces import IPresentationRequest
+from zope.interface import implements
 from zope.interface.common.mapping import IEnumerableMapping
 from zope.interface.common.interfaces import IException
 
@@ -28,13 +29,13 @@ class IPublishingException(IException):
     pass
 
 class PublishingException(Exception):
-    __implements__ = IPublishingException
+    implements(IPublishingException)
 
 class ITraversalException(IPublishingException):
     pass
 
 class TraversalException(PublishingException):
-    __implements__ = ITraversalException
+    implements(ITraversalException)
 
 class INotFound(INotFoundError, ITraversalException):
     def getObject():
@@ -44,7 +45,7 @@ class INotFound(INotFoundError, ITraversalException):
         'Returns the name that was being traversed.'
 
 class NotFound(NotFoundError, TraversalException):
-    __implements__ = INotFound
+    implements(INotFound)
 
     def __init__(self, ob, name, request=None):
         self.ob = ob
@@ -71,7 +72,7 @@ class IDebugError(ITraversalException):
         'Returns the debug message.'
 
 class DebugError(TraversalException):
-    __implements__ = IDebugError
+    implements(IDebugError)
 
     def __init__(self, ob, message):
         self.ob = ob
@@ -92,7 +93,7 @@ class IBadRequest(IPublishingException):
 
 class BadRequest(PublishingException):
 
-    __implements__ = IBadRequest
+    implements(IBadRequest)
 
     def __init__(self, message):
         self.message = message
@@ -106,7 +107,7 @@ class IRedirect(IPublishingException):
 
 class Redirect(PublishingException):
 
-    __implements__ = IRedirect
+    implements(IRedirect)
 
     def __init__(self, location):
         self.location = location
@@ -125,7 +126,7 @@ class Retry(PublishingException):
     """Raise this to retry a request.
     """
 
-    __implements__ = IRetry
+    implements(IRetry)
 
     def __init__(self, orig_exc=None):
         self.orig_exc = orig_exc
