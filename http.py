@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.9 2003/02/11 16:41:47 jeremy Exp $
+$Id: http.py,v 1.10 2003/02/27 08:11:33 stevea Exp $
 """
 
 import re, time, random
@@ -730,7 +730,6 @@ class HTTPResponse (BaseResponse):
 
     def setCookie(self, name, value, **kw):
         'See IHTTPResponse'
-
         cookies = self._cookies
         cookie = cookies.setdefault(name, {})
 
@@ -738,6 +737,11 @@ class HTTPResponse (BaseResponse):
             cookie[k] = v
 
         cookie['value'] = value
+
+
+    def getCookie(self, name, default=None):
+        'See IHTTPResponse'
+        return self._cookies.get(name, default)
 
 
     def setCharset(self, charset=None):

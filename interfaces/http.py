@@ -13,7 +13,7 @@
 ##############################################################################
 """HTTP-related publisher interfaces.
 
-$Id: http.py,v 1.5 2003/02/19 15:24:49 stevea Exp $
+$Id: http.py,v 1.6 2003/02/27 08:11:34 stevea Exp $
 """
 
 from zope.interface import Interface
@@ -108,7 +108,6 @@ class IHTTPApplicationRequest(IApplicationRequest):
 
         Data are returned as a mapping object, mapping cookie name to value.
         """
-
         return IMapping(str, str)
 
     cookies = Attribute(
@@ -297,6 +296,14 @@ class IHTTPResponse(Interface):
         cookie-enabled browsers with a key "name" and value
         "value". This overwrites any previously set value for the
         cookie in the Response object.
+        """
+
+    def getCookie(name, default=None):
+        """Gets HTTP cookie data as a dict
+
+        Returns the dict of values associated with an HTTP cookie set in the
+        response, or 'default' if no such cookie has been set in the response
+        yet.
         """
 
     def appendToHeader(name, value, delimiter=","):
