@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.12 2003/02/28 22:57:31 jim Exp $
+$Id: http.py,v 1.13 2003/03/02 18:09:02 stevea Exp $
 """
 
 import re, time, random
@@ -700,7 +700,8 @@ class HTTPResponse (BaseResponse):
         if name in headers:
             h = self._header[name]
             h = "%s%s\r\n\t%s" % (h, delimiter, value)
-        else: h = value
+        else:
+            h = value
         self.setHeader(name, h)
 
 
@@ -709,17 +710,20 @@ class HTTPResponse (BaseResponse):
         cookies = self._cookies
         if name in cookies:
             cookie = cookies[name]
-        else: cookie = cookies[name] = {}
+        else:
+            cookie = cookies[name] = {}
         if 'value' in cookie:
             cookie['value'] = '%s:%s' % (cookie['value'], value)
-        else: cookie['value'] = value
+        else:
+            cookie['value'] = value
 
 
     def expireCookie(self, name, **kw):
         'See IHTTPResponse'
         dict = {'max_age':0, 'expires':'Wed, 31-Dec-97 23:59:59 GMT'}
         for k, v in kw.items():
-            dict[k] = v
+            if v is not None:
+                dict[k] = v
         cookies = self._cookies
         if name in cookies:
             # Cancel previous setCookie().
@@ -733,7 +737,8 @@ class HTTPResponse (BaseResponse):
         cookie = cookies.setdefault(name, {})
 
         for k, v in kw.items():
-            cookie[k] = v
+            if v is not None:
+                cookie[k] = v
 
         cookie['value'] = value
 

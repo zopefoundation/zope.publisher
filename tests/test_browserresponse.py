@@ -15,7 +15,7 @@
 
 XXX longer description goes here.
 
-$Id: test_browserresponse.py,v 1.2 2002/12/25 14:15:19 jim Exp $
+$Id: test_browserresponse.py,v 1.3 2003/03/02 18:09:03 stevea Exp $
 """
 
 from unittest import TestCase, TestSuite, main, makeSuite
@@ -82,13 +82,6 @@ class Test(TestCase):
         self.assert_(response.getHeader('content-type').startswith(
             "text/plain")
                      )
-
-
-
-
-
-
-
 
 
 def test_suite():

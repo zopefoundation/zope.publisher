@@ -13,7 +13,7 @@
 ##############################################################################
 """HTTP-related publisher interfaces.
 
-$Id: http.py,v 1.8 2003/02/28 22:56:03 jim Exp $
+$Id: http.py,v 1.9 2003/03/02 18:09:02 stevea Exp $
 """
 
 from zope.interface import Interface
@@ -288,6 +288,7 @@ class IHTTPResponse(Interface):
         to be specified - this path must exactly match the path given
         when creating the cookie. The path can be specified as a keyword
         argument.
+        If the value of a keyword argument is None, it will be ignored.
         """
 
     def setCookie(name, value, **kw):
@@ -297,6 +298,7 @@ class IHTTPResponse(Interface):
         cookie-enabled browsers with a key "name" and value
         "value". This overwrites any previously set value for the
         cookie in the Response object.
+        If the value of a keyword argument is None, it will be ignored.
         """
 
     def getCookie(name, default=None):

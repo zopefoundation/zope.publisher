@@ -156,7 +156,7 @@ class HTTPTests(unittest.TestCase):
         self.assertEqual(r.method, 'SPAM')
         r = self._createRequest(extra_env={'REQUEST_METHOD':'eggs'})
         self.assertEqual(r.method, 'EGGS')
-        
+
 
 def test_suite():
     loader = unittest.TestLoader()
