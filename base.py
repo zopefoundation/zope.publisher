@@ -179,7 +179,8 @@ class BaseRequest(object):
         '_body',             # The request body as a string
         '_publication',      # publication object
         '_presentation_skin', # View skin
-        '_user'               # request user, set by publication
+        '_principal',        # request principal, set by publication
+        'interaction',       # interaction, set by interaction
         )
 
     environment = RequestDataProperty(RequestEnvironment)
@@ -197,15 +198,16 @@ class BaseRequest(object):
         else:
             self._response = response
         self._response._request = self
-        
+
         self._body_instream = body_instream
         self._held = ()
-        self._user = None
+        self._principal = None
+        self.interaction = None
 
-    def setUser(self, user):
-        self._user = user
+    def setPrincipal(self, principal):
+        self._principal = principal
 
-    user = property(lambda self: self._user)
+    principal = property(lambda self: self._principal)
 
     def _getPublication(self):
         'See IPublisherRequest'

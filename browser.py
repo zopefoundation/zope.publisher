@@ -625,10 +625,10 @@ class TestRequest(BrowserRequest):
 
         self.setPresentationSkin(skin)
 
-    def setUser(self, user):
+    def setPrincipal(self, principal):
         # HTTPRequest needs to notify the HTTPTask of the username.
         # We don't want to have to stub HTTPTask in the tests.
-        BaseRequest.setUser(self, user)
+        BaseRequest.setPrincipal(self, principal)
 
 class BrowserResponse(HTTPResponse):
     """Browser response

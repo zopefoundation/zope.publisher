@@ -255,7 +255,7 @@ class HTTPTests(unittest.TestCase):
         lpw = req._authUserPW()
         self.assertEquals(lpw, (login, password))
 
-    def testSetUser(self):
+    def testSetPrincipal(self):
         class HTTPTaskStub:
             auth_user_name = None
             def setAuthUserName(self, name):
@@ -263,11 +263,11 @@ class HTTPTests(unittest.TestCase):
 
         task = HTTPTaskStub()
         req = self._createRequest(outstream=task)
-        req.setUser(UserStub("jim"))
+        req.setPrincipal(UserStub("jim"))
         self.assert_(not req.response._outstream.auth_user_name)
         req = self._createRequest(outstream=task)
         req.response.setHTTPTransaction(task)
-        req.setUser(UserStub("jim"))
+        req.setPrincipal(UserStub("jim"))
         self.assertEquals(req.response.http_transaction.auth_user_name, "jim")
 
     def testIPresentationRequest(self):

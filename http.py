@@ -453,12 +453,12 @@ class HTTPRequest(BaseRequest):
         self._response.setHeader("WWW-Authenticate", challenge, True)
         self._response.setStatus(401)
 
-    def setUser(self, user):
+    def setPrincipal(self, principal):
         'See IPublicationRequest'
-        super(HTTPRequest, self).setUser(user)
+        super(HTTPRequest, self).setPrincipal(principal)
 
         if self.response.http_transaction is not None:
-            logging_info = ILoggingInfo(user)
+            logging_info = ILoggingInfo(principal)
             message = logging_info.getLogMessage()
             self.response.http_transaction.setAuthUserName(message)
 

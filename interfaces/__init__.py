@@ -24,6 +24,7 @@ from zope.component.interfaces import IPresentationRequest
 from zope.interface import implements
 from zope.interface.common.mapping import IEnumerableMapping
 from zope.interface.common.interfaces import IException
+from zope.security.interfaces import IParticipation
 
 class IPublishingException(IException):
     pass
@@ -279,15 +280,9 @@ class IApplicationResponse(Interface):
         """
 
 
-class IPublicationRequest(IPresentationRequest):
+class IPublicationRequest(IPresentationRequest, IParticipation):
     """Interface provided by requests to IPublication objects
     """
-
-    user = Attribute("""User object associated with the request
-
-                        It is up to the publication object to set this
-                        attribute by calling the setUser method.
-                        """)
 
     response = Attribute("""The request's response object
 
@@ -325,8 +320,8 @@ class IPublicationRequest(IPresentationRequest):
         It's up to the publication object to decide this.
         """
 
-    def setUser(user):
-        """Set the user attribute.
+    def setPrincipal(principal):
+        """Set the principal attribute.
 
         It should be IPrincipal wrapped in it's AuthenticationService's context.
         """
@@ -391,9 +386,9 @@ class IApplicationRequest(IEnumerableMapping):
     """Features that support application logic
     """
 
-    user = Attribute("""User object associated with the request
-                        This is a read-only attribute.
-                        """)
+    principal = Attribute("""Principal object associated with the request
+                             This is a read-only attribute.
+                          """)
 
     body = Attribute("""The body of the request as a string""")
 
