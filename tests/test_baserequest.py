@@ -14,11 +14,10 @@
 """
 
 Revision information:
-$Id: test_baserequest.py,v 1.2 2002/12/25 14:15:19 jim Exp $
+$Id: test_baserequest.py,v 1.3 2003/04/11 12:55:41 ryzaja Exp $
 """
 
-from unittest import TestCase, TestSuite, main, makeSuite
-from zope.testing.cleanup import CleanUp # Base class w registry cleanup
+from unittest import TestCase, main, makeSuite
 
 from zope.publisher.tests.basetestipublicationrequest \
      import BaseTestIPublicationRequest

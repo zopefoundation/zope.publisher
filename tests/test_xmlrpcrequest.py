@@ -22,9 +22,7 @@ from zope.publisher.http import IHTTPRequest
 from zope.publisher.http import HTTPCharsets
 
 from zope.publisher.xmlrpc import XMLRPCRequest
-from zope.publisher.xmlrpc import XMLRPCResponse
 
-from zope.publisher.publish import publish
 from zope.publisher.base import DefaultPublication
 from zope.publisher.interfaces.xmlrpc import IXMLRPCPresentation
 

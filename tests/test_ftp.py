@@ -12,7 +12,7 @@
 #
 ##############################################################################
 """
-$Id: test_ftp.py,v 1.1 2003/02/03 15:08:54 jim Exp $
+$Id: test_ftp.py,v 1.2 2003/04/11 12:55:41 ryzaja Exp $
 """
 
 import sys
@@ -31,7 +31,7 @@ class Test(TestCase):
                }
         self.__request = zope.publisher.ftp.FTPRequest(
             self.__input, self.__output, env)
-        
+
     def test_response(self):
         response = self.__request.response
         response.setBody(123.456)
@@ -55,8 +55,8 @@ class Test(TestCase):
                          ['c', 'b', 'a'])
         self.assertEqual(self.__request._authUserPW(),
                          ('bob', '123'))
-        
-        
+
+
 
 def test_suite():
     return TestSuite((

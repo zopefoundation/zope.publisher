@@ -11,7 +11,7 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-import unittest, sys
+import unittest
 
 class Test(unittest.TestCase):
 

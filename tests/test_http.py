@@ -14,7 +14,6 @@
 import unittest
 
 from zope.publisher.http import HTTPRequest
-from zope.publisher.http import HTTPResponse
 
 from zope.publisher.publish import publish
 from zope.publisher.base import DefaultPublication
@@ -23,7 +22,6 @@ from zope.publisher.interfaces.http import IHTTPPresentation, IHTTPRequest
 from zope.i18n.interfaces import ILocale
 
 from zope.interface.verify import verifyObject
-from zope.interface.implements import instancesOfObjectImplements
 
 from StringIO import StringIO
 

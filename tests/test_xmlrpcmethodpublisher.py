@@ -11,7 +11,7 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-import unittest, sys
+import unittest
 
 from zope.publisher.xmlrpc import MethodPublisher, TestRequest
 from zope.publisher.interfaces.xmlrpc import IXMLRPCPublisher

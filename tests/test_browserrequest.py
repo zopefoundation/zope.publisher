@@ -21,7 +21,6 @@ from zope.i18n.interfaces import IUserPreferredCharsets
 from zope.publisher.http import IHTTPRequest
 from zope.publisher.http import HTTPCharsets
 from zope.publisher.browser import BrowserRequest
-from zope.publisher.browser import BrowserResponse
 from zope.publisher.interfaces import NotFound
 
 from zope.publisher.base import DefaultPublication

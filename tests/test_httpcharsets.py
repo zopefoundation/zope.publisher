@@ -13,9 +13,9 @@
 ##############################################################################
 """Retrieval of HTTP character set information.
 
-$Id: test_httpcharsets.py,v 1.2 2002/12/25 14:15:19 jim Exp $
+$Id: test_httpcharsets.py,v 1.3 2003/04/11 12:55:41 ryzaja Exp $
 """
-import unittest, sys
+import unittest
 
 from zope.publisher.http import HTTPCharsets
 

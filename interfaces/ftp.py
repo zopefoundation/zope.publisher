@@ -13,7 +13,7 @@
 ##############################################################################
 """Virtual File System interfaces for the publisher.
 
-$Id: ftp.py,v 1.1 2003/02/03 15:08:53 jim Exp $
+$Id: ftp.py,v 1.2 2003/04/11 12:55:41 ryzaja Exp $
 """
 
 from zope.interface import Interface
@@ -77,7 +77,7 @@ class IFTPDirectoryPublisher(IFTPPublisher, IFTPView):
 
         Data are copied starting from start. If end is not None,
         data are copied up to end.
-        
+
         """
 
     def lsinfo(name):
@@ -135,7 +135,7 @@ class IFTPDirectoryPublisher(IFTPPublisher, IFTPView):
 
         mtime
 
-           Optional time, as a datetime. 
+           Optional time, as a datetime.
 
         nlinks
 
@@ -147,7 +147,7 @@ class IFTPDirectoryPublisher(IFTPPublisher, IFTPView):
 
         name
 
-           The file name.           
+           The file name.
         """
 
     def mtime(name):
@@ -188,7 +188,7 @@ class IFTPDirectoryPublisher(IFTPPublisher, IFTPView):
         any, are unchanged.  If end is not None and there isn't enough
         data in instream to fill out the file, then the missing data
         are undefined.
-        
+
         If neither start nor end are specified, then the file contents
         are overwritten.
 

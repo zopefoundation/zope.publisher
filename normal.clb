@@ -1,4 +1,4 @@
-Publisher framework base collaboration 
+Publisher framework base collaboration
 
   Participants:
 
@@ -13,7 +13,7 @@ Publisher framework base collaboration
 
   Values:
 
-    root 
+    root
         "the top-level object"
 
     foo
@@ -33,7 +33,7 @@ Publisher framework base collaboration
 
         request.processInputs()
 
-        publication.beforeTraversal(request) 
+        publication.beforeTraversal(request)
 
         publication.getApplication(request)
            "Get the root object to be traversed"
@@ -49,16 +49,16 @@ Publisher framework base collaboration
 
                 The last constraint is probably important to get
                 virtual host semantics rigfht. :)
-                ''' 
-            
+                '''
+
             publication.traverseName(request, root, 'foo')
 
             publication.callTraversalHooks(request, foo)
-                       
+
             publication.traverseName(request, foo, 'bar')
-            
+
             return bar
-            
+
         publication.afterTraversal(request, bar)
 
         publication.callObject(request, bar)
@@ -81,16 +81,16 @@ Publisher framework base collaboration
 
         request.processInputs()
 
-        publication.beforeTraversal(request) 
+        publication.beforeTraversal(request)
 
         publication.getApplication(request)
 
         request.traverse(root)
 
             publication.callTraversalHooks(request, root)
-            
+
             publication.traverseName(request, root, 'foo')
-            
+
             return foo
 
         publication.afterTraversal(request, foo)

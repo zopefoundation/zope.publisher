@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: test_publisher.py,v 1.3 2003/03/13 18:49:15 alga Exp $
+$Id: test_publisher.py,v 1.4 2003/04/11 12:55:41 ryzaja Exp $
 """
 
 import unittest
@@ -21,7 +21,7 @@ import unittest
 from zope.publisher.publish import publish
 from zope.publisher.base import BaseRequest
 from zope.publisher.base import DefaultPublication
-from zope.publisher.interfaces import Retry, Unauthorized, NotFound, DebugError
+from zope.publisher.interfaces import Unauthorized, NotFound, DebugError
 from zope.publisher.interfaces import IPublication
 
 from zope.interface.verify import verifyClass

@@ -15,10 +15,9 @@
 
 Provide an apply-like facility that works with any mapping object
 
-$Id: publish.py,v 1.7 2003/03/13 18:35:14 stevea Exp $
+$Id: publish.py,v 1.8 2003/04/11 12:55:41 ryzaja Exp $
 """
 
-import os
 import sys
 from zope.publisher.interfaces import Retry
 from zope.proxy.introspection import removeAllProxies

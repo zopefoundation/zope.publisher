@@ -14,17 +14,15 @@
 """
 
 Revision information:
-$Id: basetestiapplicationrequest.py,v 1.2 2002/12/25 14:15:19 jim Exp $
+$Id: basetestiapplicationrequest.py,v 1.3 2003/04/11 12:55:41 ryzaja Exp $
 """
 
-import sys
 from zope.interface.verify import verifyObject
 from zope.publisher.interfaces import IApplicationRequest
 
 from zope.interface.common.tests.basemapping import BaseTestIEnumerableMapping
 
-from zope.interface.common.tests.basemapping \
-     import testIEnumerableMapping, testIReadMapping
+from zope.interface.common.tests.basemapping import testIReadMapping
 
 
 class BaseTestIApplicationRequest(BaseTestIEnumerableMapping):

@@ -13,11 +13,10 @@
 ##############################################################################
 """
 
-$Id: xmlrpc.py,v 1.4 2003/01/14 20:26:04 srichter Exp $
+$Id: xmlrpc.py,v 1.5 2003/04/11 12:55:41 ryzaja Exp $
 """
 import sys
 import xmlrpclib
-from cgi import FieldStorage
 
 from zope.publisher.interfaces.xmlrpc import IXMLRPCPublisher
 from zope.publisher.interfaces.xmlrpc import IXMLRPCPublication
@@ -144,7 +143,7 @@ class XMLRPCResponse(HTTPResponse):
     def handleException(self, exc_info):
         """Handle Errors during publsihing and wrap it in XML-RPC XML"""
         t, value = exc_info[:2]
-            
+
         # Create an appropriate Fault object. Unfortunately, we throw away
         # most of the debugging information. More useful error reporting is
         # left as an exercise for the reader.

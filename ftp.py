@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: ftp.py,v 1.3 2003/02/11 16:00:08 sidnei Exp $
+$Id: ftp.py,v 1.4 2003/04/11 12:55:41 ryzaja Exp $
 """
 
 from zope.publisher.interfaces.ftp import IFTPPresentation
@@ -45,7 +45,7 @@ class FTPRequest(BaseRequest):
     def __init__(self, body_instream, outstream, environ, response=None):
         self._auth = environ.get('credentials')
         del environ['credentials']
-         
+
         super(FTPRequest, self).__init__(
             body_instream, outstream, environ, response)
 
@@ -56,7 +56,7 @@ class FTPRequest(BaseRequest):
             path = path.split('/')
             path.reverse()
             self.setTraversalStack(path)
-        
+
 
     def _createResponse(self, outstream):
         """Create a specific XML-RPC response object."""

@@ -13,21 +13,18 @@
 ##############################################################################
 """
 
-$Id: browser.py,v 1.14 2003/04/11 12:47:43 mgedmin Exp $
+$Id: browser.py,v 1.15 2003/04/11 12:55:41 ryzaja Exp $
 """
 
 import re
 from types import ListType, TupleType, StringType, StringTypes
 from cgi import FieldStorage, escape
-from datetime import datetime
 
 from zope.i18n.interfaces import IUserPreferredLanguages
 from zope.i18n.interfaces import IUserPreferredCharsets
 from zope.publisher.interfaces.browser import IBrowserPresentation
 from zope.publisher.interfaces.browser import IBrowserRequest
-from zope.publisher.interfaces.browser import IBrowserPublication
 from zope.publisher.interfaces.browser import IBrowserApplicationRequest
-from zope.publisher.interfaces import Redirect
 
 from zope.publisher.interfaces.browser import IBrowserView
 from zope.component import getAdapter

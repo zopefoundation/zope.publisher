@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.19 2003/04/11 12:47:43 mgedmin Exp $
+$Id: http.py,v 1.20 2003/04/11 12:55:41 ryzaja Exp $
 """
 
 import re, time, random
@@ -31,11 +31,9 @@ from zope.publisher.interfaces import Redirect
 from zope.publisher.interfaces.http import IHTTPResponse
 from zope.publisher.interfaces.http import IHTTPApplicationResponse
 from zope.i18n.interfaces import IUserPreferredCharsets
-from zope.i18n.interfaces import IUserPreferredCharsets
 from zope.i18n.locales import locales, LoadLocaleError
 
 from zope.component import queryAdapter
-from zope.exceptions import NotFoundError
 from zope.publisher.base import BaseRequest, BaseResponse
 from zope.publisher.base \
      import RequestDataProperty, RequestDataMapper, RequestDataGetter
