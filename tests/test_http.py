@@ -221,6 +221,16 @@ class HTTPTests(unittest.TestCase):
         self.assertEquals(req._app_server, 'https://foo')
         req.setApplicationServer('foo', proto='https', port=8080)
         self.assertEquals(req._app_server, 'https://foo:8080')
+        req.setApplicationServer('foo', proto='http', port='9673')
+        self.assertEquals(req._app_server, 'http://foo:9673')
+        req.setApplicationServer('foo', proto='https', port=443)
+        self.assertEquals(req._app_server, 'https://foo')
+        req.setApplicationServer('foo', proto='https', port='443')
+        self.assertEquals(req._app_server, 'https://foo')
+        req.setApplicationServer('foo', port=80)
+        self.assertEquals(req._app_server, 'http://foo')
+        req.setApplicationServer('foo', proto='telnet', port=80)
+        self.assertEquals(req._app_server, 'telnet://foo:80')
 
     def test_setApplicationNames(self):
         req = self._createRequest()
@@ -258,6 +268,26 @@ class HTTPTests(unittest.TestCase):
         verifyObject(IHTTPRequest, rq)
         verifyObject(IHTTPCredentials, rq)
         verifyObject(IHTTPApplicationRequest, rq)
+
+    def testDeduceServerURL(self):
+        req = self._createRequest()
+        deduceServerURL = req._HTTPRequest__deduceServerURL
+        req._environ = {'HTTP_HOST': 'example.com:80'}
+        self.assertEquals(deduceServerURL(), 'http://example.com')
+        req._environ = {'HTTP_HOST': 'example.com:8080'}
+        self.assertEquals(deduceServerURL(), 'http://example.com:8080')
+        req._environ = {'HTTP_HOST': 'example.com:443', 'HTTPS': 'on'}
+        self.assertEquals(deduceServerURL(), 'https://example.com')
+        req._environ = {'HTTP_HOST': 'example.com:80', 'HTTPS': 'ON'}
+        self.assertEquals(deduceServerURL(), 'https://example.com:80')
+        req._environ = {'HTTP_HOST': 'example.com:8080',
+                        'SERVER_PORT_SECURE': '1'}
+        self.assertEquals(deduceServerURL(), 'https://example.com:8080')
+        req._environ = {'SERVER_NAME': 'example.com', 'SERVER_PORT':'8080',
+                        'SERVER_PORT_SECURE': '0'}
+        self.assertEquals(deduceServerURL(), 'http://example.com:8080')
+        req._environ = {'SERVER_NAME': 'example.com'}
+        self.assertEquals(deduceServerURL(), 'http://example.com')
 
 
 def test_suite():

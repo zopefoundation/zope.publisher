@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.21 2003/04/15 09:37:28 alga Exp $
+$Id: http.py,v 1.22 2003/04/17 08:52:57 mgedmin Exp $
 """
 
 import re, time, random
@@ -343,7 +343,7 @@ class HTTPRequest(BaseRequest):
         ################################################################
         # Get base info first. This isn't likely to cause
         # errors and might be useful to error handlers.
-        base = script = get_env('SCRIPT_NAME','').strip()
+        script = get_env('SCRIPT_NAME','').strip()
 
         # _script and the other _names are meant for URL construction
         self._app_names = app_names = filter(None, script.split('/'))
@@ -367,33 +367,26 @@ class HTTPRequest(BaseRequest):
 
     def __deduceServerURL(self):
         environ = self._environ
-        have_env = environ.has_key
 
-        if have_env('HTTPS') and (
-            environ['HTTPS'] == "on" or environ['HTTPS'] == "ON"):
+        if (environ.get('HTTPS', '').lower() == "on" or
+            environ.get('SERVER_PORT_SECURE') == "1"):
             protocol = 'https'
+        else:
+            protocol = 'http'
 
-        elif (have_env('SERVER_PORT_SECURE') and
-              environ['SERVER_PORT_SECURE'] == "1"):
-            protocol = 'https'
-        else: protocol = 'http'
-
-        if have_env('HTTP_HOST'):
+        if environ.has_key('HTTP_HOST'):
             host = environ['HTTP_HOST'].strip()
             hostname, port = splitport(host)
-
         else:
             hostname = environ.get('SERVER_NAME', '').strip()
             port = environ.get('SERVER_PORT', '')
 
-
-        if (not port or DEFAULT_PORTS.get(protocol, 80) == port):
-            host = hostname
-        else:
+        if port and port != DEFAULT_PORTS.get(protocol):
             host = hostname + ':' + port
+        else:
+            host = hostname
 
-        server_url = '%s://%s' % (protocol, host)
-        return server_url
+        return '%s://%s' % (protocol, host)
 
     def __setupCookies(self):
 
@@ -552,7 +545,7 @@ class HTTPRequest(BaseRequest):
                     or self._app_server)
 
     def setApplicationServer(self, host, proto='http', port=None):
-        if port:
+        if port and str(port) != DEFAULT_PORTS.get(proto):
             host = '%s:%s' % (host, port)
         self._app_server = '%s://%s' % (proto, host)
 
