@@ -13,23 +13,31 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.2 2002/12/25 14:15:18 jim Exp $
+$Id: http.py,v 1.3 2002/12/27 16:40:24 k_vertigo Exp $
 """
 
-import re, time, random
+import re, time, random, sys
 from urllib import quote, splitport
-from types import StringType
-
-from zope.publisher.base import BaseRequest
-from zope.exceptions import NotFoundError
-
+from types import StringTypes, UnicodeType, ClassType
+from cgi import escape
 
 from zope.publisher.interfaces.http import IHTTPCredentials
 from zope.publisher.interfaces.http import IHTTPRequest
 from zope.publisher.interfaces.http import IHTTPApplicationRequest
+from zope.publisher.interfaces.http import IHTTPPublisher
+from zope.publisher.interfaces import Redirect
+from zope.publisher.interfaces.http import IHTTPResponse
+from zope.publisher.interfaces.http import IHTTPApplicationResponse
+from zope.interfaces.i18n import IUserPreferredCharsets
+from zope.interfaces.i18n import IUserPreferredCharsets
 
+from zope.component import queryAdapter
+from zope.exceptions.exceptionformatter import format_exception
+from zope.exceptions import NotFoundError
+from zope.publisher.base import BaseRequest, BaseResponse
 from zope.publisher.base \
      import RequestDataProperty, RequestDataMapper, RequestDataGetter
+
 
 # Default Encoding
 ENCODING = 'UTF-8'
@@ -41,6 +49,131 @@ class HeaderGetter(RequestDataGetter):
     _gettrname = 'getHeader'
 
 _marker = object()
+
+base64 = None
+
+def sane_environment(env):
+    # return an environment mapping which has been cleaned of
+    # funny business such as REDIRECT_ prefixes added by Apache
+    # or HTTP_CGI_AUTHORIZATION hacks.
+    dict={}
+    for key, val in env.items():
+        while key.startswith('REDIRECT_'):
+            key=key[9:]
+        dict[key]=val
+    if 'HTTP_CGI_AUTHORIZATION' in dict:
+        dict['HTTP_AUTHORIZATION']=dict['HTTP_CGI_AUTHORIZATION']
+        try: del dict['HTTP_CGI_AUTHORIZATION']
+        except: pass
+    return dict
+
+
+def parse_cookie(
+    text,
+    result=None,
+    qparmre=re.compile(
+    '([\x00- ]*([^\x00- ;,="]+)="([^"]*)"([\x00- ]*[;,])?[\x00- ]*)'),
+    parmre=re.compile(
+    '([\x00- ]*([^\x00- ;,="]+)=([^\x00- ;,"]*)([\x00- ]*[;,])?[\x00- ]*)'),
+    ):
+
+    if result is None: result={}
+    already_have=result.has_key
+
+    mo_q = qparmre.match(text)
+
+    if mo_q:
+        # Match quoted correct cookies
+
+        l     = len(mo_q.group(1))
+        name  = unicode(mo_q.group(2), ENCODING)
+        value = unicode(mo_q.group(3), ENCODING)
+
+    else:
+        # Match evil MSIE cookies ;)
+
+        mo_p = parmre.match(text)
+
+        if mo_p:
+            l     = len(mo_p.group(1))
+            name  = unicode(mo_p.group(2), ENCODING)
+            value = unicode(mo_p.group(3), ENCODING)
+
+        else:
+            return result
+
+    if not already_have(name): result[name]=value
+
+    return apply(parse_cookie,(text[l:],result))
+
+
+# Possible HTTP status responses
+status_reasons = {
+100: 'Continue',
+101: 'Switching Protocols',
+102: 'Processing',
+200: 'OK',
+201: 'Created',
+202: 'Accepted',
+203: 'Non-Authoritative Information',
+204: 'No Content',
+205: 'Reset Content',
+206: 'Partial Content',
+207: 'Multi-Status',
+300: 'Multiple Choices',
+301: 'Moved Permanently',
+302: 'Moved Temporarily',
+303: 'See Other',
+304: 'Not Modified',
+305: 'Use Proxy',
+307: 'Temporary Redirect',
+400: 'Bad Request',
+401: 'Unauthorized',
+402: 'Payment Required',
+403: 'Forbidden',
+404: 'Not Found',
+405: 'Method Not Allowed',
+406: 'Not Acceptable',
+407: 'Proxy Authentication Required',
+408: 'Request Time-out',
+409: 'Conflict',
+410: 'Gone',
+411: 'Length Required',
+412: 'Precondition Failed',
+413: 'Request Entity Too Large',
+414: 'Request-URI Too Large',
+415: 'Unsupported Media Type',
+416: 'Requested range not satisfiable',
+417: 'Expectation Failed',
+422: 'Unprocessable Entity',
+423: 'Locked',
+424: 'Failed Dependency',
+500: 'Internal Server Error',
+501: 'Not Implemented',
+502: 'Bad Gateway',
+503: 'Service Unavailable',
+504: 'Gateway Time-out',
+505: 'HTTP Version not supported',
+507: 'Insufficient Storage',
+}
+
+status_codes={}
+# Add mappings for builtin exceptions and
+# provide text -> error code lookups.
+for key, val in status_reasons.items():
+    status_codes[val.replace(' ', '').lower()] = key
+    status_codes[val.lower()] = key
+    status_codes[key] = key
+    status_codes[str(key)] = key
+
+en = [n.lower() for n in dir(__builtins__) if n.endswith('Error')]
+
+for name in en:
+    status_codes[name] = 500
+
+
+accumulate_header = {'set-cookie': 1}.has_key
+
 
 class URLGetter:
 
@@ -427,152 +560,6 @@ class HTTPRequest(BaseRequest):
         return d.keys()
 
 
-
-base64 = None
-
-def sane_environment(env):
-    # return an environment mapping which has been cleaned of
-    # funny business such as REDIRECT_ prefixes added by Apache
-    # or HTTP_CGI_AUTHORIZATION hacks.
-    dict={}
-    for key, val in env.items():
-        while key.startswith('REDIRECT_'):
-            key=key[9:]
-        dict[key]=val
-    if 'HTTP_CGI_AUTHORIZATION' in dict:
-        dict['HTTP_AUTHORIZATION']=dict['HTTP_CGI_AUTHORIZATION']
-        try: del dict['HTTP_CGI_AUTHORIZATION']
-        except: pass
-    return dict
-
-
-def parse_cookie(
-    text,
-    result=None,
-    qparmre=re.compile(
-    '([\x00- ]*([^\x00- ;,="]+)="([^"]*)"([\x00- ]*[;,])?[\x00- ]*)'),
-    parmre=re.compile(
-    '([\x00- ]*([^\x00- ;,="]+)=([^\x00- ;,"]*)([\x00- ]*[;,])?[\x00- ]*)'),
-    ):
-
-    if result is None: result={}
-    already_have=result.has_key
-
-    mo_q = qparmre.match(text)
-
-    if mo_q:
-        # Match quoted correct cookies
-
-        l     = len(mo_q.group(1))
-        name  = unicode(mo_q.group(2), ENCODING)
-        value = unicode(mo_q.group(3), ENCODING)
-
-    else:
-        # Match evil MSIE cookies ;)
-
-        mo_p = parmre.match(text)
-
-        if mo_p:
-            l     = len(mo_p.group(1))
-            name  = unicode(mo_p.group(2), ENCODING)
-            value = unicode(mo_p.group(3), ENCODING)
-
-        else:
-            return result
-
-    if not already_have(name): result[name]=value
-
-    return apply(parse_cookie,(text[l:],result))
-
-
-
-
-'''HTTP Response Output formatter
-
-$Id: http.py,v 1.2 2002/12/25 14:15:18 jim Exp $'''
-
-import sys, re
-from types import StringTypes, UnicodeType, ClassType
-from cgi import escape
-
-from zope.component import queryAdapter
-
-from zope.publisher.base import BaseResponse
-from zope.publisher.interfaces import Redirect
-from zope.publisher.interfaces.http import IHTTPResponse
-from zope.publisher.interfaces.http import IHTTPApplicationResponse
-from zope.exceptions.exceptionformatter import format_exception
-from zope.interfaces.i18n import IUserPreferredCharsets
-
-# Possible HTTP status responses
-status_reasons = {
-100: 'Continue',
-101: 'Switching Protocols',
-102: 'Processing',
-200: 'OK',
-201: 'Created',
-202: 'Accepted',
-203: 'Non-Authoritative Information',
-204: 'No Content',
-205: 'Reset Content',
-206: 'Partial Content',
-207: 'Multi-Status',
-300: 'Multiple Choices',
-301: 'Moved Permanently',
-302: 'Moved Temporarily',
-303: 'See Other',
-304: 'Not Modified',
-305: 'Use Proxy',
-307: 'Temporary Redirect',
-400: 'Bad Request',
-401: 'Unauthorized',
-402: 'Payment Required',
-403: 'Forbidden',
-404: 'Not Found',
-405: 'Method Not Allowed',
-406: 'Not Acceptable',
-407: 'Proxy Authentication Required',
-408: 'Request Time-out',
-409: 'Conflict',
-410: 'Gone',
-411: 'Length Required',
-412: 'Precondition Failed',
-413: 'Request Entity Too Large',
-414: 'Request-URI Too Large',
-415: 'Unsupported Media Type',
-416: 'Requested range not satisfiable',
-417: 'Expectation Failed',
-422: 'Unprocessable Entity',
-423: 'Locked',
-424: 'Failed Dependency',
-500: 'Internal Server Error',
-501: 'Not Implemented',
-502: 'Bad Gateway',
-503: 'Service Unavailable',
-504: 'Gateway Time-out',
-505: 'HTTP Version not supported',
-507: 'Insufficient Storage',
-}
-
-status_codes={}
-# Add mappings for builtin exceptions and
-# provide text -> error code lookups.
-for key, val in status_reasons.items():
-    status_codes[val.replace(' ', '').lower()] = key
-    status_codes[val.lower()] = key
-    status_codes[key] = key
-    status_codes[str(key)] = key
-
-en = [n.lower() for n in dir(__builtins__) if n.endswith('Error')]
-
-for name in en:
-    status_codes[name] = 500
-
-
-accumulate_header = {'set-cookie': 1}.has_key
-
-
-
 class HTTPResponse (BaseResponse):
 
     __implements__ = IHTTPResponse, IHTTPApplicationResponse, \
@@ -952,11 +939,6 @@ class HTTPResponse (BaseResponse):
         return '\n'.join(tb)
 
 
-"""blisher.py,v 1.1.2.2 2002/04/02 02:20:33 srichter Exp $
-"""
-from zope.publisher.interfaces.http import IHTTPPublisher
-
-
 class DefaultPublisher:
 
     __implements__ =  IHTTPPublisher
@@ -965,15 +947,6 @@ class DefaultPublisher:
         'See IHTTPPublisher'
 
         return getattr(self, name)
-
-
-"""Retrieval of browser character set information.
-
-$Id: http.py,v 1.2 2002/12/25 14:15:18 jim Exp $
-"""
-
-from zope.interfaces.i18n import IUserPreferredCharsets
-
 
 def sort_charsets(x, y):
     if y[1] == 'utf-8':

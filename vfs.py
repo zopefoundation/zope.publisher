@@ -13,10 +13,21 @@
 ##############################################################################
 """
 
-$Id: vfs.py,v 1.2 2002/12/25 14:15:18 jim Exp $
+$Id: vfs.py,v 1.3 2002/12/27 16:40:25 k_vertigo Exp $
 """
 
-from zope.publisher.base import BaseResponse
+import datetime
+
+from zope.component import queryAdapter
+from zope.publisher.interfaces.vfs import IVFSFilePublisher
+from zope.publisher.interfaces.vfs import IVFSView
+from zope.publisher.interfaces.vfs import IVFSCredentials
+from zope.app.interfaces.dublincore import IZopeDublinCore
+from zope.publisher.base import BaseResponse, BaseRequest
+
+zerotime = datetime.datetime.fromtimestamp(0)
+
+__metaclass__ = type # All classes are new style when run with Python 2.2+
 
 
 class VFSResponse(BaseResponse):
@@ -51,35 +62,6 @@ class VFSResponse(BaseResponse):
         self._exc = exc_info[:2]
         # import traceback
         # traceback.print_exc()
-
-
-"""
-
-$Id: vfs.py,v 1.2 2002/12/25 14:15:18 jim Exp $
-"""
-__metaclass__ = type # All classes are new style when run with Python 2.2+
-
-from zope.publisher.interfaces.vfs import IVFSView
-
-class VFSView:
-
-    __implements__ = IVFSView
-
-    def __init__(self, context, request):
-        self.context = context
-        self.request = request
-
-
-"""
-
-$Id: vfs.py,v 1.2 2002/12/25 14:15:18 jim Exp $
-"""
-
-from zope.publisher.base import BaseRequest
-from zope.publisher.interfaces.vfs import IVFSView
-from zope.publisher.interfaces.vfs import IVFSCredentials
-
-
 
 class VFSRequest(BaseRequest):
 
@@ -131,21 +113,13 @@ class VFSRequest(BaseRequest):
             str(self.__class__), id(self), '/'.join(self._traversal_stack))
 
 
-"""VFS-View for IFile
+class VFSView:
 
-VFS-view implementation for a generic file.
+    __implements__ = IVFSView
 
-$Id: vfs.py,v 1.2 2002/12/25 14:15:18 jim Exp $
-"""
-import datetime
-zerotime = datetime.datetime.fromtimestamp(0)
-
-from zope.component import queryAdapter
-
-
-from zope.publisher.interfaces.vfs import IVFSFilePublisher
-
-from zope.app.interfaces.dublincore import IZopeDublinCore
+    def __init__(self, context, request):
+        self.context = context
+        self.request = request
 
 
 class VFSFileView(VFSView):

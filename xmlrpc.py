@@ -13,10 +13,23 @@
 ##############################################################################
 """
 
-$Id: xmlrpc.py,v 1.2 2002/12/25 14:15:18 jim Exp $
+$Id: xmlrpc.py,v 1.3 2002/12/27 16:40:25 k_vertigo Exp $
 """
+
+import xmlrpclib
+from cgi import FieldStorage
+
 from zope.publisher.interfaces.xmlrpc import IXMLRPCPublisher
+from zope.publisher.interfaces.xmlrpc import IXMLRPCPublication
+from zope.publisher.interfaces.xmlrpc import IXMLRPCPresentation
+from zope.publisher.interfaces.xmlrpc import IXMLRPCView
+
+from zope.publisher.http import HTTPRequest, HTTPResponse
 from zope.publisher.http import DefaultPublisher
+from zope.proxy.introspection import removeAllProxies
+
+__metaclass__ = type # All classes are new style when run with Python 2.2+
+
 
 class MethodPublisher(DefaultPublisher):
     """Simple XML-RPC publisher that is identical to the HTTP Default Publisher
@@ -24,20 +37,6 @@ class MethodPublisher(DefaultPublisher):
     """
 
     __implements__ = IXMLRPCPublisher
-
-
-"""
-
-$Id: xmlrpc.py,v 1.2 2002/12/25 14:15:18 jim Exp $
-"""
-
-import xmlrpclib
-from cgi import FieldStorage
-from zope.publisher.http import HTTPRequest
-from zope.publisher.interfaces.xmlrpc import IXMLRPCPublisher
-from zope.publisher.interfaces.xmlrpc import IXMLRPCPublication
-from zope.publisher.interfaces.xmlrpc import IXMLRPCPresentation
-
 
 
 class XMLRPCRequest(HTTPRequest):
@@ -48,14 +47,11 @@ class XMLRPCRequest(HTTPRequest):
     # to implement IXMLRPCPublisher
     _presentation_type = IXMLRPCPresentation
 
-
     _args = ()
-
 
     def _createResponse(self, outstream):
         """Create a specific XML-RPC response object."""
         return XMLRPCResponse(outstream)
-
 
     def processInputs(self):
         'See IPublisherRequest'
@@ -94,17 +90,6 @@ class TestRequest(XMLRPCRequest):
 
         super(TestRequest, self).__init__(
             body_instream, outstream, _testEnv, response)
-
-
-
-"""
-
-$Id: xmlrpc.py,v 1.2 2002/12/25 14:15:18 jim Exp $
-"""
-import xmlrpclib
-
-from zope.publisher.http import HTTPResponse
-from zope.proxy.introspection import removeAllProxies
 
 
 class XMLRPCResponse(HTTPResponse):
@@ -181,14 +166,6 @@ class XMLRPCResponse(HTTPResponse):
         self.setBody(fault_text)
         self.setStatus(200)
 
-
-"""
-
-$Id: xmlrpc.py,v 1.2 2002/12/25 14:15:18 jim Exp $
-"""
-__metaclass__ = type # All classes are new style when run with Python 2.2+
-
-from zope.publisher.interfaces.xmlrpc import IXMLRPCView
 
 class XMLRPCView:
 

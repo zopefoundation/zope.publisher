@@ -11,12 +11,50 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-__version__='$Revision: 1.2 $'[11:-2]
+"""
+
+$Id: browser.py,v 1.3 2002/12/27 16:40:24 k_vertigo Exp $
+"""
 
 import re
-from types import ListType, TupleType
+from types import ListType, TupleType, StringType, StringTypes
+from cgi import FieldStorage, escape
+
+from zope.interfaces.i18n import IUserPreferredLanguages
+from zope.interfaces.i18n import IUserPreferredCharsets
+from zope.publisher.interfaces.browser import IBrowserPresentation
+from zope.publisher.interfaces.browser import IBrowserRequest
+from zope.publisher.interfaces.browser import IBrowserPublication
+from zope.publisher.interfaces.browser import IBrowserApplicationRequest
+from zope.publisher.interfaces import Redirect
+
+from zope.publisher.interfaces.browser import IBrowserView
+from zope.component import getAdapter
+from zope.publisher.http import HTTPRequest, HTTPResponse
+
+__metaclass__ = type # All classes are new style when run with Python 2.2+
 
 __ArrayTypes = (ListType, TupleType)
+
+search_type = re.compile('(:[a-zA-Z][a-zA-Z0-9_]+|\\.[xy])$').search
+start_of_header_search=re.compile('(<head[^>]*>)', re.IGNORECASE).search
+base_re_search=re.compile('(<base.*?>)',re.I).search
+isRelative = re.compile("[-_.!~*a-zA-z0-9'()@&=+$,]+(/|$)").match
+
+
+def is_text_html(content_type):
+    return content_type.startswith('text/html')
+
+# Flas Constants
+SEQUENCE = 1
+DEFAULT = 2
+RECORD = 4
+RECORDS = 8
+REC = 12 # RECORD|RECORDS
+EMPTY = 16
+CONVERTED = 32
+DEFAULTABLE_METHODS = 'GET', 'POST'
+
 
 def field2string(v):
     if hasattr(v,'read'): v=v.read()
@@ -129,78 +167,55 @@ type_converters = {
 
 get_converter=type_converters.get
 
+isCGI_NAME = {
+    # These fields are placed in request.environ instead of request.form.
+    'SERVER_SOFTWARE' : 1,
+    'SERVER_NAME' : 1,
+    'GATEWAY_INTERFACE' : 1,
+    'SERVER_PROTOCOL' : 1,
+    'SERVER_PORT' : 1,
+    'REQUEST_METHOD' : 1,
+    'PATH_INFO' : 1,
+    'PATH_TRANSLATED' : 1,
+    'SCRIPT_NAME' : 1,
+    'QUERY_STRING' : 1,
+    'REMOTE_HOST' : 1,
+    'REMOTE_ADDR' : 1,
+    'AUTH_TYPE' : 1,
+    'REMOTE_USER' : 1,
+    'REMOTE_IDENT' : 1,
+    'CONTENT_TYPE' : 1,
+    'CONTENT_LENGTH' : 1,
+    'SERVER_URL': 1,
+    }.has_key
 
-"""
-
-$Id: browser.py,v 1.2 2002/12/25 14:15:18 jim Exp $
-"""
-
-from zope.interfaces.i18n import IUserPreferredLanguages
-from zope.publisher.interfaces.browser import IBrowserView
-
-__metaclass__ = type # All classes are new style when run with Python 2.2+
-
-class BrowserLanguages:
-
-    __implements__ =  IUserPreferredLanguages
-
-    def __init__(self, request):
-        self.request = request
-
-    def getPreferredLanguages(self):
-        '''See interface IUserPreferredLanguages'''
-        langs = []
-        for lang in self.request.get('HTTP_ACCEPT_LANGUAGE', '').split(','):
-            lang = lang.strip()
-            if lang:
-                langs.append(lang.split(';')[0])
-        return langs
-
-
-class BrowserView:
-
-    __implements__ = IBrowserView
-
-    def __init__(self, context, request):
-        self.context = context
-        self.request = request
+hide_key={
+    'HTTP_AUTHORIZATION':1,
+    'HTTP_CGI_AUTHORIZATION': 1,
+    }.has_key
 
 
+class record:
 
-"""
+    def __getattr__(self, key, default=None):
+        if key in ('get', 'keys', 'items', 'values', 'copy',
+                   'has_key', '__contains__'):
+            return getattr(self.__dict__, key)
+        raise AttributeError, key
 
-$Id: browser.py,v 1.2 2002/12/25 14:15:18 jim Exp $
-"""
+    def __getitem__(self, key):
+        return self.__dict__[key]
 
-import re
+    def __str__(self):
+        L1 = self.__dict__.items()
+        L1.sort()
+        return ", ".join(map(lambda item: "%s: %s" % item, L1))
 
-from cgi import FieldStorage
-
-from types import StringType
-
-from zope.component import getAdapter
-
-
-from zope.publisher.http import HTTPRequest
-from zope.interfaces.i18n import IUserPreferredCharsets
-
-from zope.publisher.interfaces.browser import IBrowserPresentation
-from zope.publisher.interfaces.browser import IBrowserRequest
-from zope.publisher.interfaces.browser import IBrowserPublication
-from zope.publisher.interfaces.browser import IBrowserApplicationRequest
-
-
-# Flas Constants
-SEQUENCE = 1
-DEFAULT = 2
-RECORD = 4
-RECORDS = 8
-REC = 12 # RECORD|RECORDS
-EMPTY = 16
-CONVERTED = 32
-DEFAULTABLE_METHODS = 'GET', 'POST'
-
-search_type = re.compile('(:[a-zA-Z][a-zA-Z0-9_]+|\\.[xy])$').search
+    def __repr__(self):
+        L1 = self.__dict__.items()
+        L1.sort()
+        return ', '.join(
+            map(lambda item: "%s: %s" % (item[0], repr(item[1])), L1))
 
 
 class BrowserRequest(HTTPRequest):
@@ -711,82 +726,6 @@ class TestRequest(BrowserRequest):
 
         super(TestRequest, self).__init__(body_instream, outstream, _testEnv)
 
-# add class copied from Zope2
-class record:
-
-    def __getattr__(self, key, default=None):
-        if key in ('get', 'keys', 'items', 'values', 'copy',
-                   'has_key', '__contains__'):
-            return getattr(self.__dict__, key)
-        raise AttributeError, key
-
-    def __getitem__(self, key):
-        return self.__dict__[key]
-
-    def __str__(self):
-        L1 = self.__dict__.items()
-        L1.sort()
-        return ", ".join(map(lambda item: "%s: %s" % item, L1))
-
-    def __repr__(self):
-        L1 = self.__dict__.items()
-        L1.sort()
-        return ', '.join(
-            map(lambda item: "%s: %s" % (item[0], repr(item[1])), L1))
-
-
-
-import cgi
-if not hasattr(cgi, 'valid_boundary'):
-    try: import cgi_hotfix
-    except ImportError: pass
-
-isCGI_NAME = {
-    # These fields are placed in request.environ instead of request.form.
-    'SERVER_SOFTWARE' : 1,
-    'SERVER_NAME' : 1,
-    'GATEWAY_INTERFACE' : 1,
-    'SERVER_PROTOCOL' : 1,
-    'SERVER_PORT' : 1,
-    'REQUEST_METHOD' : 1,
-    'PATH_INFO' : 1,
-    'PATH_TRANSLATED' : 1,
-    'SCRIPT_NAME' : 1,
-    'QUERY_STRING' : 1,
-    'REMOTE_HOST' : 1,
-    'REMOTE_ADDR' : 1,
-    'AUTH_TYPE' : 1,
-    'REMOTE_USER' : 1,
-    'REMOTE_IDENT' : 1,
-    'CONTENT_TYPE' : 1,
-    'CONTENT_LENGTH' : 1,
-    'SERVER_URL': 1,
-    }.has_key
-
-hide_key={
-    'HTTP_AUTHORIZATION':1,
-    'HTTP_CGI_AUTHORIZATION': 1,
-    }.has_key
-
-
-
-'''HTTP Response Output formatter
-
-$Id: browser.py,v 1.2 2002/12/25 14:15:18 jim Exp $'''
-__version__='$Revision: 1.2 $'[11:-2]
-
-import sys, re
-from types import StringTypes, UnicodeType, ClassType
-from cgi import escape
-
-from zope.publisher.http import HTTPResponse
-from zope.publisher.interfaces import Redirect
-
-
-start_of_header_search=re.compile('(<head[^>]*>)', re.IGNORECASE).search
-base_re_search=re.compile('(<base.*?>)',re.I).search
-isRelative = re.compile("[-_.!~*a-zA-z0-9'()@&=+$,]+(/|$)").match
-
 
 class BrowserResponse(HTTPResponse):
     """Browser response
@@ -871,6 +810,28 @@ class BrowserResponse(HTTPResponse):
         super(BrowserResponse, self).redirect(location, status)
 
 
+class BrowserLanguages:
 
-def is_text_html(content_type):
-    return content_type.startswith('text/html')
+    __implements__ =  IUserPreferredLanguages
+
+    def __init__(self, request):
+        self.request = request
+
+    def getPreferredLanguages(self):
+        '''See interface IUserPreferredLanguages'''
+        langs = []
+        for lang in self.request.get('HTTP_ACCEPT_LANGUAGE', '').split(','):
+            lang = lang.strip()
+            if lang:
+                langs.append(lang.split(';')[0])
+        return langs
+
+
+class BrowserView:
+
+    __implements__ = IBrowserView
+
+    def __init__(self, context, request):
+        self.context = context
+        self.request = request
+

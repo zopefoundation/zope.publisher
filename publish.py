@@ -11,9 +11,17 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""Provide an apply-like facility that works with any mapping object
+"""
+Python Object Publisher -- Publish Python objects on web servers
+
+Provide an apply-like facility that works with any mapping object
+
+$Id: publish.py,v 1.3 2002/12/27 16:40:25 k_vertigo Exp $
 """
 
+
+import sys, os
+from zope.publisher.interfaces import Retry
 from zope.proxy.introspection import removeAllProxies
 
 _marker = []  # Create a new marker object.
@@ -104,17 +112,6 @@ def mapply(object, positional=(), request={}):
 
     args = tuple(args)
     return object(*args)
-
-
-"""
-Python Object Publisher -- Publish Python objects on web servers
-
-$Id: publish.py,v 1.2 2002/12/25 14:15:18 jim Exp $
-"""
-
-
-import sys, os
-from zope.publisher.interfaces import Retry
 
 def publish(request, handle_errors=1):
     try: # finally to clean up to_raise and close request

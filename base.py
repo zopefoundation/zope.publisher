@@ -13,7 +13,7 @@
 ##############################################################################
 '''Response Output formatter
 
-$Id: base.py,v 1.2 2002/12/25 14:15:18 jim Exp $
+$Id: base.py,v 1.3 2002/12/27 16:40:24 k_vertigo Exp $
 '''
 
 
@@ -25,19 +25,10 @@ from zope.exceptions import NotFoundError
 
 from zope.publisher.interfaces import IPublication
 from zope.publisher.interfaces import NotFound, DebugError, Unauthorized
-from zope.publisher.interfaces import IApplicationResponse
-from zope.publisher.interfaces import IApplicationRequest
-from zope.publisher.interfaces import IPublicationRequest
-from zope.publisher.interfaces import IPublisherResponse
-from zope.publisher.interfaces import IPublisherRequest
-
+from zope.publisher.interfaces import IRequest, IResponse
 from zope.publisher.publish import mapply
 
-
-class IResponse(IPublisherResponse, IApplicationResponse):
-    """The basic response contract
-    """
-
+_marker = object()
 
 class BaseResponse(object):
     """Base Response Class
@@ -140,13 +131,6 @@ class RequestDataProperty(object):
     def __set__(*args):
         raise AttributeError, 'Unassignable attribute'
 
-
-
-class IRequest(IPublisherRequest, IPublicationRequest, IApplicationRequest):
-    """The basic request contract
-    """
-
-_marker = object()
 
 class RequestEnvironment(RequestDataMapper):
     _mapname = '_environ'

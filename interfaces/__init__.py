@@ -13,7 +13,7 @@
 ##############################################################################
 """Interfaces for the publisher.
 
-$Id: __init__.py,v 1.2 2002/12/25 14:15:18 jim Exp $
+$Id: __init__.py,v 1.3 2002/12/27 16:40:25 k_vertigo Exp $
 """
 
 from zope.interface import Interface
@@ -351,3 +351,12 @@ class IApplicationRequest(IEnumerableMapping):
 
         This is a read-only mapping from variable name to value.
         """)
+
+
+class IResponse(IPublisherResponse, IApplicationResponse):
+    """The basic response contract
+    """
+
+class IRequest(IPublisherRequest, IPublicationRequest, IApplicationRequest):
+    """The basic request contract
+    """
