@@ -13,9 +13,9 @@
 ##############################################################################
 """
 
-$Id: xmlrpc.py,v 1.3 2002/12/27 16:40:25 k_vertigo Exp $
+$Id: xmlrpc.py,v 1.4 2003/01/14 20:26:04 srichter Exp $
 """
-
+import sys
 import xmlrpclib
 from cgi import FieldStorage
 
@@ -38,6 +38,10 @@ class MethodPublisher(DefaultPublisher):
 
     __implements__ = IXMLRPCPublisher
 
+    def __init__(self, context, request):
+        self.context = context
+        self.request = request
+
 
 class XMLRPCRequest(HTTPRequest):
 
@@ -59,10 +63,10 @@ class XMLRPCRequest(HTTPRequest):
         # Parse the request XML structure
         self._args, function = xmlrpclib.loads(self._body_instream.read())
         # Translate '.' to '/' in function to represent object traversal.
-        function = function.replace('.', '/')
+        function = function.split('.')
 
         if function:
-            self.setPathSuffix((function,))
+            self.setPathSuffix(function)
 
 
 class TestRequest(XMLRPCRequest):
@@ -123,8 +127,9 @@ class XMLRPCResponse(HTTPResponse):
                 body = xmlrpclib.False # Argh, XML-RPC doesn't handle null
             try:
                 body = xmlrpclib.dumps((body,), methodresponse=1)
-            except Exception, e:
-                self.handleException(e)
+            except:
+                # We really want to catch all exceptions at this point!
+                self.handleException(sys.exc_info())
                 return
         # Set our body to the XML-RPC message, and fix our MIME type.
         self.setHeader('content-type', 'text/xml')
@@ -139,12 +144,7 @@ class XMLRPCResponse(HTTPResponse):
     def handleException(self, exc_info):
         """Handle Errors during publsihing and wrap it in XML-RPC XML"""
         t, value = exc_info[:2]
-
-        import traceback
-        traceback.print_tb(exc_info[2])
-        print t
-        print value
-
+            
         # Create an appropriate Fault object. Unfortunately, we throw away
         # most of the debugging information. More useful error reporting is
         # left as an exercise for the reader.
