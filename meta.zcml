@@ -1,8 +1,0 @@
-<zopeConfigure
-   xmlns='http://namespaces.zope.org/zope'
-   xmlns:browser='http://namespaces.zope.org/browser'
->
-
-  <include package=".VFS" file="meta.zcml" />
-
-</zopeConfigure>
