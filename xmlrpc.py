@@ -158,11 +158,15 @@ def premarshal_fault(data):
         premarshal(data.faultString),
         )
 
+def premarshal_datetime(data):
+    return xmlrpclib.DateTime(data.value)
+
 premarshal_dispatch_table = {
     dict: premarshal_dict,
     list: premarshal_list,
     tuple: premarshal_list,
     xmlrpclib.Fault: premarshal_fault,
+    xmlrpclib.DateTime: premarshal_datetime,
     }
 premarshal_dispatch = premarshal_dispatch_table.get
 
