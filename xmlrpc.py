@@ -11,12 +11,16 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""
+"""XML-RPC Publisher
 
-$Id: xmlrpc.py,v 1.8 2003/06/04 09:09:45 stevea Exp $
+This module contains the MethodPublisher, XMLRPCView, XMLRPCRequest and
+XMLRPCResponse
+
+$Id: xmlrpc.py,v 1.9 2003/08/04 23:19:23 srichter Exp $
 """
 import sys
 import xmlrpclib
+from StringIO import StringIO
 
 from zope.interface import implements
 from zope.publisher.interfaces.xmlrpc import IXMLRPCPublisher
@@ -28,15 +32,24 @@ from zope.publisher.http import HTTPRequest, HTTPResponse
 from zope.publisher.http import DefaultPublisher
 from zope.proxy import removeAllProxies
 
-__metaclass__ = type # All classes are new style when run with Python 2.2+
+__metaclass__ = type
 
 
 class MethodPublisher(DefaultPublisher):
     """Simple XML-RPC publisher that is identical to the HTTP Default Publisher
-       except that it implements the IXMLRPCPublisher interface.
-    """
+       except that it implements the IXMLRPCPublisher interface."""
 
     implements(IXMLRPCPublisher)
+
+    def __init__(self, context, request):
+        self.context = context
+        self.request = request
+
+
+class XMLRPCView:
+    """A base XML-RPC view that can be used as mix-in for XML-RPC views.""" 
+
+    implements(IXMLRPCView)
 
     def __init__(self, context, request):
         self.context = context
@@ -86,7 +99,6 @@ class TestRequest(XMLRPCRequest):
         if kw:
             _testEnv.update(kw)
         if body_instream is None:
-            from StringIO import StringIO
             body_instream = StringIO('')
 
         if outstream is None:
@@ -97,9 +109,10 @@ class TestRequest(XMLRPCRequest):
 
 
 class XMLRPCResponse(HTTPResponse):
-    """XMLRPC response
-    """
+    """XMLRPC response.
 
+    This object is responsible for converting all output to valid XML-RPC.
+    """
 
     def setBody(self, body):
         """Sets the body of the response
@@ -163,12 +176,3 @@ class XMLRPCResponse(HTTPResponse):
         # Do the damage.
         self.setBody(fault_text)
         self.setStatus(200)
-
-
-class XMLRPCView:
-
-    implements(IXMLRPCView)
-
-    def __init__(self, context, request):
-        self.context = context
-        self.request = request

@@ -13,7 +13,7 @@
 ##############################################################################
 """Interfaces for the XMLRPC publisher.
 
-$Id: xmlrpc.py,v 1.2 2002/12/25 14:15:18 jim Exp $
+$Id: xmlrpc.py,v 1.3 2003/08/04 23:19:25 srichter Exp $
 """
 
 from zope.component.interfaces import IView
@@ -24,8 +24,7 @@ from zope.publisher.interfaces import IPublishTraverse
 
 
 class IXMLRPCPresentation(IPresentation):
-    """XMLRPC presentations are for interaction with user's
-    """
+    """XMLRPC presentations are for interaction with user's"""
 
 
 class IXMLRPCPublisher(IPublishTraverse):
@@ -44,4 +43,4 @@ class IXMLRPCPublication (IPublication):
 
 
 class IXMLRPCView(IXMLRPCPresentation, IView):
-    "XMLRPC View"
+    """XMLRPC View"""
