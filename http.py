@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.40 2004/03/06 16:50:39 jim Exp $
+$Id: http.py,v 1.41 2004/03/06 17:48:56 jim Exp $
 """
 
 import re, time, random
@@ -35,7 +35,6 @@ from zope.publisher.interfaces.logginginfo import ILoggingInfo
 from zope.i18n.interfaces import IUserPreferredCharsets
 from zope.i18n.locales import locales, LoadLocaleError
 
-from zope.component import queryAdapter
 from zope.publisher.base import BaseRequest, BaseResponse
 from zope.publisher.base \
      import RequestDataProperty, RequestDataMapper, RequestDataGetter
@@ -801,7 +800,7 @@ class HTTPResponse(BaseResponse):
 
     def setCharsetUsingRequest(self, request):
         'See IHTTPResponse'
-        envadapter = queryAdapter(request, IUserPreferredCharsets)
+        envadapter = IUserPreferredCharsets(request, None)
         if envadapter is None:
             return
 
