@@ -216,6 +216,7 @@ class HTTPRequest(BaseRequest):
     implements(IHTTPCredentials, IHTTPRequest, IHTTPApplicationRequest)
 
     __slots__ = (
+        '__provides__',   # Allow request to directly provide interfaces
         '_auth',          # The value of the HTTP_AUTHORIZATION header.
         '_cookies',       # The request cookies
         '_path_suffix',   # Extra traversal steps after normal traversal

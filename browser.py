@@ -24,7 +24,7 @@ import re
 from types import ListType, TupleType, StringType, StringTypes
 from cgi import FieldStorage, escape
 
-from zope.interface import implements
+from zope.interface import implements, directlyProvides
 from zope.i18n.interfaces import IUserPreferredLanguages
 from zope.i18n.interfaces import IUserPreferredCharsets
 from zope.publisher.interfaces.browser import IBrowserRequest
@@ -201,6 +201,7 @@ class BrowserRequest(HTTPRequest):
     implements(IBrowserRequest, IBrowserApplicationRequest)
 
     __slots__ = (
+        '__provides__',      # Allow request to directly provide interfaces
         'form',   # Form data
         'charsets', # helper attribute
         '__meth',
@@ -595,7 +596,7 @@ class TestRequest(BrowserRequest):
 
     def __init__(self,
                  body_instream=None, outstream=None, environ=None, form=None,
-                 skin='default',
+                 skin=None,
                  **kw):
 
         _testEnv =  {
@@ -621,7 +622,8 @@ class TestRequest(BrowserRequest):
         if form:
             self.form.update(form)
 
-        self.setPresentationSkin(skin)
+        if skin is not None:
+            directlyProvides(self, skin)
 
     def setPrincipal(self, principal):
         # HTTPRequest needs to notify the HTTPTask of the username.
