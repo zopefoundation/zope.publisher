@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.13 2003/03/02 18:09:02 stevea Exp $
+$Id: http.py,v 1.14 2003/03/25 14:32:20 bwarsaw Exp $
 """
 
 import re, time, random
@@ -32,6 +32,7 @@ from zope.publisher.interfaces.http import IHTTPResponse
 from zope.publisher.interfaces.http import IHTTPApplicationResponse
 from zope.i18n.interfaces import IUserPreferredCharsets
 from zope.i18n.interfaces import IUserPreferredCharsets
+from zope.i18n.locales import locales, LoadLocaleError
 
 from zope.component import queryAdapter
 from zope.exceptions import NotFoundError
@@ -281,11 +282,14 @@ class HTTPRequest(BaseRequest):
         '_orig_env',      # The original environment
         '_endswithslash', # Does the given path end with /
         'method',         # The upper-cased request method (REQUEST_METHOD)
+        '_locale',        # The locale for the request
         )
 
     retry_max_count = 3    # How many times we're willing to retry
 
     def __init__(self, body_instream, outstream, environ, response=None):
+        # Import here to break import loops
+        from zope.publisher.browser import BrowserLanguages
 
         super(HTTPRequest, self).__init__(
             body_instream, outstream, environ, response)
@@ -308,7 +312,29 @@ class HTTPRequest(BaseRequest):
         self.__setupURLBase()
 
         self.response.setCharsetUsingRequest(self)
+        langs = BrowserLanguages(self).getPreferredLanguages()
+        language = country = variant = None
+        for httplang in langs:
+            parts = httplang.split('-')
+            if parts:
+                language = parts.pop(0)
+            if parts:
+                country = parts.pop(0)
+            if parts:
+                variant = parts.pop(0)
+            try:
+                self._locale = locales.getLocale(language, country, variant)
+                return
+            except LoadLocaleError:
+                # Just try the next combination
+                pass
+        else:
+            # No combination gave us an existing locale, so use the default,
+            # which is guaranteed to exist
+            self._locale = locales.getLocale(None, None, None)
 
+    def getLocale(self):
+        return self._locale
 
     def __setupURLBase(self):
 
@@ -421,7 +447,6 @@ class HTTPRequest(BaseRequest):
                 time.sleep(random.uniform(0, 2**(count)))
             return True
 
-
     def retry(self):
         'See IPublisherRequest'
         count = getattr(self, '_retry_count', 0)
@@ -437,7 +462,6 @@ class HTTPRequest(BaseRequest):
         request.setPublication(self.publication)
         request._retry_count = self._retry_count
         return request
-
 
     def traverse(self, object):
         'See IPublisherRequest'
