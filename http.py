@@ -928,14 +928,6 @@ class HTTPResponse(BaseResponse):
         return text
 
 
-class DefaultPublisher(object):
-    implements(IHTTPPublisher)
-
-    def publishTraverse(self, request, name):
-        'See IHTTPPublisher'
-
-        return getattr(self, name)
-
 def sort_charsets(x, y):
     if y[1] == 'utf-8':
         return 1
