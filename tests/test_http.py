@@ -13,12 +13,12 @@
 ##############################################################################
 """HTTP Publisher Tests
 
-$Id: test_http.py,v 1.24 2004/03/08 12:06:27 srichter Exp $
+$Id: test_http.py,v 1.25 2004/03/15 17:32:49 srichter Exp $
 """
 import unittest
 
 # XXX evil zope.app imports :(
-from zope.app.services.tests.placefulsetup import PlacefulSetup
+from zope.app.site.tests.placefulsetup import PlacefulSetup
 from zope.app.security.interfaces import IPrincipal
 
 # XX, Hm, zope.component dependency is suspect
