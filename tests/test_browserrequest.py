@@ -13,7 +13,7 @@
 ##############################################################################
 """Browser Request Tests
 
-$Id: test_browserrequest.py,v 1.11 2004/03/19 20:26:44 srichter Exp $
+$Id: test_browserrequest.py,v 1.12 2004/04/08 08:31:31 hdima Exp $
 """
 import unittest
 
@@ -208,11 +208,43 @@ class BrowserTests(HTTPTests):
                          {u'a':u'5', u'b':6})
 
     def testFormListTypes(self):
-        #extra = {'QUERY_STRING':'x.a:list:record=5&x.a:list:record=6'}
         extra = {'QUERY_STRING':'a:list=5&a:list=6&b=1'}
         request = self._createRequest(extra)
         publish(request)
         self.assertEqual(request.form, {u'a':[u'5',u'6'], u'b':u'1'})
+
+    def testFormTupleTypes(self):
+        extra = {'QUERY_STRING':'a:tuple=5&a:tuple=6&b=1'}
+        request = self._createRequest(extra)
+        publish(request)
+        self.assertEqual(request.form, {u'a':(u'5',u'6'), u'b':u'1'})
+
+    def testFormTupleRecordTypes(self):
+        extra = {'QUERY_STRING':'a.x:tuple:record=5&a.x:tuple:record=6&b=1'}
+        request = self._createRequest(extra)
+        publish(request)
+        keys = request.form.keys()
+        keys.sort()
+        self.assertEqual(keys, [u'a',u'b'])
+        self.assertEqual(request.form[u'b'], u'1')
+        self.assertEqual(request.form[u'a'].keys(), [u'x'])
+        self.assertEqual(request.form[u'a'][u'x'], (u'5',u'6'))
+        self.assertEqual(str(request.form[u'a']), "x: (u'5', u'6')")
+        self.assertEqual(repr(request.form[u'a']), "x: (u'5', u'6')")
+
+    def testFormRecordsTypes(self):
+        extra = {'QUERY_STRING':'a.x:records=5&a.x:records=6&b=1'}
+        request = self._createRequest(extra)
+        publish(request)
+        keys = request.form.keys()
+        keys.sort()
+        self.assertEqual(keys, [u'a',u'b'])
+        self.assertEqual(request.form[u'b'], u'1')
+        self.assertEqual(len(request.form[u'a']), 2)
+        self.assertEqual(request.form[u'a'][0][u'x'], u'5')
+        self.assertEqual(request.form[u'a'][1][u'x'], u'6')
+        self.assertEqual(str(request.form[u'a']), "[x: u'5', x: u'6']")
+        self.assertEqual(repr(request.form[u'a']), "[x: u'5', x: u'6']")
 
     def testFormListRecordTypes(self):
         extra = {'QUERY_STRING':'a.x:list:record=5&a.x:list:record=6&b=1'}

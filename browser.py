@@ -18,7 +18,7 @@ big improvement of the 'BrowserRequest' to 'HTTPRequest' is that is can handle
 HTML form data and convert them into a Python-native format. Even file data is
 packaged into a nice, Python-friendly 'FileUpload' object.
 
-$Id: browser.py,v 1.28 2004/03/20 16:27:17 srichter Exp $
+$Id: browser.py,v 1.29 2004/04/08 08:31:30 hdima Exp $
 """
 import re
 from types import ListType, TupleType, StringType, StringTypes
@@ -37,8 +37,7 @@ __metaclass__ = type # All classes are new style when run with Python 2.2+
 
 __ArrayTypes = (ListType, TupleType)
 
-search_type = re.compile('(:[a-zA-Z][a-zA-Z0-9_]+|\\.[xy])$').search
-start_of_header_search=re.compile('(<head[^>]*>)', re.IGNORECASE).search
+start_of_header_search=re.compile('(<head[^>]*>)', re.I).search
 base_re_search=re.compile('(<base.*?>)',re.I).search
 isRelative = re.compile("[-_.!~*a-zA-z0-9'()@&=+$,]+(/|$)").match
 newline_search = re.compile('\r\n|\n\r').search
@@ -47,13 +46,12 @@ newline_search = re.compile('\r\n|\n\r').search
 def is_text_html(content_type):
     return content_type.startswith('text/html')
 
-# Flas Constants
+# Flag Constants
 SEQUENCE = 1
 DEFAULT = 2
 RECORD = 4
 RECORDS = 8
-REC = 12 # RECORD|RECORDS
-EMPTY = 16
+REC = RECORD | RECORDS
 CONVERTED = 32
 DEFAULTABLE_METHODS = 'GET', 'POST', 'HEAD'
 
@@ -204,7 +202,7 @@ hide_key={
     }.has_key
 
 
-class record:
+class Record:
 
     def __getattr__(self, key, default=None):
         if key in ('get', 'keys', 'items', 'values', 'copy',
@@ -233,6 +231,9 @@ class BrowserRequest(HTTPRequest):
     __slots__ = (
         'form',   # Form data
         'charsets', # helper attribute
+        '__meth',
+        '__tuple_items',
+        '__defaults',
         )
 
     use_redirect = 0 # Set this to 1 in a subclass to redirect GET
@@ -266,344 +267,253 @@ class BrowserRequest(HTTPRequest):
     def processInputs(self):
         'See IPublisherRequest'
 
-        environ = self._environ
-        form = self.form
-
         if self.method != 'GET':
-            # Process form if not a GET request.
+            # Process self.form if not a GET request.
             fp = self._body_instream
         else:
             fp = None
 
-        fs = FieldStorage(fp = fp,
-                          environ = environ,
-                          keep_blank_values = 1)
+        fs = FieldStorage(fp=fp, environ=self._environ, keep_blank_values=1)
 
-        meth = None
         fslist = getattr(fs, 'list', None)
         if fslist is not None:
-            tuple_items = {}
-            CGI_name = isCGI_NAME
-            defaults = {}
-            converter = None
+            self.__meth = None
+            self.__tuple_items = {}
+            self.__defaults = {}
 
             # process all entries in the field storage (form)
             for item in fslist:
+                self.__processItem(item)
 
-                # Check whether this field is a file upload object
-                # Note: A field exists for files, even if no filename was
-                # passed in and no data was uploaded. Therefore we can only
-                # tell by the empty filename that no upload was made. 
-                key = item.name
-                if (hasattr(item, 'file') and hasattr(item, 'filename')
-                    and hasattr(item,'headers')):
-                    if (item.file and
-                        (item.filename is not None and item.filename != ''
-                         # RFC 1867 says that all fields get a content-type.
-                         # or 'content-type' in map(lower, item.headers.keys())
-                         )):
-                        item = FileUpload(item)
-                    else:
-                        item = item.value
+            if self.__defaults:
+                self.__insertDefaults()
 
-                flags = 0
+            if self.__tuple_items:
+                self.__convertToTuples()
 
-                # Loop through the different types and set
-                # the appropriate flags
-                # Syntax: var_name:type_name
+            if self.__meth:
+                self.setPathSuffix((self.__meth,))
 
-                # We'll search from the back to the front.
-                # We'll do the search in two steps.  First, we'll
-                # do a string search, and then we'll check it with
-                # a re search.
+    _typeFormat = re.compile('([a-zA-Z][a-zA-Z0-9_]+|\\.[xy])$')
 
-                # Get the location of the name type splitter
-                loc = key.rfind(':')
-                if loc >= 0:
-                    mo = search_type(key,loc)
-                    if mo: loc = mo.start(0)
-                    else:  loc = -1
+    def __processItem(self, item):
+        """Process item in the field storage."""
 
-                    while loc >= 0:
-                        type_name = key[loc+1:]
-                        key = key[:loc]
-                        # find the right type converter
-                        c = get_converter(type_name, None)
+        # Check whether this field is a file upload object
+        # Note: A field exists for files, even if no filename was
+        # passed in and no data was uploaded. Therefore we can only
+        # tell by the empty filename that no upload was made. 
+        key = item.name
+        if (hasattr(item, 'file') and hasattr(item, 'filename')
+            and hasattr(item,'headers')):
+            if (item.file and
+                (item.filename is not None and item.filename != ''
+                 # RFC 1867 says that all fields get a content-type.
+                 # or 'content-type' in map(lower, item.headers.keys())
+                 )):
+                item = FileUpload(item)
+            else:
+                item = item.value
 
-                        if c is not None:
-                            converter = c
-                            flags=flags|CONVERTED
-                        elif type_name == 'list':
-                            seqf=list
-                            flags=flags|SEQUENCE
-                        elif type_name == 'tuple':
-                            seqf=tuple
-                            tuple_items[key]=1
-                            flags=flags|SEQUENCE
-                        elif (type_name == 'method' or type_name == 'action'):
-                            if loc: meth=key
-                            else: meth=item
-                        elif (type_name == 'default_method' or type_name == \
-                              'default_action'):
-                            if not meth:
-                                if loc: meth=key
-                                else: meth=item
-                        elif type_name == 'default':
-                            flags=flags|DEFAULT
-                        elif type_name == 'record':
-                            flags=flags|RECORD
-                        elif type_name == 'records':
-                            flags=flags|RECORDS
-                        elif type_name == 'ignore_empty':
-                            if not item: flags=flags|EMPTY
+        flags = 0
+        converter = None
 
-                        loc = key.rfind(':')
-                        if loc < 0:
-                            break
-                        mo = search_type(key, loc)
-                        if mo:
-                            loc = mo.start(0)
-                        else:
-                            loc = -1
+        # Loop through the different types and set
+        # the appropriate flags
+        # Syntax: var_name:type_name
 
+        # We'll search from the back to the front.
+        # We'll do the search in two steps.  First, we'll
+        # do a string search, and then we'll check it with
+        # a re search.
 
-                # Filter out special names from form:
-                if CGI_name(key) or key.startswith('HTTP_'):
-                    continue
+        while key:
+            pos = key.rfind(":")
+            if pos < 0:
+                break
+            match = self._typeFormat.match(key, pos + 1)
+            if match is None:
+                break
 
-                # Make it unicode
-                key = self._decode(key)
-                if type(item) == StringType:
-                    item = self._decode(item)
+            key, type_name = key[:pos], key[pos + 1:]
 
-                if flags:
+            # find the right type converter
+            c = get_converter(type_name, None)
 
-                    # skip over empty fields
-                    if flags & EMPTY: continue
-
-                    #Split the key and its attribute
-                    if flags & REC:
-                        key = key.split(".")
-                        key, attr = ".".join(key[:-1]), key[-1]
-
-                    # defer conversion
-                    if flags & CONVERTED:
-                        try:
-                            item=converter(item)
-                        except:
-                            if (not item and not (flags&DEFAULT) and
-                                (key in defaults)):
-                                item = defaults[key]
-                                if flags&RECORD:
-                                    item=getattr(item,attr)
-                                if flags&RECORDS:
-                                    item.reverse()
-                                    item = item[0]
-                                    item=getattr(item,attr)
-                            else:
-                                raise
-
-                    # Determine which dictionary to use
-                    if flags & DEFAULT:
-                        mapping_object = defaults
-                    else:
-                        mapping_object = form
-
-                    # Insert in dictionary
-                    if key in mapping_object:
-                        if flags & RECORDS:
-                            #Get the list and the last record
-                            #in the list
-                            reclist = mapping_object[key]
-                            reclist.reverse()
-                            x=reclist[0]
-                            reclist.reverse()
-                            if not hasattr(x,attr):
-                                #If the attribute does not
-                                #exist, setit
-                                if flags&SEQUENCE: item=[item]
-                                reclist.remove(x)
-                                setattr(x,attr,item)
-                                reclist.append(x)
-                                mapping_object[key] = reclist
-                            else:
-                                if flags&SEQUENCE:
-                                    # If the attribute is a
-                                    # sequence, append the item
-                                    # to the existing attribute
-                                    reclist.remove(x)
-                                    y = getattr(x, attr)
-                                    y.append(item)
-                                    setattr(x, attr, y)
-                                    reclist.append(x)
-                                    mapping_object[key] = reclist
-                                else:
-                                    # Create a new record and add
-                                    # it to the list
-                                    n=record()
-                                    setattr(n,attr,item)
-                                    reclist.append(n)
-                                    mapping_object[key]=reclist
-                        elif flags&RECORD:
-                            b=mapping_object[key]
-                            if flags&SEQUENCE:
-                                item=[item]
-                                if not hasattr(b,attr):
-                                    # if it does not have the
-                                    # attribute, set it
-                                    setattr(b,attr,item)
-                                else:
-                                    # it has the attribute so
-                                    # append the item to it
-                                    setattr(b,attr,getattr(b,attr)+item)
-                            else:
-                                # it is not a sequence so
-                                # set the attribute
-                                setattr(b,attr,item)
-                        else:
-                            # it is not a record or list of records
-                            found=mapping_object[key]
-                            if isinstance(found, list):
-                                found.append(item)
-                            else:
-                                found=[found,item]
-                                mapping_object[key]=found
-                    else:
-                        # The dictionary does not have the key
-                        if flags&RECORDS:
-                            # Create a new record, set its attribute
-                            # and put it in the dictionary as a list
-                            a = record()
-                            if flags&SEQUENCE: item=[item]
-                            setattr(a,attr,item)
-                            mapping_object[key]=[a]
-                        elif flags&RECORD:
-                            # Create a new record, set its attribute
-                            # and put it in the dictionary
-                            if flags&SEQUENCE: item=[item]
-                            r = mapping_object[key]=record()
-                            setattr(r,attr,item)
-                        else:
-                            # it is not a record or list of records
-                            if flags&SEQUENCE: item=[item]
-                            mapping_object[key]=item
-
+            if c is not None:
+                converter = c
+                flags |= CONVERTED
+            elif type_name == 'list':
+                flags |= SEQUENCE
+            elif type_name == 'tuple':
+                self.__tuple_items[key] = 1
+                flags |= SEQUENCE
+            elif (type_name == 'method' or type_name == 'action'):
+                if key:
+                    self.__meth = key
                 else:
-                    # This branch is for case when no type was specified.
-                    mapping_object = form
+                    self.__meth = item
+            elif (type_name == 'default_method'
+                    or type_name == 'default_action') and not self.__meth:
+                if key:
+                    self.__meth = key
+                else:
+                    self.__meth = item
+            elif type_name == 'default':
+                flags |= DEFAULT
+            elif type_name == 'record':
+                flags |= RECORD
+            elif type_name == 'records':
+                flags |= RECORDS
+            elif type_name == 'ignore_empty' and not item:
+                # skip over empty fields
+                return
 
-                    #Insert in dictionary
-                    if key in mapping_object:
-                        # it is not a record or list of records
-                        found=mapping_object[key]
-                        if isinstance(found, list):
-                            found.append(item)
-                        else:
-                            found=[found,item]
-                            mapping_object[key]=found
+        # Filter out special names from form:
+        if not (isCGI_NAME(key) or key.startswith('HTTP_')):
+            # Make it unicode
+            key = self._decode(key)
+            if type(item) == StringType:
+                item = self._decode(item)
+
+            if flags:
+                self.__setItemWithType(key, item, flags, converter)
+            else:
+                self.__setItemWithoutType(key, item)
+
+    def __setItemWithoutType(self, key, item):
+        """Set item value without explicit type."""
+        form = self.form
+        if key not in form:
+            form[key] = item
+        else:
+            found = form[key]
+            if isinstance(found, list):
+                found.append(item)
+            else:
+                form[key] = [found, item]
+
+    def __setItemWithType(self, key, item, flags, converter):
+        """Set item value with explicit type."""
+        #Split the key and its attribute
+        if flags & REC:
+            key, attr = self.__splitKey(key)
+
+        # defer conversion
+        if flags & CONVERTED:
+            try:
+                item = converter(item)
+            except:
+                if item or flags & DEFAULT or key not in self.__defaults:
+                    raise
+                item = self.__defaults[key]
+                if flags & RECORD:
+                    item = getattr(item, attr)
+                elif flags & RECORDS:
+                    item = getattr(item[-1], attr)
+
+        # Determine which dictionary to use
+        if flags & DEFAULT:
+            form = self.__defaults
+        else:
+            form = self.form
+
+        # Insert in dictionary
+        if key not in form:
+            if flags & SEQUENCE:
+                item = [item]
+            if flags & RECORD:
+                r = form[key] = Record()
+                setattr(r, attr, item)
+            elif flags & RECORDS:
+                r = Record()
+                setattr(r, attr, item)
+                form[key] = [r]
+            else:
+                form[key] = item
+        else:
+            r = form[key]
+            if flags & RECORD:
+                if not flags & SEQUENCE:
+                    setattr(r, attr, item)
+                else:
+                    if not hasattr(r, attr):
+                        setattr(r, attr, [item])
                     else:
-                        mapping_object[key]=item
-
-            #insert defaults into form dictionary
-            if defaults:
-                for keys, values in defaults.items():
-                    if not (keys in form):
-                        # if the form does not have the key,
-                        # set the default
-                        form[keys]=values
+                        getattr(r, attr).append(item)
+            elif flags & RECORDS:
+                last = r[-1]
+                if not hasattr(last, attr):
+                    if flags & SEQUENCE:
+                        item = [item]
+                    setattr(last, attr, item)
+                else:
+                    if flags & SEQUENCE:
+                        getattr(last, attr).append(item)
                     else:
-                        #The form has the key
-                        if isinstance(values, record):
-                            # if the key is mapped to a record, get the
-                            # record
-                            r = form[keys]
-                            for k, v in values.__dict__.items():
-                                # loop through the attributes and values
-                                # in the default dictionary
-                                if not hasattr(r, k):
-                                    # if the form dictionary doesn't have
-                                    # the attribute, set it to the default
-                                    setattr(r,k,v)
-                                    form[keys] = r
+                        new = Record()
+                        setattr(new, attr, item)
+                        r.append(new)
+            else:
+                if isinstance(r, list):
+                    r.append(item)
+                else:
+                    form[key] = [r, item]
 
-                        elif isinstance(values, list):
-                            # the key is mapped to a list
-                            lst = form[keys]
-                            for val in values:
-                                # for each val in the list
-                                if isinstance(val, record):
-                                    # if the val is a record
-                                    for k, v in val.__dict__.items():
+    def __splitKey(self, key):
+        """Split the key and its attribute."""
+        i = key.rfind(".")
+        if i >= 0:
+            return key[:i], key[i + 1:]
+        return key, ""
 
-                                        # loop through each
-                                        # attribute and value in
-                                        # the record
+    def __convertToTuples(self):
+        """Convert form values to tuples."""
+        form = self.form
 
-                                        for y in lst:
+        for key in self.__tuple_items:
+            if key in form:
+                form[key] = tuple(form[key])
+            else:
+                k, attr = self.__splitKey(key)
 
-                                            # loop through each
-                                            # record in the form
-                                            # list if it doesn't
-                                            # have the attributes
-                                            # in the default
-                                            # dictionary, set them
+                # remove any type_names in the attr
+                i = attr.find(":")
+                if i >= 0:
+                    attr = attr[:i]
 
-                                            if not hasattr(y, k):
-                                                setattr(y, k, v)
-                                else:
-                                    # val is not a record
-                                    if not a in lst:
-                                        lst.append(a)
-                            form[keys] = lst
-                        else:
-                            # The form has the key, the key is not mapped
-                            # to a record or sequence so do nothing
-                            pass
-
-            # Convert to tuples
-            if tuple_items:
-                for key in tuple_items.keys():
-                    # Split the key and get the attr
-                    k=key.split(".")
-                    k, attr=".".join(k[:-1]), k[-1]
-
-                    # remove any type_names in the attr
-                    while not attr == '':
-                        attr = attr.split(":")
-                        attr, new = ":".join(attr[:-1]), attr[-1]
-                    attr = new
-
-                    if k in form:
-                        # If the form has the split key get its value
-                        item = form[k]
-                        if isinstance(item, record):
-                            # if the value is mapped to a record, check if it
-                            # has the attribute, if it has it, convert it to
-                            # a tuple and set it
-                            if hasattr(item, attr):
-                                value = tuple(getattr(item, attr))
-                                setattr(item, attr, value)
-                        else:
-                            # It is mapped to a list of  records
-                            for x in item:
-                                # loop through the records
-                                if hasattr(x, attr):
-                                    # If the record has the attribute
-                                    # convert it to a tuple and set it
-                                    value = tuple(getattr(x, attr))
-                                    setattr(x, attr, value)
+                if k in form:
+                    item = form[k]
+                    if isinstance(item, Record):
+                        if hasattr(item, attr):
+                            setattr(item, attr, tuple(getattr(item, attr)))
                     else:
-                        # the form does not have the split key
-                        if key in form:
-                            # if it has the original key, get the item
-                            # convert it to a tuple
-                            item = form[key]
-                            item = tuple(form[key])
-                            form[key] = item
+                        for v in item:
+                            if hasattr(v, attr):
+                                setattr(v, attr, tuple(getattr(v, attr)))
 
-        if meth:
-            self.setPathSuffix((meth,))
+    def __insertDefaults(self):
+        """Insert defaults into form dictionary."""
+        form = self.form
 
+        for keys, values in self.__defaults.iteritems():
+            if not keys in form:
+                form[keys] = values
+            else:
+                item = form[keys]
+                if isinstance(values, Record):
+                    for k, v in values.items():
+                        if not hasattr(item, k):
+                            setattr(item, k, v)
+                elif isinstance(values, list):
+                    for val in values:
+                        if isinstance(val, Record):
+                            for k, v in val.items():
+                                for r in item:
+                                    if not hasattr(r, k):
+                                        setattr(r, k, v)
+                        elif not val in item:
+                            item.append(val)
 
     def traverse(self, object):
         'See IPublisherRequest'
@@ -685,18 +595,21 @@ class FileUpload(object):
 
     def __init__(self, aFieldStorage):
 
-        file=aFieldStorage.file
-        if hasattr(file, '__methods__'): methods=file.__methods__
-        else: methods= ['close', 'fileno', 'flush', 'isatty',
-                        'read', 'readline', 'readlines', 'seek',
-                        'tell', 'truncate', 'write', 'writelines']
+        file = aFieldStorage.file
+        if hasattr(file, '__methods__'):
+            methods = file.__methods__
+        else:
+            methods = ['close', 'fileno', 'flush', 'isatty',
+                'read', 'readline', 'readlines', 'seek',
+                'tell', 'truncate', 'write', 'writelines']
 
-        d=self.__dict__
+        d = self.__dict__
         for m in methods:
-            if hasattr(file,m): d[m]=getattr(file,m)
+            if hasattr(file,m):
+                d[m] = getattr(file,m)
 
-        self.headers=aFieldStorage.headers
-        self.filename=aFieldStorage.filename
+        self.headers = aFieldStorage.headers
+        self.filename = aFieldStorage.filename
 
 class RedirectingBrowserRequest(BrowserRequest):
     """Browser requests that redirect when the actual and effective URLs differ
