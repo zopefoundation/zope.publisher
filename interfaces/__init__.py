@@ -13,7 +13,7 @@
 ##############################################################################
 """Interfaces for the publisher.
 
-$Id: __init__.py,v 1.8 2003/02/19 15:25:58 stevea Exp $
+$Id: __init__.py,v 1.9 2003/02/19 15:36:11 stevea Exp $
 """
 
 from zope.interface import Interface
@@ -63,8 +63,15 @@ class NotFound(NotFoundError, TraversalException):
             ob = 'unprintable object'
         return 'Object: %s, name: %s' % (ob, `self.name`)
 
+class IDebugError(ITraversalException):
+    def getObject():
+        'Returns the object being traversed.'
+
+    def getMessage():
+        'Returns the debug message.'
 
 class DebugError(TraversalException):
+    __implements__ = IDebugError
 
     def __init__(self, ob, message):
         self.ob = ob
@@ -79,8 +86,13 @@ class DebugError(TraversalException):
     def __str__(self):
         return self.message
 
+class IBadRequest(IPublishingException):
+    def __str__():
+        'Returns the error message.'
 
 class BadRequest(PublishingException):
+
+    __implements__ = IBadRequest
 
     def __init__(self, message):
         self.message = message
@@ -88,8 +100,13 @@ class BadRequest(PublishingException):
     def __str__(self):
         return self.message
 
+class IRedirect(IPublishingException):
+    def getLocation():
+        'Returns the location.'
 
 class Redirect(PublishingException):
+
+    __implements__ = IRedirect
 
     def __init__(self, location):
         self.location = location
@@ -100,10 +117,15 @@ class Redirect(PublishingException):
     def __str__(self):
         return 'Location: %s' % self.location
 
+class IRetry(IPublishingException):
+    def getOriginalException():
+        'Returns the original exception object.'
 
 class Retry(PublishingException):
     """Raise this to retry a request.
     """
+
+    __implements__ = IRetry
 
     def __init__(self, orig_exc=None):
         self.orig_exc = orig_exc
