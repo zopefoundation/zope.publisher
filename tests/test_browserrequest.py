@@ -25,7 +25,9 @@ from zope.publisher.browser import BrowserResponse
 from zope.publisher.interfaces import NotFound
 
 from zope.publisher.base import DefaultPublication
-from zope.publisher.interfaces.browser import IBrowserPresentation
+from zope.publisher.interfaces.browser \
+    import IBrowserPresentation, IBrowserRequest, IBrowserApplicationRequest
+from zope.interface.verify import verifyObject
 
 from StringIO import StringIO
 
@@ -255,6 +257,10 @@ class BrowserTests(HTTPTests, PlacelessSetup):
         publish(request)
         self.assertEqual(request.form, {u'a':u'b +/=&b:int'})
 
+    def testInterface(self):
+        request = self._createRequest()
+        verifyObject(IBrowserRequest, request)
+        verifyObject(IBrowserApplicationRequest, request)
 
 def test_suite():
     loader = unittest.TestLoader()

@@ -14,7 +14,7 @@
 """
 
 Revision information:
-$Id: browser.py,v 1.2 2002/12/25 14:15:18 jim Exp $
+$Id: browser.py,v 1.3 2003/04/11 10:08:09 ryzaja Exp $
 """
 
 from zope.interface import Interface
@@ -124,12 +124,12 @@ class IVirtualHostRequest(Interface):
         hosting context, a ValueError is raised.
         """
 
-    def getEffectiveURL(self):
+    def getEffectiveURL():
         """Return the effective URL.
         """
 
 
-class IBrowserRequest(IHTTPRequest, IVirtualHostRequest):
+class IBrowserRequest(IHTTPRequest):
     """Browser-specific Request functionality.
 
     Note that the browser is special in many ways, since it exposes

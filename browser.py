@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: browser.py,v 1.12 2003/04/08 07:29:35 mgedmin Exp $
+$Id: browser.py,v 1.13 2003/04/11 10:08:09 ryzaja Exp $
 """
 
 import re
@@ -229,7 +229,7 @@ class record:
 class BrowserRequest(HTTPRequest):
 
     __implements__ = (HTTPRequest.__implements__,
-                      IBrowserRequest, IBrowserPublication,
+                      IBrowserRequest,
                       IBrowserApplicationRequest,
                       )
 
@@ -674,6 +674,7 @@ class BrowserRequest(HTTPRequest):
         if result is not self: return result
 
         return default
+
 
 class FileUpload(object):
     '''File upload objects
