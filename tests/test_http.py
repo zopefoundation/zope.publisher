@@ -369,10 +369,13 @@ class HTTPTests(unittest.TestCase):
         self.assertEquals(deduceServerURL(), 'http://example.com')
 
     def testUnicodeURLs(self):
+        # The request expects PATH_INFO to be utf-8 encoded when it gets it.
         req = self._createRequest(
-            {'PATH_INFO': '/%C3%A4%C3%B6/%C3%BC%C3%9F/foo/bar.html'})
+            {'PATH_INFO': '/\xc3\xa4\xc3\xb6/\xc3\xbc\xc3\x9f/foo/bar.html'})
         self.assertEqual(req._traversal_stack,
                          [u'bar.html', u'foo', u'ья', u'дц'])
+        # the request should have converted PATH_INFO to unicode
+        self.assertEqual(req['PATH_INFO'], u'/дц/ья/foo/bar.html')
 
 
 class ConcreteHTTPTests(HTTPTests):

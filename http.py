@@ -54,6 +54,7 @@ def sane_environment(env):
     # return an environment mapping which has been cleaned of
     # funny business such as REDIRECT_ prefixes added by Apache
     # or HTTP_CGI_AUTHORIZATION hacks.
+    # It also makes sure PATH_INFO is a unicode string.
     dict = {}
     for key, val in env.items():
         while key.startswith('REDIRECT_'):
@@ -61,6 +62,8 @@ def sane_environment(env):
         dict[key] = val
     if 'HTTP_CGI_AUTHORIZATION' in dict:
         dict['HTTP_AUTHORIZATION'] = dict.pop('HTTP_CGI_AUTHORIZATION')
+    if 'PATH_INFO' in dict:
+        dict['PATH_INFO'] = dict['PATH_INFO'].decode('utf-8')
     return dict
 
 # Possible HTTP status responses
@@ -364,18 +367,9 @@ class HTTPRequest(BaseRequest):
             self._parseCookies(cookie_header, self._cookies)
 
     def __setupPath(self):
-        # The recommendation states that:
-        #
-        # Unless there is some compelling reason for a
-        # particular scheme to do otherwise, translating character sequences
-        # into UTF-8 (RFC 2279) [3] and then subsequently using the %HH
-        # encoding for unsafe octets is recommended.
-        #
-        # See: http://www.ietf.org/rfc/rfc2718.txt, Section 2.2.5
+        # PATH_INFO is unicode here, so setupPath_helper sets up the
+        # traversal stack correctly.
         self._setupPath_helper("PATH_INFO")
-        stack = self.getTraversalStack()
-        stack = [unquote(seg).decode('utf-8') for seg in stack]
-        self.setTraversalStack(stack)
 
     def supportsRetry(self):
         'See IPublisherRequest'
