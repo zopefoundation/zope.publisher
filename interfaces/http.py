@@ -13,7 +13,7 @@
 ##############################################################################
 """HTTP-related publisher interfaces.
 
-$Id: http.py,v 1.16 2003/07/22 09:33:37 ryzaja Exp $
+$Id: http.py,v 1.17 2003/08/08 18:08:14 jim Exp $
 """
 
 from zope.interface import Interface
@@ -54,28 +54,37 @@ class IVirtualHostRequest(Interface):
     methods.
     """
 
-    def setVirtualHostRoot():
-        """Marks the currently traversed object as the root of a
-        virtual host.
+    def setVirtualHostRoot(names):
+        """Marks the currently traversed object as the root of a virtual host.
 
-        Should be called during traversal."""
+        Any path elements traversed up to that 
 
-    def getVirtualHostRoot():
-        """Returns the object which is the virtual host root for this request,
-        or None if setVirtualHostRoot hasn't been called.
+        Set the names which compose the application path.
+        These are the path elements that appear in the beginning of
+        the generated URLs.
+
+        Should be called during traversal.
         """
 
-    def setApplicationNames(names):
-        """Set the names which compose the application path.
-
-        These are the path elements that appear in the beginning of
-        the generated URLs."""
+    def getVirtualHostRoot():
+        """Returns the object which is the virtual host root for this request
+        
+        Return None if setVirtualHostRoot hasn't been called.
+        """
 
     def setApplicationServer(host, proto='http', port=None):
         """Override the host, protocol and port parts of generated URLs.
 
         This affects automatically inserted <base> tags and URL getters
         in the request, but not things like @@absolute_url views.
+        """
+
+    def shiftNameToApplication():
+        """Add the name being traversed to the application name
+
+        This is only allowed in the case where the name is the first name.
+
+        A Value error is raised if the shift can't be performed.
         """
 
 
