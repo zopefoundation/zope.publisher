@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.10 2003/02/27 08:11:33 stevea Exp $
+$Id: http.py,v 1.11 2003/02/28 14:21:26 stevea Exp $
 """
 
 import re, time, random
@@ -214,7 +214,7 @@ class URLGetter:
             raise
 
 DEFAULT_PORTS = {'http': '80', 'https': '443'}
-STAGGER_RETRIES = 1
+STAGGER_RETRIES = True
 
 class HTTPRequest(BaseRequest):
     """
@@ -420,7 +420,7 @@ class HTTPRequest(BaseRequest):
         if count < self.retry_max_count:
             if STAGGER_RETRIES:
                 time.sleep(random.uniform(0, 2**(count)))
-            return 1
+            return True
 
 
     def retry(self):
@@ -507,7 +507,7 @@ class HTTPRequest(BaseRequest):
 
     def unauthorized(self, challenge):
         'See IHTTPCredentials'
-        self._response.setHeader("WWW-Authenticate", challenge, 1)
+        self._response.setHeader("WWW-Authenticate", challenge, True)
         self._response.setStatus(401)
 
     #
@@ -518,7 +518,7 @@ class HTTPRequest(BaseRequest):
         return HTTPResponse(outstream)
 
 
-    def getURL(self, level=0, path_only=0):
+    def getURL(self, level=0, path_only=False):
         names = self._app_names + self._traversed_names
         if level:
             if level > len(names):
@@ -533,7 +533,7 @@ class HTTPRequest(BaseRequest):
             if not names: return self._app_server
             return "%s/%s" % (self._app_server, '/'.join(names))
 
-    def getApplicationURL(self, depth=0, path_only=0):
+    def getApplicationURL(self, depth=0, path_only=False):
         if depth:
             names = self._traversed_names
             if depth > len(names):
@@ -578,8 +578,8 @@ class HTTPRequest(BaseRequest):
 
 class HTTPResponse (BaseResponse):
 
-    __implements__ = IHTTPResponse, IHTTPApplicationResponse, \
-                     BaseResponse.__implements__
+    __implements__ = (IHTTPResponse, IHTTPApplicationResponse,
+                      BaseResponse.__implements__)
 
     __slots__ = (
         '_header_output',       # Hook object to collaborate with a server
@@ -596,18 +596,18 @@ class HTTPResponse (BaseResponse):
         )
 
 
-    def __init__(self, outstream, header_output = None):
+    def __init__(self, outstream, header_output=None):
         self._header_output = header_output
 
         super(HTTPResponse, self).__init__(outstream)
         self._headers = {}
         self._cookies = {}
         self._accumulated_headers = []
-        self._wrote_headers = 0
-        self._streaming = 0
+        self._wrote_headers = False
+        self._streaming = False
         self._status = 599
         self._reason = 'No status set'
-        self._status_set = 0
+        self._status_set = False
         self._charset = None
 
 
@@ -635,7 +635,7 @@ class HTTPResponse (BaseResponse):
             else:
                 reason = 'Unknown'
         self._reason = reason
-        self._status_set = 1
+        self._status_set = True
 
 
     def getStatus(self):
@@ -643,7 +643,7 @@ class HTTPResponse (BaseResponse):
         return self._status
 
 
-    def setHeader(self, name, value, literal=0):
+    def setHeader(self, name, value, literal=False):
         'See IHTTPResponse'
 
         name = str(name)
@@ -755,7 +755,7 @@ class HTTPResponse (BaseResponse):
         if envadaptor is None:
             return
 
-        # XXX This try/except lools rather suspicious :(
+        # XXX This try/except looks rather suspicious :(
         try:
             charset = envadaptor.getPreferredCharsets()[0]
         except:
@@ -784,7 +784,7 @@ class HTTPResponse (BaseResponse):
         # for apps to control the status code.
         self.setStatus(tname)
 
-        tb = ''.join(format_exception(t, v, exc_info[2], as_html=1))
+        tb = ''.join(format_exception(t, v, exc_info[2], as_html=True))
         body = self._html(title, "%s" % tb)
         self.setBody(body)
 
@@ -900,11 +900,10 @@ class HTTPResponse (BaseResponse):
     def output(self, data):
         if not self._wrote_headers:
             self.outputHeaders()
-            self._wrote_headers = 1
+            self._wrote_headers = True
 
-        if self.getHeader('content-type', '').startswith('text') and \
-               self._charset is not None and \
-               type(data) is UnicodeType:
+        if (self.getHeader('content-type', '').startswith('text') and
+               self._charset is not None and type(data) is UnicodeType):
             data = data.encode(self._charset)
 
         self._outstream.write(data)

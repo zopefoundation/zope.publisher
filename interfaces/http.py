@@ -13,7 +13,7 @@
 ##############################################################################
 """HTTP-related publisher interfaces.
 
-$Id: http.py,v 1.6 2003/02/27 08:11:34 stevea Exp $
+$Id: http.py,v 1.7 2003/02/28 14:21:26 stevea Exp $
 """
 
 from zope.interface import Interface
@@ -150,13 +150,13 @@ class IHTTPApplicationRequest(IApplicationRequest):
         """)
 
 
-    def getURL(level=0, path_only=0):
+    def getURL(level=0, path_only=False):
         """Return the published URL with level names removed from the end.
 
         If path_only is true, then only a path will be returned.
         """
 
-    def getApplicationURL(depth=0, path_only=0):
+    def getApplicationURL(depth=0, path_only=False):
         """Return the application URL plus depth steps
 
         If path_only is true, then only a path will be returned.
@@ -242,7 +242,7 @@ class IHTTPResponse(Interface):
         correct integer value.
         """
 
-    def setHeader(name, value, literal=0):
+    def setHeader(name, value, literal=False):
         """Sets an HTTP return header "name" with value "value"
 
         The previous value is cleared. If the literal flag is true,
