@@ -13,26 +13,38 @@
 ##############################################################################
 """Interfaces for the publisher.
 
-$Id: __init__.py,v 1.7 2003/02/11 16:00:09 sidnei Exp $
+$Id: __init__.py,v 1.8 2003/02/19 15:25:58 stevea Exp $
 """
 
 from zope.interface import Interface
 from zope.interface import Attribute
 from zope.exceptions import Unauthorized
-from zope.exceptions import NotFoundError
+from zope.exceptions import NotFoundError, INotFoundError
 from zope.component.interfaces import IPresentationRequest
 from zope.interface.common.mapping import IEnumerableMapping
+from zope.interface.common.interfaces import IException
 
+class IPublishingException(IException):
+    pass
 
 class PublishingException(Exception):
-    pass
+    __implements__ = IPublishingException
 
+class ITraversalException(IPublishingException):
+    pass
 
 class TraversalException(PublishingException):
-    pass
+    __implements__ = ITraversalException
 
+class INotFound(INotFoundError, ITraversalException):
+    def getObject():
+        'Returns the object that was being traversed.'
+
+    def getName():
+        'Returns the name that was being traversed.'
 
 class NotFound(NotFoundError, TraversalException):
+    __implements__ = INotFound
 
     def __init__(self, ob, name, request=None):
         self.ob = ob
@@ -45,8 +57,10 @@ class NotFound(NotFoundError, TraversalException):
         return self.name
 
     def __str__(self):
-        try: ob = `self.ob`
-        except: ob = 'unprintable object'
+        try:
+            ob = `self.ob`
+        except:
+            ob = 'unprintable object'
         return 'Object: %s, name: %s' % (ob, `self.name`)
 
 
