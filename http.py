@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.32 2003/08/08 00:18:39 srichter Exp $
+$Id: http.py,v 1.33 2003/08/08 13:10:10 srichter Exp $
 """
 
 import re, time, random
@@ -792,6 +792,8 @@ class HTTPResponse(BaseResponse):
 
     def setCharset(self, charset=None):
         'See IHTTPResponse'
+        # XXX: Should set the appropriate response header for specifying the
+        #      encoding.
         self._charset = charset
 
 
@@ -801,11 +803,13 @@ class HTTPResponse(BaseResponse):
         if envadapter is None:
             return
 
-        # XXX This try/except looks rather suspicious :(
         try:
             charset = envadapter.getPreferredCharsets()[0]
-        except:
-            charset = 'UTF-8'
+        except IndexError:
+            # Exception caused by empty list! This is okay though, since the
+            # browser just could have sent a '*', which means we can choose
+            # the encoding, which we do here now.
+            charset = 'utf-8'
         self.setCharset(charset)
 
     def setBody(self, body):
@@ -915,6 +919,8 @@ class HTTPResponse(BaseResponse):
         Since it is a final output method, it must take care of all possible
         unicode strings and encode them! 
         """
+        if self._charset is None:
+            self.setCharset('utf-8')
         encode = self._encode
         headers = self.getHeaders()
         # Clean these headers from unicode by possibly encoding them
@@ -957,6 +963,24 @@ class HTTPResponse(BaseResponse):
         self.output(string)
 
     def output(self, data):
+        """Output the data to the world. There are a couple of steps we have
+        to do:
+
+        1. Check that there is a character encoding for the data. If not,
+           choose UTF-8. Note that if the charset is None, this is a sign of a
+           bug! The method setCharsetUsingRequest() specifically sets the
+           encoding to UTF-8, if none was found in the HTTP header. This
+           method should always be called when reading the HTTP request.
+
+        2. Now that the encoding has been finalized, we can output the
+           headers.
+
+        3. If the content type is text-based, let's encode the data and send
+           it also out the door.
+        """
+        if self._charset is None:
+            self.setCharset('utf-8')
+        
         if not self._wrote_headers:
             self.outputHeaders()
             self._wrote_headers = True
@@ -975,11 +999,10 @@ class HTTPResponse(BaseResponse):
 
 
     def _encode(self, text):
-        # We **always** have to convert unicode to ASCII. If no character set
-        # is found, we just use unicode. That is still better than our server
-        # crashing.
+        # Any method that calls this method has the responsibility to set
+        # the _charset variable (if None) to a non-None value (usually UTF-8)
         if isinstance(text, unicode):
-            return text.encode(self._charset or 'UTF-8')
+            return text.encode(self._charset)
         return text
 
 
@@ -1040,6 +1063,9 @@ class HTTPCharsets:
         if not sawstar and not sawiso88591:
             charsets.append((1.0, 'iso-8859-1'))
         # UTF-8 is **always** preferred over anything else.
-        # XXX Please give more details as to why!
+        # Reason: UTF-8 is not specific and can encode the entire unicode
+        # range , unlike many other encodings. Since Zope can easily use very
+        # different ranges, like providing a French-Chinese dictionary, it is
+        # always good to use UTF-8.
         charsets.sort(sort_charsets)
         return [c[1] for c in charsets]
