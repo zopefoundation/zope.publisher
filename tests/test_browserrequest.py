@@ -127,6 +127,7 @@ class BrowserTests(HTTPTests):
             "Status: 200 Ok\r\n"
             "Content-Length: 7\r\n"
             "Content-Type: text/plain;charset=utf-8\r\n"
+            "X-Content-Type-Warning: guessed from content\r\n"
             "X-Powered-By: Zope (www.zope.org), Python (www.python.org)\r\n"
             "\r\n"
             "u'5', 6")
