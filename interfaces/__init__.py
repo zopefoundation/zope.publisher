@@ -13,7 +13,7 @@
 ##############################################################################
 """Interfaces for the publisher.
 
-$Id: __init__.py,v 1.3 2002/12/27 16:40:25 k_vertigo Exp $
+$Id: __init__.py,v 1.4 2003/01/02 15:01:58 stevea Exp $
 """
 
 from zope.interface import Interface
@@ -87,7 +87,7 @@ class Redirect(PublishingException):
         return 'Location: %s' % self.location
 
 
-class Retry (PublishingException):
+class Retry(PublishingException):
     """Raise this to retry a request.
     """
 
@@ -296,7 +296,7 @@ class IPublisherRequest(IPublicationRequest):
         Return a request suitable for repeating the publication attempt.
         """
 
-    publication = Attribute("""the request's publication object
+    publication = Attribute("""The request's publication object
 
         The publication object, an IRequestPublication provides
         application-specific functionality hooks.
@@ -336,14 +336,14 @@ class IApplicationRequest(IEnumerableMapping):
                         This is a read-only attribute.
                         """)
 
-    body = Attribute("""the body of the request as a string""")
+    body = Attribute("""The body of the request as a string""")
 
-    bodyFile = Attribute("""the body of the request as a file""")
+    bodyFile = Attribute("""The body of the request as a file""")
 
     def __getitem__(key):
         """Return request data
 
-        The only request data are envirnment variables.
+        The only request data are environment variables.
         """
 
     environment = Attribute(
