@@ -18,7 +18,7 @@ $Id$
 
 from zope.interface import Interface
 from zope.interface import Attribute
-from zope.exceptions import Unauthorized
+from zope.security.interfaces import Unauthorized
 from zope.exceptions import NotFoundError, INotFoundError
 from zope.component.interfaces import IPresentationRequest
 from zope.interface import implements
