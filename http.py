@@ -11,9 +11,9 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""
+"""HTTP Publisher
 
-$Id: http.py,v 1.44 2004/03/19 20:26:43 srichter Exp $
+$Id: http.py,v 1.45 2004/03/20 16:27:18 srichter Exp $
 """
 
 import re, time, random
@@ -851,8 +851,16 @@ class HTTPResponse(BaseResponse):
             blen = blen[:-1]
         self.setHeader('content-length', blen)
 
-    def redirect(self, location, status=302):
+    def redirect(self, location, status=None):
         """Causes a redirection without raising an error"""
+        if status is None:
+            # parse the HTTP version and set default accordingly
+            if (self._request.get("SERVER_PROTOCOL","HTTP/1.0") <
+                "HTTP/1.1"):
+                status=302
+            else:
+                status=303
+                
         self.setStatus(status)
         self.setHeader('Location', location)
         return location
@@ -899,7 +907,6 @@ class HTTPResponse(BaseResponse):
 
     def outputHeaders(self):
         """This method outputs all headers.
-
         Since it is a final output method, it must take care of all possible
         unicode strings and encode them! 
         """
