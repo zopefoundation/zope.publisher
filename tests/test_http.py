@@ -13,7 +13,7 @@
 ##############################################################################
 """HTTP Publisher Tests
 
-$Id: test_http.py,v 1.25 2004/03/15 17:32:49 srichter Exp $
+$Id: test_http.py,v 1.26 2004/03/15 20:42:13 jim Exp $
 """
 import unittest
 
@@ -236,7 +236,7 @@ class HTTPTests(PlacefulSetup, unittest.TestCase):
                 self.auth_user_name = name
 
         as = zope.component.getService(None, 'Adapters')
-        as.provideAdapter(IPrincipal, ILoggingInfo, [PrincipalLoggingStub])
+        as.register([IPrincipal], ILoggingInfo, '', PrincipalLoggingStub)
         task = HTTPTaskStub()
         req = self._createRequest(outstream=task)
         req.setUser(UserStub("jim"))

@@ -71,7 +71,7 @@ class XMLRPCTests(PlacelessSetup, unittest.TestCase):
         super(XMLRPCTests, self).setUp()
 
         as = zope.component.getService(None, 'Adapters')
-        as.provideAdapter(IHTTPRequest, IUserPreferredCharsets, [HTTPCharsets])
+        as.register([IHTTPRequest], IUserPreferredCharsets, '', HTTPCharsets)
 
         class AppRoot:
             " "
