@@ -13,7 +13,7 @@
 ##############################################################################
 '''Response Output formatter
 
-$Id: base.py,v 1.11 2003/08/17 06:09:14 philikon Exp $
+$Id: base.py,v 1.12 2003/11/21 17:12:28 jim Exp $
 '''
 
 
@@ -293,21 +293,6 @@ class BaseRequest(object):
     def getPresentationSkin(self):
         'See IPresentationRequest'
         return getattr(self, '_presentation_skin', '')
-
-    def getPresentationType(self):
-        'See IPresentationRequest'
-        return getattr(self, '_presentation_type', None)
-
-    # This is not part of the interface:
-    def setViewType(self, viewtype):
-        '''Set the view type.
-
-        This method will normally only be called in tests, which will allow
-        us to use a simpler Request set-up.'''
-
-        # XXX This will probably go away
-
-        self._presentation_type = viewtype
 
     def _getBody(self):
         body = getattr(self, '_body', None)

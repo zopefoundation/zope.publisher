@@ -13,7 +13,7 @@
 ##############################################################################
 """
 
-$Id: http.py,v 1.37 2003/11/04 04:04:22 jeremy Exp $
+$Id: http.py,v 1.38 2003/11/21 17:12:28 jim Exp $
 """
 
 import re, time, random
@@ -28,7 +28,6 @@ from zope.publisher.interfaces.http import IHTTPCredentials
 from zope.publisher.interfaces.http import IHTTPRequest
 from zope.publisher.interfaces.http import IHTTPApplicationRequest
 from zope.publisher.interfaces.http import IHTTPPublisher
-from zope.publisher.interfaces.http import IHTTPPresentation
 
 from zope.publisher.interfaces import Redirect
 from zope.publisher.interfaces.http import IHTTPResponse
@@ -264,9 +263,6 @@ class HTTPRequest(BaseRequest):
     values will be looked up in the order: environment variables,
     other variables, form data, and then cookies.
     """
-
-    _presentation_type = IHTTPPresentation
-
 
     implements(IHTTPCredentials, IHTTPRequest, IHTTPApplicationRequest)
 

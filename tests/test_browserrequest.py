@@ -14,7 +14,7 @@
 import unittest
 
 from zope.component.tests.placelesssetup import PlacelessSetup
-from zope.component.adapter import provideAdapter
+from zope.app.tests import ztapi
 
 from zope.i18n.interfaces import IUserPreferredCharsets
 
@@ -24,8 +24,8 @@ from zope.publisher.browser import BrowserRequest
 from zope.publisher.interfaces import NotFound
 
 from zope.publisher.base import DefaultPublication
-from zope.publisher.interfaces.browser \
-    import IBrowserPresentation, IBrowserRequest, IBrowserApplicationRequest
+from zope.publisher.interfaces.browser import IBrowserApplicationRequest
+from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.interface.verify import verifyObject
 
 from StringIO import StringIO
@@ -61,7 +61,8 @@ class BrowserTests(HTTPTests, PlacelessSetup):
 
     def setUp(self):
         PlacelessSetup.setUp(self)
-        provideAdapter(IHTTPRequest, IUserPreferredCharsets, HTTPCharsets)
+        ztapi.provideAdapter(IHTTPRequest, IUserPreferredCharsets,
+                             HTTPCharsets)
 
         class AppRoot:
             " "
@@ -131,7 +132,6 @@ class BrowserTests(HTTPTests, PlacelessSetup):
         # test the IView request
         r = self._createRequest()
 
-        self.failUnless(r.getPresentationType() is IBrowserPresentation)
         self.assertEqual(r.getPresentationSkin(), '')
         r.setPresentationSkin('morefoo')
         self.assertEqual(r.getPresentationSkin(), 'morefoo')

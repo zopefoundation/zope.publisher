@@ -13,12 +13,11 @@
 ##############################################################################
 """
 
-$Id: ftp.py,v 1.6 2003/06/03 22:46:27 jim Exp $
+$Id: ftp.py,v 1.7 2003/11/21 17:12:28 jim Exp $
 """
 
 from zope.interface import implements
-from zope.publisher.interfaces.ftp import IFTPPresentation
-from zope.publisher.interfaces.ftp import IFTPCredentials
+from zope.publisher.interfaces.ftp import IFTPCredentials, IFTPRequest
 from zope.publisher.base import BaseResponse, BaseRequest
 
 class FTPResponse(BaseResponse):
@@ -37,9 +36,7 @@ class FTPResponse(BaseResponse):
         self._exc = exc_info
 
 class FTPRequest(BaseRequest):
-    implements(IFTPCredentials)
-
-    _presentation_type = IFTPPresentation
+    implements(IFTPCredentials, IFTPRequest)
 
     __slots__ = '_auth'
 

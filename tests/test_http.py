@@ -13,15 +13,19 @@
 ##############################################################################
 import unittest
 
+# XXX evil zope.app imports :(
 from zope.app.services.tests.placefulsetup import PlacefulSetup
 from zope.app.interfaces.security import IPrincipal
+
+# XX, Hm, zope.component dependency is suspect
+import zope.component
+
 from zope.interface import implements
-from zope.component.adapter import provideAdapter
 from zope.publisher.interfaces.logginginfo import ILoggingInfo
 from zope.publisher.http import HTTPRequest
 from zope.publisher.publish import publish
 from zope.publisher.base import DefaultPublication
-from zope.publisher.interfaces.http import IHTTPPresentation, IHTTPRequest
+from zope.publisher.interfaces.http import IHTTPRequest
 
 from zope.i18n.interfaces import ILocale
 
@@ -226,7 +230,9 @@ class HTTPTests(PlacefulSetup, unittest.TestCase):
             auth_user_name = None
             def setAuthUserName(self, name):
                 self.auth_user_name = name
-        provideAdapter(IPrincipal, ILoggingInfo, PrincipalLoggingStub)
+
+        as = zope.component.getService(None, 'Adapters')
+        as.provideAdapter(IPrincipal, ILoggingInfo, [PrincipalLoggingStub])
         task = HTTPTaskStub()
         req = self._createRequest(outstream=task)
         req.setUser(UserStub("jim"))
@@ -240,7 +246,6 @@ class HTTPTests(PlacefulSetup, unittest.TestCase):
         # test the IView request
         r = self._createRequest()
 
-        self.assertEquals(r.getPresentationType(), IHTTPPresentation)
         self.assertEqual(r.getPresentationSkin(), '')
         r.setPresentationSkin('morefoo')
         self.assertEqual(r.getPresentationSkin(), 'morefoo')

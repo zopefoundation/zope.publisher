@@ -14,7 +14,7 @@
 import unittest
 
 from zope.component.tests.placelesssetup import PlacelessSetup
-from zope.component.adapter import provideAdapter
+import zope.component
 
 from zope.i18n.interfaces import IUserPreferredCharsets
 
@@ -24,7 +24,6 @@ from zope.publisher.http import HTTPCharsets
 from zope.publisher.xmlrpc import XMLRPCRequest
 
 from zope.publisher.base import DefaultPublication
-from zope.publisher.interfaces.xmlrpc import IXMLRPCPresentation
 
 from cStringIO import StringIO
 
@@ -70,7 +69,10 @@ class XMLRPCTests(unittest.TestCase, PlacelessSetup):
 
     def setUp(self):
         PlacelessSetup.setUp(self)
-        provideAdapter(IHTTPRequest, IUserPreferredCharsets, HTTPCharsets)
+
+        as = zope.component.getService(None, 'Adapters')
+        as.provideAdapter(IHTTPRequest, IUserPreferredCharsets, [HTTPCharsets])
+
         class AppRoot:
             " "
 
@@ -114,11 +116,6 @@ class XMLRPCTests(unittest.TestCase, PlacelessSetup):
         request = XMLRPCRequest(instream, outstream, env)
         request.setPublication(publication)
         return request
-
-
-    def testIPresentationRequest(self):
-        r = self._createRequest()
-        self.failUnless(r.getPresentationType() is IXMLRPCPresentation)
 
 
     def testProcessInput(self):
