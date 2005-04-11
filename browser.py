@@ -247,6 +247,12 @@ class BrowserRequest(HTTPRequest):
         else:
             fp = None
 
+        # If 'QUERY_STRING' is not present in self._environ
+        # FieldStorage will try to get it from sys.argv[1]
+        # which is not what we need.
+        if 'QUERY_STRING' not in self._environ:
+            self._environ['QUERY_STRING'] = ''
+
         fs = FieldStorage(fp=fp, environ=self._environ, keep_blank_values=1)
 
         fslist = getattr(fs, 'list', None)

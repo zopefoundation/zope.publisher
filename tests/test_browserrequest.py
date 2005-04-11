@@ -15,6 +15,7 @@
 
 $Id$
 """
+import sys
 import unittest
 
 from zope.interface import implements, directlyProvides, Interface
@@ -33,6 +34,8 @@ from StringIO import StringIO
 from zope.publisher.tests.test_http import HTTPTests
 
 from zope.publisher.publish import publish as publish_
+
+
 def publish(request):
     publish_(request, handle_errors=0)
 
@@ -383,6 +386,18 @@ class BrowserTests(HTTPTests):
         request = self._createRequest()
         verifyObject(IBrowserRequest, request)
         verifyObject(IBrowserApplicationRequest, request)
+
+    def testIssue394(self):
+        extra = {'PATH_INFO': '/folder/item3/'}
+        request = self._createRequest(extra)
+        del request._environ["QUERY_STRING"]
+        argv = sys.argv
+        sys.argv = [argv[0], "test"]
+        try:
+            publish(request)
+            self.assertEqual(request.form, {})
+        finally:
+            sys.argv = argv
 
 def test_suite():
     loader = unittest.TestLoader()
