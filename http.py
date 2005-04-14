@@ -16,11 +16,11 @@
 $Id$
 """
 import re, time, random
-import cStringIO
 from urllib import quote, unquote, splitport
 from types import StringTypes, ClassType
 from cgi import escape
 from Cookie import SimpleCookie
+from tempfile import TemporaryFile
 
 from zope.interface import implements
 
@@ -175,7 +175,7 @@ class HTTPInputStream(object):
 
     def __init__(self, stream):
         self.stream = stream
-        self.cacheStream = cStringIO.StringIO()
+        self.cacheStream = TemporaryFile()
 
     def getCacheStream(self):
         self.read()

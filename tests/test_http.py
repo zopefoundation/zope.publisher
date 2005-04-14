@@ -60,36 +60,41 @@ class HTTPInputStreamTests(unittest.TestCase):
     def setUp(self):
         self.stream = HTTPInputStream(StringIO(data))
 
+    def getCacheStreamValue(self):
+        self.stream.cacheStream.seek(0)
+        return self.stream.cacheStream.read()
+
     def testRead(self):
         output = ''
-        self.assertEqual(output, self.stream.cacheStream.getvalue())
+        self.assertEqual(output, self.getCacheStreamValue())
         output += self.stream.read(5)
-        self.assertEqual(output, self.stream.cacheStream.getvalue())
+        self.assertEqual(output, self.getCacheStreamValue())
         output += self.stream.read()
-        self.assertEqual(output, self.stream.cacheStream.getvalue())
-        self.assertEqual(data, self.stream.cacheStream.getvalue())
+        self.assertEqual(output, self.getCacheStreamValue())
+        self.assertEqual(data, self.getCacheStreamValue())
 
     def testReadLine(self):
         output = self.stream.readline()
-        self.assertEqual(output, self.stream.cacheStream.getvalue())
+        self.assertEqual(output, self.getCacheStreamValue())
         output += self.stream.readline()
-        self.assertEqual(output, self.stream.cacheStream.getvalue())
+        self.assertEqual(output, self.getCacheStreamValue())
         output += self.stream.readline()
-        self.assertEqual(output, self.stream.cacheStream.getvalue())
+        self.assertEqual(output, self.getCacheStreamValue())
         output += self.stream.readline()
-        self.assertEqual(output, self.stream.cacheStream.getvalue())
-        self.assertEqual(data, self.stream.cacheStream.getvalue())
+        self.assertEqual(output, self.getCacheStreamValue())
+        self.assertEqual(data, self.getCacheStreamValue())
 
     def testReadLines(self):
         output = ''.join(self.stream.readlines(4))
-        self.assertEqual(output, self.stream.cacheStream.getvalue())
+        self.assertEqual(output, self.getCacheStreamValue())
         output += ''.join(self.stream.readlines())
-        self.assertEqual(output, self.stream.cacheStream.getvalue())
-        self.assertEqual(data, self.stream.cacheStream.getvalue())
+        self.assertEqual(output, self.getCacheStreamValue())
+        self.assertEqual(data, self.getCacheStreamValue())
 
     def testGetChacheStream(self):
         self.stream.read(5)
-        self.assertEqual(data, self.stream.getCacheStream().getvalue())        
+        self.assertEqual(data, self.stream.getCacheStream().read())        
+
 
 class HTTPTests(unittest.TestCase):
 
