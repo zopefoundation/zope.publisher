@@ -169,8 +169,7 @@ def publish(request, handle_errors=True):
                     else:
                         raise
 
-            except Error, e:
-                import pdb; pdb.set_trace()
+            except:
                 # Bad exception handler or retry method.
                 # Re-raise after outputting the response.
                 if handle_errors:
