@@ -464,15 +464,6 @@ class HTTPRequest(BaseRequest):
         self._response.setHeader("WWW-Authenticate", challenge, True)
         self._response.setStatus(401)
 
-    def setPrincipal(self, principal):
-        'See IPublicationRequest'
-        super(HTTPRequest, self).setPrincipal(principal)
-
-        if self.response.http_transaction is not None:
-            logging_info = ILoggingInfo(principal)
-            message = logging_info.getLogMessage()
-            self.response.http_transaction.setAuthUserName(message)
-
     def _createResponse(self, outstream):
         # Should be overridden by subclasses
         return HTTPResponse(outstream)
@@ -582,13 +573,11 @@ class HTTPResponse(BaseResponse):
         '_reason',              # The reason that goes with the status
         '_status_set',          # Boolean: status explicitly set
         '_charset',             # String: character set for the output
-        'http_transaction',     # HTTPTask object
         )
 
 
-    def __init__(self, outstream, header_output=None, http_transaction=None):
+    def __init__(self, outstream, header_output=None):
         self._header_output = header_output
-        self.http_transaction = http_transaction
 
         super(HTTPResponse, self).__init__(outstream)
         self.reset()
@@ -607,9 +596,6 @@ class HTTPResponse(BaseResponse):
 
     def setHeaderOutput(self, header_output):
         self._header_output = header_output
-
-    def setHTTPTransaction(self, http_transaction):
-        self.http_transaction = http_transaction
 
     def setStatus(self, status, reason=None):
         'See IHTTPResponse'

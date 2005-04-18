@@ -325,21 +325,6 @@ class HTTPTests(unittest.TestCase):
         lpw = req._authUserPW()
         self.assertEquals(lpw, (login, password))
 
-    def testSetPrincipal(self):
-        class HTTPTaskStub(object):
-            auth_user_name = None
-            def setAuthUserName(self, name):
-                self.auth_user_name = name
-
-        task = HTTPTaskStub()
-        req = self._createRequest(outstream=task)
-        req.setPrincipal(UserStub("jim"))
-        self.assert_(not req.response._outstream.auth_user_name)
-        req = self._createRequest(outstream=task)
-        req.response.setHTTPTransaction(task)
-        req.setPrincipal(UserStub("jim"))
-        self.assertEquals(req.response.http_transaction.auth_user_name, "jim")
-
     def test_method(self):
         r = self._createRequest(extra_env={'REQUEST_METHOD':'SPAM'})
         self.assertEqual(r.method, 'SPAM')
