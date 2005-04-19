@@ -202,7 +202,7 @@ def premarshal(data):
 
       >>> sample = {'foo': (1, ['x', 'y', 1.2])}
 
-    if we put the sample in a security procy:
+    if we put the sample in a security proxy:
 
       >>> from zope.security.checker import ProxyFactory
       >>> proxied_sample = ProxyFactory(sample)
