@@ -464,6 +464,14 @@ class HTTPRequest(BaseRequest):
         self._response.setHeader("WWW-Authenticate", challenge, True)
         self._response.setStatus(401)
 
+    def setPrincipal(self, principal):
+        'See IPublicationRequest'
+        super(HTTPRequest, self).setPrincipal(principal)
+
+        logging_info = ILoggingInfo(principal)
+        message = logging_info.getLogMessage()
+        self.response.setHeader('x-zope-principal', message)
+
     def _createResponse(self, outstream):
         # Should be overridden by subclasses
         return HTTPResponse(outstream)
