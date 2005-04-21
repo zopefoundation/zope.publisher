@@ -468,10 +468,11 @@ class HTTPRequest(BaseRequest):
         'See IPublicationRequest'
         super(HTTPRequest, self).setPrincipal(principal)
 
-        logging_info = ILoggingInfo(principal)
-        message = logging_info.getLogMessage()
-        if message is not None:
-            self.response.setHeader('x-zope-principal', message)
+        logging_info = ILoggingInfo(principal, None)
+        if logging_info is not None:
+            message = logging_info.getLogMessage()
+            if message is not None:
+                self.response.setHeader('x-zope-principal', message)
 
     def _createResponse(self, outstream):
         # Should be overridden by subclasses
