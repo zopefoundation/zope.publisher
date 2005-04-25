@@ -436,6 +436,20 @@ class IApplicationRequest(IEnumerableMapping):
         This is a read-only mapping from variable name to value.
         """)
 
+    annotations = Attribute(
+        """Stores arbitrary application data under package-unique keys.
+
+        By "package-unique keys", we mean keys that are are unique by
+        virtue of including the dotted name of a package as a prefex.  A
+        package name is used to limit the authority for picking names for
+        a package to the people using that package.
+    
+        For example, when implementing annotations for hypothetical
+        request-persistent adapters in a hypothetical zope.persistentadapter
+        package, the key would be (or at least begin with) the following::
+    
+          "zope.persistentadapter"
+        """)
 
 class IResponse(IPublisherResponse, IApplicationResponse):
     """The basic response contract

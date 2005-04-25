@@ -74,6 +74,8 @@ class TestBaseRequest(BaseTestIPublicationRequest,
     def test_IPublisherRequest_processInputs(self):
         self._Test__new().processInputs()
 
+    def test_AnnotationsExist(self):
+        self.assertEqual(self._Test__new().annotations, {})
 
     # Needed by BaseTestIEnumerableMapping tests:
     def _IEnumerableMapping__stateDict(self):

@@ -192,6 +192,7 @@ class BaseRequest(object):
         '_principal',        # request principal, set by publication
         'interaction',       # interaction, set by interaction
         'debug',             # debug flags
+        'annotations',       # per-package annotations
         )
 
     environment = RequestDataProperty(RequestEnvironment)
@@ -215,6 +216,7 @@ class BaseRequest(object):
         self._principal = None
         self.debug = DebugFlags()
         self.interaction = None
+        self.annotations = {}
 
     def setPrincipal(self, principal):
         self._principal = principal
