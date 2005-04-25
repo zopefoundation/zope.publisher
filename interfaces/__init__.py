@@ -305,8 +305,12 @@ class IPublicationRequest(IPresentationRequest, IParticipation):
         """Release resources held by the request.
         """
 
-    def hold(object):
-        """Hold a reference to an object until the request is closed
+    def hold(held):
+        """Hold a reference to an object until the request is closed.
+
+        The object should be an IHeld.  If it is an IHeld, it's
+        release method will be called when it is released.
+        
         """
 
     def getTraversalStack():
@@ -332,6 +336,17 @@ class IPublicationRequest(IPresentationRequest, IParticipation):
         It should be IPrincipal wrapped in it's AuthenticationService's context.
         """
 
+class IHeld(Interface):
+    """Object to be held and explicitly released by a request
+    """
+
+    def release():
+        """Release the held object
+
+        This is called by a request that holds the IHeld when the
+        request is closed
+
+        """
 
 class IPublisherRequest(IPublicationRequest):
     """Request interface use by the publisher

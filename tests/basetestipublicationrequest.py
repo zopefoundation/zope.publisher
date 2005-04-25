@@ -17,10 +17,18 @@ $Id$
 """
 import sys
 
-from zope.interface import Interface, directlyProvides
+from zope.interface import Interface, directlyProvides, implements
 from zope.interface.verify import verifyObject
-from zope.publisher.interfaces import IPublicationRequest
+from zope.publisher.interfaces import IPublicationRequest, IHeld
 from zope.publisher.interfaces.browser import ISkin
+
+class Held:
+    implements(IHeld)
+    
+    released = False
+
+    def release(self):
+        self.released = True
 
 
 class BaseTestIPublicationRequest(object):
@@ -48,11 +56,20 @@ class BaseTestIPublicationRequest(object):
 
         request.hold(resource)
 
+        resource2 = Held()
+        rcresource2 = sys.getrefcount(resource2)
+        request.hold(resource2)
+
         self.failUnless(sys.getrefcount(resource) > rcresource)
+        self.failUnless(sys.getrefcount(resource2) > rcresource2)
+        self.failIf(resource2.released)
 
         request.close()
+
+        self.failUnless(resource2.released)
         self.failUnless(sys.getrefcount(response) < rcresponse)
         self.assertEqual(sys.getrefcount(resource), rcresource)
+        self.assertEqual(sys.getrefcount(resource2), rcresource2)
 
     def testSkinManagement(self):
         request = self._Test__new()
