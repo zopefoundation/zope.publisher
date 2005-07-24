@@ -23,7 +23,6 @@ from cStringIO import StringIO
 
 from zope.interface import implements, providedBy
 from zope.interface.common.mapping import IReadMapping, IEnumerableMapping
-from zope.publisher.interfaces import NotFound
 
 from zope.publisher.interfaces import IPublication, IHeld
 from zope.publisher.interfaces import NotFound, DebugError, Unauthorized
