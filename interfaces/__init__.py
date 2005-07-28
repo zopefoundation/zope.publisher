@@ -16,16 +16,22 @@
 $Id$
 """
 
+import zope.deprecation
+
 from zope.interface import Interface
 from zope.interface import Attribute
 from zope.security.interfaces import Unauthorized
-from zope.exceptions import NotFoundError, INotFoundError
 from zope.component.interfaces import IPresentationRequest
 from zope.interface import implements
 from zope.interface.interfaces import IInterface
 from zope.interface.common.mapping import IEnumerableMapping
 from zope.interface.common.interfaces import IException
 from zope.security.interfaces import IParticipation
+
+# BBB : can be remove in 3.3
+zope.deprecation.__show__.off()
+from zope.exceptions import NotFoundError, INotFoundError
+zope.deprecation.__show__.on()
 
 class IPublishingException(IException):
     pass
