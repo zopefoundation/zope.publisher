@@ -13,10 +13,17 @@
 ##############################################################################
 """MIME Content-Type parsing helper functions.
 
+This supports parsing RFC 1341 Content-Type values, including
+quoted-string values as defined in RFC 822.
+
 """
 __docformat__ = "reStructuredText"
 
 import re
+
+
+# TODO: This still needs to support comments in structured fields as
+# specified in RFC 2822.
 
 
 def parse(string):
@@ -80,6 +87,7 @@ def _parse_params(string):
 
 
 def _quoted_string_match(string):
+    # This support RFC 822 quoted-string values.
     global _quoted_string_match
     _quoted_string_match = re.compile(
         '"(?:\\\\.|[^"\n\r\\\\])*"', re.DOTALL).match
