@@ -763,30 +763,25 @@ class BrowserLanguages(object):
 
     def getPreferredLanguages(self):
         '''See interface IUserPreferredLanguages'''
-        request = self.request
-        accept_langs = request.get('HTTP_ACCEPT_LANGUAGE', '').split(',')
+        accept_langs = self.request.get('HTTP_ACCEPT_LANGUAGE', '').split(',')
 
         # Normalize lang strings
-        accept_langs = map(normalize_lang, accept_langs)
+        accept_langs = [normalize_lang(l) for l in accept_langs]
         # Then filter out empty ones
-        accept_langs = filter(None, accept_langs)
+        accept_langs = [l for l in accept_langs if l]
 
-        length = len(accept_langs)
         accepts = []
-
         for index, lang in enumerate(accept_langs):
             l = lang.split(';', 2)
 
-            quality = None
+            # If not supplied, quality defaults to 1...
+            quality = 1.0
 
             if len(l) == 2:
                 q = l[1]
                 if q.startswith('q='):
                     q = q.split('=', 2)[1]
                     quality = float(q)
-            else:
-                # If not supplied, quality defaults to 1
-                quality = 1.0
 
             if quality == 1.0:
                 # ... but we use 1.9 - 0.001 * position to
@@ -800,11 +795,9 @@ class BrowserLanguages(object):
         # Filter langs with q=0, which means
         # unwanted lang according to the spec
         # See: http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.4
-        accepts = filter(lambda acc: acc[0], accepts)
+        accepts = [acc for acc in accepts if acc[0]]
 
         accepts.sort()
         accepts.reverse()
 
         return [lang for quality, lang in accepts]
-
-
