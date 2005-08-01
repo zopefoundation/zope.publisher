@@ -139,54 +139,54 @@ class JoinTestCase(unittest.TestCase):
     def test_single_token_param(self):
         self.assertEqual(
             contenttype.join(("text", "plain", [("charset", "UTF-8")])),
-            "text/plain; charset=UTF-8")
+            "text/plain;charset=UTF-8")
         self.assertEqual(
             contenttype.join(("text", "plain", {"charset": "UTF-8"})),
-            "text/plain; charset=UTF-8")
+            "text/plain;charset=UTF-8")
 
     def test_multi_params_list_maintains_order(self):
         # multiple parameters given as a list maintain order:
         self.assertEqual(
             contenttype.join(("text", "plain",
                               [("charset", "UTF-8"), ("format", "flowed")])),
-            "text/plain; charset=UTF-8; format=flowed")
+            "text/plain;charset=UTF-8;format=flowed")
         self.assertEqual(
             contenttype.join(("text", "plain",
                               [("format", "flowed"), ("charset", "UTF-8")])),
-            "text/plain; format=flowed; charset=UTF-8")
+            "text/plain;format=flowed;charset=UTF-8")
 
     def test_multi_params_dict_sorted_order(self):
         # multiple parameters given as a dict are sorted by param name:
         self.assertEqual(
             contenttype.join(("text", "plain",
                               {"charset": "UTF-8", "format": "flowed"})),
-            "text/plain; charset=UTF-8; format=flowed")
+            "text/plain;charset=UTF-8;format=flowed")
 
     def test_params_list_quoted(self):
         # parameter values are quoted automatically:
         self.assertEqual(contenttype.join(("a", "b", [("c", "")])),
-                         'a/b; c=""')
+                         'a/b;c=""')
         self.assertEqual(contenttype.join(("a", "b", [("c", "ab cd")])),
-                         'a/b; c="ab cd"')
+                         'a/b;c="ab cd"')
         self.assertEqual(contenttype.join(("a", "b", [("c", " \t")])),
-                         'a/b; c=" \t"')
+                         'a/b;c=" \t"')
         self.assertEqual(contenttype.join(("a", "b", [("c", '"')])),
-                         r'a/b; c="\""')
+                         r'a/b;c="\""')
         self.assertEqual(contenttype.join(("a", "b", [("c", "\n")])),
-                         'a/b; c="\\\n"')
+                         'a/b;c="\\\n"')
 
     def test_params_dict_quoted(self):
         # parameter values are quoted automatically:
         self.assertEqual(contenttype.join(("a", "b", {"c": ""})),
-                         'a/b; c=""')
+                         'a/b;c=""')
         self.assertEqual(contenttype.join(("a", "b", {"c": "ab cd"})),
-                         'a/b; c="ab cd"')
+                         'a/b;c="ab cd"')
         self.assertEqual(contenttype.join(("a", "b", {"c": " \t"})),
-                         'a/b; c=" \t"')
+                         'a/b;c=" \t"')
         self.assertEqual(contenttype.join(("a", "b", {"c": '"'})),
-                         r'a/b; c="\""')
+                         r'a/b;c="\""')
         self.assertEqual(contenttype.join(("a", "b", {"c": "\n"})),
-                         'a/b; c="\\\n"')
+                         'a/b;c="\\\n"')
 
 
 def test_suite():

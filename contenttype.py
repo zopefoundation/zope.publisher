@@ -41,7 +41,7 @@ def parseOrdered(string):
         type = string
         params = []
     if "/" not in type:
-        raise ValueError("content type missing major/minor parts")
+        raise ValueError("content type missing major/minor parts: %r" % type)
     type = type.strip()
 
     major, minor = type.lower().split("/", 1)
@@ -123,7 +123,7 @@ def join((major, minor, params)):
         # ensure a predictable order:
         params.sort()
     for name, value in params:
-        pstr += "; %s=%s" % (name, _escape(value))
+        pstr += ";%s=%s" % (name, _escape(value))
     return "%s/%s%s" % (major, minor, pstr)
 
 def _escape(string):
