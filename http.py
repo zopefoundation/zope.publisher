@@ -23,6 +23,7 @@ from Cookie import SimpleCookie
 
 from zope.interface import implements
 
+from zope.publisher import contenttype
 from zope.publisher.interfaces.http import IHTTPCredentials
 from zope.publisher.interfaces.http import IHTTPRequest
 from zope.publisher.interfaces.http import IHTTPApplicationRequest
@@ -715,11 +716,16 @@ class HTTPResponse(BaseResponse):
         self._charset = charset
 
     def _updateContentType(self):
-        if self._charset is not None:
+        if self._charset:
             ctype = self.getHeader('content-type', '')
-            if ctype.startswith("text") and "charset" not in ctype:
-                self.setHeader('content-type',
-                        ctype + ";charset=" + self._charset)
+            if ctype.lower().startswith('text'):
+                ctinfo = contenttype.parseOrdered(ctype)
+                for param, value in ctinfo[2]:
+                    if param == "charset":
+                        break
+                else:
+                    ctinfo[2].append(("charset", self._charset))
+                    self.setHeader('content-type', contenttype.join(ctinfo))
 
     def setCharsetUsingRequest(self, request):
         'See IHTTPResponse'
