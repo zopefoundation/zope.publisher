@@ -629,6 +629,15 @@ class TestRequest(BrowserRequest):
         if form:
             self.form.update(form)
 
+        # Setup locale object
+        langs = BrowserLanguages(self).getPreferredLanguages()
+        from zope.i18n.locales import locales
+        if not langs or langs[0] == '':
+            self._locale = locales.getLocale(None, None, None)
+        else:
+            parts = (langs[0].split('-') + [None, None])[:3]
+            self._locale = locales.getLocale(*parts)
+
         if skin is not None:
             directlyProvides(self, skin)
         else:
