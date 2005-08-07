@@ -37,6 +37,9 @@ class TestRequest(dict):
     def __init__(self, languages):
         self["HTTP_ACCEPT_LANGUAGE"] = languages
 
+    def setupLocale(self):
+        pass
+
 class BrowserLanguagesTest(unittest.TestCase):
 
     def factory(self, request):

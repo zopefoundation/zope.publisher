@@ -43,7 +43,7 @@ from zope.publisher.base import RequestDataGetter
 
 
 # Default Encoding
-ENCODING = 'UTF-8'
+ENCODING = 'utf-8'
 
 class CookieMapper(RequestDataMapper):
     _mapname = '_cookies'
@@ -256,9 +256,9 @@ class HTTPRequest(BaseRequest):
         self.__setupPath()
         self.__setupURLBase()
         self._vh_root = None
-        self.__setupLocale()
+        self.setupLocale()
 
-    def __setupLocale(self):
+    def setupLocale(self):
         self.response.setCharsetUsingRequest(self)
         envadapter = IUserPreferredLanguages(self, None)
         if envadapter is None:
@@ -740,7 +740,7 @@ class HTTPResponse(BaseResponse):
             # Exception caused by empty list! This is okay though, since the
             # browser just could have sent a '*', which means we can choose
             # the encoding, which we do here now.
-            charset = 'utf-8'
+            charset = ENCODING
         self.setCharset(charset)
 
     def setBody(self, body):
