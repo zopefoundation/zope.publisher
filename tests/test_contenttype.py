@@ -39,6 +39,8 @@ class ParseOrderedTestCase(unittest.TestCase):
                          ("text", "plain", self.empty_params))
         self.assertEqual(self.parse("TeXt / PlaIN"),
                          ("text", "plain", self.empty_params))
+        self.assertEqual(self.parse("text / vnd.wap.wml"),
+                         ("text", "vnd.wap.wml", self.empty_params))
 
     def test_with_empty_params(self):
         self.assertEqual(self.parse("text/plain ; "),
