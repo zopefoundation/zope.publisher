@@ -100,7 +100,7 @@ def _check_token(string):
 
 def _token_match(string):
     global _token_match
-    _token_match = re.compile("[^][ \t\n\r()<>@,;:\"/?.=\\\\]+$").match
+    _token_match = re.compile("[^][ \t\n\r()<>@,;:\"/?=\\\\]+$").match
     return _token_match(string)
 
 def _unescape(string):
