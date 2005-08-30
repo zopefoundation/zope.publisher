@@ -151,7 +151,7 @@ class URLGetter(object):
     def __getitem__(self, name):
         url = self.get(name, None)
         if url is None:
-            raise KeyError, name
+            raise KeyError(name)
         return url
 
     def get(self, name, default=None):
@@ -450,7 +450,7 @@ class HTTPRequest(BaseRequest):
         names = self._app_names + self._traversed_names
         if level:
             if level > len(names):
-                raise IndexError, level
+                raise IndexError(level)
             names = names[:-level]
         # See: http://www.ietf.org/rfc/rfc2718.txt, Section 2.2.5
         names = [quote(name.encode("utf-8"), safe='/+@') for name in names]
@@ -469,7 +469,7 @@ class HTTPRequest(BaseRequest):
         if depth:
             names = self._traversed_names
             if depth > len(names):
-                raise IndexError, depth
+                raise IndexError(depth)
             names = self._app_names + names[:depth]
         else:
             names = self._app_names

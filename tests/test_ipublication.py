@@ -89,7 +89,7 @@ class Test(BaseIPublicationTest, TestCase):
 
     def test_handleException(self):
         try:
-            raise ValueError, 1
+            raise ValueError(1)
         except:
             exc_info = sys.exc_info()
 

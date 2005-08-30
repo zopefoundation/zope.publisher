@@ -66,7 +66,7 @@ def field2text(v, nl=newlines):
 def field2required(v):
     v = field2string(v)
     if not v.strip():
-        raise ValueError, 'No input for required field<p>'
+        raise ValueError('No input for required field<p>')
     return v
 
 def field2int(v):
@@ -74,25 +74,24 @@ def field2int(v):
         return map(field2int, v)
     v = field2string(v)
     if not v:
-        raise ValueError, 'Empty entry when <strong>integer</strong> expected'
+        raise ValueError('Empty entry when <strong>integer</strong> expected')
     try:
         return int(v)
     except ValueError:
-        raise ValueError, "An integer was expected in the value '%s'" % v
+        raise ValueError("An integer was expected in the value '%s'" % v)
 
 def field2float(v):
     if isinstance(v, __ArrayTypes):
         return map(field2float, v)
     v = field2string(v)
     if not v:
-        raise ValueError, (
+        raise ValueError(
             'Empty entry when <strong>floating-point number</strong> expected')
     try:
         return float(v)
     except ValueError:
-        raise ValueError, (
-                "A floating-point number was expected in the value '%s'" % v
-            )
+        raise ValueError(
+                "A floating-point number was expected in the value '%s'" % v)
 
 def field2long(v):
     if isinstance(v, __ArrayTypes):
@@ -103,11 +102,11 @@ def field2long(v):
     if v and v[-1].upper() == 'L':
         v = v[:-1]
     if not v:
-        raise ValueError, 'Empty entry when <strong>integer</strong> expected'
+        raise ValueError('Empty entry when <strong>integer</strong> expected')
     try:
         return long(v)
     except ValueError:
-        raise ValueError, "A long integer was expected in the value '%s'" % v
+        raise ValueError("A long integer was expected in the value '%s'" % v)
 
 def field2tokens(v):
     return field2string(v).split()
@@ -143,7 +142,7 @@ def registerTypeConverter(field_type, converter, replace=False):
     existing = type_converters.get(field_type)
 
     if existing is not None and not replace:
-        raise KeyError, 'Existing converter for field_type: %s' % field_type
+        raise KeyError('Existing converter for field_type: %s' % field_type)
 
     type_converters[field_type] = converter
 
@@ -182,7 +181,7 @@ class Record(object):
         if key in ('get', 'keys', 'items', 'values', 'copy',
                    'has_key', '__contains__'):
             return getattr(self.__dict__, key)
-        raise AttributeError, key
+        raise AttributeError(key)
 
     def __getitem__(self, key):
         return self.__dict__[key]

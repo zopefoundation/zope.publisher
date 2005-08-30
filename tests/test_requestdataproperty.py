@@ -36,7 +36,7 @@ class Data(object):
         if default is not _marker:
             return default
 
-        raise KeyError, name
+        raise KeyError(name)
 
     something = RequestDataProperty(TestDataGettr)
     somedata = RequestDataProperty(TestDataMapper)

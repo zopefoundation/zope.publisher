@@ -145,7 +145,7 @@ class RequestDataProperty(object):
             return self.__gettr_class(request)
 
     def __set__(*args):
-        raise AttributeError, 'Unassignable attribute'
+        raise AttributeError('Unassignable attribute')
 
 
 class RequestEnvironment(RequestDataMapper):
@@ -362,7 +362,7 @@ class BaseRequest(object):
         'See Interface.Common.Mapping.IReadMapping'
         result = self.get(key, _marker)
         if result is _marker:
-            raise KeyError, key
+            raise KeyError(key)
         else:
             return result
 
@@ -467,7 +467,7 @@ class DefaultPublication(object):
 
     def traverseName(self, request, ob, name, check_auth=1):
         if name.startswith('_'):
-            raise Unauthorized, name
+            raise Unauthorized(name)
         if hasattr(ob, name):
             subob = getattr(ob, name)
         else:

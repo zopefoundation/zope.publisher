@@ -37,7 +37,7 @@ def unwrapMethod(object):
     for i in range(10):
         bases = getattr(unwrapped, '__bases__', None)
         if bases is not None:
-            raise TypeError, "mapply() can not call class constructors"
+            raise TypeError("mapply() can not call class constructors")
 
         im_func = getattr(unwrapped, 'im_func', None)
         if im_func is not None:
@@ -53,7 +53,7 @@ def unwrapMethod(object):
         if __call__ is not None:
             unwrapped = unwrapped.__call__
         else:
-            raise TypeError, "mapply() can not call %s" % `object`
+            raise TypeError("mapply() can not call %s" % `object`)
 
     else:
         raise TypeError(
@@ -82,7 +82,7 @@ def mapply(object, positional=(), request={}):
             given = len(args)
             if wrapperCount:
                 given = given + wrapperCount
-            raise TypeError, (
+            raise TypeError(
                 '%s() takes at most %d argument%s(%d given)' % (
                 getattr(unwrapped, '__name__', repr(object)), code.co_argcount,
                 (code.co_argcount > 1 and 's ' or ' '), given))
@@ -101,8 +101,8 @@ def mapply(object, positional=(), request={}):
             if name == 'REQUEST':
                 v = request
             elif index < nrequired:
-                raise TypeError, 'Missing argument to %s(): %s' % (
-                    getattr(unwrapped, '__name__', repr(object)), name)
+                raise TypeError('Missing argument to %s(): %s' % (
+                    getattr(unwrapped, '__name__', repr(object)), name))
             else:
                 v = defaults[index-nrequired]
         args.append(v)
