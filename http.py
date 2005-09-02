@@ -697,7 +697,7 @@ class HTTPResponse(BaseResponse):
             else:
                 raise TypeError('The result should be adaptable to IResult.')
         self.result = r
-        self._headers.update([(k, [v]) for (k, v) in r.headers])
+        self._headers.update(dict([(k, [v]) for (k, v) in r.headers]))
         if not self._status_set:
             self.setStatus(200)
 
