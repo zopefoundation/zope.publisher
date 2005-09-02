@@ -235,7 +235,7 @@ class HTTPRequest(BaseRequest):
 
     retry_max_count = 3    # How many times we're willing to retry
 
-    def __init__(self, body_instream, environ, response=None, bbb=None):
+    def __init__(self, body_instream, environ, response=None, outstream=None):
         # XXX BBB
         try:
             environ.get
@@ -244,7 +244,7 @@ class HTTPRequest(BaseRequest):
             warnings.warn("Can't pass output streams to requests anymore",
                           DeprecationWarning,
                           2)
-            environ, response = response, bbb
+            environ, response = response, outstream
             
         super(HTTPRequest, self).__init__(body_instream, environ, response)
 

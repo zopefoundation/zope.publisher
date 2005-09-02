@@ -599,7 +599,7 @@ class TestRequest(BrowserRequest):
     """
 
     def __init__(self, body_instream=None, environ=None, form=None,
-                 skin=None, bbb=None,
+                 skin=None, outstream=None,
                  **kw):
 
         _testEnv =  {
@@ -617,7 +617,7 @@ class TestRequest(BrowserRequest):
                 warnings.warn("Can't pass output streams to requests anymore",
                               DeprecationWarning,
                               2)
-                environ, form, skin = form, skin, bbb
+                environ, form, skin = form, skin, outstream
                 _testEnv.update(environ)
                 
         if kw:
