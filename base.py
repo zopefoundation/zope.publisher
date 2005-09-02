@@ -48,8 +48,10 @@ class BaseResponse(object):
 
     def handleException(self, exc_info):
         'See IPublisherResponse'
+        f = StringIO()
         traceback.print_exception(
-            exc_info[0], exc_info[1], exc_info[2], 100, self)
+            exc_info[0], exc_info[1], exc_info[2], 100, f)
+        self.setResult(f.getvalue())
 
     def internalError(self):
         'See IPublisherResponse'
@@ -213,7 +215,6 @@ class BaseRequest(object):
         return getattr(self, '_publication', None)
 
     publication = property(_getPublication)
-
 
     def processInputs(self):
         'See IPublisherRequest'
@@ -421,14 +422,26 @@ class TestRequest(BaseRequest):
                 warnings.warn("Can't pass output streams to requests anymore",
                               DeprecationWarning,
                               2)
-                environ = outstream
+                environ, outstream = outstream, environ
                 
         environ['PATH_INFO'] = path
         if body_instream is None:
             body_instream = StringIO('')
 
         super(TestRequest, self).__init__(body_instream, environ)
+        self.response._outstream = outstream
 
+    def _createResponse(self):
+        return BBBResponse()
+
+class BBBResponse(BaseResponse):
+
+    def outputBody(self):
+        import warnings
+        warnings.warn("Can't pass output streams to requests anymore",
+                      DeprecationWarning,
+                      2)
+        self._outstream.write(self.result)
 
 class DefaultPublication(object):
     """A stub publication.
