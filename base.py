@@ -410,9 +410,19 @@ class TestRequest(BaseRequest):
 
     __slots__ = ('_presentation_type', )
 
-    def __init__(self, path, body_instream=None, environ=None):
+    def __init__(self, path, body_instream=None, environ=None, outstream=None):
+
+        # XXX BBB
         if environ is None:
             environ = {}
+        else:
+            if not hasattr(environ, 'get'):
+                import warnings
+                warnings.warn("Can't pass output streams to requests anymore",
+                              DeprecationWarning,
+                              2)
+                environ = outstream
+                
         environ['PATH_INFO'] = path
         if body_instream is None:
             body_instream = StringIO('')
