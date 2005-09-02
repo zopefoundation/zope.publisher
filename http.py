@@ -713,11 +713,7 @@ class HTTPResponse(BaseResponse):
 
     # XXX BBB
     def _body(self):
-        try:
-            return self.result.__body
-        except AttributeError:
-            self.result.__body = ''.join(self.result.body) 
-            return self.result.__body
+        return ''.join(self.result.body) 
     _body = property(_body)
 
     def _implicitResult(self, body):
