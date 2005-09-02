@@ -701,6 +701,14 @@ class HTTPResponse(BaseResponse):
         if not self._status_set:
             self.setStatus(200)
 
+    # XXX BBB
+    def _body(self):
+        try:
+            return self.result.__body
+        except AttributeError:
+            self.result.__body = ''.join(self.result.body) 
+            return self.result.__body
+    _body = property(_body)
 
     def _implicitResult(self, body):
         encoding = getCharsetUsingRequest(self._request) or 'utf-8'
