@@ -235,7 +235,17 @@ class HTTPRequest(BaseRequest):
 
     retry_max_count = 3    # How many times we're willing to retry
 
-    def __init__(self, body_instream, environ, response=None):
+    def __init__(self, body_instream, environ, response=None, bbb=None):
+        # XXX BBB
+        try:
+            environ.get
+        except AttributeError:
+            import warnings
+            warnings.warn("Can't pass output streams to requests anymore",
+                          DeprecationWarning,
+                          2)
+            environ, response = response, bbb
+            
         super(HTTPRequest, self).__init__(body_instream, environ, response)
 
         self._orig_env = environ
