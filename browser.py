@@ -610,6 +610,7 @@ class TestRequest(BrowserRequest):
             }
 
         if environ:
+            # XXX BBB
             try:
                 _testEnv.update(environ)
             except AttributeError:
@@ -617,7 +618,7 @@ class TestRequest(BrowserRequest):
                 warnings.warn("Can't pass output streams to requests anymore",
                               DeprecationWarning,
                               2)
-                environ, form, skin = form, skin, outstream
+                environ, form, skin, outstream = form, skin, outstream, environ
                 _testEnv.update(environ)
                 
         if kw:
@@ -644,10 +645,17 @@ class TestRequest(BrowserRequest):
         else:
             directlyProvides(self, IDefaultBrowserLayer)
 
+        self.response.outstream = outstream
+
     def setPrincipal(self, principal):
         # HTTPRequest needs to notify the HTTPTask of the username.
         # We don't want to have to stub HTTPTask in the tests.
         BaseRequest.setPrincipal(self, principal)
+
+    def _createResponse(self):
+        return BBBResponse()
+
+
 
 class BrowserResponse(HTTPResponse):
     """Browser response
@@ -709,6 +717,27 @@ class BrowserResponse(HTTPResponse):
     def reset(self):
         super(BrowserResponse, self).reset()
         self._base = ''
+
+class BBBResponse(BrowserResponse):
+
+    def testBody(self):
+        return self._body
+    
+    def outputBody(self):
+        import warnings
+        warnings.warn("Can't pass output streams to requests anymore",
+                      DeprecationWarning,
+                      2)
+        self.outstream.write("Status: %s\r\n" % self.getStatusString())
+        headers = self.getHeaders()
+        headers.sort()
+        self.outstream.write(
+            "\r\n".join([("%s: %s" % h) for h in headers])
+            + "\r\n\r\n"
+            )
+        self.outstream.write(''.join(self.result.body))
+    
+
 
 def normalize_lang(lang):
     lang = lang.strip().lower()
