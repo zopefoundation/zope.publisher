@@ -647,11 +647,6 @@ class TestRequest(BrowserRequest):
 
         self.response.outstream = outstream
 
-    def setPrincipal(self, principal):
-        # HTTPRequest needs to notify the HTTPTask of the username.
-        # We don't want to have to stub HTTPTask in the tests.
-        BaseRequest.setPrincipal(self, principal)
-
     def _createResponse(self):
         return BBBResponse()
 

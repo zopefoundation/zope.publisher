@@ -443,8 +443,11 @@ class HTTPRequest(BaseRequest):
     def setPrincipal(self, principal):
         'See IPublicationRequest'
         super(HTTPRequest, self).setPrincipal(principal)
-        logging_info = ILoggingInfo(principal)
-        message = logging_info.getLogMessage()
+        logging_info = ILoggingInfo(principal, None)
+        if logging_info is None:
+            message = '-'
+        else:
+            message = logging_info.getLogMessage()
         self.response.authUser = message
 
     def _createResponse(self):
