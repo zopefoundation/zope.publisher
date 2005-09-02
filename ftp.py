@@ -39,8 +39,18 @@ class FTPRequest(BaseRequest):
 
     __slots__ = '_auth'
 
-    def __init__(self, body_instream, environ, response=None):
-        self._auth = environ.get('credentials')
+    # XXX BBB
+    def __init__(self, body_instream, environ, response=None, bbb=None):
+        try:
+            self._auth = environ.get('credentials')
+        except AttributeError:
+            import warnings
+            warnings.warn("Can't pass output streams to requests anymore",
+                          DeprecationWarning,
+                          2)
+            environ, response = response, bbb
+            self._auth = environ.get('credentials')
+            
         del environ['credentials']
 
         super(FTPRequest, self).__init__(body_instream, environ, response)
