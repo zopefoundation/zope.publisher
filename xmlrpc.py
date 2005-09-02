@@ -25,7 +25,7 @@ from zope.interface import implements
 from zope.publisher.interfaces.xmlrpc import IXMLRPCPublisher
 from zope.publisher.interfaces.xmlrpc import IXMLRPCRequest
 
-from zope.publisher.http import HTTPRequest, HTTPResponse
+from zope.publisher.http import HTTPRequest, HTTPResponse, DirectResult
 
 from zope.security.proxy import isinstance
 
@@ -77,8 +77,8 @@ class XMLRPCResponse(HTTPResponse):
     This object is responsible for converting all output to valid XML-RPC.
     """
 
-    def setBody(self, body):
-        """Sets the body of the response
+    def setResult(self, result):
+        """Sets the result of the response
 
         Sets the return body equal to the (string) argument "body". Also
         updates the "content-length" return header.
@@ -89,7 +89,7 @@ class XMLRPCResponse(HTTPResponse):
         If is_error is true then the HTML will be formatted as a Zope error
         message instead of a generic HTML page.
         """
-        body = premarshal(body)
+        body = premarshal(result)
         if isinstance(body, xmlrpclib.Fault):
             # Convert Fault object to XML-RPC response.
             body = xmlrpclib.dumps(body, methodresponse=True)
@@ -104,14 +104,12 @@ class XMLRPCResponse(HTTPResponse):
                 # We really want to catch all exceptions at this point!
                 self.handleException(sys.exc_info())
                 return
-        # Set our body to the XML-RPC message, and fix our MIME type.
-        self.setHeader('content-type', 'text/xml')
 
-        self._body = body
-        self._updateContentLength()
-
-        if not self._status_set:
-            self.setStatus(200)
+        super(XMLRPCResponse, self).setResult(
+            DirectResult((body,),
+                         [('content-type', 'text/xml;charset=utf-8'),
+                          ('content-length', str(len(body)))])
+            )
 
 
     def handleException(self, exc_info):
