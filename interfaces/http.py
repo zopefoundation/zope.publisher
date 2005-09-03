@@ -298,7 +298,7 @@ class IHTTPResponse(IResponse):
         correct integer value.
         """
 
-    def getStatusString(self):
+    def getStatusString():
         """Return the status followed by the reason."""
 
     def setHeader(name, value, literal=False):
@@ -365,19 +365,6 @@ class IHTTPResponse(IResponse):
         Returns the dict of values associated with an HTTP cookie set in the
         response, or 'default' if no such cookie has been set in the response
         yet.
-        """
-
-    def setCharset(charset=None):
-        """Set the character set into which the response body should be
-           encoded. If None is passed in then no encoding will be done to
-           the output body.
-
-           The default character set is None.
-        """
-
-    def setCharsetUsingRequest(request):
-        """This convinience function determines the character set based on the
-           HTTP header information.
         """
 
     def setResult(result):
