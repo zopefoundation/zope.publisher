@@ -42,6 +42,15 @@ class BaseResponse(object):
 
     implements(IResponse)
 
+    def __init__(self, outstream=None):
+        self._request = None
+        # XXX BBB
+        if outstream is not None:
+            import warnings
+            warnings.warn("Can't pass output streams to responses anymore",
+                          DeprecationWarning,
+                          2)
+
     def setResult(self, result):
         'See IPublisherResponse'
         self.result = result
@@ -185,17 +194,29 @@ class BaseRequest(object):
     environment = RequestDataProperty(RequestEnvironment)
 
     def __init__(self, body_instream, environ, response=None,
-                 positional=()):
+                 positional=None, outstream=None):
+
+        if not hasattr(environ, 'get'):
+            # XXX BBB
+            import warnings
+            warnings.warn("Can't pass output streams to requests anymore",
+                          DeprecationWarning,
+                          2)
+            environ, response, positional = response, positional, outstream
+            
+        
         self._traversal_stack = []
         self._last_obj_traversed = None
         self._traversed_names = []
         self._environ = environ
 
-        self._args = positional
+        self._args = positional or ()
+        
         if response is None:
             self._response = self._createResponse()
         else:
             self._response = response
+
         self._response._request = self
 
         self._body_instream = body_instream
