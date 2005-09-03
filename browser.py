@@ -661,6 +661,15 @@ class BrowserResponse(HTTPResponse):
         )
 
     def _implicitResult(self, body):
+        content_type = self.getHeader('content-type')
+        if content_type is None:
+            if isHTML(body):
+                content_type = 'text/html'
+            else:
+                content_type = 'text/plain'
+            self.setHeader('x-content-type-warning', 'guessed from content')
+            self.setHeader('content-type', content_type)
+        
         body, headers = super(BrowserResponse, self)._implicitResult(body)
         body = self.__insertBase(body)
         return body, headers
@@ -733,6 +742,18 @@ class BBBResponse(BrowserResponse):
         self.outstream.write(''.join(self.result.body))
     
 
+def isHTML(str):
+     """Try to determine whether str is HTML or not."""
+     s = str.lstrip().lower()
+     if s.startswith('<!doctype html'):
+         return True
+     if s.startswith('<html') and (s[5:6] in ' >'):
+         return True
+     if s.startswith('<!--'):
+         idx = s.find('<html')
+         return idx > 0 and (s[idx+5:idx+6] in ' >')
+     else:
+         return False
 
 def normalize_lang(lang):
     lang = lang.strip().lower()

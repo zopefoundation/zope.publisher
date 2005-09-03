@@ -566,6 +566,7 @@ class HTTPResponse(BaseResponse):
 
         super(HTTPResponse, self).__init__()
         self.reset()
+        
 
     def reset(self):
         'See IResponse'
@@ -576,6 +577,7 @@ class HTTPResponse(BaseResponse):
         self._reason = 'No status set'
         self._status_set = False
         self._charset = None
+        self.authUser = '-'
 
     def setStatus(self, status, reason=None):
         'See IHTTPResponse'
@@ -723,18 +725,15 @@ class HTTPResponse(BaseResponse):
         encoding = getCharsetUsingRequest(self._request) or 'utf-8'
         content_type = self.getHeader('content-type')
 
-        if content_type is None:
-            if isHTML(body):
-                content_type = 'text/html'
-            else:
-                content_type = 'text/plain'
-            self.setHeader('x-content-type-warning', 'guessed from content')
-
         if isinstance(body, unicode):
-
-            if not content_type.startswith('text/'):
-                raise ValueError(
-                    'Unicode results must have a text content type.')
+            try:
+                if not content_type.startswith('text/'):
+                    raise ValueError(
+                        'Unicode results must have a text content type.')
+            except AttributeError:
+                    raise ValueError(
+                        'Unicode results must have a text content type.')
+                
 
             major, minor, params = contenttype.parse(content_type)
 
@@ -745,8 +744,11 @@ class HTTPResponse(BaseResponse):
 
             body = body.encode(encoding)
 
-        headers = [('content-type', content_type),
-                   ('content-length', len(body))]
+        if content_type:
+            headers = [('content-type', content_type),
+                       ('content-length', str(len(body)))]
+        else:
+            headers = [('content-length', str(len(body)))]
 
         return body, headers
 
@@ -886,20 +888,6 @@ class HTTPCharsets(object):
         # always good to use UTF-8.
         charsets.sort(sort_charsets)
         return [c[1] for c in charsets]
-
-
-def isHTML(str):
-     """Try to determine whether str is HTML or not."""
-     s = str.lstrip().lower()
-     if s.startswith('<!doctype html'):
-         return True
-     if s.startswith('<html') and (s[5:6] in ' >'):
-         return True
-     if s.startswith('<!--'):
-         idx = s.find('<html')
-         return idx > 0 and (s[idx+5:idx+6] in ' >')
-     else:
-         return False
 
 
 def getCharsetUsingRequest(request):
