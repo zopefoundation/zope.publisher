@@ -736,17 +736,29 @@ class HTTPResponse(BaseResponse):
                 r = DirectResult((body,), headers)
             else:
                 raise TypeError('The result should be adaptable to IResult.')
-        self.result = r
+        self._result = r
         self._headers.update(dict([(k, [v]) for (k, v) in r.headers]))
         if not self._status_set:
             self.setStatus(200)
 
+
+    def consumeBody(self):
+        'See IHTTPResponse'
+        return ''.join(self._result.body)
+
+
+    def consumeBodyIter(self):
+        'See IHTTPResponse'
+        return self._result.body
+
+
     # BBB: Backward-compatibility for old body API
-    _body = property(lambda self: ''.join(self.result.body))
+    _body = property(consumeBody)
     _body = deprecation.deprecated(
         _body,
-        '`_body` has been deprecated in favor of `result`. '
+        '`_body` has been deprecated in favor of `consumeBody()`. '
         'This will go away in Zope 3.4.')
+
 
     def _implicitResult(self, body):
         encoding = getCharsetUsingRequest(self._request) or 'utf-8'

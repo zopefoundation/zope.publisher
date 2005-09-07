@@ -371,6 +371,20 @@ class IHTTPResponse(IResponse):
         """Sets the response result value that is adaptable to ``IResult``.
         """
 
+    def consumeBody():
+        """Returns the response body as a string.
+
+        Note that this function can be only requested once, since it is
+        constructed from the result.
+        """
+
+    def consumeBodyIter():
+        """Returns the response body as an iterable.
+
+        Note that this function can be only requested once, since it is
+        constructed from the result.
+        """
+
 
 class IResult(Interface):
     """HTTP result.

@@ -127,7 +127,7 @@ class XMLRPCResponse(HTTPResponse):
         '200 Ok'
         >>> resp.getHeader('content-type')
         'text/xml;charset=utf-8'
-        >>> body = ''.join(resp.result.body)
+        >>> body = ''.join(resp.consumeBody())
         >>> 'Unexpected Zope exception: AttributeError: xyz' in body
         True
         """

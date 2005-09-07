@@ -729,9 +729,6 @@ class BrowserResponse(HTTPResponse):
 
 class BBBResponse(BrowserResponse):
 
-    def testBody(self):
-        return ''.join(self.result.body)
-
     def outputBody(self):
         import warnings
         warnings.warn("Can't pass output streams to requests anymore",
@@ -744,7 +741,7 @@ class BBBResponse(BrowserResponse):
             "\r\n".join([("%s: %s" % h) for h in headers])
             + "\r\n\r\n"
             )
-        self.outstream.write(''.join(self.result.body))
+        self.outstream.write(''.join(self.getBody()))
 
 
 def isHTML(str):

@@ -70,7 +70,7 @@ class PublisherTests(unittest.TestCase):
         request = self._createRequest(path, **kw)
         response = request.response
         publish(request, handle_errors=False)
-        return response.result
+        return response._result
 
     def testImplementsIPublication(self):
         self.failUnless(IPublication.providedBy(

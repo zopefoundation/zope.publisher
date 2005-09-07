@@ -37,7 +37,7 @@ class BaseResponse(object):
     """
 
     __slots__ = (
-        'result',     # The result of the application call
+        '_result',    # The result of the application call
         '_request',   # The associated request (if any)
         )
 
@@ -56,7 +56,7 @@ class BaseResponse(object):
 
     def setResult(self, result):
         'See IPublisherResponse'
-        self.result = result
+        self._result = result
 
     def handleException(self, exc_info):
         'See IPublisherResponse'
@@ -472,7 +472,7 @@ class BBBResponse(BaseResponse):
         warnings.warn("Can't pass output streams to requests anymore",
                       DeprecationWarning,
                       2)
-        self._outstream.write(self.result)
+        self._outstream.write(self._result)
 
 class DefaultPublication(object):
     """A stub publication.

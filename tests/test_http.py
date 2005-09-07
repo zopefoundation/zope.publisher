@@ -103,7 +103,7 @@ class HTTPTests(unittest.TestCase):
             +
             "\r\n".join([("%s: %s" % h) for h in headers]) + "\r\n\r\n"
             +
-            ''.join(response.result.body)
+            ''.join(response.consumeBody())
             )
 
     def test_repr(self):
@@ -425,7 +425,7 @@ class TestHTTPResponse(unittest.TestCase):
         return response
 
     def _parseResult(self, response):
-        return dict(response.getHeaders()), ''.join(response.result.body)
+        return dict(response.getHeaders()), ''.join(response.consumeBody())
 
     def _getResultFromResponse(self, body, charset='utf-8', headers=None):
         response = self._createResponse()
