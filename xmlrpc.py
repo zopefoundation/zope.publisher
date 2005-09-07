@@ -116,24 +116,20 @@ class XMLRPCResponse(HTTPResponse):
         """Handle Errors during publsihing and wrap it in XML-RPC XML
 
         >>> import sys
-        >>> from StringIO import StringIO
-        >>> output = StringIO()
-        >>> resp = XMLRPCResponse(output)
+        >>> resp = XMLRPCResponse()
         >>> try:
         ...     raise AttributeError('xyz')
         ... except:
         ...     exc_info = sys.exc_info()
         ...     resp.handleException(exc_info)
-        ...     resp.outputBody()
-        ...     lines = output.getvalue().split('\\n')
-        ...     for line in lines:
-        ...         if 'Status:' in line or 'Content-Type:' in line:
-        ...             print line.strip()
-        ...         if '<value><string>' in line:
-        ...             print line[:61].strip()
-        Status: 200 Ok
-        Content-Type: text/xml;charset=utf-8
-        <value><string>Unexpected Zope exception: AttributeError: xyz
+
+        >>> resp.getStatusString()
+        '200 Ok'
+        >>> resp.getHeader('content-type')
+        'text/xml;charset=utf-8'
+        >>> body = ''.join(resp.result.body)
+        >>> 'Unexpected Zope exception: AttributeError: xyz' in body
+        True
         """
         t, value = exc_info[:2]
         s = '%s: %s' % (getattr(t, '__name__', t), value)
@@ -154,7 +150,7 @@ class XMLRPCResponse(HTTPResponse):
             fault_text = Fault(-3, "Unknown Zope fault type")
 
         # Do the damage.
-        self.setBody(fault_text)
+        self.setResult(fault_text)
         # XML-RPC prefers a status of 200 ("ok") even when reporting errors.
         self.setStatus(200)
 

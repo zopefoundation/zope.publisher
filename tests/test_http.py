@@ -20,7 +20,7 @@ import unittest
 
 from zope.interface import implements
 from zope.publisher.interfaces.logginginfo import ILoggingInfo
-from zope.publisher.http import HTTPRequest, HTTPResponse
+from zope.publisher.http import HTTPRequest, HTTPResponse, StrResult
 from zope.publisher.publish import publish
 from zope.publisher.base import DefaultPublication
 from zope.publisher.interfaces.http import IHTTPRequest, IHTTPResponse
@@ -71,7 +71,7 @@ class HTTPTests(unittest.TestCase):
             """Required docstring for the publisher."""
 
         class Item(object):
-            """Required docstring for the publisher."""            
+            """Required docstring for the publisher."""
             def __call__(self, a, b):
                 return "%s, %s" % (`a`, `b`)
 
@@ -444,38 +444,19 @@ class TestHTTPResponse(unittest.TestCase):
         response.setBody(body)
         return self._parseResult(response)
 
-    def testWrite(self):
-        response = self._createResponse()
-        data = 'a'*10
-        # We have to set all the headers ourself
-        response.setHeader('Content-Type', 'text/plain;charset=us-ascii')
-        response.setHeader('Content-Length', str(len(data)))
-
-        # Stream the data
-        for ch in data:
-            response.write(ch)
-
-        headers, body = self._parseResult(response)
-        # Check that the data have been written, and that the header
-        # has been preserved   
-        self.assertEqual(headers['Content-Type'], 'text/plain;charset=us-ascii')
-        self.assertEqual(headers['Content-Length'], str(len(data)))
-        self.assertEqual(body, data)
-
     def testWrite_noContentLength(self):
         response = self._createResponse()
-        data = 'a'*10
         # We have to set all the headers ourself, we choose not to provide a
         # content-length header
         response.setHeader('Content-Type', 'text/plain;charset=us-ascii')
 
-        # Stream the data
-        for ch in data:
-            response.write(ch)
+        # Output the data
+        data = 'a'*10
+        response.setResult(StrResult(data))
 
         headers, body = self._parseResult(response)
         # Check that the data have been written, and that the header
-        # has been preserved   
+        # has been preserved
         self.assertEqual(headers['Content-Type'], 'text/plain;charset=us-ascii')
         self.assertEqual(body, data)
 
@@ -529,12 +510,10 @@ class TestHTTPResponse(unittest.TestCase):
         response = self._createResponse()
         for name, value, kw in cookies:
             response.setCookie(name, value, **kw)
-        response.setBody('test')
-        headers, body = self._parseResult(response)
-        cookie_headers = headers["Set-Cookie"]
-        if type(cookie_headers) != type([]):
-            cookie_headers = [cookie_headers]
-        return cookie_headers
+        response.setResult('test')
+        return [header[1]
+                for header in response.getHeaders()
+                if header[0] == "Set-Cookie"]
 
     def testSetCookie(self):
         c = self._getCookieFromResponse([

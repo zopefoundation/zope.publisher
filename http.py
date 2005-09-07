@@ -566,7 +566,7 @@ class HTTPResponse(BaseResponse):
 
         super(HTTPResponse, self).__init__()
         self.reset()
-        
+
 
     def reset(self):
         'See IResponse'
@@ -652,7 +652,8 @@ class HTTPResponse(BaseResponse):
                 key = '-'.join([k.capitalize() for k in key.split('-')])
             result.extend([(key, val) for val in values])
 
-        result.extend([cookie.split(':', 1) for cookie in self._cookie_list()])
+        result.extend([tuple(cookie.split(': ', 1))
+                       for cookie in self._cookie_list()])
 
         return result
 
@@ -718,7 +719,7 @@ class HTTPResponse(BaseResponse):
 
     # XXX BBB
     def _body(self):
-        return ''.join(self.result.body) 
+        return ''.join(self.result.body)
     _body = property(_body)
 
     def _implicitResult(self, body):
@@ -733,7 +734,7 @@ class HTTPResponse(BaseResponse):
             except AttributeError:
                     raise ValueError(
                         'Unicode results must have a text content type.')
-                
+
 
             major, minor, params = contenttype.parse(content_type)
 

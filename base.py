@@ -203,15 +203,15 @@ class BaseRequest(object):
                           DeprecationWarning,
                           2)
             environ, response, positional = response, positional, outstream
-            
-        
+
+
         self._traversal_stack = []
         self._last_obj_traversed = None
         self._traversed_names = []
         self._environ = environ
 
         self._args = positional or ()
-        
+
         if response is None:
             self._response = self._createResponse()
         else:
@@ -444,7 +444,7 @@ class TestRequest(BaseRequest):
                               DeprecationWarning,
                               2)
                 environ, outstream = outstream, environ
-                
+
         environ['PATH_INFO'] = path
         if body_instream is None:
             body_instream = StringIO('')
