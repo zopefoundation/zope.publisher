@@ -730,7 +730,7 @@ class BrowserResponse(HTTPResponse):
 class BBBResponse(BrowserResponse):
 
     def testBody(self):
-        return self._body
+        return ''.join(self.result.body)
 
     def outputBody(self):
         import warnings

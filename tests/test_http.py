@@ -80,17 +80,15 @@ class HTTPTests(unittest.TestCase):
         self.app.folder.item = Item()
         self.app.xxx = Item()
 
-    def _createRequest(self, extra_env={}, body="", outstream=None):
+    def _createRequest(self, extra_env={}, body=""):
         env = self._testEnv.copy()
         env.update(extra_env)
         if len(body):
             env['CONTENT_LENGTH'] = str(len(body))
 
         publication = DefaultPublication(self.app)
-        if outstream is None:
-            outstream = StringIO()
         instream = StringIO(body)
-        request = HTTPRequest(instream, outstream, env)
+        request = HTTPRequest(instream, env)
         request.setPublication(publication)
         return request
 
@@ -285,13 +283,7 @@ class HTTPTests(unittest.TestCase):
         self.assertEquals(lpw, (login, password))
 
     def testSetPrincipal(self):
-        class HTTPTaskStub(object):
-            auth_user_name = None
-            def setAuthUserName(self, name):
-                self.auth_user_name = name
-
-        task = HTTPTaskStub()
-        req = self._createRequest(outstream=task)
+        req = self._createRequest()
         req.setPrincipal(UserStub("jim"))
         self.assertEquals(req.response.authUser, 'jim')
 
@@ -423,7 +415,7 @@ class ConcreteHTTPTests(HTTPTests):
 class TestHTTPResponse(unittest.TestCase):
 
     def testInterface(self):
-        rp = HTTPResponse(StringIO())
+        rp = HTTPResponse()
         verifyObject(IHTTPResponse, rp)
         verifyObject(IHTTPApplicationResponse, rp)
         verifyObject(IResponse, rp)
@@ -441,7 +433,7 @@ class TestHTTPResponse(unittest.TestCase):
         if headers is not None:
             for hdr, val in headers.iteritems():
                 response.setHeader(hdr, val)
-        response.setBody(body)
+        response.setResult(body)
         return self._parseResult(response)
 
     def testWrite_noContentLength(self):

@@ -43,10 +43,10 @@ class TestBaseRequest(BaseTestIPublicationRequest,
     def test_IApplicationRequest_body(self):
         from zope.publisher.base import BaseRequest
 
-        request = BaseRequest(StringIO('spam'), StringIO(), {})
+        request = BaseRequest(StringIO('spam'), {})
         self.assertEqual(request.body, 'spam')
 
-        request = BaseRequest(StringIO('spam'), StringIO(), {})
+        request = BaseRequest(StringIO('spam'), {})
         self.assertEqual(request.bodyFile.read(), 'spam')
 
     def test_IPublicationRequest_getPositionalArguments(self):

@@ -18,16 +18,15 @@ $Id$
 
 from unittest import TestCase, TestSuite, main, makeSuite
 from zope.publisher.browser import BrowserResponse
-from StringIO import StringIO
 from zope.interface.verify import verifyObject
 
 # TODO: Waaa need more tests
 
 class TestBrowserResponse(TestCase):
 
-    def test_contentType_DWIM_in_setBody(self):
-        response = BrowserResponse(StringIO())
-        response.setBody(
+    def test_contentType_DWIM_in_setResult(self):
+        response = BrowserResponse()
+        response.setResult(
             """<html>
             <blah>
             </html>
@@ -35,8 +34,8 @@ class TestBrowserResponse(TestCase):
         self.assert_(response.getHeader('content-type').startswith("text/html")
                      )
 
-        response = BrowserResponse(StringIO())
-        response.setBody(
+        response = BrowserResponse()
+        response.setResult(
             """<html foo="1"
             bar="x">
             <blah>
@@ -45,8 +44,8 @@ class TestBrowserResponse(TestCase):
         self.assert_(response.getHeader('content-type').startswith("text/html")
                      )
 
-        response = BrowserResponse(StringIO())
-        response.setBody(
+        response = BrowserResponse()
+        response.setResult(
             """<html foo="1"
             bar="x">
             <blah>
@@ -55,8 +54,8 @@ class TestBrowserResponse(TestCase):
         self.assert_(response.getHeader('content-type').startswith("text/html")
                      )
 
-        response = BrowserResponse(StringIO())
-        response.setBody(
+        response = BrowserResponse()
+        response.setResult(
             """<!doctype html>
             <html foo="1"
             bar="x">
@@ -66,16 +65,16 @@ class TestBrowserResponse(TestCase):
         self.assert_(response.getHeader('content-type').startswith("text/html")
                      )
 
-        response = BrowserResponse(StringIO())
-        response.setBody(
+        response = BrowserResponse()
+        response.setResult(
             """Hello world
             """)
         self.assert_(response.getHeader('content-type').startswith(
             "text/plain")
                      )
 
-        response = BrowserResponse(StringIO())
-        response.setBody(
+        response = BrowserResponse()
+        response.setResult(
             """<p>Hello world
             """)
         self.assert_(
@@ -86,7 +85,7 @@ class TestBrowserResponse(TestCase):
         from zope.publisher.interfaces.http import IHTTPResponse
         from zope.publisher.interfaces.http import IHTTPApplicationResponse
         from zope.publisher.interfaces import IResponse
-        rp = BrowserResponse(StringIO())
+        rp = BrowserResponse()
         verifyObject(IHTTPResponse, rp)
         verifyObject(IHTTPApplicationResponse, rp)
         verifyObject(IResponse, rp)
