@@ -18,7 +18,7 @@ $Id$
 import unittest
 
 from zope.publisher.publish import publish
-from zope.publisher.base import BaseRequest
+from zope.publisher.base import TestRequest
 from zope.publisher.base import DefaultPublication
 from zope.publisher.interfaces import Unauthorized, NotFound, DebugError
 from zope.publisher.interfaces import IPublication
@@ -57,22 +57,20 @@ class PublisherTests(unittest.TestCase):
         self.app._item = Item()
         self.app.noDocString = NoDocstringItem()
 
-    def _createRequest(self, path, outstream=None, **kw):
-        if outstream is None:
-            outstream = StringIO()
+    def _createRequest(self, path, **kw):
         publication = TestPublication(self.app)
         path = path.split('/')
         path.reverse()
-        request = BaseRequest(StringIO(''), outstream, kw)
+        request = TestRequest(StringIO(''), **kw)
         request.setTraversalStack(path)
         request.setPublication(publication)
         return request
 
     def _publisherResults(self, path, **kw):
-        outstream = StringIO()
-        request = self._createRequest(path, outstream=outstream, **kw)
-        publish(request, handle_errors=0)
-        return outstream.getvalue()
+        request = self._createRequest(path, **kw)
+        response = request.response
+        publish(request, handle_errors=False)
+        return response._result
 
     def testImplementsIPublication(self):
         self.failUnless(IPublication.providedBy(

@@ -81,12 +81,12 @@ class BrowserTests(HTTPTests):
         class Item(object):
             """Required docstring for the publisher."""
             def __call__(self, a, b):
-                return "%s, %s" % (`a`, `b`)
+                return u"%s, %s" % (`a`, `b`)
 
         class Item3(object):
             """Required docstring for the publisher."""
             def __call__(self, *args):
-                return "..."
+                return u"..."
 
         class View(object):
             """Required docstring for the publisher."""
@@ -95,7 +95,7 @@ class BrowserTests(HTTPTests):
 
             def index(self, a, b):
                 """Required docstring for the publisher."""
-                return "%s, %s" % (`a`, `b`)
+                return u"%s, %s" % (`a`, `b`)
 
         class Item2(object):
             """Required docstring for the publisher."""
@@ -111,17 +111,15 @@ class BrowserTests(HTTPTests):
         self.app.folder.item2 = Item2()
         self.app.folder.item3 = Item3()
 
-    def _createRequest(self, extra_env={}, body="", outstream=None):
+    def _createRequest(self, extra_env={}, body=""):
         env = self._testEnv.copy()
         env.update(extra_env)
         if len(body):
             env['CONTENT_LENGTH'] = str(len(body))
 
         publication = Publication(self.app)
-        if outstream is None:
-            outstream = StringIO()
         instream = StringIO(body)
-        request = TestBrowserRequest(instream, outstream, env)
+        request = TestBrowserRequest(instream, env)
         request.setPublication(publication)
         return request
 

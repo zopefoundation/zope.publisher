@@ -21,6 +21,7 @@ $Id$
 import traceback
 from cStringIO import StringIO
 
+from zope.deprecation import deprecation
 from zope.interface import implements, providedBy
 from zope.interface.common.mapping import IReadMapping, IEnumerableMapping
 
@@ -36,51 +37,54 @@ class BaseResponse(object):
     """
 
     __slots__ = (
-        '_body',      # The response body
-        '_outstream', # The output stream
-        '_request',    # The associated request (if any)
+        '_result',    # The result of the application call
+        '_request',   # The associated request (if any)
         )
 
     implements(IResponse)
 
+    def __init__(self, outstream=None):
+        self._request = None
+        # BBB: This is backward-compatibility support for the deprecated
+        # output stream.
+        if outstream is not None:
+            import warnings
+            warnings.warn("Can't pass output streams to requests anymore. "
+                          "This will go away in Zope 3.4.",
+                          DeprecationWarning,
+                          2)
 
-    def __init__(self, outstream):
-        self._body = ''
-        self._outstream = outstream
-
-    def outputBody(self):
+    def setResult(self, result):
         'See IPublisherResponse'
-        self._outstream.write(self._getBody())
-
-    def setBody(self, body):
-        'See IPublisherResponse'
-        self._body = body
-
-    # This method is not part of this interface
-    def _getBody(self):
-        'Returns a string representing the currently set body.'
-        return self._body
-
-    def reset(self):
-        'See IPublisherResponse'
-        self._body = ""
+        self._result = result
 
     def handleException(self, exc_info):
         'See IPublisherResponse'
+        f = StringIO()
         traceback.print_exception(
-            exc_info[0], exc_info[1], exc_info[2], 100, self)
+            exc_info[0], exc_info[1], exc_info[2], 100, f)
+        self.setResult(f.getvalue())
 
     def internalError(self):
         'See IPublisherResponse'
         pass
 
+    def reset(self):
+        'See IPublisherResponse'
+        pass
+
     def retry(self):
         'See IPublisherResponse'
-        return self.__class__(self.outstream)
+        return self.__class__()
 
-    def write(self, string):
-        'See IApplicationResponse'
-        self._body += string
+    # BBB: Backward-compatibility for old body API
+    def setBody(self, body):
+        return self.setResult(body)
+    setBody = deprecation.deprecated(
+        setBody,
+        'setBody() has been deprecated in favor of setResult(). '
+        'This will go away in Zope 3.4.')
+
 
 class RequestDataGetter(object):
 
@@ -196,18 +200,32 @@ class BaseRequest(object):
 
     environment = RequestDataProperty(RequestEnvironment)
 
-    def __init__(self, body_instream, outstream, environ, response=None,
-                 positional=()):
+    def __init__(self, body_instream, environ, response=None,
+                 positional=None, outstream=None):
+
+        # BBB: This is backward-compatibility support for the deprecated
+        # output stream.
+        if not hasattr(environ, 'get'):
+            import warnings
+            warnings.warn("Can't pass output streams to requests anymore. "
+                          "This will go away in Zope 3.4.",
+                          DeprecationWarning,
+                          2)
+            environ, response, positional = response, positional, outstream
+
+
         self._traversal_stack = []
         self._last_obj_traversed = None
         self._traversed_names = []
         self._environ = environ
 
-        self._args = positional
+        self._args = positional or ()
+
         if response is None:
-            self._response = self._createResponse(outstream)
+            self._response = self._createResponse()
         else:
             self._response = response
+
         self._response._request = self
 
         self._body_instream = body_instream
@@ -227,7 +245,6 @@ class BaseRequest(object):
         return getattr(self, '_publication', None)
 
     publication = property(_getPublication)
-
 
     def processInputs(self):
         'See IPublisherRequest'
@@ -283,9 +300,8 @@ class BaseRequest(object):
         for held in self._held:
             if IHeld.providedBy(held):
                 held.release()
-        
+
         self._held = None
-        self._response = None
         self._body_instream = None
         self._publication = None
 
@@ -381,9 +397,9 @@ class BaseRequest(object):
 
     has_key = __contains__
 
-    def _createResponse(self, outstream):
+    def _createResponse(self):
         # Should be overridden by subclasses
-        return BaseResponse(outstream)
+        return BaseResponse()
 
     def __nonzero__(self):
         # This is here to avoid calling __len__ for boolean tests
@@ -398,7 +414,7 @@ class BaseRequest(object):
         path = self.get(attr, "/").strip()
         if path.endswith('/'):
             # Remove trailing backslash, so that we will not get an empty
-            # last entry when splitting the path. 
+            # last entry when splitting the path.
             path = path[:-1]
             self._endswithslash = True
         else:
@@ -424,17 +440,39 @@ class TestRequest(BaseRequest):
 
     __slots__ = ('_presentation_type', )
 
-    def __init__(self, path, body_instream=None, outstream=None, environ=None):
+    def __init__(self, path, body_instream=None, environ=None, outstream=None):
+
+        # BBB: This is backward-compatibility support for the deprecated
+        # output stream.
         if environ is None:
             environ = {}
+        else:
+            if not hasattr(environ, 'get'):
+                import warnings
+                warnings.warn("Can't pass output streams to requests anymore. "
+                              "This will go away in Zope 3.4.",
+                              DeprecationWarning,
+                              2)
+                environ, outstream = outstream, environ
+
         environ['PATH_INFO'] = path
         if body_instream is None:
             body_instream = StringIO('')
-        if outstream is None:
-            outstream = StringIO()
 
-        super(TestRequest, self).__init__(body_instream, outstream, environ)
+        super(TestRequest, self).__init__(body_instream, environ)
+        self.response._outstream = outstream
 
+    def _createResponse(self):
+        return BBBResponse()
+
+class BBBResponse(BaseResponse):
+
+    def outputBody(self):
+        import warnings
+        warnings.warn("Can't pass output streams to requests anymore",
+                      DeprecationWarning,
+                      2)
+        self._outstream.write(self._result)
 
 class DefaultPublication(object):
     """A stub publication.

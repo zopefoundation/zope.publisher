@@ -18,16 +18,15 @@ $Id$
 
 from unittest import TestCase, TestSuite, main, makeSuite
 from zope.publisher.browser import BrowserResponse
-from StringIO import StringIO
 from zope.interface.verify import verifyObject
 
 # TODO: Waaa need more tests
 
 class TestBrowserResponse(TestCase):
 
-    def test_contentType_DWIM_in_setBody(self):
-        response = BrowserResponse(StringIO())
-        response.setBody(
+    def test_contentType_DWIM_in_setResult(self):
+        response = BrowserResponse()
+        response.setResult(
             """<html>
             <blah>
             </html>
@@ -35,8 +34,8 @@ class TestBrowserResponse(TestCase):
         self.assert_(response.getHeader('content-type').startswith("text/html")
                      )
 
-        response = BrowserResponse(StringIO())
-        response.setBody(
+        response = BrowserResponse()
+        response.setResult(
             """<html foo="1"
             bar="x">
             <blah>
@@ -45,8 +44,8 @@ class TestBrowserResponse(TestCase):
         self.assert_(response.getHeader('content-type').startswith("text/html")
                      )
 
-        response = BrowserResponse(StringIO())
-        response.setBody(
+        response = BrowserResponse()
+        response.setResult(
             """<html foo="1"
             bar="x">
             <blah>
@@ -55,8 +54,8 @@ class TestBrowserResponse(TestCase):
         self.assert_(response.getHeader('content-type').startswith("text/html")
                      )
 
-        response = BrowserResponse(StringIO())
-        response.setBody(
+        response = BrowserResponse()
+        response.setResult(
             """<!doctype html>
             <html foo="1"
             bar="x">
@@ -66,59 +65,27 @@ class TestBrowserResponse(TestCase):
         self.assert_(response.getHeader('content-type').startswith("text/html")
                      )
 
-        response = BrowserResponse(StringIO())
-        response.setBody(
+        response = BrowserResponse()
+        response.setResult(
             """Hello world
             """)
         self.assert_(response.getHeader('content-type').startswith(
             "text/plain")
                      )
 
-        response = BrowserResponse(StringIO())
-        response.setBody(
+        response = BrowserResponse()
+        response.setResult(
             """<p>Hello world
             """)
-        self.assert_(response.getHeader('content-type').startswith(
-            "text/plain")
-                     )
-
-    def test_writeDataDirectlyToResponse(self):
-        # In this test we are going to simulate the behavior of a view that
-        # writes its data directly to the output pipe, instead of going
-        # through the entire machinery. This is particularly interesting for
-        # views returning large amount of binary data. 
-        output = StringIO()
-        response = BrowserResponse(output)
-        data = 'My special data.'
-
-        # If you write the data yourself directly, then you are responsible
-        # for setting the status and any other HTTP header yourself as well.
-        response.setHeader('content-type', 'text/plain')
-        response.setHeader('content-length', str(len(data)))
-        response.setStatus(200)
-        
-        # Write the data directly to the output stream from the view
-        response.write(data)
-
-        # Then the view returns `None` and the publisher calls
-        response.setBody(None)
-
-        # Now, if we got here already everything should be fine. The `None`
-        # value for the body should have been ignored and our putput value
-        # should just be our data:
-        self.assertEqual(
-            output.getvalue(),
-            'Status: 200 Ok\r\nContent-Length: 16\r\n'
-            'Content-Type: text/plain;charset=utf-8\r\n'
-            'X-Powered-By: Zope (www.zope.org), Python (www.python.org)\r\n'
-            '\r\n'
-            'My special data.')
+        self.assert_(
+            response.getHeader('content-type').startswith("text/plain")
+            )
 
     def test_interface(self):
         from zope.publisher.interfaces.http import IHTTPResponse
         from zope.publisher.interfaces.http import IHTTPApplicationResponse
         from zope.publisher.interfaces import IResponse
-        rp = BrowserResponse(StringIO())
+        rp = BrowserResponse()
         verifyObject(IHTTPResponse, rp)
         verifyObject(IHTTPApplicationResponse, rp)
         verifyObject(IResponse, rp)

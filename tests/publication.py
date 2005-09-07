@@ -54,7 +54,7 @@ class TestPublication(object):
     def handleException(self, object, request, exc_info, retry_allowed=1):
         '''See interface IPublication'''
         try:
-            request.response.setBody("%s: %s" % (exc_info[:2]))
+            request.response.setResult("%s: %s" % (exc_info[:2]))
         finally:
             exc_info = 0
 

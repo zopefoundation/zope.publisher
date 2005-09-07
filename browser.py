@@ -211,18 +211,16 @@ class BrowserRequest(HTTPRequest):
 
     # Set this to True in a subclass to redirect GET requests when the
     # effective and actual URLs differ.
-    use_redirect = False 
+    use_redirect = False
 
-    def __init__(self, body_instream, outstream, environ, response=None):
+    def __init__(self, body_instream, environ, response=None):
         self.form = {}
         self.charsets = None
-        super(BrowserRequest, self).__init__(
-            body_instream, outstream, environ, response)
+        super(BrowserRequest, self).__init__(body_instream, environ, response)
 
 
-    def _createResponse(self, outstream):
-        # Should be overridden by subclasses
-        return BrowserResponse(outstream)
+    def _createResponse(self):
+        return BrowserResponse()
 
     def _decode(self, text):
         """Try to decode the text using one of the available charsets."""
@@ -281,7 +279,7 @@ class BrowserRequest(HTTPRequest):
         # Check whether this field is a file upload object
         # Note: A field exists for files, even if no filename was
         # passed in and no data was uploaded. Therefore we can only
-        # tell by the empty filename that no upload was made. 
+        # tell by the empty filename that no upload was made.
         key = item.name
         if (hasattr(item, 'file') and hasattr(item, 'filename')
             and hasattr(item,'headers')):
@@ -600,9 +598,8 @@ class TestRequest(BrowserRequest):
     """Browser request with a constructor convenient for testing
     """
 
-    def __init__(self,
-                 body_instream=None, outstream=None, environ=None, form=None,
-                 skin=None,
+    def __init__(self, body_instream=None, environ=None, form=None,
+                 skin=None, outstream=None,
                  **kw):
 
         _testEnv =  {
@@ -612,19 +609,28 @@ class TestRequest(BrowserRequest):
             'GATEWAY_INTERFACE':  'TestFooInterface/1.0',
             }
 
-        if environ:
+        if environ is not None:
+            # BBB: This is backward-compatibility support for the deprecated
+            # output stream.
+            try:
+                environ.get
+            except AttributeError:
+                import warnings
+                warnings.warn("Can't pass output streams to requests anymore. "
+                              "This will go away in Zope 3.4.",
+                              DeprecationWarning,
+                              2)
+                environ, form, skin, outstream = form, skin, outstream, environ
+
             _testEnv.update(environ)
+
         if kw:
             _testEnv.update(kw)
         if body_instream is None:
             from StringIO import StringIO
             body_instream = StringIO('')
 
-        if outstream is None:
-            from StringIO import StringIO
-            outstream = StringIO()
-
-        super(TestRequest, self).__init__(body_instream, outstream, _testEnv)
+        super(TestRequest, self).__init__(body_instream, _testEnv)
         if form:
             self.form.update(form)
 
@@ -642,10 +648,14 @@ class TestRequest(BrowserRequest):
         else:
             directlyProvides(self, IDefaultBrowserLayer)
 
-    def setPrincipal(self, principal):
-        # HTTPRequest needs to notify the HTTPTask of the username.
-        # We don't want to have to stub HTTPTask in the tests.
-        BaseRequest.setPrincipal(self, principal)
+        # BBB: Goes away in 3.4.
+        self.response.outstream = outstream
+
+    # BBB: Remove in 3.4. The super version will be ok.
+    def _createResponse(self):
+        return BBBResponse()
+
+
 
 class BrowserResponse(HTTPResponse):
     """Browser response
@@ -655,58 +665,19 @@ class BrowserResponse(HTTPResponse):
         '_base', # The base href
         )
 
-    def setBody(self, body):
-        """Sets the body of the response
-
-        Sets the return body equal to the (string) argument "body". Also
-        updates the "content-length" return header and sets the status to
-        200 if it has not already been set.
-        """
-        if body is None:
-            return
-
-        if not isinstance(body, StringTypes):
-            body = unicode(body)
-
-        if 'content-type' not in self._headers:
-            c = (self.__isHTML(body) and 'text/html' or 'text/plain')
-            if self._charset is not None:
-                c += ';charset=' + self._charset
-            self.setHeader('content-type', c)
+    def _implicitResult(self, body):
+        content_type = self.getHeader('content-type')
+        if content_type is None:
+            if isHTML(body):
+                content_type = 'text/html'
+            else:
+                content_type = 'text/plain'
             self.setHeader('x-content-type-warning', 'guessed from content')
-            # TODO: emit a warning once all page templates are changed to
-            # specify their content type explicitly.
+            self.setHeader('content-type', content_type)
 
+        body, headers = super(BrowserResponse, self)._implicitResult(body)
         body = self.__insertBase(body)
-        self._body = body
-        self._updateContentLength()
-        if not self._status_set:
-            self.setStatus(200)
-
-
-    def __isHTML(self, str):
-        """Try to determine whether str is HTML or not."""
-        s = str.lstrip().lower()
-        if s.startswith('<!doctype html'):
-            return True
-        if s.startswith('<html') and (s[5:6] in ' >'):
-            return True
-        if s.startswith('<!--'):
-            idx = s.find('<html')
-            return idx > 0 and (s[idx+5:idx+6] in ' >')
-        else:
-            return False
-
-
-    def __wrapInHTML(self, title, content):
-        t = escape(title)
-        return (
-            "<html><head><title>%s</title></head>\n"
-            "<body><h2>%s</h2>\n"
-            "%s\n"
-            "</body></html>\n" %
-            (t, t, content)
-            )
+        return body, headers
 
 
     def __insertBase(self, body):
@@ -755,6 +726,36 @@ class BrowserResponse(HTTPResponse):
     def reset(self):
         super(BrowserResponse, self).reset()
         self._base = ''
+
+class BBBResponse(BrowserResponse):
+
+    def outputBody(self):
+        import warnings
+        warnings.warn("Can't pass output streams to requests anymore",
+                      DeprecationWarning,
+                      2)
+        self.outstream.write("Status: %s\r\n" % self.getStatusString())
+        headers = self.getHeaders()
+        headers.sort()
+        self.outstream.write(
+            "\r\n".join([("%s: %s" % h) for h in headers])
+            + "\r\n\r\n"
+            )
+        self.outstream.write(''.join(self.getBody()))
+
+
+def isHTML(str):
+     """Try to determine whether str is HTML or not."""
+     s = str.lstrip().lower()
+     if s.startswith('<!doctype html'):
+         return True
+     if s.startswith('<html') and (s[5:6] in ' >'):
+         return True
+     if s.startswith('<!--'):
+         idx = s.find('<html')
+         return idx > 0 and (s[idx+5:idx+6] in ' >')
+     else:
+         return False
 
 def normalize_lang(lang):
     lang = lang.strip().lower()

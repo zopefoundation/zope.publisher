@@ -138,7 +138,7 @@ def publish(request, handle_errors=True):
                             result = publication.callObject(request, object)
                             response = request.response
                             if result is not response:
-                                response.setBody(result)
+                                response.setResult(result)
 
                             publication.afterCall(request, object)
 
@@ -180,10 +180,13 @@ def publish(request, handle_errors=True):
                     raise
 
         response = request.response
-        response.outputBody()
         if to_raise is not None:
             raise to_raise[0], to_raise[1], to_raise[2]
 
     finally:
         to_raise = None  # Avoid circ. ref.
         request.close()  # Close database connections, etc.
+
+    # Return the request, since it might be a different object than the one
+    # that was passed in.
+    return request

@@ -31,16 +31,13 @@ _testEnv =  {
 
 class TestRequest(HTTPRequest):
 
-    def __init__(self, body_instream=None, outstream=None, environ=None, **kw):
+    def __init__(self, body_instream=None, environ=None, **kw):
         if body_instream is None:
             body_instream = StringIO('')
-        if outstream is None:
-            outstream = StringIO()
-
 
         env = {}
         env.update(_testEnv)
         if environ: env.update(environ)
         env.update(kw)
 
-        super(TestRequest, self).__init__(body_instream, outstream, env)
+        super(TestRequest, self).__init__(body_instream, env)

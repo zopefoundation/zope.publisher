@@ -26,7 +26,7 @@ from StringIO import StringIO
 class TestBaseResponse(TestCase):
 
     def test_interface(self):
-        verifyObject(IResponse, BaseResponse(StringIO()))
+        verifyObject(IResponse, BaseResponse())
 
 
 def test_suite():

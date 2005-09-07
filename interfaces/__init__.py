@@ -171,7 +171,7 @@ class IPublishTraverse(Interface):
 
         This method should return an object having the specified name and
         `self` as parent. The method can use the request to determine the
-        correct object. 
+        correct object.
         """
 
 
@@ -183,16 +183,11 @@ class IPublisher(Interface):
         The request must be an IPublisherRequest.
         """
 
-class IPublisherResponse(Interface):
-    """Interface used by the publsher
-    """
+class IResponse(Interface):
+    """Interface used by the publsher"""
 
-    def setBody(result):
+    def setResult(result):
         """Sets the response result value.
-        """
-
-    def reset():
-        """Resets response state on exceptions.
         """
 
     def handleException(exc_info):
@@ -209,8 +204,10 @@ class IPublisherResponse(Interface):
         Should report back to the client that an internal error occurred.
         """
 
-    def outputBody():
-        """Outputs the response to the client
+    def reset():
+        """Reset the output result.
+
+        Reset the response by nullifying already set variables.
         """
 
     def retry():
@@ -247,7 +244,6 @@ class IPublication(Interface):
 
         This is called before traversing each object.  The ob argument
         is the object that is about to be traversed.
-        
         """
 
     def traverseName(request, ob, name):
@@ -289,15 +285,6 @@ class IPublication(Interface):
         """
 
 
-class IApplicationResponse(Interface):
-    """Features that support application logic
-    """
-
-    def write(string):
-        """Output a string to the response body.
-        """
-
-
 class IPublicationRequest(IPresentationRequest, IParticipation):
     """Interface provided by requests to IPublication objects
     """
@@ -316,7 +303,6 @@ class IPublicationRequest(IPresentationRequest, IParticipation):
 
         The object should be an IHeld.  If it is an IHeld, it's
         release method will be called when it is released.
-        
         """
 
     def getTraversalStack():
@@ -449,23 +435,20 @@ class IApplicationRequest(IEnumerableMapping):
         virtue of including the dotted name of a package as a prefex.  A
         package name is used to limit the authority for picking names for
         a package to the people using that package.
-    
+
         For example, when implementing annotations for hypothetical
         request-persistent adapters in a hypothetical zope.persistentadapter
         package, the key would be (or at least begin with) the following::
-    
+
           "zope.persistentadapter"
         """)
-
-class IResponse(IPublisherResponse, IApplicationResponse):
-    """The basic response contract
-    """
 
 
 class IRequest(IPublisherRequest, IPublicationRequest, IApplicationRequest):
     """The basic request contract
     """
-    
+
+
 class ILayer(IInterface):
     """A grouping of related views for a request."""
 

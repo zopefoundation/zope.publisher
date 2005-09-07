@@ -20,7 +20,7 @@ import unittest
 
 from zope.interface import implements
 from zope.publisher.interfaces.logginginfo import ILoggingInfo
-from zope.publisher.http import HTTPRequest, HTTPResponse
+from zope.publisher.http import HTTPRequest, HTTPResponse, StrResult
 from zope.publisher.publish import publish
 from zope.publisher.base import DefaultPublication
 from zope.publisher.interfaces.http import IHTTPRequest, IHTTPResponse
@@ -32,7 +32,7 @@ from zope.i18n.interfaces.locales import ILocale
 from zope.interface.verify import verifyObject
 
 from StringIO import StringIO
-from Cookie import SimpleCookie, CookieError
+from Cookie import CookieError
 
 
 class UserStub(object):
@@ -71,7 +71,7 @@ class HTTPTests(unittest.TestCase):
             """Required docstring for the publisher."""
 
         class Item(object):
-            """Required docstring for the publisher."""            
+            """Required docstring for the publisher."""
             def __call__(self, a, b):
                 return "%s, %s" % (`a`, `b`)
 
@@ -80,26 +80,31 @@ class HTTPTests(unittest.TestCase):
         self.app.folder.item = Item()
         self.app.xxx = Item()
 
-    def _createRequest(self, extra_env={}, body="", outstream=None):
+    def _createRequest(self, extra_env={}, body=""):
         env = self._testEnv.copy()
         env.update(extra_env)
         if len(body):
             env['CONTENT_LENGTH'] = str(len(body))
 
         publication = DefaultPublication(self.app)
-        if outstream is None:
-            outstream = StringIO()
         instream = StringIO(body)
-        request = HTTPRequest(instream, outstream, env)
+        request = HTTPRequest(instream, env)
         request.setPublication(publication)
         return request
 
     def _publisherResults(self, extra_env={}, body=""):
-        outstream = StringIO()
-        request = self._createRequest(extra_env, body, outstream=outstream)
-        publish(request, handle_errors=0)
-        return outstream.getvalue()
-
+        request = self._createRequest(extra_env, body)
+        response = request.response
+        publish(request, handle_errors=False)
+        headers = response.getHeaders()
+        headers.sort()
+        return (
+            "Status: %s\r\n" % response.getStatusString()
+            +
+            "\r\n".join([("%s: %s" % h) for h in headers]) + "\r\n\r\n"
+            +
+            ''.join(response.consumeBody())
+            )
 
     def test_repr(self):
         request = self._createRequest()
@@ -125,7 +130,7 @@ class HTTPTests(unittest.TestCase):
         location = request.response.redirect('http://foobar.com/redirected')
         self.assertEquals(location, 'http://foobar.com/redirected')
         self.assertEquals(request.response.getStatus(), 302)
-        self.assertEquals(request.response._headers['location'], location)
+        self.assertEquals(request.response.getHeader('location'), location)
 
         # test HTTP/1.1
         env = {'SERVER_PROTOCOL':'HTTP/1.1'}
@@ -278,19 +283,9 @@ class HTTPTests(unittest.TestCase):
         self.assertEquals(lpw, (login, password))
 
     def testSetPrincipal(self):
-        class HTTPTaskStub(object):
-            auth_user_name = None
-            def setAuthUserName(self, name):
-                self.auth_user_name = name
-
-        task = HTTPTaskStub()
-        req = self._createRequest(outstream=task)
+        req = self._createRequest()
         req.setPrincipal(UserStub("jim"))
-        self.assert_(not req.response._outstream.auth_user_name)
-        req = self._createRequest(outstream=task)
-        req.response.setHTTPTransaction(task)
-        req.setPrincipal(UserStub("jim"))
-        self.assertEquals(req.response.http_transaction.auth_user_name, "jim")
+        self.assertEquals(req.response.authUser, 'jim')
 
     def test_method(self):
         r = self._createRequest(extra_env={'REQUEST_METHOD':'SPAM'})
@@ -420,75 +415,40 @@ class ConcreteHTTPTests(HTTPTests):
 class TestHTTPResponse(unittest.TestCase):
 
     def testInterface(self):
-        rp = HTTPResponse(StringIO())
+        rp = HTTPResponse()
         verifyObject(IHTTPResponse, rp)
         verifyObject(IHTTPApplicationResponse, rp)
         verifyObject(IResponse, rp)
 
     def _createResponse(self):
-        stream = StringIO()
-        response = HTTPResponse(stream)
-        return response, stream
+        response = HTTPResponse()
+        return response
 
-    def _parseResult(self, result):
-        hdrs_text, body = result.split("\r\n\r\n", 1)
-        headers = {}
-        for line in hdrs_text.splitlines():
-            key, val = line.split(":", 1)
-            key = key.strip()
-            val = val.strip()
-            if headers.has_key(key):
-                if type(headers[key]) == type([]):
-                    headers[key].append(val)
-                else:
-                    headers[key] = [headers[key], val]
-            else:
-                headers[key] = val
-        return headers, body
+    def _parseResult(self, response):
+        return dict(response.getHeaders()), ''.join(response.consumeBody())
 
-    def _getResultFromResponse(self, body, charset=None, headers=None):
-        response, stream = self._createResponse()
-        if charset is not None:
-            response.setCharset(charset)
+    def _getResultFromResponse(self, body, charset='utf-8', headers=None):
+        response = self._createResponse()
+        assert(charset == 'utf-8')
         if headers is not None:
             for hdr, val in headers.iteritems():
                 response.setHeader(hdr, val)
-        response.setBody(body)
-        response.outputBody()
-        return self._parseResult(stream.getvalue())
-
-    def testWrite(self):
-        response, stream = self._createResponse()
-        data = 'a'*10
-        # We have to set all the headers ourself
-        response.setHeader('Content-Type', 'text/plain;charset=us-ascii')
-        response.setHeader('Content-Length', str(len(data)))
-
-        # Stream the data
-        for ch in data:
-            response.write(ch)
-
-        headers, body = self._parseResult(stream.getvalue())
-        # Check that the data have been written, and that the header
-        # has been preserved   
-        self.assertEqual(headers['Content-Type'], 'text/plain;charset=us-ascii')
-        self.assertEqual(headers['Content-Length'], str(len(data)))
-        self.assertEqual(body, data)
+        response.setResult(body)
+        return self._parseResult(response)
 
     def testWrite_noContentLength(self):
-        response, stream = self._createResponse()
-        data = 'a'*10
+        response = self._createResponse()
         # We have to set all the headers ourself, we choose not to provide a
         # content-length header
         response.setHeader('Content-Type', 'text/plain;charset=us-ascii')
 
-        # Stream the data
-        for ch in data:
-            response.write(ch)
+        # Output the data
+        data = 'a'*10
+        response.setResult(StrResult(data))
 
-        headers, body = self._parseResult(stream.getvalue())
+        headers, body = self._parseResult(response)
         # Check that the data have been written, and that the header
-        # has been preserved   
+        # has been preserved
         self.assertEqual(headers['Content-Type'], 'text/plain;charset=us-ascii')
         self.assertEqual(body, data)
 
@@ -516,17 +476,17 @@ class TestHTTPResponse(unittest.TestCase):
         eq("", headers.get("Content-Type", ""))
         eq("test", body)
 
-        headers, body = self._getResultFromResponse("test",
+        headers, body = self._getResultFromResponse(u"test",
             headers={"content-type": "text/plain"})
         eq("text/plain;charset=utf-8", headers["Content-Type"])
         eq("test", body)
 
-        headers, body = self._getResultFromResponse("test", "utf-8",
+        headers, body = self._getResultFromResponse(u"test", "utf-8",
             {"content-type": "text/html"})
         eq("text/html;charset=utf-8", headers["Content-Type"])
         eq("test", body)
 
-        headers, body = self._getResultFromResponse("test", "utf-8",
+        headers, body = self._getResultFromResponse(u"test", "utf-8",
             {"content-type": "text/plain;charset=cp1251"})
         eq("text/plain;charset=cp1251", headers["Content-Type"])
         eq("test", body)
@@ -539,23 +499,19 @@ class TestHTTPResponse(unittest.TestCase):
     def _getCookieFromResponse(self, cookies):
         # Shove the cookies through request, parse the Set-Cookie header
         # and spit out a list of headers for examination
-        response, stream = self._createResponse()
+        response = self._createResponse()
         for name, value, kw in cookies:
             response.setCookie(name, value, **kw)
-        response.setBody('test')
-        response.outputBody()
-        headers, body = self._parseResult(stream.getvalue())
-        c = SimpleCookie()
-        cookie_headers = headers["Set-Cookie"]
-        if type(cookie_headers) != type([]):
-            cookie_headers = [cookie_headers]
-        return cookie_headers
+        response.setResult('test')
+        return [header[1]
+                for header in response.getHeaders()
+                if header[0] == "Set-Cookie"]
 
     def testSetCookie(self):
         c = self._getCookieFromResponse([
                 ('foo', 'bar', {}),
                 ])
-        self.failUnless('foo=bar;' in c, 'foo=bar not in %r' % c)
+        self.failUnless('foo=bar;' in c, 'foo=bar; not in %r' % c)
 
         c = self._getCookieFromResponse([
                 ('foo', 'bar', {}),

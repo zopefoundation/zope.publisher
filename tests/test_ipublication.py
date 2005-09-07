@@ -48,7 +48,7 @@ class Test(BaseIPublicationTest, TestCase):
 
     def _Test__request(self):
         from zope.publisher.base import BaseRequest
-        request = BaseRequest(StringIO(''), StringIO(), {})
+        request = BaseRequest(StringIO(''), {})
         request.setTraversalStack(['Engineering', 'ZopeCorp'])
         publication = self._Test__new()
         request.setPublication(publication)

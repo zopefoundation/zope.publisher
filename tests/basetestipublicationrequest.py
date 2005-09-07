@@ -24,7 +24,7 @@ from zope.publisher.interfaces.browser import ISkin
 
 class Held:
     implements(IHeld)
-    
+
     released = False
 
     def release(self):
@@ -67,7 +67,8 @@ class BaseTestIPublicationRequest(object):
         request.close()
 
         self.failUnless(resource2.released)
-        self.failUnless(sys.getrefcount(response) < rcresponse)
+        # Responses are not unreferenced during close()
+        self.failUnless(sys.getrefcount(response) >= rcresponse)
         self.assertEqual(sys.getrefcount(resource), rcresource)
         self.assertEqual(sys.getrefcount(resource2), rcresource2)
 

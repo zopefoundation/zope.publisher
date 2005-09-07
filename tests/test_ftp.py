@@ -24,20 +24,16 @@ class Test(TestCase):
 
     def setUp(self):
         self.__input = StringIO('')
-        self.__output = StringIO()
         env = {'credentials': ('bob', '123'),
                'path': '/a/b/c',
                'command': 'foo',
                }
-        self.__request = zope.publisher.ftp.FTPRequest(
-            self.__input, self.__output, env)
+        self.__request = zope.publisher.ftp.FTPRequest(self.__input, env)
 
     def test_response(self):
         response = self.__request.response
-        response.setBody(123.456)
-        response.outputBody()
+        response.setResult(123.456)
         self.assertEqual(response.getResult(), 123.456)
-        self.failIf(self.__output.getvalue())
 
         try:
             raise ValueError('spam')

@@ -21,6 +21,7 @@ from types import StringTypes, ClassType
 from cgi import escape
 from Cookie import SimpleCookie
 
+from zope.deprecation import deprecation
 from zope.interface import implements
 
 from zope.publisher import contenttype
@@ -30,13 +31,14 @@ from zope.publisher.interfaces.http import IHTTPApplicationRequest
 from zope.publisher.interfaces.http import IHTTPPublisher
 
 from zope.publisher.interfaces import Redirect
-from zope.publisher.interfaces.http import IHTTPResponse
+from zope.publisher.interfaces.http import IHTTPResponse, IResult
 from zope.publisher.interfaces.http import IHTTPApplicationResponse
 from zope.publisher.interfaces.logginginfo import ILoggingInfo
 from zope.i18n.interfaces import IUserPreferredCharsets
 from zope.i18n.interfaces import IUserPreferredLanguages
 from zope.i18n.locales import locales, LoadLocaleError
 
+from zope.publisher import contenttype
 from zope.publisher.base import BaseRequest, BaseResponse
 from zope.publisher.base import RequestDataProperty, RequestDataMapper
 from zope.publisher.base import RequestDataGetter
@@ -234,9 +236,20 @@ class HTTPRequest(BaseRequest):
 
     retry_max_count = 3    # How many times we're willing to retry
 
-    def __init__(self, body_instream, outstream, environ, response=None):
-        super(HTTPRequest, self).__init__(
-            body_instream, outstream, environ, response)
+    def __init__(self, body_instream, environ, response=None, outstream=None):
+        # BBB: This is backward-compatibility support for the deprecated
+        # output stream.
+        try:
+            environ.get
+        except AttributeError:
+            import warnings
+            warnings.warn("Can't pass output streams to requests anymore. "
+                          "This will go away in Zope 3.4.",
+                          DeprecationWarning,
+                          2)
+            environ, response = response, outstream
+
+        super(HTTPRequest, self).__init__(body_instream, environ, response)
 
         self._orig_env = environ
         environ = sane_environment(environ)
@@ -258,7 +271,6 @@ class HTTPRequest(BaseRequest):
         self.__setupLocale()
 
     def __setupLocale(self):
-        self.response.setCharsetUsingRequest(self)
         envadapter = IUserPreferredLanguages(self, None)
         if envadapter is None:
             self._locale = None
@@ -372,7 +384,6 @@ class HTTPRequest(BaseRequest):
         new_response = self.response.retry()
         request = self.__class__(
             body_instream=self._body_instream,
-            outstream=None,
             environ=self._orig_env,
             response=new_response,
             )
@@ -435,15 +446,16 @@ class HTTPRequest(BaseRequest):
     def setPrincipal(self, principal):
         'See IPublicationRequest'
         super(HTTPRequest, self).setPrincipal(principal)
-
-        if self.response.http_transaction is not None:
-            logging_info = ILoggingInfo(principal)
+        logging_info = ILoggingInfo(principal, None)
+        if logging_info is None:
+            message = '-'
+        else:
             message = logging_info.getLogMessage()
-            self.response.http_transaction.setAuthUserName(message)
+        self.response.authUser = message
 
-    def _createResponse(self, outstream):
+    def _createResponse(self):
         # Should be overridden by subclasses
-        return HTTPResponse(outstream)
+        return HTTPResponse()
 
 
     def getURL(self, level=0, path_only=False):
@@ -540,44 +552,56 @@ class HTTPResponse(BaseResponse):
     implements(IHTTPResponse, IHTTPApplicationResponse)
 
     __slots__ = (
+        'authUser',             # Authenticated user string
+        # BBB: Remove for Zope 3.4.
         '_header_output',       # Hook object to collaborate with a server
                                 # for header generation.
         '_headers',
         '_cookies',
-        '_accumulated_headers', # Headers that can have multiples
-        '_wrote_headers',
         '_status',              # The response status (usually an integer)
         '_reason',              # The reason that goes with the status
         '_status_set',          # Boolean: status explicitly set
         '_charset',             # String: character set for the output
-        'http_transaction',     # HTTPTask object
         )
 
 
-    def __init__(self, outstream, header_output=None, http_transaction=None):
-        self._header_output = header_output
-        self.http_transaction = http_transaction
+    def __init__(self, header_output=None, http_transaction=None):
+        # BBB: Both, header_output and http_transaction have been deprecated.
+        if header_output is not None:
+            import warnings
+            warnings.warn(
+                "The header output API is completely deprecated. It's "
+                "intentions were not clear and it duplicated APIs in the "
+                "response, which you should use instead. "
+                "This will go away in Zope 3.4.",
+                DeprecationWarning, 2)
 
-        super(HTTPResponse, self).__init__(outstream)
+        if http_transaction is not None:
+            import warnings
+            warnings.warn(
+                "Storing the HTTP transaction here was a *huge* hack to "
+                "support transporting the authenticated user string "
+                "to the server. You should never rely on this variable "
+                "anyways. "
+                "This will go away in Zope 3.4.",
+                DeprecationWarning, 2)
+
+        self._header_output = header_output
+
+        super(HTTPResponse, self).__init__()
         self.reset()
+
 
     def reset(self):
         'See IResponse'
         super(HTTPResponse, self).reset()
         self._headers = {}
         self._cookies = {}
-        self._accumulated_headers = []
-        self._wrote_headers = False
         self._status = 599
         self._reason = 'No status set'
         self._status_set = False
         self._charset = None
-
-    def setHeaderOutput(self, header_output):
-        self._header_output = header_output
-
-    def setHTTPTransaction(self, http_transaction):
-        self.http_transaction = http_transaction
+        self.authUser = '-'
 
     def setStatus(self, status, reason=None):
         'See IHTTPResponse'
@@ -607,65 +631,55 @@ class HTTPResponse(BaseResponse):
         'See IHTTPResponse'
         return self._status
 
+    def getStatusString(self):
+        'See IHTTPResponse'
+        return '%i %s' % (self._status, self._reason)
 
     def setHeader(self, name, value, literal=False):
         'See IHTTPResponse'
-
         name = str(name)
         value = str(value)
 
-        key = name.lower()
-        if key == 'set-cookie':
-            self.addHeader(name, value)
-        else:
-            name = literal and name or key
-            self._headers[name]=value
+        if not literal:
+            name = name.lower()
+
+        self._headers[name] = [value]
 
 
     def addHeader(self, name, value):
         'See IHTTPResponse'
-        accum = self._accumulated_headers
-        accum.append('%s: %s' % (name, value))
+        values = self._headers.setdefault(name, [])
+        values.append(value)
 
 
     def getHeader(self, name, default=None, literal=False):
         'See IHTTPResponse'
         key = name.lower()
         name = literal and name or key
-        return self._headers.get(name, default)
+        result = self._headers.get(name)
+        if result:
+            return result[0]
+        return default
+
 
     def getHeaders(self):
         'See IHTTPResponse'
-        result = {}
+        result = []
         headers = self._headers
 
-        result["X-Powered-By"] = "Zope (www.zope.org), Python (www.python.org)"
+        result.append(
+            ("X-Powered-By", "Zope (www.zope.org), Python (www.python.org)"))
 
-        for key, val in headers.items():
+        for key, values in headers.items():
             if key.lower() == key:
                 # only change non-literal header names
-                key = key.capitalize()
-                start = 0
-                location = key.find('-', start)
-                while location >= start:
-                    key = "%s-%s" % (key[:location],
-                                     key[location+1:].capitalize())
-                    start = location + 1
-                    location = key.find('-', start)
-            result[key] = val
+                key = '-'.join([k.capitalize() for k in key.split('-')])
+            result.extend([(key, val) for val in values])
+
+        result.extend([tuple(cookie.split(': ', 1))
+                       for cookie in self._cookie_list()])
 
         return result
-
-
-    def appendToHeader(self, name, value, delimiter=','):
-        'See IHTTPResponse'
-        headers = self._headers
-        if name in headers:
-            h = self._header[name]
-            h = "%s%s\r\n\t%s" % (h, delimiter, value)
-        else:
-            h = value
-        self.setHeader(name, h)
 
 
     def appendToCookie(self, name, value):
@@ -711,41 +725,72 @@ class HTTPResponse(BaseResponse):
         return self._cookies.get(name, default)
 
 
-    def setCharset(self, charset=None):
-        'See IHTTPResponse'
-        self._charset = charset
-
-    def _updateContentType(self):
-        if self._charset:
-            ctype = self.getHeader('content-type', '')
-            if ctype.lower().startswith('text'):
-                ctinfo = contenttype.parseOrdered(ctype)
-                for param, value in ctinfo[2]:
-                    if param == "charset":
-                        break
-                else:
-                    ctinfo[2].append(("charset", self._charset))
-                    self.setHeader('content-type', contenttype.join(ctinfo))
-
-    def setCharsetUsingRequest(self, request):
-        'See IHTTPResponse'
-        envadapter = IUserPreferredCharsets(request, None)
-        if envadapter is None:
-            return
-
-        try:
-            charset = envadapter.getPreferredCharsets()[0]
-        except IndexError:
-            # Exception caused by empty list! This is okay though, since the
-            # browser just could have sent a '*', which means we can choose
-            # the encoding, which we do here now.
-            charset = 'utf-8'
-        self.setCharset(charset)
-
-    def setBody(self, body):
-        self._body = unicode(body)
+    def setResult(self, result):
+        r = IResult(result, None)
+        if r is None:
+            if isinstance(result, basestring):
+                body, headers = self._implicitResult(result)
+                r = DirectResult((body,), headers)
+            elif result is None:
+                body, headers = self._implicitResult('')
+                r = DirectResult((body,), headers)
+            else:
+                raise TypeError('The result should be adaptable to IResult.')
+        self._result = r
+        self._headers.update(dict([(k, [v]) for (k, v) in r.headers]))
         if not self._status_set:
             self.setStatus(200)
+
+
+    def consumeBody(self):
+        'See IHTTPResponse'
+        return ''.join(self._result.body)
+
+
+    def consumeBodyIter(self):
+        'See IHTTPResponse'
+        return self._result.body
+
+
+    # BBB: Backward-compatibility for old body API
+    _body = property(consumeBody)
+    _body = deprecation.deprecated(
+        _body,
+        '`_body` has been deprecated in favor of `consumeBody()`. '
+        'This will go away in Zope 3.4.')
+
+
+    def _implicitResult(self, body):
+        encoding = getCharsetUsingRequest(self._request) or 'utf-8'
+        content_type = self.getHeader('content-type')
+
+        if isinstance(body, unicode):
+            try:
+                if not content_type.startswith('text/'):
+                    raise ValueError(
+                        'Unicode results must have a text content type.')
+            except AttributeError:
+                    raise ValueError(
+                        'Unicode results must have a text content type.')
+
+
+            major, minor, params = contenttype.parse(content_type)
+
+            if 'charset' in params:
+                encoding = params['charset']
+            else:
+                content_type += ';charset=%s' %encoding
+
+            body = body.encode(encoding)
+
+        if content_type:
+            headers = [('content-type', content_type),
+                       ('content-length', str(len(body)))]
+        else:
+            headers = [('content-length', str(len(body)))]
+
+        return body, headers
+
 
     def handleException(self, exc_info):
         """
@@ -753,10 +798,10 @@ class HTTPResponse(BaseResponse):
         """
         t, v = exc_info[:2]
         if isinstance(t, ClassType):
-            title = tname = t.__name__
             if issubclass(t, Redirect):
                 self.redirect(v.getLocation())
                 return
+            title = tname = t.__name__
         else:
             title = tname = unicode(t)
 
@@ -765,7 +810,7 @@ class HTTPResponse(BaseResponse):
         self.setStatus(tname)
 
         body = self._html(title, "A server error occurred." )
-        self.setBody(body)
+        self.setResult(body)
 
 
     def internalError(self):
@@ -788,17 +833,8 @@ class HTTPResponse(BaseResponse):
         """
         Returns a response object to be used in a retry attempt
         """
-        return self.__class__(self._outstream,
-                              self._header_output)
+        return self.__class__()
 
-    def _updateContentLength(self, data=None):
-        if data is None:
-            blen = str(len(self._body))
-        else:
-            blen = str(len(data))
-        if blen.endswith('L'):
-            blen = blen[:-1]
-        self.setHeader('content-length', blen)
 
     def redirect(self, location, status=None):
         """Causes a redirection without raising an error"""
@@ -809,9 +845,10 @@ class HTTPResponse(BaseResponse):
                 status=302
             else:
                 status=303
-                
+
         self.setStatus(status)
         self.setHeader('Location', location)
+        self.setResult(DirectResult(()))
         return location
 
     def _cookie_list(self):
@@ -833,113 +870,6 @@ class HTTPResponse(BaseResponse):
                     v = quote(v.encode('utf-8'), safe="/?:@&+")
                 c[name][k] = str(v)
         return str(c).splitlines()
-
-    def getHeaderText(self, m):
-        lst = ['Status: %s %s' % (self._status, self._reason)]
-        items = m.items()
-        items.sort()
-        lst.extend(['%s: %s' % i for i in items])
-        lst.extend(self._cookie_list())
-        lst.extend(self._accumulated_headers)
-        return ('%s\r\n\r\n' % '\r\n'.join(lst))
-
-
-    def outputHeaders(self):
-        """This method outputs all headers.
-        Since it is a final output method, it must take care of all possible
-        unicode strings and encode them! 
-        """
-        if self._charset is None:
-            self.setCharset('utf-8')
-        self._updateContentType()
-        encode = self._encode
-        headers = self.getHeaders()
-        # Clean these headers from unicode by possibly encoding them
-        headers = dict([(encode(key), encode(val))
-                        for key, val in headers.iteritems()])
-        # Cleaning done.
-        header_output = self._header_output
-        if header_output is not None:
-            # Use the IHeaderOutput interface.
-            header_output.setResponseStatus(self._status, encode(self._reason))
-            header_output.setResponseHeaders(headers)
-            cookie_list = map(encode, self._cookie_list())
-            header_output.appendResponseHeaders(cookie_list)
-            accumulated_headers = map(encode, self._accumulated_headers)
-            header_output.appendResponseHeaders(accumulated_headers)
-        else:
-            # Write directly to outstream.
-            headers_text = self.getHeaderText(headers)
-            self._outstream.write(encode(headers_text))
-
-    def write(self, string):
-        """See IApplicationResponse
-
-        Return data as a stream
-
-        HTML data may be returned using a stream-oriented interface.
-        This allows the browser to display partial results while
-        computation of a response to proceed.
-
-        The published object should first set any output headers or
-        cookies on the response object and encode the string into
-        appropriate encoding.
-
-        Note that published objects must not generate any errors
-        after beginning stream-oriented output.
-
-        """
-        if not self._wrote_headers:
-            self.outputHeaders()
-            self._wrote_headers = True
-
-        self._outstream.write(string)
-
-    def output(self, data):
-        """Output the data to the world.
-        
-        There are a couple of steps we have to do:
-
-        1. Check that there is a character encoding for the data. If not,
-           choose UTF-8. Note that if the charset is None, this is a sign of a
-           bug! The method setCharsetUsingRequest() specifically sets the
-           encoding to UTF-8, if none was found in the HTTP header. This
-           method should always be called when reading the HTTP request.
-
-        2. Now that the encoding has been finalized, we can output the
-           headers.
-
-        3. If the content type is text-based, let's encode the data and send
-           it also out the door.
-
-        4. Make sure that a Content-Length or Transfer-Encoding header is
-           present.
-        """
-        if self._charset is None:
-            self.setCharset('utf-8')
-
-        if self.getHeader('content-type', '').startswith('text'):
-            data = self._encode(data)
-            self._updateContentLength(data)
-        
-        if (not ('content-length' in self._headers)
-            and not ('transfer-encoding' in self._headers)):
-            self._updateContentLength()
-
-        self.write(data)
-
-
-    def outputBody(self):
-        """Outputs the response body."""
-        self.output(self._body)
-
-
-    def _encode(self, text):
-        # Any method that calls this method has the responsibility to set
-        # the _charset variable (if None) to a non-None value (usually UTF-8)
-        if isinstance(text, unicode):
-            return text.encode(self._charset)
-        return text
 
 
 def sort_charsets(x, y):
@@ -998,3 +928,42 @@ class HTTPCharsets(object):
         # always good to use UTF-8.
         charsets.sort(sort_charsets)
         return [c[1] for c in charsets]
+
+
+def getCharsetUsingRequest(request):
+    'See IHTTPResponse'
+    envadapter = IUserPreferredCharsets(request, None)
+    if envadapter is None:
+        return
+
+    try:
+        charset = envadapter.getPreferredCharsets()[0]
+    except IndexError:
+        # Exception caused by empty list! This is okay though, since the
+        # browser just could have sent a '*', which means we can choose
+        # the encoding, which we do here now.
+        charset = 'utf-8'
+    return charset
+
+
+class DirectResult(object):
+    """A generic result object.
+
+    The result's body can be any iteratable. It is the responsibility of the
+    application to specify all headers related to the content, such as the
+    content type and length.
+    """
+    implements(IResult)
+
+    def __init__(self, body, headers=()):
+        self.body = body
+        self.headers = headers
+
+
+def StrResult(body, headers=()):
+    """A simple string result that represents any type of data.
+
+    It is the responsibility of the application to specify all the headers,
+    including content type and length.
+    """
+    return DirectResult((body,), headers)

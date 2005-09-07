@@ -19,7 +19,6 @@ from zope.interface import Interface
 from zope.interface import Attribute
 
 from zope.publisher.interfaces import IApplicationRequest
-from zope.publisher.interfaces import IApplicationResponse
 from zope.publisher.interfaces import IPublishTraverse
 from zope.publisher.interfaces import IRequest
 from zope.publisher.interfaces import IResponse
@@ -36,7 +35,7 @@ class IVirtualHostRequest(Interface):
     def setVirtualHostRoot(names):
         """Marks the currently traversed object as the root of a virtual host.
 
-        Any path elements traversed up to that 
+        Any path elements traversed up to that
 
         Set the names which compose the application path.
         These are the path elements that appear in the beginning of
@@ -47,7 +46,7 @@ class IVirtualHostRequest(Interface):
 
     def getVirtualHostRoot():
         """Returns the object which is the virtual host root for this request
-        
+
         Return None if setVirtualHostRoot hasn't been called.
         """
 
@@ -217,7 +216,7 @@ class IHTTPCredentials(Interface):
         The challenge is the value of the WWW-Authenticate header."""
 
 
-class IHTTPApplicationResponse(IApplicationResponse):
+class IHTTPApplicationResponse(Interface):
     """HTTP Response
     """
 
@@ -282,6 +281,8 @@ class IHTTPResponse(IResponse):
     passed into the object must be used.
     """
 
+    authUser = Attribute('The authenticated user message.')
+
     def getStatus():
         """Returns the current HTTP status code as an integer.
         """
@@ -296,6 +297,9 @@ class IHTTPResponse(IResponse):
         BadGateway, ServiceUnavailable } that will be converted to the
         correct integer value.
         """
+
+    def getStatusString():
+        """Return the status followed by the reason."""
 
     def setHeader(name, value, literal=False):
         """Sets an HTTP return header "name" with value "value"
@@ -322,7 +326,7 @@ class IHTTPResponse(IResponse):
         """
 
     def getHeaders():
-        """Returns a mapping of correctly-cased header names to values.
+        """Returns a list of header name, value tuples.
         """
 
     def appendToCookie(name, value):
@@ -363,29 +367,40 @@ class IHTTPResponse(IResponse):
         yet.
         """
 
-    def appendToHeader(name, value, delimiter=","):
-        """Appends a value to a header
-
-        Sets an HTTP return header "name" with value "value",
-        appending it following a comma if there was a previous value
-        set for the header.
+    def setResult(result):
+        """Sets the response result value that is adaptable to ``IResult``.
         """
 
-    def setCharset(charset=None):
-        """Set the character set into which the response body should be
-           encoded. If None is passed in then no encoding will be done to
-           the output body.
+    def consumeBody():
+        """Returns the response body as a string.
 
-           The default character set is None.
+        Note that this function can be only requested once, since it is
+        constructed from the result.
         """
 
-    def setCharsetUsingRequest(request):
-        """This convinience function determines the character set based on the
-           HTTP header information.
+    def consumeBodyIter():
+        """Returns the response body as an iterable.
+
+        Note that this function can be only requested once, since it is
+        constructed from the result.
         """
 
-    def setHTTPTransaction(http_transaction):
-        """Sets an HTTP transaction.
 
-        Returns an HTTPTask or None. It is used for logging.
-        """
+class IResult(Interface):
+    """HTTP result.
+
+    The result provides the result in a form suitable for delivery to HTTP
+    clients.
+
+    IMPORTANT: The result object may be held indefinitely by a server and may
+    be accessed by arbitrary threads. For that reason the result should not
+    hold on to any application resources and should be prepared to be invoked
+    from any thread.
+    """
+
+    headers = Attribute('A sequence of tuples of result headers, such as'
+                        '"Content-Type" and "Content-Length", etc.')
+
+    body = Attribute('An iterable that provides the body data of the'
+                     'response.')
+
