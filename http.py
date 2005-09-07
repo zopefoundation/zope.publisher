@@ -245,7 +245,7 @@ class HTTPRequest(BaseRequest):
                           DeprecationWarning,
                           2)
             environ, response = response, outstream
-            
+
         super(HTTPRequest, self).__init__(body_instream, environ, response)
 
         self._orig_env = environ
@@ -562,6 +562,7 @@ class HTTPResponse(BaseResponse):
 
 
     def __init__(self, header_output=None, http_transaction=None):
+        # XXX BBB
         self._header_output = header_output
 
         super(HTTPResponse, self).__init__()
@@ -760,10 +761,10 @@ class HTTPResponse(BaseResponse):
         """
         t, v = exc_info[:2]
         if isinstance(t, ClassType):
-            title = tname = t.__name__
             if issubclass(t, Redirect):
                 self.redirect(v.getLocation())
                 return
+            title = tname = t.__name__
         else:
             title = tname = unicode(t)
 
@@ -810,6 +811,7 @@ class HTTPResponse(BaseResponse):
 
         self.setStatus(status)
         self.setHeader('Location', location)
+        self.setResult(DirectResult(()))
         return location
 
     def _cookie_list(self):

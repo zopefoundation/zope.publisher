@@ -293,7 +293,6 @@ class BaseRequest(object):
                 held.release()
 
         self._held = None
-        self._response = None
         self._body_instream = None
         self._publication = None
 

@@ -186,3 +186,7 @@ def publish(request, handle_errors=True):
     finally:
         to_raise = None  # Avoid circ. ref.
         request.close()  # Close database connections, etc.
+
+    # Return the request, since it might be a different object than the one
+    # that was passed in.
+    return request
