@@ -211,7 +211,7 @@ class BrowserRequest(HTTPRequest):
 
     # Set this to True in a subclass to redirect GET requests when the
     # effective and actual URLs differ.
-    use_redirect = False 
+    use_redirect = False
 
     def __init__(self, body_instream, environ, response=None):
         self.form = {}
@@ -279,7 +279,7 @@ class BrowserRequest(HTTPRequest):
         # Check whether this field is a file upload object
         # Note: A field exists for files, even if no filename was
         # passed in and no data was uploaded. Therefore we can only
-        # tell by the empty filename that no upload was made. 
+        # tell by the empty filename that no upload was made.
         key = item.name
         if (hasattr(item, 'file') and hasattr(item, 'filename')
             and hasattr(item,'headers')):
@@ -609,18 +609,19 @@ class TestRequest(BrowserRequest):
             'GATEWAY_INTERFACE':  'TestFooInterface/1.0',
             }
 
-        if environ:
+        if environ is not None:
             # XXX BBB
             try:
-                _testEnv.update(environ)
+                environ.get
             except AttributeError:
                 import warnings
                 warnings.warn("Can't pass output streams to requests anymore",
                               DeprecationWarning,
                               2)
                 environ, form, skin, outstream = form, skin, outstream, environ
-                _testEnv.update(environ)
-                
+
+            _testEnv.update(environ)
+
         if kw:
             _testEnv.update(kw)
         if body_instream is None:
@@ -645,6 +646,7 @@ class TestRequest(BrowserRequest):
         else:
             directlyProvides(self, IDefaultBrowserLayer)
 
+        # XXX BBB
         self.response.outstream = outstream
 
     def _createResponse(self):
@@ -669,7 +671,7 @@ class BrowserResponse(HTTPResponse):
                 content_type = 'text/plain'
             self.setHeader('x-content-type-warning', 'guessed from content')
             self.setHeader('content-type', content_type)
-        
+
         body, headers = super(BrowserResponse, self)._implicitResult(body)
         body = self.__insertBase(body)
         return body, headers
@@ -726,7 +728,7 @@ class BBBResponse(BrowserResponse):
 
     def testBody(self):
         return self._body
-    
+
     def outputBody(self):
         import warnings
         warnings.warn("Can't pass output streams to requests anymore",
@@ -740,7 +742,7 @@ class BBBResponse(BrowserResponse):
             + "\r\n\r\n"
             )
         self.outstream.write(''.join(self.result.body))
-    
+
 
 def isHTML(str):
      """Try to determine whether str is HTML or not."""
