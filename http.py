@@ -21,6 +21,7 @@ from types import StringTypes, ClassType
 from cgi import escape
 from Cookie import SimpleCookie
 
+from zope.deprecation import deprecation
 from zope.interface import implements
 
 from zope.publisher import contenttype
@@ -236,12 +237,14 @@ class HTTPRequest(BaseRequest):
     retry_max_count = 3    # How many times we're willing to retry
 
     def __init__(self, body_instream, environ, response=None, outstream=None):
-        # XXX BBB
+        # BBB: This is backward-compatibility support for the deprecated
+        # output stream.
         try:
             environ.get
         except AttributeError:
             import warnings
-            warnings.warn("Can't pass output streams to requests anymore",
+            warnings.warn("Can't pass output streams to requests anymore. "
+                          "This will go away in Zope 3.4.",
                           DeprecationWarning,
                           2)
             environ, response = response, outstream
@@ -550,6 +553,7 @@ class HTTPResponse(BaseResponse):
 
     __slots__ = (
         'authUser',             # Authenticated user string
+        # BBB: Remove for Zope 3.4.
         '_header_output',       # Hook object to collaborate with a server
                                 # for header generation.
         '_headers',
@@ -562,7 +566,26 @@ class HTTPResponse(BaseResponse):
 
 
     def __init__(self, header_output=None, http_transaction=None):
-        # XXX BBB
+        # BBB: Both, header_output and http_transaction have been deprecated.
+        if header_output is not None:
+            import warnings
+            warnings.warn(
+                "The header output API is completely deprecated. It's "
+                "intentions were not clear and it duplicated APIs in the "
+                "response, which you should use instead. "
+                "This will go away in Zope 3.4.",
+                DeprecationWarning, 2)
+
+        if http_transaction is not None:
+            import warnings
+            warnings.warn(
+                "Storing the HTTP transaction here was a *huge* hack to "
+                "support transporting the authenticated user string "
+                "to the server. You should never rely on this variable "
+                "anyways. "
+                "This will go away in Zope 3.4.",
+                DeprecationWarning, 2)
+
         self._header_output = header_output
 
         super(HTTPResponse, self).__init__()
@@ -718,10 +741,12 @@ class HTTPResponse(BaseResponse):
         if not self._status_set:
             self.setStatus(200)
 
-    # XXX BBB
-    def _body(self):
-        return ''.join(self.result.body)
-    _body = property(_body)
+    # BBB: Backward-compatibility for old body API
+    _body = property(lambda self: ''.join(self.result.body))
+    _body = deprecation.deprecated(
+        _body,
+        '`_body` has been deprecated in favor of `result`. '
+        'This will go away in Zope 3.4.')
 
     def _implicitResult(self, body):
         encoding = getCharsetUsingRequest(self._request) or 'utf-8'
@@ -796,7 +821,7 @@ class HTTPResponse(BaseResponse):
         """
         Returns a response object to be used in a retry attempt
         """
-        return self.__class__(self._header_output)
+        return self.__class__()
 
 
     def redirect(self, location, status=None):

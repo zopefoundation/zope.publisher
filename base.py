@@ -21,6 +21,7 @@ $Id$
 import traceback
 from cStringIO import StringIO
 
+from zope.deprecation import deprecation
 from zope.interface import implements, providedBy
 from zope.interface.common.mapping import IReadMapping, IEnumerableMapping
 
@@ -44,10 +45,12 @@ class BaseResponse(object):
 
     def __init__(self, outstream=None):
         self._request = None
-        # XXX BBB
+        # BBB: This is backward-compatibility support for the deprecated
+        # output stream.
         if outstream is not None:
             import warnings
-            warnings.warn("Can't pass output streams to responses anymore",
+            warnings.warn("Can't pass output streams to requests anymore. "
+                          "This will go away in Zope 3.4.",
                           DeprecationWarning,
                           2)
 
@@ -74,9 +77,13 @@ class BaseResponse(object):
         'See IPublisherResponse'
         return self.__class__()
 
-    # XXX: Do BBB properly
+    # BBB: Backward-compatibility for old body API
     def setBody(self, body):
         return self.setResult(body)
+    setBody = deprecation.deprecated(
+        setBody,
+        'setBody() has been deprecated in favor of setResult(). '
+        'This will go away in Zope 3.4.')
 
 
 class RequestDataGetter(object):
@@ -196,10 +203,12 @@ class BaseRequest(object):
     def __init__(self, body_instream, environ, response=None,
                  positional=None, outstream=None):
 
+        # BBB: This is backward-compatibility support for the deprecated
+        # output stream.
         if not hasattr(environ, 'get'):
-            # XXX BBB
             import warnings
-            warnings.warn("Can't pass output streams to requests anymore",
+            warnings.warn("Can't pass output streams to requests anymore. "
+                          "This will go away in Zope 3.4.",
                           DeprecationWarning,
                           2)
             environ, response, positional = response, positional, outstream
@@ -433,13 +442,15 @@ class TestRequest(BaseRequest):
 
     def __init__(self, path, body_instream=None, environ=None, outstream=None):
 
-        # XXX BBB
+        # BBB: This is backward-compatibility support for the deprecated
+        # output stream.
         if environ is None:
             environ = {}
         else:
             if not hasattr(environ, 'get'):
                 import warnings
-                warnings.warn("Can't pass output streams to requests anymore",
+                warnings.warn("Can't pass output streams to requests anymore. "
+                              "This will go away in Zope 3.4.",
                               DeprecationWarning,
                               2)
                 environ, outstream = outstream, environ

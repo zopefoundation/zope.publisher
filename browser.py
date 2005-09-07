@@ -610,12 +610,14 @@ class TestRequest(BrowserRequest):
             }
 
         if environ is not None:
-            # XXX BBB
+            # BBB: This is backward-compatibility support for the deprecated
+            # output stream.
             try:
                 environ.get
             except AttributeError:
                 import warnings
-                warnings.warn("Can't pass output streams to requests anymore",
+                warnings.warn("Can't pass output streams to requests anymore. "
+                              "This will go away in Zope 3.4.",
                               DeprecationWarning,
                               2)
                 environ, form, skin, outstream = form, skin, outstream, environ
@@ -646,9 +648,10 @@ class TestRequest(BrowserRequest):
         else:
             directlyProvides(self, IDefaultBrowserLayer)
 
-        # XXX BBB
+        # BBB: Goes away in 3.4.
         self.response.outstream = outstream
 
+    # BBB: Remove in 3.4. The super version will be ok.
     def _createResponse(self):
         return BBBResponse()
 
