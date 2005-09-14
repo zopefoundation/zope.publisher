@@ -729,6 +729,13 @@ class BrowserResponse(HTTPResponse):
 
 class BBBResponse(BrowserResponse):
 
+    def write(self, str):
+        import warnings
+        warnings.warn("write() method does not exist anymore.",
+                      DeprecationWarning,
+                      2)
+        self.outstream.write(str)
+
     def outputBody(self):
         import warnings
         warnings.warn("Can't pass output streams to requests anymore",
