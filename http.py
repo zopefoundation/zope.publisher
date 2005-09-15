@@ -20,6 +20,8 @@ from urllib import quote, unquote, splitport
 from types import StringTypes, ClassType
 from cgi import escape
 from Cookie import SimpleCookie
+from Cookie import CookieError
+import logging
 
 from zope.deprecation import deprecation
 from zope.interface import implements
@@ -348,7 +350,14 @@ class HTTPRequest(BaseRequest):
         if result is None:
             result = {}
 
-        c = SimpleCookie(text)
+        # ignore cookies on a CookieError
+        try:
+            c = SimpleCookie(text)
+        except CookieError, e:
+            log = logging.getLogger('eventlog')
+            log.warn(e)
+            return result
+
         for k,v in c.items():
             result[unicode(k, ENCODING)] = unicode(v.value, ENCODING)
 
@@ -852,7 +861,12 @@ class HTTPResponse(BaseResponse):
         return location
 
     def _cookie_list(self):
-        c = SimpleCookie()
+        try:
+            c = SimpleCookie()
+        except CookieError, e:
+            log = logging.getLogger('eventlog')
+            log.warn(e)
+            return []
         for name, attrs in self._cookies.items():
             name = str(name)
             c[name] = attrs['value'].encode(ENCODING)

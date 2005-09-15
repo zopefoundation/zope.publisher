@@ -246,6 +246,25 @@ class HTTPTests(unittest.TestCase):
         # Reserved key
         self.failIf(req.cookies.has_key('path'))
 
+    def testCookieErrorToLog(self):
+        cookies = {
+            'HTTP_COOKIE':
+                'foo=bar; path=/; spam="eggs", ldap/OU="Williams"'
+        }
+        req = self._createRequest(extra_env=cookies)
+
+        self.failIf(req.cookies.has_key('foo'))
+        self.failIf(req.has_key('foo'))
+
+        self.failIf(req.cookies.has_key('spam'))
+        self.failIf(req.has_key('spam'))
+
+        self.failIf(req.cookies.has_key('ldap/OU'))
+        self.failIf(req.has_key('ldap/OU'))
+
+        # Reserved key
+        self.failIf(req.cookies.has_key('path'))
+
     def testCookiesUnicode(self):
         # Cookie values are assumed to be UTF-8 encoded
         cookies = {'HTTP_COOKIE': r'key="\342\230\243";'}
