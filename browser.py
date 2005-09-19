@@ -31,6 +31,7 @@ from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.publisher.interfaces.browser import IDefaultBrowserLayer
 from zope.publisher.interfaces.browser import IBrowserApplicationRequest
 
+from zope.publisher import contenttype
 from zope.publisher.http import HTTPRequest, HTTPResponse
 from zope.publisher.base import BaseRequest
 
@@ -686,15 +687,21 @@ class BrowserResponse(HTTPResponse):
         if content_type and not is_text_html(content_type):
             return body
 
-        if getattr(self, '_base', ''):
+        if self.getBase():
             if body:
                 match = start_of_header_search(body)
                 if match is not None:
                     index = match.start(0) + len(match.group(0))
                     ibase = base_re_search(body)
                     if ibase is None:
+                        base = self.getBase()
+                        # Make sure the base URL is not a unicode string.
+                        if isinstance(base, unicode):
+                            ma, mi, params = contenttype.parse(content_type)
+                            encoding = params.get('charset', 'utf8')
+                            base = base.encode(encoding)
                         body = ('%s\n<base href="%s" />\n%s' %
-                                (body[:index], self._base, body[index:]))
+                                (body[:index], base, body[index:]))
         return body
 
     def getBase(self):

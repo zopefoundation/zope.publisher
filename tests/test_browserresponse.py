@@ -81,6 +81,31 @@ class TestBrowserResponse(TestCase):
             response.getHeader('content-type').startswith("text/plain")
             )
 
+
+    def testInsertBase(self):
+        response = BrowserResponse()
+        response.setHeader('content-type', 'text/html')
+
+        insertBase = response._BrowserResponse__insertBase
+
+        # Make sure that bases are inserted
+        response.setBase('http://localhost/folder/')
+        self.assert_(
+            '<base href="http://localhost/folder/" />' in
+            insertBase('<html><head></head><body>Page</body></html>'))
+
+        # Ensure that unicode bases work as well
+        response.setBase(u'http://localhost/folder/')
+        body = insertBase('<html><head></head><body>Page</body></html>')
+        self.assert_(isinstance(body, str))
+        self.assert_('<base href="http://localhost/folder/" />' in body)
+
+        response.setBase(u'http://localhost/\xdcbung')
+        result = insertBase('<html><head></head><body>Page</body></html>')
+        self.assert_(isinstance(body, str))
+        self.assert_('<base href="http://localhost/\xc3\x9cbung" />' in result)
+
+
     def test_interface(self):
         from zope.publisher.interfaces.http import IHTTPResponse
         from zope.publisher.interfaces.http import IHTTPApplicationResponse
