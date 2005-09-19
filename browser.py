@@ -694,12 +694,8 @@ class BrowserResponse(HTTPResponse):
                     index = match.start(0) + len(match.group(0))
                     ibase = base_re_search(body)
                     if ibase is None:
-                        base = self.getBase()
                         # Make sure the base URL is not a unicode string.
-                        if isinstance(base, unicode):
-                            ma, mi, params = contenttype.parse(content_type)
-                            encoding = params.get('charset', 'utf8')
-                            base = base.encode(encoding)
+                        base = str(self.getBase())
                         body = ('%s\n<base href="%s" />\n%s' %
                                 (body[:index], base, body[index:]))
         return body

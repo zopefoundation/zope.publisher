@@ -100,10 +100,12 @@ class TestBrowserResponse(TestCase):
         self.assert_(isinstance(body, str))
         self.assert_('<base href="http://localhost/folder/" />' in body)
 
-        response.setBase(u'http://localhost/\xdcbung')
-        result = insertBase('<html><head></head><body>Page</body></html>')
+        # Ensure that encoded bodies work, when a base is inserted.
+        response.setBase('http://localhost/folder')
+        result = insertBase(
+            '<html><head></head><body>\xc3\x9bung</body></html>')
         self.assert_(isinstance(body, str))
-        self.assert_('<base href="http://localhost/\xc3\x9cbung" />' in result)
+        self.assert_('<base href="http://localhost/folder" />' in result)
 
 
     def test_interface(self):
