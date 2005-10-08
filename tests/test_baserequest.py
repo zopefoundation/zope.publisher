@@ -40,14 +40,11 @@ class TestBaseRequest(BaseTestIPublicationRequest,
     def _Test__expectedViewType(self):
         return None # we don't expect
 
-    def test_IApplicationRequest_body(self):
+    def test_IApplicationRequest_bodyStream(self):
         from zope.publisher.base import BaseRequest
 
         request = BaseRequest(StringIO('spam'), {})
-        self.assertEqual(request.body, 'spam')
-
-        request = BaseRequest(StringIO('spam'), {})
-        self.assertEqual(request.bodyFile.read(), 'spam')
+        self.assertEqual(request.bodyStream.read(), 'spam')
 
     def test_IPublicationRequest_getPositionalArguments(self):
         self.assertEqual(self._Test__new().getPositionalArguments(), ())

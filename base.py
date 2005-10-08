@@ -21,7 +21,8 @@ $Id$
 import traceback
 from cStringIO import StringIO
 
-from zope.deprecation import deprecation
+from zope.deprecation import deprecated
+
 from zope.interface import implements, providedBy
 from zope.interface.common.mapping import IReadMapping, IEnumerableMapping
 
@@ -80,7 +81,7 @@ class BaseResponse(object):
     # BBB: Backward-compatibility for old body API
     def setBody(self, body):
         return self.setResult(body)
-    setBody = deprecation.deprecated(
+    setBody = deprecated(
         setBody,
         'setBody() has been deprecated in favor of setResult(). '
         'This will go away in Zope 3.4.')
@@ -326,26 +327,40 @@ class BaseRequest(object):
         'See IPublicationRequest'
         self._traversal_stack[:] = list(stack)
 
+    def _getBodyStream(self):
+        'See zope.publisher.interfaces.IApplicationRequest'
+        return self._body_instream
+
+    bodyStream = property(_getBodyStream)
+
+    ########################################################################
+    # BBB: Deprecated; will go away in Zope 3.4
+
     def _getBody(self):
         body = getattr(self, '_body', None)
         if body is None:
             s = self._body_instream
             if s is None:
                 return None # TODO: what should be returned here?
-            p = s.tell()
-            s.seek(0)
             body = s.read()
-            s.seek(p)
             self._body = body
         return body
 
     body = property(_getBody)
+    body = deprecated(body,
+                      'The ``body`` attribute has been deprecated. Please '
+                      'use the ``bodyStream`` attribute directly. This '
+                      'attribute will go away in Zope 3.4.')
 
-    def _getBodyFile(self):
-        'See IApplicationRequest'
-        return self._body_instream
+    bodyFile = bodyStream
+    bodyFile = deprecated(bodyFile,
+                          'The ``bodyFile`` attribute has been replaced by '
+                          '``bodyStream``, which is a more accurate name. '
+                          'Streams are not necessarily files, i.e. they are '
+                          'not seekable. This attribute will go away in Zope '
+                          '3.4.')
 
-    bodyFile = property(_getBodyFile)
+    ########################################################################
 
     def __len__(self):
         'See Interface.Common.Mapping.IEnumerableMapping'

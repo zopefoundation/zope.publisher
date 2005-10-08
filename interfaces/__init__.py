@@ -410,9 +410,20 @@ class IApplicationRequest(IEnumerableMapping):
                              This is a read-only attribute.
                           """)
 
-    body = Attribute("""The body of the request as a string""")
+    bodyStream = Attribute(
+        """The stream that provides the data of the request.
 
-    bodyFile = Attribute("""The body of the request as a file""")
+        The data returned by the stream will not include any possible header
+        information, which should have been stripped by the server (or
+        previous layer) before.
+
+        Also, the body stream might already be read and not return any
+        data. This is commonly done when retrieving the data for the ``body``
+        attribute.
+
+        If you access this stream directly to retrieve data, it will not be
+        possible by other parts of the framework to access the data of the
+        request via the ``body`` attribute.""")
 
     debug = Attribute("""Debug flags (see IDebugFlags).""")
 

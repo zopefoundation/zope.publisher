@@ -29,7 +29,7 @@ class BaseTestIApplicationRequest(BaseTestIEnumerableMapping):
 
     def testHaveCustomTestsForIApplicationRequest(self):
         # Make sure that tests are defined for things we can't test here
-        self.test_IApplicationRequest_body
+        self.test_IApplicationRequest_bodyStream
 
     def testEnvironment(self):
         request = self._Test__new(foo='Foo', bar='Bar')
