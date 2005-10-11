@@ -62,7 +62,14 @@ class HTTPInputStreamTests(unittest.TestCase):
 
     def getCacheStreamValue(self):
         self.stream.cacheStream.seek(0)
-        return self.stream.cacheStream.read()
+        result = self.stream.cacheStream.read()
+        # We just did a read on a file opened for update.  If the next
+        # operation on that file is a write, behavior is 100% undefined,
+        # and it in fact frequently (but not always) blows up on Windows.
+        # Behavior is 100% defined instead if we explictly seek.  Since
+        # we expect to be at EOF now, explicitly seek to the end.
+        self.stream.cacheStream.seek(0, 2)
+        return result
 
     def testRead(self):
         output = ''
