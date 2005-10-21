@@ -35,10 +35,11 @@ data = [
 class TestRequest(dict):
 
     def __init__(self, languages):
+        self.localized = False
         self["HTTP_ACCEPT_LANGUAGE"] = languages
 
     def setupLocale(self):
-        pass
+        self.localized = True
 
 class BrowserLanguagesTest(unittest.TestCase):
 
