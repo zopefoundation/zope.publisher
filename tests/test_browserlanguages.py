@@ -17,6 +17,9 @@ $Id$
 """
 import unittest
 
+from zope.publisher.browser import BrowserLanguages
+
+
 # Note: The expected output is in order of preference,
 # empty 'q=' means 'q=1', and if theres more than one
 # empty, we assume they are in order of preference.
@@ -29,16 +32,27 @@ data = [
     ('ro,en-us;q=0,es;q=0.5,fr;q=0,ru;q=1,it', ['ro', 'ru', 'it', 'es'])
     ]
 
+class TestRequest(dict):
+
+    def __init__(self, languages):
+        self.localized = False
+        self["HTTP_ACCEPT_LANGUAGE"] = languages
+
+    def setupLocale(self):
+        self.localized = True
 
 class BrowserLanguagesTest(unittest.TestCase):
 
+    def factory(self, request):
+        return BrowserLanguages(request)
+
     def test_browser_language_handling(self):
-        from zope.publisher.browser import BrowserLanguages
         for req, expected in data:
-            request = {'HTTP_ACCEPT_LANGUAGE': req}
-            browser_languages = BrowserLanguages(request)
+            request = TestRequest(req)
+            browser_languages = self.factory(request)
             self.assertEqual(list(browser_languages.getPreferredLanguages()),
                              expected)
+
 
 def test_suite():
     loader=unittest.TestLoader()

@@ -266,6 +266,7 @@ class HTTPRequest(BaseRequest):
         'method',         # The upper-cased request method (REQUEST_METHOD)
         '_locale',        # The locale for the request
         '_vh_root',       # Object at the root of the virtual host
+        '__annotations__',
         )
 
     retry_max_count = 3    # How many times we're willing to retry
@@ -303,9 +304,9 @@ class HTTPRequest(BaseRequest):
         self.__setupPath()
         self.__setupURLBase()
         self._vh_root = None
-        self.__setupLocale()
+        self.setupLocale()
 
-    def __setupLocale(self):
+    def setupLocale(self):
         envadapter = IUserPreferredLanguages(self, None)
         if envadapter is None:
             self._locale = None

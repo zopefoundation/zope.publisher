@@ -203,6 +203,11 @@ class IHTTPRequest(IRequest):
     locale = Attribute(
         "Return the locale object associated with this request.")
 
+    def setupLocale():
+        """Setup the locale object based on languages returned by
+        IUserPreferredLanguages adapter.
+        """
+
 
 class IHTTPCredentials(Interface):
 

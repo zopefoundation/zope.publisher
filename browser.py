@@ -202,12 +202,13 @@ class BrowserRequest(HTTPRequest):
     implements(IBrowserRequest, IBrowserApplicationRequest)
 
     __slots__ = (
-        '__provides__',      # Allow request to directly provide interfaces
-        'form',   # Form data
+        '__provides__', # Allow request to directly provide interfaces
+        'form', # Form data
         'charsets', # helper attribute
         '__meth',
         '__tuple_items',
         '__defaults',
+        '__annotations__',
         )
 
     # Set this to True in a subclass to redirect GET requests when the
