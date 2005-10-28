@@ -281,7 +281,10 @@ class HTTPRequest(BaseRequest):
             warnings.warn("Can't pass output streams to requests anymore. "
                           "This will go away in Zope 3.4.",
                           DeprecationWarning,
-                          2)
+                          # HTTPRequest.__init__() mostly called through
+                          # BrowserRequest.__init__() so we need to shift
+                          # to another one step backward.
+                          3)
             environ, response = response, outstream
 
         super(HTTPRequest, self).__init__(
