@@ -40,9 +40,14 @@ class XMLRPCRequest(HTTPRequest):
 
     def processInputs(self):
         'See IPublisherRequest'
-
         # Parse the request XML structure
-        self._args, function = xmlrpclib.loads(self._body_instream.read())
+
+        # XXX using readlines() instead of lines()
+        # as twisted's BufferedStream sends back
+        # an empty stream here for read() (bug)
+        lines = ''.join(self._body_instream.readlines())
+        self._args, function = xmlrpclib.loads(lines)
+
         # Translate '.' to '/' in function to represent object traversal.
         function = function.split('.')
 
@@ -201,7 +206,7 @@ def premarshal(data):
       >>> from zope.security.proxy import Proxy
       >>> proxied_sample['foo']
       (1, ['x', 'y', 1.2])
-      
+
       >>> type(proxied_sample['foo']) is Proxy
       True
       >>> type(proxied_sample['foo'][1]) is Proxy
@@ -226,7 +231,7 @@ def premarshal(data):
       >>> from zope.security.checker import NamesChecker, defineChecker
       >>> defineChecker(xmlrpclib.Fault,
       ...               NamesChecker(['faultCode', 'faultString']))
-    
+
       >>> fault = xmlrpclib.Fault(1, 'waaa')
       >>> proxied_fault = ProxyFactory(fault)
       >>> stripped_fault = premarshal(proxied_fault)
