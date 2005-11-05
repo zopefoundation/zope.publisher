@@ -35,6 +35,7 @@ data = [
 class TestRequest(dict):
 
     def __init__(self, languages):
+        self.annotations = {}
         self.localized = False
         self["HTTP_ACCEPT_LANGUAGE"] = languages
 

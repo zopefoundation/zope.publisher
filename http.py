@@ -266,7 +266,6 @@ class HTTPRequest(BaseRequest):
         'method',         # The upper-cased request method (REQUEST_METHOD)
         '_locale',        # The locale for the request
         '_vh_root',       # Object at the root of the virtual host
-        '__annotations__',
         )
 
     retry_max_count = 3    # How many times we're willing to retry
