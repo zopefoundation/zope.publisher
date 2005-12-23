@@ -24,8 +24,9 @@ from Cookie import CookieError
 import logging
 from tempfile import TemporaryFile
 
+from zope import component, interface
+
 from zope.deprecation import deprecation
-from zope.interface import implements
 
 from zope.publisher import contenttype
 from zope.publisher.interfaces.http import IHTTPCredentials
@@ -34,7 +35,7 @@ from zope.publisher.interfaces.http import IHTTPApplicationRequest
 from zope.publisher.interfaces.http import IHTTPPublisher
 
 from zope.publisher.interfaces import Redirect
-from zope.publisher.interfaces.http import IHTTPResponse, IResult
+from zope.publisher.interfaces.http import IHTTPResponse
 from zope.publisher.interfaces.http import IHTTPApplicationResponse
 from zope.publisher.interfaces.logginginfo import ILoggingInfo
 from zope.i18n.interfaces import IUserPreferredCharsets
@@ -251,7 +252,9 @@ class HTTPRequest(BaseRequest):
     values will be looked up in the order: environment variables,
     other variables, form data, and then cookies.
     """
-    implements(IHTTPCredentials, IHTTPRequest, IHTTPApplicationRequest)
+    interface.implements(IHTTPCredentials,
+                         IHTTPRequest,
+                         IHTTPApplicationRequest)
 
     __slots__ = (
         '__provides__',   # Allow request to directly provide interfaces
@@ -593,8 +596,32 @@ class HTTPRequest(BaseRequest):
         d.update(self._cookies)
         return d.keys()
 
+
+class IResult(interface.Interface):
+    """HTTP result.
+
+    WARNING! This is a PRIVATE interface and VERY LIKELY TO CHANGE!
+
+    The result provides the result in a form suitable for delivery to HTTP
+    clients.
+
+    IMPORTANT: The result object may be held indefinitely by a server and may
+    be accessed by arbitrary threads. For that reason the result should not
+    hold on to any application resources and should be prepared to be invoked
+    from any thread.
+    """
+
+    headers = interface.Attribute(
+        'A sequence of tuples of result headers, such as '
+        '"Content-Type" and "Content-Length", etc.')
+
+    body = interface.Attribute(
+        'An iterable that provides the body data of the response.')
+
+
+
 class HTTPResponse(BaseResponse):
-    implements(IHTTPResponse, IHTTPApplicationResponse)
+    interface.implements(IHTTPResponse, IHTTPApplicationResponse)
 
     __slots__ = (
         'authUser',             # Authenticated user string
@@ -771,16 +798,21 @@ class HTTPResponse(BaseResponse):
 
 
     def setResult(self, result):
-        r = IResult(result, None)
-        if r is None:
-            if isinstance(result, basestring):
-                body, headers = self._implicitResult(result)
-                r = DirectResult((body,), headers)
-            elif result is None:
-                body, headers = self._implicitResult('')
-                r = DirectResult((body,), headers)
-            else:
-                raise TypeError('The result should be adaptable to IResult.')
+        if IResult.providedBy(result):
+            r = result
+        else:
+            r = component.queryMultiAdapter((result, self._request), IResult)
+            if r is None:
+                if isinstance(result, basestring):
+                    body, headers = self._implicitResult(result)
+                    r = DirectResult((body,), headers)
+                elif result is None:
+                    body, headers = self._implicitResult('')
+                    r = DirectResult((body,), headers)
+                else:
+                    raise TypeError(
+                        'The result should be adaptable to IResult.')
+
         self._result = r
         self._headers.update(dict([(k, [v]) for (k, v) in r.headers]))
         if not self._status_set:
@@ -937,7 +969,7 @@ def sort_charsets(x, y):
 
 
 class HTTPCharsets(object):
-    implements(IUserPreferredCharsets)
+    interface.implements(IUserPreferredCharsets)
 
     def __init__(self, request):
         self.request = request
@@ -1009,7 +1041,7 @@ class DirectResult(object):
     application to specify all headers related to the content, such as the
     content type and length.
     """
-    implements(IResult)
+    interface.implements(IResult)
 
     def __init__(self, body, headers=()):
         self.body = body
@@ -1023,3 +1055,4 @@ def StrResult(body, headers=()):
     including content type and length.
     """
     return DirectResult((body,), headers)
+
