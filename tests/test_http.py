@@ -460,6 +460,11 @@ class HTTPTests(unittest.TestCase):
         # the request should have converted PATH_INFO to unicode
         self.assertEqual(req['PATH_INFO'], u'/дц/ья/foo/bar.html')
 
+    def testResponseWriteFaile(self):
+        self.assertRaises(TypeError,
+                          self._createRequest().response.write,
+                          'some output',
+                          )
 
 class ConcreteHTTPTests(HTTPTests):
     """Tests that we don't have to worry about subclasses inheriting and

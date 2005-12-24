@@ -593,7 +593,6 @@ class HTTPRequest(BaseRequest):
         d.update(self._cookies)
         return d.keys()
 
-
 class HTTPResponse(BaseResponse):
     implements(IHTTPResponse, IHTTPApplicationResponse)
 
@@ -922,6 +921,12 @@ class HTTPResponse(BaseResponse):
                 c[name][k] = str(v)
         return str(c).splitlines()
 
+    def write(*_):
+        raise TypeError(
+            "The HTTP response write method is no longer supported. "
+            "See the file httpresults.txt in the zope.publisher package "
+            "for more information."
+            )
 
 def sort_charsets(x, y):
     if y[1] == 'utf-8':
