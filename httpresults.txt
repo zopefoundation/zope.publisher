@@ -30,67 +30,15 @@ for returning large amounts of data.
 Returning large amounts of data without storing the data in memory
 ------------------------------------------------------------------
 
-Starting in Zope 3.2, a published object (e.g. a view or view method)
-can return any object as long as it is is adaptable to
-zope.publisher.interfaces.http.IResult::
+To return a large result, you should write the result to a temporary
+file (tempfile.TemporaryFile) and return the temporary file.
+Alternatively, if the data you want to return is already in a
+(non-temporary) file, just open and return that file.  The publisher
+(actually an adapter used by the publisher) will handle a returned
+file very efficiently.  
 
-  class IResult(Interface):
-      """HTTP result.
+The publisher will compute the response content length from the file
+automatically. It is up to applications to set the content type.
+It will also take care of positioning the file to it's beginning, 
+so applications don't need to do this beforehand.
 
-      The result provides the result in a form suitable for delivery to HTTP
-      clients.
-
-      IMPORTANT: The result object may be held indefinitely by a server and may
-      be accessed by arbitrary threads. For that reason the result should not
-      hold on to any application resources and should be prepared to be invoked
-      from any thread.
-      """
-
-      headers = Attribute('A sequence of tuples of result headers, such as'
-                          '"Content-Type" and "Content-Length", etc.')
-
-      body = Attribute('An iterable that provides the body data of the'
-                       'response.')
-
-The result object has headers and an iterable body.  The ability to
-supply headers in a result is useful for adapters that compute headers
-by inspecting a the object being adapted.
-
-There is a helper class, zope.publisher.http.DirectResult that can be
-used to compute result objects.
-
-When an published object returns a string. the string is inspected to
-determine response headers (like content type and content length) and
-a result is created using DirectResult.
-
-If you want to return a large amont of data, you can create a result
-object yourself.  A good way to do this is to copy the data to a 
-temporary file and return an iterator to that::
-
-   import tempfile
-   file = tempfile.TemporaryFile()
-
-   # ... write data to the file ...
-
-   def fileiterator(file, bufsize=8192):
-       while 1:
-           data = file.read(bufsize)
-           if data:
-               yield data
-           else:
-               break
-
-       file.close()
-
-   return DirectResult(fileiterator(file), 
-                       [('Content-Length', mydatalength),
-                        ('Content-Type', mydatatype),
-                       ])
-
-We should provide some helper objects that automate more of this, and
-we probably will in later revisions.
-
-IMPORTANT NOTE: the iterator that you pass to DirectResult must *not*
-use any application resources.  When the iterator is called,
-application resoures may have been released or be in use by another
-thread. 

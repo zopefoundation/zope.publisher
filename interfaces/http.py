@@ -373,7 +373,7 @@ class IHTTPResponse(IResponse):
         """
 
     def setResult(result):
-        """Sets the response result value that is adaptable to ``IResult``.
+        """Sets the response result value to a string or a file.
         """
 
     def consumeBody():
@@ -389,23 +389,3 @@ class IHTTPResponse(IResponse):
         Note that this function can be only requested once, since it is
         constructed from the result.
         """
-
-
-class IResult(Interface):
-    """HTTP result.
-
-    The result provides the result in a form suitable for delivery to HTTP
-    clients.
-
-    IMPORTANT: The result object may be held indefinitely by a server and may
-    be accessed by arbitrary threads. For that reason the result should not
-    hold on to any application resources and should be prepared to be invoked
-    from any thread.
-    """
-
-    headers = Attribute('A sequence of tuples of result headers, such as'
-                        '"Content-Type" and "Content-Length", etc.')
-
-    body = Attribute('An iterable that provides the body data of the'
-                     'response.')
-
