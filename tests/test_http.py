@@ -58,7 +58,7 @@ line 3'''
 class HTTPInputStreamTests(unittest.TestCase):
 
     def setUp(self):
-        self.stream = HTTPInputStream(StringIO(data))
+        self.stream = HTTPInputStream(StringIO(data), {})
 
     def getCacheStreamValue(self):
         self.stream.cacheStream.seek(0)

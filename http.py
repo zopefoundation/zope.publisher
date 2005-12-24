@@ -16,6 +16,7 @@
 $Id$
 """
 import re, time, random
+from cStringIO import StringIO
 from urllib import quote, unquote, splitport
 from types import StringTypes, ClassType
 from cgi import escape
@@ -179,9 +180,13 @@ class HTTPInputStream(object):
     This is important, so that we can retry requests.
     """
 
-    def __init__(self, stream):
+    def __init__(self, stream, environment):
         self.stream = stream
-        self.cacheStream = TemporaryFile()
+        size = environment.get('HTTP_CONTENT_LENGTH')
+        if size is None or int(size) < 65536:
+            self.cacheStream = StringIO()
+        else:
+            self.cacheStream = TemporaryFile()
 
     def getCacheStream(self):
         self.read()
@@ -290,7 +295,7 @@ class HTTPRequest(BaseRequest):
             environ, response = response, outstream
 
         super(HTTPRequest, self).__init__(
-            HTTPInputStream(body_instream), environ, response)
+            HTTPInputStream(body_instream, environ), environ, response)
 
         self._orig_env = environ
         environ = sane_environment(environ)
