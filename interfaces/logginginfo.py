@@ -16,7 +16,10 @@
 $Id$
 """
 
+__docformat__ = "reStructuredText"
+
 from zope.interface import Interface
+
 
 class ILoggingInfo(Interface):
     """Provides information about the object to be included in the logs.

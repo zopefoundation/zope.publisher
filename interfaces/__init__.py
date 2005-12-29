@@ -16,6 +16,8 @@
 $Id$
 """
 
+__docformat__ = "reStructuredText"
+
 import zope.deprecation
 
 from zope.interface import Interface
@@ -32,6 +34,7 @@ from zope.security.interfaces import IParticipation
 zope.deprecation.__show__.off()
 from zope.exceptions import NotFoundError, INotFoundError
 zope.deprecation.__show__.on()
+
 
 class IPublishingException(IException):
     pass

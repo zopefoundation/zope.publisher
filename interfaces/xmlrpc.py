@@ -15,6 +15,9 @@
 
 $Id$
 """
+
+__docformat__ = "reStructuredText"
+
 from zope.publisher.interfaces import IPublication
 from zope.publisher.interfaces import IPublishTraverse
 from zope.publisher.interfaces.http import IHTTPRequest
