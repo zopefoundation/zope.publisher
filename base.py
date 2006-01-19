@@ -18,13 +18,13 @@ specified here.
 
 $Id$
 """
-import traceback
 from cStringIO import StringIO
 
 from zope.deprecation import deprecated
 
 from zope.interface import implements, providedBy
 from zope.interface.common.mapping import IReadMapping, IEnumerableMapping
+from zope.exceptions.exceptionformatter import print_exception
 
 from zope.publisher.interfaces import IPublication, IHeld
 from zope.publisher.interfaces import NotFound, DebugError, Unauthorized
@@ -62,7 +62,7 @@ class BaseResponse(object):
     def handleException(self, exc_info):
         'See IPublisherResponse'
         f = StringIO()
-        traceback.print_exception(
+        print_exception(
             exc_info[0], exc_info[1], exc_info[2], 100, f)
         self.setResult(f.getvalue())
 
