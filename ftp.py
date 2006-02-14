@@ -67,7 +67,7 @@ class FTPRequest(BaseRequest):
 
 
     def _createResponse(self):
-        """Create a specific XML-RPC response object."""
+        """Create a specific FTP response object."""
         return FTPResponse()
 
     def _authUserPW(self):
