@@ -8,7 +8,7 @@ different from how it will be in the future. Please bear with us.
 Traditionally in Zope, HTTP results are created by simply returning
 strings.  Strings are inspected to deduce their content type, which is
 usually HTML.  Applications can override this by setting a response
-headers (calling request.respoonce.setHeader).
+headers (calling request.response.setHeader).
 
 In Zope 2, applications could also call response.write.  This allows 
 both:
