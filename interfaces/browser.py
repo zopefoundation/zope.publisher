@@ -23,7 +23,6 @@ from zope.interface.interfaces import IInterface
 
 from zope.publisher.interfaces import IPublication
 from zope.publisher.interfaces import IPublishTraverse
-from zope.publisher.interfaces import ILayer
 from zope.publisher.interfaces.http import IHTTPApplicationRequest
 from zope.publisher.interfaces.http import IHTTPRequest
 
@@ -110,11 +109,30 @@ class IBrowserPublisher(IPublishTraverse):
 
 class IDefaultBrowserLayer(IBrowserRequest):
     """The default layer."""
-directlyProvides(IDefaultBrowserLayer, ILayer)
 
-class ISkin(IInterface):
+class IBrowserSkinType(IInterface):
     """A skin is a set of layers."""
 
+##############################################################################
+#
+# BBB 2006/02/18, to be removed after 12 months
+#
+
+# mark the default layer for BBB reasons
+import zope.deprecation
+zope.deprecation.__show__.off()
+from zope.publisher.interfaces import ILayer
+zope.deprecation.__show__.on()
+directlyProvides(IDefaultBrowserLayer, ILayer)
+
+import zope.deprecation
+ISkin = IBrowserSkinType
+zope.deprecation.deprecated('ISkin',
+                            'The zope.publisher.interfaces.browser.ISkin '
+                            'interface has been renamed to IBrowserSkinType. '
+                            'The old alias will go away in Zope 3.5.')
+#
+##############################################################################
 
 class IDefaultSkin(Interface):
     """Any component providing this interface must be a skin.

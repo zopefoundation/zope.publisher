@@ -27,7 +27,7 @@ from zope.publisher.interfaces import NotFound
 
 from zope.publisher.base import DefaultPublication
 from zope.publisher.interfaces.browser import IBrowserApplicationRequest
-from zope.publisher.interfaces.browser import IBrowserRequest, ISkin
+from zope.publisher.interfaces.browser import IBrowserRequest
 
 from StringIO import StringIO
 

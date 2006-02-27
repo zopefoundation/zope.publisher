@@ -20,7 +20,7 @@ import sys
 from zope.interface import Interface, directlyProvides, implements
 from zope.interface.verify import verifyObject
 from zope.publisher.interfaces import IPublicationRequest, IHeld
-from zope.publisher.interfaces.browser import ISkin
+from zope.publisher.interfaces.browser import IBrowserSkinType
 
 class Held:
     implements(IHeld)
@@ -77,7 +77,7 @@ class BaseTestIPublicationRequest(object):
 
         class IMoreFoo(Interface):
             pass
-        directlyProvides(IMoreFoo, ISkin)
+        directlyProvides(IMoreFoo, IBrowserSkinType)
 
         self.assertEqual(IMoreFoo.providedBy(request), False)
         directlyProvides(request, IMoreFoo)

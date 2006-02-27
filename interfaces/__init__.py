@@ -463,6 +463,19 @@ class IRequest(IPublisherRequest, IPublicationRequest, IApplicationRequest):
     """
 
 
+##############################################################################
+#
+# BBB 2006/02/18, to be removed after 12 months
+#
+
 class ILayer(IInterface):
     """A grouping of related views for a request."""
 
+import zope.deprecation
+zope.deprecation.deprecated('ILayer',
+                            'The zope.publisher.interfaces.ILayer '
+                            'interface has been deprecated and will '
+                            'go away in Zope 3.5.')
+
+#
+##############################################################################
