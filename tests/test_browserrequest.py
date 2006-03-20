@@ -239,8 +239,9 @@ class BrowserTests(HTTPTests):
         self.assertEqual(request.form[u'b'], u'1')
         self.assertEqual(request.form[u'a'].keys(), [u'x'])
         self.assertEqual(request.form[u'a'][u'x'], (u'5',u'6'))
-        self.assertEqual(str(request.form[u'a']), "x: (u'5', u'6')")
-        self.assertEqual(repr(request.form[u'a']), "x: (u'5', u'6')")
+        self.assertEqual(request.form[u'a'].x, (u'5',u'6'))
+        self.assertEqual(str(request.form[u'a']), "{x: (u'5', u'6')}")
+        self.assertEqual(repr(request.form[u'a']), "{x: (u'5', u'6')}")
 
     def testFormRecordsTypes(self):
         extra = {'QUERY_STRING':'a.x:records=5&a.x:records=6&b=1'}
@@ -252,9 +253,34 @@ class BrowserTests(HTTPTests):
         self.assertEqual(request.form[u'b'], u'1')
         self.assertEqual(len(request.form[u'a']), 2)
         self.assertEqual(request.form[u'a'][0][u'x'], u'5')
+        self.assertEqual(request.form[u'a'][0].x, u'5')
         self.assertEqual(request.form[u'a'][1][u'x'], u'6')
-        self.assertEqual(str(request.form[u'a']), "[x: u'5', x: u'6']")
-        self.assertEqual(repr(request.form[u'a']), "[x: u'5', x: u'6']")
+        self.assertEqual(request.form[u'a'][1].x, u'6')
+        self.assertEqual(str(request.form[u'a']), "[{x: u'5'}, {x: u'6'}]")
+        self.assertEqual(repr(request.form[u'a']), "[{x: u'5'}, {x: u'6'}]")
+
+    def testFormMultipleRecordsTypes(self):
+        extra = {'QUERY_STRING':'a.x:records:int=5&a.y:records:int=51'
+            '&a.x:records:int=6&a.y:records:int=61&b=1'}
+        request = self._createRequest(extra)
+        publish(request)
+        keys = request.form.keys()
+        keys.sort()
+        self.assertEqual(keys, [u'a',u'b'])
+        self.assertEqual(request.form[u'b'], u'1')
+        self.assertEqual(len(request.form[u'a']), 2)
+        self.assertEqual(request.form[u'a'][0][u'x'], 5)
+        self.assertEqual(request.form[u'a'][0].x, 5)
+        self.assertEqual(request.form[u'a'][0][u'y'], 51)
+        self.assertEqual(request.form[u'a'][0].y, 51)
+        self.assertEqual(request.form[u'a'][1][u'x'], 6)
+        self.assertEqual(request.form[u'a'][1].x, 6)
+        self.assertEqual(request.form[u'a'][1][u'y'], 61)
+        self.assertEqual(request.form[u'a'][1].y, 61)
+        self.assertEqual(str(request.form[u'a']),
+            "[{x: 5, y: 51}, {x: 6, y: 61}]")
+        self.assertEqual(repr(request.form[u'a']),
+            "[{x: 5, y: 51}, {x: 6, y: 61}]")
 
     def testFormListRecordTypes(self):
         extra = {'QUERY_STRING':'a.x:list:record=5&a.x:list:record=6&b=1'}
@@ -266,8 +292,9 @@ class BrowserTests(HTTPTests):
         self.assertEqual(request.form[u'b'], u'1')
         self.assertEqual(request.form[u'a'].keys(), [u'x'])
         self.assertEqual(request.form[u'a'][u'x'], [u'5',u'6'])
-        self.assertEqual(str(request.form[u'a']), "x: [u'5', u'6']")
-        self.assertEqual(repr(request.form[u'a']), "x: [u'5', u'6']")
+        self.assertEqual(request.form[u'a'].x, [u'5',u'6'])
+        self.assertEqual(str(request.form[u'a']), "{x: [u'5', u'6']}")
+        self.assertEqual(repr(request.form[u'a']), "{x: [u'5', u'6']}")
 
     def testFormListTypes2(self):
         extra = {'QUERY_STRING':'a=5&a=6&b=1'}

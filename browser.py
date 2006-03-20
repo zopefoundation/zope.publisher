@@ -21,8 +21,8 @@ packaged into a nice, Python-friendly 'FileUpload' object.
 $Id$
 """
 import re
-from types import ListType, TupleType, StringType, StringTypes
-from cgi import FieldStorage, escape
+from types import ListType, TupleType, StringType
+from cgi import FieldStorage
 
 from zope.interface import implements, directlyProvides
 from zope.i18n.interfaces import IUserPreferredLanguages
@@ -31,9 +31,8 @@ from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.publisher.interfaces.browser import IDefaultBrowserLayer
 from zope.publisher.interfaces.browser import IBrowserApplicationRequest
 
-from zope.publisher import contenttype
 from zope.publisher.http import HTTPRequest, HTTPResponse
-from zope.publisher.base import BaseRequest
+
 
 __ArrayTypes = (ListType, TupleType)
 
@@ -41,7 +40,6 @@ start_of_header_search=re.compile('(<head[^>]*>)', re.I).search
 base_re_search=re.compile('(<base.*?>)',re.I).search
 isRelative = re.compile("[-_.!~*a-zA-z0-9'()@&=+$,]+(/|$)").match
 newlines = re.compile('\r\n|\n\r|\r')
-
 
 def is_text_html(content_type):
     return content_type.startswith('text/html')
@@ -175,12 +173,13 @@ hide_key={
     'HTTP_CGI_AUTHORIZATION': 1,
     }.has_key
 
-
 class Record(object):
 
+    _attrs = frozenset(('get', 'keys', 'items', 'values', 'copy',
+                       'has_key', '__contains__'))
+
     def __getattr__(self, key, default=None):
-        if key in ('get', 'keys', 'items', 'values', 'copy',
-                   'has_key', '__contains__'):
+        if key in self._attrs:
             return getattr(self.__dict__, key)
         raise AttributeError(key)
 
@@ -188,15 +187,16 @@ class Record(object):
         return self.__dict__[key]
 
     def __str__(self):
-        L1 = self.__dict__.items()
-        L1.sort()
-        return ", ".join(["%s: %s" % item for item in L1])
+        items = self.__dict__.items()
+        items.sort()
+        return "{" + ", ".join(["%s: %s" % item for item in items]) + "}"
 
     def __repr__(self):
-        L1 = self.__dict__.items()
-        L1.sort()
-        return ', '.join(["%s: %s" % (key, repr(value)) for key, value in L1])
-
+        items = self.__dict__.items()
+        items.sort()
+        return ("{"
+            + ", ".join(["%s: %s" % (key, repr(value))
+            for key, value in items]) + "}")
 
 class BrowserRequest(HTTPRequest):
     implements(IBrowserRequest, IBrowserApplicationRequest)
