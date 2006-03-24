@@ -139,13 +139,16 @@ class Retry(PublishingException):
     implements(IRetry)
 
     def __init__(self, orig_exc=None):
+        """orig_exc must be a 3-tuple as returned from sys.exc_info() or None"""
         self.orig_exc = orig_exc
 
     def getOriginalException(self):
         return self.orig_exc
 
     def __str__(self):
-        return repr(self.orig_exc)
+        if self.orig_exc is None:
+            return 'None'
+        return str(self.orig_exc[1])
 
 
 class IExceptionSideEffects(Interface):
