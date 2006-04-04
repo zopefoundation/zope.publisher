@@ -25,16 +25,16 @@ from types import ListType, TupleType, StringType
 from cgi import FieldStorage
 
 import zope.component
-from zope.interface import implements, directlyProvides, providedBy
+from zope.interface import implements, directlyProvides
+from zope.interface import directlyProvidedBy, providedBy
 from zope.i18n.interfaces import IUserPreferredLanguages
 from zope.i18n.interfaces import IUserPreferredCharsets
 from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.publisher.interfaces.browser import IDefaultBrowserLayer
 from zope.publisher.interfaces.browser import IDefaultSkin
 from zope.publisher.interfaces.browser import IBrowserApplicationRequest
-
+from zope.publisher.interfaces.browser import IBrowserSkinType
 from zope.publisher.http import HTTPRequest, HTTPResponse
-
 
 __ArrayTypes = (ListType, TupleType)
 
@@ -890,3 +890,36 @@ def setDefaultSkin(request):
         directlyProvides(request, skin)
     else:
         directlyProvides(request, IDefaultBrowserLayer)
+
+def applySkin(request, skin):
+    """Change the presentation skin for this request.
+
+    >>> import pprint
+    >>> from zope.interface import Interface
+    >>> class SkinA(Interface): pass
+    >>> directlyProvides(SkinA, IBrowserSkinType)
+    >>> class SkinB(Interface): pass
+    >>> directlyProvides(SkinB, IBrowserSkinType)
+    >>> class IRequest(Interface): pass
+
+    >>> class Request(object):
+    ...     implements(IRequest)
+
+    >>> req = Request()
+
+    >>> applySkin(req, SkinA)
+    >>> pprint.pprint(list(providedBy(req).interfaces()))
+    [<InterfaceClass zope.publisher.browser.SkinA>,
+     <InterfaceClass zope.publisher.browser.IRequest>]
+
+    >>> applySkin(req, SkinB)
+    >>> pprint.pprint(list(providedBy(req).interfaces()))
+    [<InterfaceClass zope.publisher.browser.SkinB>,
+     <InterfaceClass zope.publisher.browser.IRequest>]
+    """
+    # Remove all existing skin declarations (commonly the default skin).
+    ifaces = [iface for iface in directlyProvidedBy(request)
+              if not IBrowserSkinType.providedBy(iface)]
+    # Add the new skin.
+    ifaces.append(skin)
+    directlyProvides(request, *ifaces)
