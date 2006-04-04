@@ -127,13 +127,16 @@ class Retry(PublishingException):
     implements(IRetry)
 
     def __init__(self, orig_exc=None):
+        """orig_exc must be a 3-tuple as returned from sys.exc_info() or None"""
         self.orig_exc = orig_exc
 
     def getOriginalException(self):
         return self.orig_exc
 
     def __str__(self):
-        return repr(self.orig_exc)
+        if self.orig_exc is None:
+            return 'None'
+        return str(self.orig_exc[1])
 
 
 class IExceptionSideEffects(Interface):
@@ -451,6 +454,19 @@ class IRequest(IPublisherRequest, IPublicationRequest, IApplicationRequest):
     """
 
 
+##############################################################################
+#
+# BBB 2006/02/18, to be removed after 12 months
+#
+
 class ILayer(IInterface):
     """A grouping of related views for a request."""
 
+import zope.deprecation
+zope.deprecation.deprecated('ILayer',
+                            'The zope.publisher.interfaces.ILayer '
+                            'interface has been deprecated and will '
+                            'go away in Zope 3.5.')
+
+#
+##############################################################################
