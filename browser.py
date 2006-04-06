@@ -29,10 +29,13 @@ from zope.interface import implements, directlyProvides
 from zope.interface import directlyProvidedBy, providedBy
 from zope.i18n.interfaces import IUserPreferredLanguages
 from zope.i18n.interfaces import IUserPreferredCharsets
+from zope.location import Location
+
 from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.publisher.interfaces.browser import IDefaultBrowserLayer
 from zope.publisher.interfaces.browser import IDefaultSkin
 from zope.publisher.interfaces.browser import IBrowserApplicationRequest
+from zope.publisher.interfaces.browser import IBrowserView
 from zope.publisher.interfaces.browser import IBrowserSkinType
 from zope.publisher.http import HTTPRequest, HTTPResponse
 
@@ -823,6 +826,35 @@ class BrowserLanguages(object):
         accepts.reverse()
 
         return [lang for quality, lang in accepts]
+
+class BrowserView(Location):
+    """Browser View.
+
+    >>> view = BrowserView("context", "request")
+    >>> view.context
+    'context'
+    >>> view.request
+    'request'
+
+    >>> view.__parent__
+    'context'
+    >>> view.__parent__ = "parent"
+    >>> view.__parent__
+    'parent'
+    """
+    implements(IBrowserView)
+
+    def __init__(self, context, request):
+        self.context = context
+        self.request = request
+
+    def __getParent(self):
+        return getattr(self, '_parent', self.context)
+
+    def __setParent(self, parent):
+        self._parent = parent
+
+    __parent__ = property(__getParent, __setParent)
 
 def setDefaultSkin(request):
     """Sets the default skin for the request.
