@@ -21,19 +21,20 @@ import sys
 from zope.publisher.interfaces import Retry
 from zope.proxy import removeAllProxies
 
-_marker = []  # Create a new marker object.
 
+_marker = object()  # Create a new marker object.
 
-def unwrapMethod(object):
-    """object -> (unwrapped, wrapperCount)
+def unwrapMethod(obj):
+    """obj -> (unwrapped, wrapperCount)
 
-    Unwrap 'object' until we get to a real function, counting the number of
+    Unwrap 'obj' until we get to a real function, counting the number of
     unwrappings.
 
     Bail if we find a class or something we can't identify as callable.
     """
     wrapperCount = 0
-    unwrapped = object
+    unwrapped = obj
+
     for i in range(10):
         bases = getattr(unwrapped, '__bases__', None)
         if bases is not None:
@@ -43,31 +44,24 @@ def unwrapMethod(object):
         if im_func is not None:
             unwrapped = im_func
             wrapperCount += 1
-            continue
-
-        func_code = getattr(unwrapped, 'func_code', None)
-        if func_code is not None:
+        elif getattr(unwrapped, 'func_code', None) is not None:
             break
-
-        __call__ = getattr(unwrapped, '__call__' , None)
-        if __call__ is not None:
-            unwrapped = unwrapped.__call__
         else:
-            raise TypeError("mapply() can not call %s" % `object`)
-
+            unwrapped = getattr(unwrapped, '__call__' , None)
+            if unwrapped is None:
+                raise TypeError("mapply() can not call %s" % repr(obj))
     else:
-        raise TypeError(
-            "couldn't find callable metadata, mapply() error on %s"%`object`
-        )
+        raise TypeError("couldn't find callable metadata, mapply() error on %s"
+                        % repr(obj))
 
     return unwrapped, wrapperCount
 
 
-def mapply(object, positional=(), request={}):
-    __traceback_info__ = object
+def mapply(obj, positional=(), request={}):
+    __traceback_info__ = obj
 
     # we need deep access for introspection. Waaa.
-    unwrapped = removeAllProxies(object)
+    unwrapped = removeAllProxies(obj)
 
     unwrapped, wrapperCount = unwrapMethod(unwrapped)
 
@@ -76,24 +70,25 @@ def mapply(object, positional=(), request={}):
     names = code.co_varnames[wrapperCount:code.co_argcount]
 
     nargs = len(names)
-    if positional:
+    if not positional:
+        args = []
+    else:
         args = list(positional)
         if len(args) > nargs:
             given = len(args)
             if wrapperCount:
-                given = given + wrapperCount
-            raise TypeError(
-                '%s() takes at most %d argument%s(%d given)' % (
-                getattr(unwrapped, '__name__', repr(object)), code.co_argcount,
-                (code.co_argcount > 1 and 's ' or ' '), given))
-    else:
-        args = []
+                given += wrapperCount
+            raise TypeError('%s() takes at most %d argument%s(%d given)' % (
+                getattr(unwrapped, '__name__', repr(obj)),
+                code.co_argcount,
+                (code.co_argcount > 1 and 's ' or ' '),
+                given))
 
     get = request.get
+    nrequired = len(names)
     if defaults:
-        nrequired = len(names) - (len(defaults))
-    else:
-        nrequired = len(names)
+        nrequired -= len(defaults)
+
     for index in range(len(args), nargs):
         name = names[index]
         v = get(name, _marker)
@@ -102,21 +97,21 @@ def mapply(object, positional=(), request={}):
                 v = request
             elif index < nrequired:
                 raise TypeError('Missing argument to %s(): %s' % (
-                    getattr(unwrapped, '__name__', repr(object)), name))
+                    getattr(unwrapped, '__name__', repr(obj)), name))
             else:
-                v = defaults[index-nrequired]
+                v = defaults[index - nrequired]
         args.append(v)
 
     args = tuple(args)
 
     if __debug__:
-        return debug_call(object, args)
+        return debug_call(obj, args)
 
-    return object(*args)
+    return obj(*args)
 
-def debug_call(object, args):
+def debug_call(obj, args):
     # The presence of this function allows us to set a pdb breakpoint
-    return object(*args)
+    return obj(*args)
 
 def publish(request, handle_errors=True):
     try: # finally to clean up to_raise and close request
@@ -125,31 +120,31 @@ def publish(request, handle_errors=True):
             publication = request.publication
             try:
                 try:
-                    object = None
+                    obj = None
                     try:
                         try:
                             request.processInputs()
                             publication.beforeTraversal(request)
 
-                            object = publication.getApplication(request)
-                            object = request.traverse(object)
-                            publication.afterTraversal(request, object)
+                            obj = publication.getApplication(request)
+                            obj = request.traverse(obj)
+                            publication.afterTraversal(request, obj)
 
-                            result = publication.callObject(request, object)
+                            result = publication.callObject(request, obj)
                             response = request.response
                             if result is not response:
                                 response.setResult(result)
 
-                            publication.afterCall(request, object)
+                            publication.afterCall(request, obj)
 
                         except:
                             publication.handleException(
-                                object, request, sys.exc_info(), True)
+                                obj, request, sys.exc_info(), True)
 
                             if not handle_errors:
                                 raise
                     finally:
-                        publication.endRequest(request, object)
+                        publication.endRequest(request, obj)
 
                     break # Successful.
 
@@ -163,7 +158,7 @@ def publish(request, handle_errors=True):
                         # Output the original exception.
                         publication = request.publication
                         publication.handleException(
-                            object, request,
+                            obj, request,
                             retryException.getOriginalException(), False)
                         break
                     else:
