@@ -203,7 +203,7 @@ class HTTPInputStream(object):
         self.cacheStream.write(data)
         return data
 
-    def readlines(self, hint=None):
+    def readlines(self, hint=0):
         data = self.stream.readlines(hint)
         self.cacheStream.write(''.join(data))
         return data
