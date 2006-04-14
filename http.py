@@ -445,10 +445,10 @@ class HTTPRequest(BaseRequest):
         request._retry_count = self._retry_count
         return request
 
-    def traverse(self, object):
+    def traverse(self, obj):
         'See IPublisherRequest'
 
-        ob = super(HTTPRequest, self).traverse(object)
+        ob = super(HTTPRequest, self).traverse(obj)
         if self._path_suffix:
             self._traversal_stack = self._path_suffix
             ob = super(HTTPRequest, self).traverse(ob)

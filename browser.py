@@ -494,10 +494,10 @@ class BrowserRequest(HTTPRequest):
                         elif not val in item:
                             item.append(val)
 
-    def traverse(self, object):
+    def traverse(self, obj):
         'See IPublisherRequest'
 
-        ob = super(BrowserRequest, self).traverse(object)
+        ob = super(BrowserRequest, self).traverse(obj)
         method = self.method
 
         base_needed = 0

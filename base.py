@@ -263,7 +263,7 @@ class BaseRequest(object):
         'See IPublisherRequest'
         return 0
 
-    def traverse(self, object):
+    def traverse(self, obj):
         'See IPublisherRequest'
 
         publication = self.publication
@@ -271,29 +271,27 @@ class BaseRequest(object):
         traversal_stack = self._traversal_stack
         traversed_names = self._traversed_names
 
-        self._last_obj_traversed = object
-
         prev_object = None
         while True:
 
-            if object is not prev_object:
+            self._last_obj_traversed = obj
+
+            if obj is not prev_object:
                 # Invoke hooks (but not more than once).
-                publication.callTraversalHooks(self, object)
+                publication.callTraversalHooks(self, obj)
 
-            prev_object = object
-
-            if traversal_stack:
-                # Traverse to the next step.
-                entry_name = traversal_stack.pop()
-                traversed_names.append(entry_name)
-                subobject = publication.traverseName(
-                    self, object, entry_name)
-                self._last_obj_traversed = object = subobject
-            else:
+            if not traversal_stack:
                 # Finished traversal.
                 break
 
-        return object
+            prev_object = obj
+
+            # Traverse to the next step.
+            entry_name = traversal_stack.pop()
+            traversed_names.append(entry_name)
+            obj = publication.traverseName(self, obj, entry_name)
+
+        return obj
 
     def close(self):
         'See IPublicationRequest'
