@@ -679,6 +679,13 @@ class BrowserResponse(HTTPResponse):
 
         body, headers = super(BrowserResponse, self)._implicitResult(body)
         body = self.__insertBase(body)
+        # Update the Content-Length header to account for the inserted
+        # <base> tag.
+        headers = [
+            (name, value) for name, value in headers
+            if name != 'content-length'
+            ]
+        headers.append(('content-length', str(len(body))))
         return body, headers
 
 

@@ -107,6 +107,24 @@ class TestBrowserResponse(TestCase):
         self.assert_(isinstance(body, str))
         self.assert_('<base href="http://localhost/folder" />' in result)
 
+    def testInsertBaseInSetResultUpdatesContentLength(self):
+        # Make sure that the Content-Length header is updated to account
+        # for an inserted <base> tag.
+        response = BrowserResponse()
+        response.setHeader('content-type', 'text/html')
+        base = 'http://localhost/folder/'
+        response.setBase(base)
+        inserted_text = '\n<base href="%s" />\n' % base
+        html_page = """<html>
+            <head></head>
+            <blah>
+            </html>
+            """
+        response.setResult(html_page)
+        self.assertEquals(
+            int(response.getHeader('content-length')),
+            len(html_page) + len(inserted_text))
+
 
     def test_interface(self):
         from zope.publisher.interfaces.http import IHTTPResponse
