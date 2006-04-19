@@ -106,6 +106,11 @@ class IBrowserPublisher(IPublishTraverse):
         the base href.
         """
 
+class IBrowserPage(IBrowserPublisher):
+    """Browser page"""
+
+    def __call__(*args, **kw):
+        """Compute a response body"""
 
 class IBrowserView(IView):
     """Browser View"""
