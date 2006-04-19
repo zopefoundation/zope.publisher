@@ -39,6 +39,7 @@ from zope.publisher.interfaces.browser import IBrowserApplicationRequest
 from zope.publisher.interfaces.browser import IBrowserView
 from zope.publisher.interfaces.browser import IBrowserPage
 from zope.publisher.interfaces.browser import IBrowserSkinType
+from zope.publisher.interfaces.http import IHTTPRequest
 from zope.publisher.http import HTTPRequest, HTTPResponse
 
 __ArrayTypes = (ListType, TupleType)
@@ -782,7 +783,7 @@ def normalize_lang(lang):
     return lang
 
 class BrowserLanguages(object):
-
+    zope.component.adapts(IHTTPRequest)
     implements(IUserPreferredLanguages)
 
     def __init__(self, request):
