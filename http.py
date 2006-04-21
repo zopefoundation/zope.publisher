@@ -1020,7 +1020,10 @@ class HTTPCharsets(object):
         # different ranges, like providing a French-Chinese dictionary, it is
         # always good to use UTF-8.
         charsets.sort(sort_charsets)
-        return [c[1] for c in charsets]
+        charsets = [charset for quality, charset in charsets]
+        if sawstar and 'utf-8' not in charsets:
+            charsets.insert(0, 'utf-8')
+        return charsets
 
 
 def getCharsetUsingRequest(request):

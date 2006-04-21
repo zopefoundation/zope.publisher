@@ -53,6 +53,23 @@ class HTTPCharsetTest(unittest.TestCase):
         self.assertEqual(list(browser_charsets.getPreferredCharsets()),
                          ['iso-8859-1', 'utf-16'])
 
+    def testStarNoUtf8(self):
+        # If '*' is in HTTP_ACCEPT_CHARSET, but 'utf-8' isn't, we insert
+        # utf-8 in the list, since we prefer that over any other #
+        # charset.
+        request = {'HTTP_ACCEPT_CHARSET': 'ISO-8859-1, *'}
+        browser_charsets = HTTPCharsets(request)
+        self.assertEqual(list(browser_charsets.getPreferredCharsets()),
+                         ['utf-8', 'iso-8859-1', '*'])
+
+    def testStarAndUtf8(self):
+        # If '*' and 'utf-8' are in HTTP_ACCEPT_CHARSET, we won't insert
+        # an extra 'utf-8'.
+        request = {'HTTP_ACCEPT_CHARSET': 'ISO-8859-1, utf-8, *'}
+        browser_charsets = HTTPCharsets(request)
+        self.assertEqual(list(browser_charsets.getPreferredCharsets()),
+                         ['utf-8', 'iso-8859-1', '*'])
+
     def testNoHTTP_ACCEPT_CHARSET(self):
         # If the client doesn't provide a HTTP_ACCEPT_CHARSET, it should
         # accept any charset
