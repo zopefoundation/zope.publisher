@@ -18,7 +18,7 @@ Provide an apply-like facility that works with any mapping object
 $Id$
 """
 import sys
-from zope.publisher.interfaces import Retry
+import interfaces
 from zope.proxy import removeAllProxies
 
 _marker = []  # Create a new marker object.
@@ -134,24 +134,27 @@ def publish(request, handle_errors=True):
                             object = publication.getApplication(request)
 ## XXX - we should use adapters and interfaces here but Five says
 ## that the Zope2 request object implements IPublisherRequest when
-## the API for the traverse method is different on the Zope2 request.
-##                             if IPublisherRequest.providedBy(request):
-##                                 object = request.traverse(object)
-##                             else:
-##                                 # The Zope2 request traverse method corresponds
-##                                 # to a different API, so adapt the request
-##                                 # object to a IPublisherRequest object and
-##                                 # then call the traverse method.
-##                                 object = IPublisherRequest(
-##                                     request).traverse(object)
+### the API for the traverse method is different on the Zope2 request.
+                             #if IPublisherRequest.providedBy(request):
+                                 #object = request.traverse(object)
+                             #else:
+                                 ## The Zope2 request traverse method corresponds
+                                 ## to a different API, so adapt the request
+                                 ## object to a IPublisherRequest object and
+                                 ## then call the traverse method.
                             try:
-                                from ZPublisher.Publication import \
-                                     Zope3HTTPRequestTraverser
-                                object = Zope3HTTPRequestTraverser(
+                                object = interfaces.ITraversingRequest(
                                     request).traverse(object)
-                            except ImportError:
+                            except TypeError:
                                 object = request.traverse(object)
-                            object = request.traverse(object)
+                            #try:
+                                #from ZPublisher.Publication import \
+                                     #Zope3HTTPRequestTraverser
+                                #object = Zope3HTTPRequestTraverser(
+                                    #request).traverse(object)
+                            #except ImportError:
+                                #object = request.traverse(object)
+                            #object = request.traverse(object)
                             publication.afterTraversal(request, object)
 
                             result = publication.callObject(request, object)
@@ -172,7 +175,7 @@ def publish(request, handle_errors=True):
 
                     break # Successful.
 
-                except Retry, retryException:
+                except interfaces.Retry, retryException:
                     if request.supportsRetry():
                         # Create a copy of the request and use it.
                         newrequest = request.retry()
