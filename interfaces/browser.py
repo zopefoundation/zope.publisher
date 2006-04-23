@@ -127,10 +127,7 @@ class IBrowserSkinType(IInterface):
 #
 
 # mark the default layer for BBB reasons
-import zope.deprecation
-zope.deprecation.__show__.off()
-from zope.publisher.interfaces import ILayer
-zope.deprecation.__show__.on()
+from zope.publisher.interfaces.back35 import ILayer
 directlyProvides(IDefaultBrowserLayer, ILayer)
 
 import zope.deprecation

@@ -17,9 +17,15 @@ $Id$
 """
 __docformat__ = "reStructuredText"
 
+import zope.deferredimport
+
+zope.deferredimport.deprecated(
+    "ILayer will go away in Zope 3.5",
+    ILayer = 'zope.publisher.interfaces.back35:ILayer',
+    )
+
 from zope.component.interfaces import IPresentationRequest
 from zope.interface import Interface, Attribute, implements
-from zope.interface.interfaces import IInterface
 from zope.interface.common.mapping import IEnumerableMapping
 from zope.interface.common.interfaces import IException, ILookupError
 from zope.security.interfaces import Unauthorized, IParticipation
@@ -452,21 +458,3 @@ class IApplicationRequest(IEnumerableMapping):
 class IRequest(IPublisherRequest, IPublicationRequest, IApplicationRequest):
     """The basic request contract
     """
-
-
-##############################################################################
-#
-# BBB 2006/02/18, to be removed after 12 months
-#
-
-class ILayer(IInterface):
-    """A grouping of related views for a request."""
-
-import zope.deprecation
-zope.deprecation.deprecated('ILayer',
-                            'The zope.publisher.interfaces.ILayer '
-                            'interface has been deprecated and will '
-                            'go away in Zope 3.5.')
-
-#
-##############################################################################
