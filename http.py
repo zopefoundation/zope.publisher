@@ -26,7 +26,6 @@ import logging
 from tempfile import TemporaryFile
 
 from zope import component, interface
-
 from zope.deprecation import deprecation
 
 from zope.publisher import contenttype
@@ -974,6 +973,7 @@ def sort_charsets(x, y):
 
 
 class HTTPCharsets(object):
+    component.adapts(IHTTPRequest)
     interface.implements(IUserPreferredCharsets)
 
     def __init__(self, request):

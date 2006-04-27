@@ -24,15 +24,23 @@ import re
 from types import ListType, TupleType, StringType
 from cgi import FieldStorage
 
+import zope.component
 from zope.interface import implements, directlyProvides
+from zope.interface import directlyProvidedBy, providedBy
 from zope.i18n.interfaces import IUserPreferredLanguages
 from zope.i18n.interfaces import IUserPreferredCharsets
+from zope.location import Location
+
+from zope.publisher.interfaces import NotFound
 from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.publisher.interfaces.browser import IDefaultBrowserLayer
+from zope.publisher.interfaces.browser import IDefaultSkin
 from zope.publisher.interfaces.browser import IBrowserApplicationRequest
-
+from zope.publisher.interfaces.browser import IBrowserView
+from zope.publisher.interfaces.browser import IBrowserPage
+from zope.publisher.interfaces.browser import IBrowserSkinType
+from zope.publisher.interfaces.http import IHTTPRequest
 from zope.publisher.http import HTTPRequest, HTTPResponse
-
 
 __ArrayTypes = (ListType, TupleType)
 
@@ -782,7 +790,7 @@ def normalize_lang(lang):
     return lang
 
 class BrowserLanguages(object):
-
+    zope.component.adapts(IHTTPRequest)
     implements(IUserPreferredLanguages)
 
     def __init__(self, request):
@@ -828,3 +836,195 @@ class BrowserLanguages(object):
         accepts.reverse()
 
         return [lang for quality, lang in accepts]
+
+class BrowserView(Location):
+    """Browser View.
+
+    >>> view = BrowserView("context", "request")
+    >>> view.context
+    'context'
+    >>> view.request
+    'request'
+
+    >>> view.__parent__
+    'context'
+    >>> view.__parent__ = "parent"
+    >>> view.__parent__
+    'parent'
+    """
+    implements(IBrowserView)
+
+    def __init__(self, context, request):
+        self.context = context
+        self.request = request
+
+    def __getParent(self):
+        return getattr(self, '_parent', self.context)
+
+    def __setParent(self, parent):
+        self._parent = parent
+
+    __parent__ = property(__getParent, __setParent)
+
+class BrowserPage(BrowserView):
+    """Browser page
+
+    To create a page, which is an object that is published as a page,
+    you need to provide an object that:
+
+    - has a __call__ method and that
+
+    - provides IBrowserPublisher, and
+
+    - if ZPT is going to be used, then your object should also provide
+      request and context attributes.
+
+    The BrowserPage base class provides a standard constructor and a
+    simple implementation of IBrowserPublisher:
+
+      >>> class MyPage(BrowserPage):
+      ...     pass
+
+      >>> request = TestRequest()
+      >>> context = object()
+      >>> page = MyPage(context, request)
+
+      >>> from zope.publisher.interfaces.browser import IBrowserPublisher
+      >>> IBrowserPublisher.providedBy(page)
+      True
+
+      >>> page.browserDefault(request) == (page, ())
+      True
+
+      >>> page.publishTraverse(request, 'bob') # doctest: +ELLIPSIS
+      Traceback (most recent call last):
+      ...
+      NotFound: Object: <zope.publisher.browser.MyPage object at ...>, name: 'bob'
+
+      >>> page.request is request
+      True
+
+      >>> page.context is context
+      True
+
+    But it doesn't supply a __call__ method:
+
+      >>> page()
+      Traceback (most recent call last):
+        ...
+      NotImplementedError: Subclasses should override __call__ to provide a response body
+
+    It is the subclass' responsibility to do that.
+
+    """
+    implements(IBrowserPage)
+
+    def browserDefault(self, request):
+        return self, ()
+
+    def publishTraverse(self, request, name):
+        raise NotFound(self, name, request)
+
+    def __call__(self, *args, **kw):
+        raise NotImplementedError("Subclasses should override __call__ to "
+                                  "provide a response body")
+
+def setDefaultSkin(request):
+    """Sets the default skin for the request.
+
+    The default skin is a marker interface that can be registered as an
+    adapter that provides IDefaultSkin for the request type.
+
+    If a default skin is not available, the default layer
+    (IDefaultBrowserLayer) is used.
+
+    To illustrate, we'll first use setDefaultSkin without a registered
+    IDefaultSkin adapter:
+
+      >>> class Request(object):
+      ...     implements(IBrowserRequest)
+
+      >>> request = Request()
+      >>> IDefaultBrowserLayer.providedBy(request)
+      False
+
+      >>> setDefaultSkin(request)
+      >>> IDefaultBrowserLayer.providedBy(request)
+      True
+
+    When we register a default layer, however:
+
+      >>> from zope.interface import Interface
+      >>> class IMySkin(Interface):
+      ...     pass
+      >>> zope.component.provideAdapter(IMySkin, (IBrowserRequest,),
+      ...                               IDefaultSkin)
+
+    setDefaultSkin uses the layer instead of IDefaultBrowserLayer.providedBy:
+
+      >>> request = Request()
+      >>> IMySkin.providedBy(request)
+      False
+      >>> IDefaultSkin.providedBy(request)
+      False
+
+      >>> setDefaultSkin(request)
+
+      >>> IMySkin.providedBy(request)
+      True
+      >>> IDefaultBrowserLayer.providedBy(request)
+      False
+
+    Any interfaces that are directly provided by the request coming into this
+    method are replaced by the applied layer/skin interface:
+
+      >>> request = Request()
+      >>> class IFoo(Interface):
+      ...     pass
+      >>> directlyProvides(request, IFoo)
+      >>> IFoo.providedBy(request)
+      True
+      >>> setDefaultSkin(request)
+      >>> IFoo.providedBy(request)
+      False
+
+    """
+    adapters = zope.component.getSiteManager().adapters
+    skin = adapters.lookup((providedBy(request),), IDefaultSkin, '')
+    if skin is not None:
+        directlyProvides(request, skin)
+    else:
+        directlyProvides(request, IDefaultBrowserLayer)
+
+def applySkin(request, skin):
+    """Change the presentation skin for this request.
+
+    >>> import pprint
+    >>> from zope.interface import Interface
+    >>> class SkinA(Interface): pass
+    >>> directlyProvides(SkinA, IBrowserSkinType)
+    >>> class SkinB(Interface): pass
+    >>> directlyProvides(SkinB, IBrowserSkinType)
+    >>> class IRequest(Interface): pass
+
+    >>> class Request(object):
+    ...     implements(IRequest)
+
+    >>> req = Request()
+
+    >>> applySkin(req, SkinA)
+    >>> pprint.pprint(list(providedBy(req).interfaces()))
+    [<InterfaceClass zope.publisher.browser.SkinA>,
+     <InterfaceClass zope.publisher.browser.IRequest>]
+
+    >>> applySkin(req, SkinB)
+    >>> pprint.pprint(list(providedBy(req).interfaces()))
+    [<InterfaceClass zope.publisher.browser.SkinB>,
+     <InterfaceClass zope.publisher.browser.IRequest>]
+    """
+    # Remove all existing skin declarations (commonly the default skin).
+    ifaces = [iface for iface in directlyProvidedBy(request)
+              if not IBrowserSkinType.providedBy(iface)]
+    # Add the new skin.
+    ifaces.append(skin)
+    directlyProvides(request, *ifaces)

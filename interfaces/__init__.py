@@ -15,26 +15,20 @@
 
 $Id$
 """
-
 __docformat__ = "reStructuredText"
 
-import zope.deprecation
+import zope.deferredimport
 
-from zope.interface import Interface
-from zope.interface import Attribute
-from zope.security.interfaces import Unauthorized
+zope.deferredimport.deprecated(
+    "ILayer will go away in Zope 3.5",
+    ILayer = 'zope.publisher.interfaces.back35:ILayer',
+    )
+
 from zope.component.interfaces import IPresentationRequest
-from zope.interface import implements
-from zope.interface.interfaces import IInterface
+from zope.interface import Interface, Attribute, implements
 from zope.interface.common.mapping import IEnumerableMapping
-from zope.interface.common.interfaces import IException
-from zope.security.interfaces import IParticipation
-
-# BBB : can be remove in 3.3
-zope.deprecation.__show__.off()
-from zope.exceptions import NotFoundError, INotFoundError
-zope.deprecation.__show__.on()
-
+from zope.interface.common.interfaces import IException, ILookupError
+from zope.security.interfaces import Unauthorized, IParticipation
 
 class IPublishingException(IException):
     pass
@@ -48,14 +42,14 @@ class ITraversalException(IPublishingException):
 class TraversalException(PublishingException):
     implements(ITraversalException)
 
-class INotFound(INotFoundError, ITraversalException):
+class INotFound(ILookupError, ITraversalException):
     def getObject():
         'Returns the object that was being traversed.'
 
     def getName():
         'Returns the name that was being traversed.'
 
-class NotFound(NotFoundError, TraversalException):
+class NotFound(LookupError, TraversalException):
     implements(INotFound)
 
     def __init__(self, ob, name, request=None):
@@ -464,21 +458,3 @@ class IApplicationRequest(IEnumerableMapping):
 class IRequest(IPublisherRequest, IPublicationRequest, IApplicationRequest):
     """The basic request contract
     """
-
-
-##############################################################################
-#
-# BBB 2006/02/18, to be removed after 12 months
-#
-
-class ILayer(IInterface):
-    """A grouping of related views for a request."""
-
-import zope.deprecation
-zope.deprecation.deprecated('ILayer',
-                            'The zope.publisher.interfaces.ILayer '
-                            'interface has been deprecated and will '
-                            'go away in Zope 3.5.')
-
-#
-##############################################################################
