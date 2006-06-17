@@ -356,17 +356,15 @@ class BrowserRequest(HTTPRequest):
                 # skip over empty fields
                 return
 
-        # Filter out special names from form:
-        if not (isCGI_NAME(key) or key.startswith('HTTP_')):
-            # Make it unicode
-            key = self._decode(key)
-            if type(item) == StringType:
-                item = self._decode(item)
+        # Make it unicode
+        key = self._decode(key)
+        if type(item) == StringType:
+            item = self._decode(item)
 
-            if flags:
-                self.__setItemWithType(key, item, flags, converter)
-            else:
-                self.__setItemWithoutType(key, item)
+        if flags:
+            self.__setItemWithType(key, item, flags, converter)
+        else:
+            self.__setItemWithoutType(key, item)
 
     def __setItemWithoutType(self, key, item):
         """Set item value without explicit type."""

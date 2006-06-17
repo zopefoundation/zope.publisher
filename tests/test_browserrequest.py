@@ -424,6 +424,16 @@ class BrowserTests(HTTPTests):
         finally:
             sys.argv = argv
 
+    def testIssue559(self):
+        extra = {'QUERY_STRING': 'HTTP_REFERER=peter',
+                 'HTTP_REFERER':'http://localhost/',
+                 'PATH_INFO': '/folder/item3/'}
+        request = self._createRequest(extra)
+        publish(request)
+        self.assertEqual(request.headers.get('HTTP_REFERER'), 'http://localhost/')
+        self.assertEqual(request.form, {u'HTTP_REFERER': u'peter'})
+
+
 def test_suite():
     loader = unittest.TestLoader()
     return loader.loadTestsFromTestCase(BrowserTests)
