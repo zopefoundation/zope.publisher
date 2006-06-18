@@ -1,0 +1,28 @@
+<configure xmlns="http://namespaces.zope.org/zope">
+
+  <adapter
+      for="list"
+      factory=".xmlrpc.ListPreMarshaller"
+      />
+
+  <adapter
+      for="tuple"
+      factory=".xmlrpc.ListPreMarshaller"
+      />
+
+  <adapter
+      factory=".xmlrpc.FaultPreMarshaller"
+      for="xmlrpclib.Fault"
+      />
+
+  <adapter
+      factory=".xmlrpc.DateTimePreMarshaller"
+      for="xmlrpclib.DateTime"
+      />
+
+  <adapter
+      factory=".xmlrpc.DictPreMarshaller"
+      for="dict"
+      />
+
+</configure>
