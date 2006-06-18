@@ -21,9 +21,11 @@ import sys
 import xmlrpclib
 from StringIO import StringIO
 
+import zope.component
+import zope.interface
 from zope.interface import implements
-from zope.publisher.interfaces.xmlrpc import IXMLRPCPublisher
-from zope.publisher.interfaces.xmlrpc import IXMLRPCRequest
+from zope.publisher.interfaces.xmlrpc import \
+        IXMLRPCPublisher, IXMLRPCRequest, IXMLRPCPremarshaller
 
 from zope.publisher.http import HTTPRequest, HTTPResponse, DirectResult
 
@@ -159,31 +161,43 @@ class XMLRPCResponse(HTTPResponse):
         # XML-RPC prefers a status of 200 ("ok") even when reporting errors.
         self.setStatus(200)
 
+class PreMarshallerBase(object):
+    """Abstract base class for pre-marshallers."""
+    zope.interface.implements(IXMLRPCPremarshaller)
 
-def premarshal_dict(data):
-    return dict([(premarshal(k), premarshal(v))
-                 for (k, v) in data.items()])
+    def __init__(self, data):
+        self.data = data
 
-def premarshal_list(data):
-    return map(premarshal, data)
+    def __call__(self):
+        raise Exception, "Not implemented"
 
-def premarshal_fault(data):
-    return xmlrpclib.Fault(
-        premarshal(data.faultCode),
-        premarshal(data.faultString),
-        )
+class DictPreMarshaller(PreMarshallerBase):
+    """Pre-marshaller for dicts"""
 
-def premarshal_datetime(data):
-    return xmlrpclib.DateTime(data.value)
+    def __call__(self):
+        return dict([(premarshal(k), premarshal(v))
+                     for (k, v) in self.data.items()])
 
-premarshal_dispatch_table = {
-    dict: premarshal_dict,
-    list: premarshal_list,
-    tuple: premarshal_list,
-    xmlrpclib.Fault: premarshal_fault,
-    xmlrpclib.DateTime: premarshal_datetime,
-    }
-premarshal_dispatch = premarshal_dispatch_table.get
+class ListPreMarshaller(PreMarshallerBase):
+    """Pre-marshaller for list"""
+
+    def __call__(self):
+        return map(premarshal, self.data)
+
+class FaultPreMarshaller(PreMarshallerBase):
+    """Pre-marshaller for xmlrpc.Fault"""
+
+    def __call__(self):
+        return xmlrpclib.Fault(
+            premarshal(self.data.faultCode),
+            premarshal(self.data.faultString),
+            )
+
+class DateTimePreMarshaller(PreMarshallerBase):
+    """Pre-marshaller for xmlrpc.DateTime"""
+
+    def __call__(self):
+        return xmlrpclib.DateTime(self.data.value)
 
 def premarshal(data):
     """Premarshal data before handing it to xmlrpclib for marhalling
@@ -191,54 +205,8 @@ def premarshal(data):
     The initial purpose of this function is to remove security proxies
     without resorting to removeSecurityProxy.   This way, we can avoid
     inadvertently providing access to data that should be protected.
-
-    Suppose we have a sample data structure:
-
-      >>> sample = {'foo': (1, ['x', 'y', 1.2])}
-
-    if we put the sample in a security proxy:
-
-      >>> from zope.security.checker import ProxyFactory
-      >>> proxied_sample = ProxyFactory(sample)
-
-    We can still get to the data, but the non-rock data is proxied:
-
-      >>> from zope.security.proxy import Proxy
-      >>> proxied_sample['foo']
-      (1, ['x', 'y', 1.2])
-
-      >>> type(proxied_sample['foo']) is Proxy
-      True
-      >>> type(proxied_sample['foo'][1]) is Proxy
-      True
-
-    But we can strip the proxies using premarshal:
-
-      >>> stripped = premarshal(proxied_sample)
-      >>> stripped
-      {'foo': [1, ['x', 'y', 1.2]]}
-
-      >>> type(stripped['foo']) is Proxy
-      False
-      >>> type(stripped['foo'][1]) is Proxy
-      False
-
-    So xmlrpclib will be happy. :)
-
-    We can also use premarshal to strip proxies off of Fault objects.
-    We have to make a security declaration first though:
-
-      >>> from zope.security.checker import NamesChecker, defineChecker
-      >>> defineChecker(xmlrpclib.Fault,
-      ...               NamesChecker(['faultCode', 'faultString']))
-
-      >>> fault = xmlrpclib.Fault(1, 'waaa')
-      >>> proxied_fault = ProxyFactory(fault)
-      >>> stripped_fault = premarshal(proxied_fault)
-      >>> type(stripped_fault) is Proxy
-      False
     """
-    premarshaller = premarshal_dispatch(data.__class__)
+    premarshaller = IXMLRPCPremarshaller(data, alternate=None)
     if premarshaller is not None:
-        return premarshaller(data)
+        return premarshaller()
     return data

@@ -15,17 +15,16 @@
 
 $Id$
 """
-import unittest
-from zope.testing.doctest import DocTestSuite
-from zope.testing.cleanup import CleanUp
+
+import zope.app.testing.functional
+
+from zope.testing import doctest
 
 
 def test_suite():
-    return unittest.TestSuite((
-        DocTestSuite('zope.publisher.xmlrpc',
-                     tearDown=lambda ignored=None: CleanUp().cleanUp()),
-        ))
-
-if __name__ == '__main__':
-    unittest.main(defaultTest='test_suite')
-
+    suite = doctest.DocFileSuite( 
+        "xmlrpc.txt",
+        module_relative=True, package="zope.publisher",
+        optionflags=doctest.ELLIPSIS)
+    suite.layer = zope.app.testing.functional.Functional
+    return suite
