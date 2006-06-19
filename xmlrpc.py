@@ -199,6 +199,12 @@ class DateTimePreMarshaller(PreMarshallerBase):
     def __call__(self):
         return xmlrpclib.DateTime(self.data.value)
 
+class PythonDateTimePreMarshaller(PreMarshallerBase):
+    """Pre-marshaller for datetime.datetime"""
+
+    def __call__(self):
+        return xmlrpclib.DateTime(self.data.isoformat())
+
 def premarshal(data):
     """Premarshal data before handing it to xmlrpclib for marhalling
 

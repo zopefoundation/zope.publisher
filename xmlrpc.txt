@@ -48,3 +48,14 @@ We have to make a security declaration first though:
   >>> type(stripped_fault) is Proxy
   False
 
+Standard python datetime objects are also handled:
+
+  >>> import datetime
+  >>> sample = datetime.datetime(2006,06,17,21,41,00)
+  >>> stripped_date = premarshal(sample)
+  >>> isinstance(stripped_date, datetime.datetime)
+  False
+  >>> isinstance(stripped_date, xmlrpclib.DateTime)
+  True
+
+
