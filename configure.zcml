@@ -21,6 +21,11 @@
       />
 
   <adapter
+      factory=".xmlrpc.PythonDateTimePreMarshaller"
+      for="datetime.datetime"
+      />
+
+  <adapter
       factory=".xmlrpc.DictPreMarshaller"
       for="dict"
       />
