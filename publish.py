@@ -114,7 +114,6 @@ def debug_call(obj, args):
     return obj(*args)
 
 def publish(request, handle_errors=True):
-#    if 'non-existent' in str(request.URL): import pdb;pdb.set_trace()
     try: # finally to clean up to_raise and close request
         to_raise = None
         while True:
