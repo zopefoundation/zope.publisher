@@ -1,33 +1,24 @@
-<configure xmlns="http://namespaces.zope.org/zope">
+<configure 
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:apidoc="http://namespaces.zope.org/apidoc"
+    xmlns:zcml="http://namespaces.zope.org/zcml"
+    >
 
-  <adapter
-      for="list"
-      factory=".xmlrpc.ListPreMarshaller"
-      />
+  <interface interface="zope.publisher.interfaces.browser.IBrowserSkinType" />
+  <interface interface="zope.publisher.interfaces.xmlrpc.IXMLRPCRequest" />
 
-  <adapter
-      for="tuple"
-      factory=".xmlrpc.ListPreMarshaller"
-      />
+  <adapter factory=".xmlrpc.ListPreMarshaller" />
+  <adapter factory=".xmlrpc.TuplePreMarshaller" />
+  <adapter factory=".xmlrpc.FaultPreMarshaller" />
+  <adapter factory=".xmlrpc.DateTimePreMarshaller" />
+  <adapter factory=".xmlrpc.PythonDateTimePreMarshaller" />
+  <adapter factory=".xmlrpc.DictPreMarshaller" />
 
-  <adapter
-      factory=".xmlrpc.FaultPreMarshaller"
-      for="xmlrpclib.Fault"
-      />
-
-  <adapter
-      factory=".xmlrpc.DateTimePreMarshaller"
-      for="xmlrpclib.DateTime"
-      />
-
-  <adapter
-      factory=".xmlrpc.PythonDateTimePreMarshaller"
-      for="datetime.datetime"
-      />
-
-  <adapter
-      factory=".xmlrpc.DictPreMarshaller"
-      for="dict"
+  <apidoc:bookchapter
+      zcml:condition="have apidoc"
+      id="zopepublisherhttpresults.txt"
+      title="Creating HTTP Results"
+      doc_path="publisher/httpresults.txt"
       />
 
 </configure>
