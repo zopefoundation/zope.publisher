@@ -1,33 +1,8 @@
 <configure xmlns="http://namespaces.zope.org/zope">
-
-  <adapter
-      for="list"
-      factory=".xmlrpc.ListPreMarshaller"
-      />
-
-  <adapter
-      for="tuple"
-      factory=".xmlrpc.ListPreMarshaller"
-      />
-
-  <adapter
-      factory=".xmlrpc.FaultPreMarshaller"
-      for="xmlrpclib.Fault"
-      />
-
-  <adapter
-      factory=".xmlrpc.DateTimePreMarshaller"
-      for="xmlrpclib.DateTime"
-      />
-
-  <adapter
-      factory=".xmlrpc.PythonDateTimePreMarshaller"
-      for="datetime.datetime"
-      />
-
-  <adapter
-      factory=".xmlrpc.DictPreMarshaller"
-      for="dict"
-      />
-
+  <adapter factory=".xmlrpc.ListPreMarshaller" />
+  <adapter factory=".xmlrpc.TuplePreMarshaller" />
+  <adapter factory=".xmlrpc.FaultPreMarshaller" />
+  <adapter factory=".xmlrpc.DateTimePreMarshaller" />
+  <adapter factory=".xmlrpc.PythonDateTimePreMarshaller" />
+  <adapter factory=".xmlrpc.DictPreMarshaller" />
 </configure>

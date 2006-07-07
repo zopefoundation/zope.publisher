@@ -19,6 +19,7 @@ $Id$
 """
 import sys
 import xmlrpclib
+import datetime
 from StringIO import StringIO
 
 import zope.component
@@ -28,7 +29,6 @@ from zope.publisher.interfaces.xmlrpc import \
         IXMLRPCPublisher, IXMLRPCRequest, IXMLRPCPremarshaller
 
 from zope.publisher.http import HTTPRequest, HTTPResponse, DirectResult
-
 from zope.security.proxy import isinstance
 
 class XMLRPCRequest(HTTPRequest):
@@ -173,6 +173,7 @@ class PreMarshallerBase(object):
 
 class DictPreMarshaller(PreMarshallerBase):
     """Pre-marshaller for dicts"""
+    zope.component.adapts(dict)
 
     def __call__(self):
         return dict([(premarshal(k), premarshal(v))
@@ -180,12 +181,17 @@ class DictPreMarshaller(PreMarshallerBase):
 
 class ListPreMarshaller(PreMarshallerBase):
     """Pre-marshaller for list"""
+    zope.component.adapts(list)
 
     def __call__(self):
         return map(premarshal, self.data)
 
+class TuplePreMarshaller(ListPreMarshaller):
+    zope.component.adapts(tuple)
+
 class FaultPreMarshaller(PreMarshallerBase):
     """Pre-marshaller for xmlrpc.Fault"""
+    zope.component.adapts(xmlrpclib.Fault)
 
     def __call__(self):
         return xmlrpclib.Fault(
@@ -195,12 +201,14 @@ class FaultPreMarshaller(PreMarshallerBase):
 
 class DateTimePreMarshaller(PreMarshallerBase):
     """Pre-marshaller for xmlrpc.DateTime"""
+    zope.component.adapts(xmlrpclib.DateTime)
 
     def __call__(self):
         return xmlrpclib.DateTime(self.data.value)
 
 class PythonDateTimePreMarshaller(PreMarshallerBase):
     """Pre-marshaller for datetime.datetime"""
+    zope.component.adapts(datetime.datetime)
 
     def __call__(self):
         return xmlrpclib.DateTime(self.data.isoformat())

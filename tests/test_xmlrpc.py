@@ -15,16 +15,30 @@
 
 $Id$
 """
-
-import zope.app.testing.functional
-
+import xmlrpclib
+import zope.component.testing
 from zope.testing import doctest
+from zope.publisher import xmlrpc
+from zope.security.checker import defineChecker, Checker, CheckerPublic
 
+def setUp(test):
+    zope.component.testing.setUp(test)
+    zope.component.provideAdapter(xmlrpc.ListPreMarshaller)
+    zope.component.provideAdapter(xmlrpc.TuplePreMarshaller)
+    zope.component.provideAdapter(xmlrpc.FaultPreMarshaller)
+    zope.component.provideAdapter(xmlrpc.DateTimePreMarshaller)
+    zope.component.provideAdapter(xmlrpc.PythonDateTimePreMarshaller)
+    zope.component.provideAdapter(xmlrpc.DictPreMarshaller)
+
+    defineChecker(xmlrpclib.Fault,
+                  Checker({'faultCode':CheckerPublic,
+                           'faultString': CheckerPublic}, {}))
+    defineChecker(xmlrpclib.DateTime,
+                  Checker({'value':CheckerPublic}, {}))
 
 def test_suite():
-    suite = doctest.DocFileSuite( 
-        "xmlrpc.txt",
-        module_relative=True, package="zope.publisher",
-        optionflags=doctest.ELLIPSIS)
-    suite.layer = zope.app.testing.functional.Functional
-    return suite
+    return doctest.DocFileSuite( 
+        "xmlrpc.txt", package="zope.publisher",
+        setUp=setUp, tearDown=zope.component.testing.tearDown,
+        optionflags=doctest.ELLIPSIS
+        )
