@@ -18,7 +18,7 @@
       zcml:condition="have apidoc"
       id="zopepublisherhttpresults.txt"
       title="Creating HTTP Results"
-      doc_path="publisher/httpresults.txt"
+      doc_path="httpresults.txt"
       />
 
 </configure>
