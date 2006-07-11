@@ -157,6 +157,26 @@ class BrowserTests(HTTPTests):
         self.assertEqual(response.getBase(),
                          'http://foobar.com/folder/item2/view/index')
 
+    def testNoneFieldNamePost(self):
+
+        """Produce a Fieldstorage with a name wich is None, this
+        should be catched"""
+        
+        extra = {'REQUEST_METHOD':'POST',
+                 'PATH_INFO': u'/',
+                 'CONTENT_TYPE': 'multipart/form-data;\
+                 boundary=---------------------------1'}
+
+        body = """-----------------------------1
+        Content-Disposition: form-data; name="field.contentType"
+        ...
+        application/octet-stream
+        -----------------------------1--
+        """
+        request  = self._createRequest(extra,body=body)
+        request.processInputs()
+
+
     def testDefault2(self):
         extra = {'PATH_INFO': '/folder/item2/view'}
         request = self._createRequest(extra)

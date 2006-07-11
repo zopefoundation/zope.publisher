@@ -356,8 +356,10 @@ class BrowserRequest(HTTPRequest):
                 # skip over empty fields
                 return
 
-        # Make it unicode
-        key = self._decode(key)
+        # Make it unicode if not None
+        if key is not None:
+            key = self._decode(key)
+
         if type(item) == StringType:
             item = self._decode(item)
 
