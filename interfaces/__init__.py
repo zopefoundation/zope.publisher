@@ -301,7 +301,7 @@ class IPublicationRequest(IPresentationRequest, IParticipation):
     def hold(held):
         """Hold a reference to an object until the request is closed.
 
-        The object should be an IHeld.  If it is an IHeld, it's
+        The object should be an IHeld.  If it is an IHeld, its
         release method will be called when it is released.
         """
 
@@ -325,7 +325,7 @@ class IPublicationRequest(IPresentationRequest, IParticipation):
     def setPrincipal(principal):
         """Set the principal attribute.
 
-        It should be IPrincipal wrapped in it's AuthenticationService's context.
+        It should be IPrincipal wrapped in its AuthenticationService's context.
         """
 
 class IHeld(Interface):
