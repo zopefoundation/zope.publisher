@@ -392,3 +392,12 @@ class IHTTPResponse(IResponse):
         Note that this function can be only requested once, since it is
         constructed from the result.
         """
+        
+class IHTTPVirtualHostChanged(Interface):
+    """The host, port and/or the application path have changed.
+    
+    The request referred to in this event implements at least the 
+    IHTTPAppliationRequest interface.
+    """
+    request = Attribute(u'The application request whose virtual host info has '
+                        u'been altered')

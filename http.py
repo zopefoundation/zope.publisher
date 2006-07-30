@@ -25,7 +25,7 @@ from Cookie import CookieError
 import logging
 from tempfile import TemporaryFile
 
-from zope import component, interface
+from zope import component, interface, event
 from zope.deprecation import deprecation
 
 from zope.publisher import contenttype
@@ -33,6 +33,7 @@ from zope.publisher.interfaces.http import IHTTPCredentials
 from zope.publisher.interfaces.http import IHTTPRequest
 from zope.publisher.interfaces.http import IHTTPApplicationRequest
 from zope.publisher.interfaces.http import IHTTPPublisher
+from zope.publisher.interfaces.http import IHTTPVirtualHostChanged
 
 from zope.publisher.interfaces import Redirect
 from zope.publisher.interfaces.http import IHTTPResponse
@@ -74,6 +75,15 @@ def sane_environment(env):
     if 'PATH_INFO' in dict:
         dict['PATH_INFO'] = dict['PATH_INFO'].decode('utf-8')
     return dict
+
+class HTTPVirtualHostChanged(object):
+    interface.implements(IHTTPVirtualHostChanged)
+    component.adapts(IHTTPApplicationRequest)
+    
+    request = None
+    
+    def __init__(self, request):
+        self.request = request
 
 # Possible HTTP status responses
 status_reasons = {
@@ -552,6 +562,7 @@ class HTTPRequest(BaseRequest):
         if port and str(port) != DEFAULT_PORTS.get(proto):
             host = '%s:%s' % (host, port)
         self._app_server = '%s://%s' % (proto, host)
+        event.notify(HTTPVirtualHostChanged(self))
 
     def shiftNameToApplication(self):
         """Add the name being traversed to the application name
@@ -562,6 +573,7 @@ class HTTPRequest(BaseRequest):
         """
         if len(self._traversed_names) == 1:
             self._app_names.append(self._traversed_names.pop())
+            event.notify(HTTPVirtualHostChanged(self))
             return
 
         raise ValueError("Can only shift leading traversal "
@@ -571,6 +583,7 @@ class HTTPRequest(BaseRequest):
         del self._traversed_names[:]
         self._vh_root = self._last_obj_traversed
         self._app_names = list(names)
+        event.notify(HTTPVirtualHostChanged(self))
 
     def getVirtualHostRoot(self):
         return self._vh_root
