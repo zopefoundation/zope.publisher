@@ -393,7 +393,7 @@ class IHTTPResponse(IResponse):
         constructed from the result.
         """
         
-class IHTTPVirtualHostChanged(Interface):
+class IHTTPVirtualHostChangedEvent(Interface):
     """The host, port and/or the application path have changed.
     
     The request referred to in this event implements at least the 
