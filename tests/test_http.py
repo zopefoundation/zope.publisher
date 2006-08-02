@@ -18,6 +18,7 @@ $Id$
 """
 import unittest
 
+import zope.event
 from zope.interface import implements
 from zope.publisher.interfaces.logginginfo import ILoggingInfo
 from zope.publisher.http import HTTPRequest, HTTPResponse
@@ -367,6 +368,8 @@ class HTTPTests(unittest.TestCase):
         self.assertEqual(r.method, 'EGGS')
 
     def test_setApplicationServer(self):
+        events = []
+        zope.event.subscribers.append(events.append)
         req = self._createRequest()
         req.setApplicationServer('foo')
         self.assertEquals(req._app_server, 'http://foo')
@@ -384,22 +387,36 @@ class HTTPTests(unittest.TestCase):
         self.assertEquals(req._app_server, 'http://foo')
         req.setApplicationServer('foo', proto='telnet', port=80)
         self.assertEquals(req._app_server, 'telnet://foo:80')
+        zope.event.subscribers.pop()
+        self.assertEquals(len(events), 8)
+        for event in events:
+            self.assertEquals(event.request, req)
 
     def test_setApplicationNames(self):
+        events = []
+        zope.event.subscribers.append(events.append)
         req = self._createRequest()
         names = ['x', 'y', 'z']
         req.setVirtualHostRoot(names)
         self.assertEquals(req._app_names, ['x', 'y', 'z'])
         names[0] = 'muahahahaha'
         self.assertEquals(req._app_names, ['x', 'y', 'z'])
+        zope.event.subscribers.pop()
+        self.assertEquals(len(events), 1)
+        self.assertEquals(events[0].request, req)
 
     def test_setVirtualHostRoot(self):
+        events = []
+        zope.event.subscribers.append(events.append)
         req = self._createRequest()
         req._traversed_names = ['x', 'y']
         req._last_obj_traversed = object()
         req.setVirtualHostRoot()
         self.failIf(req._traversed_names)
         self.assertEquals(req._vh_root, req._last_obj_traversed)
+        zope.event.subscribers.pop()
+        self.assertEquals(len(events), 1)
+        self.assertEquals(events[0].request, req)
 
     def test_getVirtualHostRoot(self):
         req = self._createRequest()
