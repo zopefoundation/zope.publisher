@@ -58,8 +58,6 @@ class CookieMapper(RequestDataMapper):
 class HeaderGetter(RequestDataGetter):
     _gettrname = 'getHeader'
 
-base64 = None
-
 def sane_environment(env):
     # return an environment mapping which has been cleaned of
     # funny business such as REDIRECT_ prefixes added by Apache
@@ -491,14 +489,10 @@ class HTTPRequest(BaseRequest):
 
     def _authUserPW(self):
         'See IHTTPCredentials'
-        global base64
-        if self._auth:
-            if self._auth.lower().startswith('basic '):
-                if base64 is None:
-                    import base64
-                name, password = base64.decodestring(
-                    self._auth.split()[-1]).split(':')
-                return name, password
+        if self._auth and self._auth.lower().startswith('basic '):
+            encoded = self._auth.split(None, 1)[-1]
+            name, password = encoded.decode("base64").split(':', 1)
+            return name, password
 
     def unauthorized(self, challenge):
         'See IHTTPCredentials'

@@ -344,14 +344,13 @@ class HTTPTests(unittest.TestCase):
 
     def testBasicAuth(self):
         from zope.publisher.interfaces.http import IHTTPCredentials
-        import base64
         req = self._createRequest()
         verifyObject(IHTTPCredentials, req)
         lpq = req._authUserPW()
         self.assertEquals(lpq, None)
         env = {}
-        login, password = ("tim", "123")
-        s = base64.encodestring("%s:%s" % (login, password)).rstrip()
+        login, password = ("tim", "123:456")
+        s = ("%s:%s" % (login, password)).encode("base64").rstrip()
         env['HTTP_AUTHORIZATION'] = "Basic %s" % s
         req = self._createRequest(env)
         lpw = req._authUserPW()
