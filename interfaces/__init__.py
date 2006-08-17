@@ -165,7 +165,9 @@ class IPublishTraverse(Interface):
     def publishTraverse(request, name):
         """Lookup a name
 
-        The request argument is the publisher request object.
+        The 'request' argument is the publisher request object.  The
+        'name' argument is the name that is to be looked up; it must
+        be an ASCII string or Unicode object.
 
         If a lookup is not possible, raise a NotFound error.
 
@@ -248,7 +250,8 @@ class IPublication(Interface):
 
     def traverseName(request, ob, name):
         """Traverses to the next object.
-        """
+
+        Name must be an ASCII string or Unicode object."""
 
     def afterTraversal(request, ob):
         """Post-traversal hook.
