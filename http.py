@@ -284,21 +284,7 @@ class HTTPRequest(BaseRequest):
 
     retry_max_count = 3    # How many times we're willing to retry
 
-    def __init__(self, body_instream, environ, response=None, outstream=None):
-        # BBB: This is backward-compatibility support for the deprecated
-        # output stream.
-        try:
-            environ.get
-        except AttributeError:
-            import warnings
-            warnings.warn("Can't pass output streams to requests anymore. "
-                          "This will go away in Zope 3.4.",
-                          DeprecationWarning,
-                          # HTTPRequest.__init__() mostly called through
-                          # BrowserRequest.__init__() so we need to shift
-                          # to another one step backward.
-                          3)
-            environ, response = response, outstream
+    def __init__(self, body_instream, environ, response=None):
 
         super(HTTPRequest, self).__init__(
             HTTPInputStream(body_instream, environ), environ, response)
@@ -647,29 +633,7 @@ class HTTPResponse(BaseResponse):
         )
 
 
-    def __init__(self, header_output=None, http_transaction=None):
-        # BBB: Both, header_output and http_transaction have been deprecated.
-        if header_output is not None:
-            import warnings
-            warnings.warn(
-                "The header output API is completely deprecated. It's "
-                "intentions were not clear and it duplicated APIs in the "
-                "response, which you should use instead. "
-                "This will go away in Zope 3.4.",
-                DeprecationWarning, 2)
-
-        if http_transaction is not None:
-            import warnings
-            warnings.warn(
-                "Storing the HTTP transaction here was a *huge* hack to "
-                "support transporting the authenticated user string "
-                "to the server. You should never rely on this variable "
-                "anyways. "
-                "This will go away in Zope 3.4.",
-                DeprecationWarning, 2)
-
-        self._header_output = header_output
-
+    def __init__(self):
         super(HTTPResponse, self).__init__()
         self.reset()
 
@@ -837,14 +801,6 @@ class HTTPResponse(BaseResponse):
     def consumeBodyIter(self):
         'See IHTTPResponse'
         return self._result.body
-
-
-    # BBB: Backward-compatibility for old body API
-    _body = property(consumeBody)
-    _body = deprecation.deprecated(
-        _body,
-        '`_body` has been deprecated in favor of `consumeBody()`. '
-        'This will go away in Zope 3.4.')
 
 
     def _implicitResult(self, body):

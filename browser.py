@@ -609,8 +609,7 @@ class TestRequest(BrowserRequest):
     """
 
     def __init__(self, body_instream=None, environ=None, form=None,
-                 skin=None, outstream=None,
-                 **kw):
+                 skin=None, **kw):
 
         _testEnv =  {
             'SERVER_URL':         'http://127.0.0.1',
@@ -620,18 +619,6 @@ class TestRequest(BrowserRequest):
             }
 
         if environ is not None:
-            # BBB: This is backward-compatibility support for the deprecated
-            # output stream.
-            try:
-                environ.get
-            except AttributeError:
-                import warnings
-                warnings.warn("Can't pass output streams to requests anymore. "
-                              "This will go away in Zope 3.4.",
-                              DeprecationWarning,
-                              2)
-                environ, form, skin, outstream = form, skin, outstream, environ
-
             _testEnv.update(environ)
 
         if kw:
@@ -657,13 +644,6 @@ class TestRequest(BrowserRequest):
             directlyProvides(self, skin)
         else:
             directlyProvides(self, IDefaultBrowserLayer)
-
-        # BBB: Goes away in 3.4.
-        self.response.outstream = outstream
-
-    # BBB: Remove in 3.4. The super version will be ok.
-    def _createResponse(self):
-        return BBBResponse()
 
 
 
@@ -745,30 +725,6 @@ class BrowserResponse(HTTPResponse):
     def reset(self):
         super(BrowserResponse, self).reset()
         self._base = ''
-
-class BBBResponse(BrowserResponse):
-
-    def write(self, str):
-        import warnings
-        warnings.warn("write() method does not exist anymore.",
-                      DeprecationWarning,
-                      2)
-        self.outstream.write(str)
-
-    def outputBody(self):
-        import warnings
-        warnings.warn("Can't pass output streams to requests anymore",
-                      DeprecationWarning,
-                      2)
-        self.outstream.write("Status: %s\r\n" % self.getStatusString())
-        headers = self.getHeaders()
-        headers.sort()
-        self.outstream.write(
-            "\r\n".join([("%s: %s" % h) for h in headers])
-            + "\r\n\r\n"
-            )
-        self.outstream.write(''.join(self.getBody()))
-
 
 def isHTML(str):
      """Try to determine whether str is HTML or not."""

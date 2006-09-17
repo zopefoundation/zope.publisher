@@ -39,19 +39,8 @@ class FTPRequest(BaseRequest):
 
     __slots__ = '_auth'
 
-    def __init__(self, body_instream, environ, response=None, bbb=None):
-        # BBB: This is backward-compatibility support for the deprecated
-        # output stream.
-        try:
-            self._auth = environ.get('credentials')
-        except AttributeError:
-            import warnings
-            warnings.warn("Can't pass output streams to requests anymore. "
-                          "This will go away in Zope 3.4.",
-                          DeprecationWarning,
-                          2)
-            environ, response = response, bbb
-            self._auth = environ.get('credentials')
+    def __init__(self, body_instream, environ, response=None):
+        self._auth = environ.get('credentials')
 
         del environ['credentials']
 
