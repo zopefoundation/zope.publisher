@@ -204,8 +204,8 @@ class HTTPInputStream(object):
         self.cacheStream.write(data)
         return data
 
-    def readline(self):
-        data = self.stream.readline()
+    def readline(self, size=None):
+        data = self.stream.readline(size)
         self.cacheStream.write(data)
         return data
 
