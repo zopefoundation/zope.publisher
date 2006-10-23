@@ -39,6 +39,7 @@ from zope.publisher.interfaces.browser import IBrowserApplicationRequest
 from zope.publisher.interfaces.browser import IBrowserView
 from zope.publisher.interfaces.browser import IBrowserPage
 from zope.publisher.interfaces.browser import IBrowserSkinType
+from zope.publisher.interfaces.browser import ISkinChangedEvent
 from zope.publisher.interfaces.http import IHTTPRequest
 from zope.publisher.http import HTTPRequest, HTTPResponse
 
@@ -977,6 +978,22 @@ def applySkin(request, skin):
     >>> pprint.pprint(list(providedBy(req).interfaces()))
     [<InterfaceClass zope.publisher.browser.SkinB>,
      <InterfaceClass zope.publisher.browser.IRequest>]
+
+    Changing the skin on a request triggers the ISkinChanged event:
+
+    >>> import zope.component
+    >>> from zope.publisher.interfaces.browser import ISkinChangedEvent
+    >>> def receiveSkinEvent(event):
+    ...     print event.request
+    >>> zope.component.provideHandler(receiveSkinEvent, (ISkinChangedEvent,))
+    >>> applySkin(req, SkinA)   # doctest: +ELLIPSIS
+    <zope.publisher.browser.Request object at 0x...>
+
+    Make sure our registrations go away again.
+
+    >>> from zope.testing.cleanup import cleanUp
+    >>> cleanUp()
+
     """
     # Remove all existing skin declarations (commonly the default skin).
     ifaces = [iface for iface in directlyProvidedBy(request)
@@ -984,3 +1001,11 @@ def applySkin(request, skin):
     # Add the new skin.
     ifaces.append(skin)
     directlyProvides(request, *ifaces)
+    zope.event.notify(SkinChangedEvent(request))
+
+class SkinChangedEvent(object):
+
+    zope.interface.implements(ISkinChangedEvent)
+
+    def __init__(self, request):
+        self.request = request

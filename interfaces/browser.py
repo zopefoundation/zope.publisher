@@ -145,3 +145,8 @@ class IDefaultSkin(Interface):
     This is a marker interface, so that we can register the default skin as an
     adapter from the presentation type to `IDefaultSkin`.
     """
+
+class ISkinChangedEvent(Interface):
+    """Event that gets triggered when the skin of a request is changed."""
+
+    request = Attribute("The request for which the skin was changed.")
