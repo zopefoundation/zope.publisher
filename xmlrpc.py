@@ -17,6 +17,8 @@ This module contains the XMLRPCRequest and XMLRPCResponse
 
 $Id$
 """
+__docformat__ = 'restructuredtext'
+
 import sys
 import xmlrpclib
 import datetime

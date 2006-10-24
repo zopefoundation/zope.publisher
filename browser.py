@@ -20,6 +20,8 @@ packaged into a nice, Python-friendly 'FileUpload' object.
 
 $Id$
 """
+__docformat__ = 'restructuredtext'
+
 import re
 from types import ListType, TupleType, StringType
 from cgi import FieldStorage
