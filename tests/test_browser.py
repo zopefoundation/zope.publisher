@@ -17,12 +17,15 @@ $Id$
 """
 import unittest
 from zope.testing.doctestunit import DocTestSuite
+from zope.app.testing import setup
 
 __docformat__ = "reStructuredText"
 
 def test_suite():
     return unittest.TestSuite((
-        DocTestSuite('zope.publisher.browser'),
+        DocTestSuite('zope.publisher.browser',
+                     setUp=setup.placelessSetUp,
+                     tearDown=setup.placelessTearDown),
         ))
 
 if __name__ == '__main__':
