@@ -18,13 +18,10 @@ $Id$
 
 import os
 
-try:
-    from setuptools import setup, Extension
-except ImportError, e:
-    from distutils.core import setup, Extension
+from setuptools import setup, find_packages
 
 setup(name='zope.publisher',
-      version='3.3-dev',
+      version='3.3dev',
       url='http://svn.zope.org/zope.publisher',
       license='ZPL 2.1',
       description='Zope publisher',
@@ -34,11 +31,8 @@ setup(name='zope.publisher',
                        "Provide an apply-like facility that"
                        "works with any mapping object.",
 
-      packages = ['zope',
-                  'zope.publisher',
-                  'zope.publisher.interfaces',
-                  'zope.publisher.tests'],
-      package_dir = {'': 'src'},
+      packages=find_packages('src'),
+	  package_dir = {'': 'src'},
 
       namespace_packages=['zope',],
       tests_require = ['zope.testing'],
