@@ -35,6 +35,13 @@ from zope.publisher.tests.test_http import HTTPTests
 
 from zope.publisher.publish import publish as publish_
 
+LARGE_FILE_BODY = """-----------------------------1
+Content-Disposition: form-data; name="upload"; filename="test"
+Content-Type: text/plain
+
+Here comes some text! %s
+-----------------------------1--
+""" % ('test' * 1000)
 
 def publish(request):
     publish_(request, handle_errors=0)
@@ -176,6 +183,18 @@ class BrowserTests(HTTPTests):
         request  = self._createRequest(extra,body=body)
         request.processInputs()
 
+    def testFileUploadPost(self):
+        """Produce a Fieldstorage with a file handle that exposes
+        its filename."""
+
+        extra = {'REQUEST_METHOD':'POST',
+                 'PATH_INFO': u'/',
+                 'CONTENT_TYPE': 'multipart/form-data;\
+                 boundary=---------------------------1'}
+        
+        request  = self._createRequest(extra, body=LARGE_FILE_BODY)
+        request.processInputs()
+        self.assert_(request.form['upload'].name)
 
     def testDefault2(self):
         extra = {'PATH_INFO': '/folder/item2/view'}

@@ -25,6 +25,7 @@ __docformat__ = 'restructuredtext'
 import re
 from types import ListType, TupleType, StringType
 from cgi import FieldStorage
+import tempfile
 
 import zope.component
 from zope.interface import implements, directlyProvides
@@ -263,7 +264,8 @@ class BrowserRequest(HTTPRequest):
         if 'QUERY_STRING' not in self._environ:
             self._environ['QUERY_STRING'] = ''
 
-        fs = FieldStorage(fp=fp, environ=self._environ, keep_blank_values=1)
+        fs = ZopeFieldStorage(fp=fp, environ=self._environ,
+                              keep_blank_values=1)
 
         fslist = getattr(fs, 'list', None)
         if fslist is not None:
@@ -571,6 +573,12 @@ class BrowserRequest(HTTPRequest):
         return default
 
 
+class ZopeFieldStorage(FieldStorage):
+
+    def make_file(self, binary=None):
+        return tempfile.NamedTemporaryFile('w+b')
+
+
 class FileUpload(object):
     '''File upload objects
 
@@ -591,7 +599,8 @@ class FileUpload(object):
         else:
             methods = ['close', 'fileno', 'flush', 'isatty',
                 'read', 'readline', 'readlines', 'seek',
-                'tell', 'truncate', 'write', 'writelines']
+                'tell', 'truncate', 'write', 'writelines',
+                'name']
 
         d = self.__dict__
         for m in methods:
