@@ -191,6 +191,13 @@ class ListPreMarshaller(PreMarshallerBase):
 class TuplePreMarshaller(ListPreMarshaller):
     zope.component.adapts(tuple)
 
+class BinaryPreMarshaller(PreMarshallerBase):
+    """Pre-marshaller for xmlrpc.Binary"""
+    zope.component.adapts(xmlrpclib.Binary)
+
+    def __call__(self):
+        return xmlrpclib.Binary(self.data.data)
+
 class FaultPreMarshaller(PreMarshallerBase):
     """Pre-marshaller for xmlrpc.Fault"""
     zope.component.adapts(xmlrpclib.Fault)

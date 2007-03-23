@@ -25,11 +25,16 @@ def setUp(test):
     zope.component.testing.setUp(test)
     zope.component.provideAdapter(xmlrpc.ListPreMarshaller)
     zope.component.provideAdapter(xmlrpc.TuplePreMarshaller)
+    zope.component.provideAdapter(xmlrpc.BinaryPreMarshaller)
     zope.component.provideAdapter(xmlrpc.FaultPreMarshaller)
     zope.component.provideAdapter(xmlrpc.DateTimePreMarshaller)
     zope.component.provideAdapter(xmlrpc.PythonDateTimePreMarshaller)
     zope.component.provideAdapter(xmlrpc.DictPreMarshaller)
 
+    defineChecker(xmlrpclib.Binary,
+                  Checker({'data':CheckerPublic,
+                           'decode':CheckerPublic,
+                           'encode': CheckerPublic}, {}))
     defineChecker(xmlrpclib.Fault,
                   Checker({'faultCode':CheckerPublic,
                            'faultString': CheckerPublic}, {}))

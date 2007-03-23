@@ -58,4 +58,12 @@ Standard python datetime objects are also handled:
   >>> isinstance(stripped_date, xmlrpclib.DateTime)
   True
 
+We can also use premarshal to strip proxies off of Binary objects.
+We have to make a security declaration first though:
 
+  >>> import xmlrpclib
+  >>> binary = xmlrpclib.Binary('foobar')
+  >>> proxied_binary = ProxyFactory(binary)
+  >>> stripped_binary = premarshal(proxied_binary)
+  >>> type(stripped_binary) is Proxy
+  False
