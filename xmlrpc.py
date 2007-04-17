@@ -114,11 +114,10 @@ class XMLRPCResponse(HTTPResponse):
                 self.handleException(sys.exc_info())
                 return
 
-        super(XMLRPCResponse, self).setResult(
-            DirectResult((body,),
-                         [('content-type', 'text/xml;charset=utf-8'),
-                          ('content-length', str(len(body)))])
-            )
+        headers = [('content-type', 'text/xml;charset=utf-8'),
+                   ('content-length', str(len(body)))]
+        self._headers.update(dict((k, [v]) for (k, v) in headers))
+        super(XMLRPCResponse, self).setResult(DirectResult((body,)))
 
 
     def handleException(self, exc_info):

@@ -17,12 +17,14 @@
 $Id$
 """
 import unittest
+from zope.testing import doctest
+import zope.testing.cleanup
 
 import zope.event
 from zope.interface import implements
 from zope.publisher.interfaces.logginginfo import ILoggingInfo
 from zope.publisher.http import HTTPRequest, HTTPResponse
-from zope.publisher.http import HTTPInputStream, StrResult
+from zope.publisher.http import HTTPInputStream, DirectResult
 from zope.publisher.publish import publish
 from zope.publisher.base import DefaultPublication
 from zope.publisher.interfaces.http import IHTTPRequest, IHTTPResponse
@@ -539,7 +541,7 @@ class TestHTTPResponse(unittest.TestCase):
 
         # Output the data
         data = 'a'*10
-        response.setResult(StrResult(data))
+        response.setResult(DirectResult(data))
 
         headers, body = self._parseResult(response)
         # Check that the data have been written, and that the header
@@ -648,12 +650,16 @@ class TestHTTPResponse(unittest.TestCase):
         self.failUnless('foo=bar;' in c)
         self.failIf('secure' in c)
 
+def cleanUp(test):
+    zope.testing.cleanup.cleanUp()
 
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(ConcreteHTTPTests))
     suite.addTest(unittest.makeSuite(TestHTTPResponse))
     suite.addTest(unittest.makeSuite(HTTPInputStreamTests))
+    suite.addTest(doctest.DocFileSuite(
+        '../httpresults.txt', setUp=cleanUp, tearDown=cleanUp))
     return suite
 
 

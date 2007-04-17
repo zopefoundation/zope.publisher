@@ -34,6 +34,7 @@ from zope.publisher.interfaces.http import IHTTPRequest
 from zope.publisher.interfaces.http import IHTTPApplicationRequest
 from zope.publisher.interfaces.http import IHTTPPublisher
 from zope.publisher.interfaces.http import IHTTPVirtualHostChangedEvent
+from zope.publisher.interfaces.http import IResult
 
 from zope.publisher.interfaces import Redirect
 from zope.publisher.interfaces.http import IHTTPResponse
@@ -597,28 +598,6 @@ class HTTPRequest(BaseRequest):
         return d.keys()
 
 
-class IResult(interface.Interface):
-    """HTTP result.
-
-    WARNING! This is a PRIVATE interface and VERY LIKELY TO CHANGE!
-
-    The result provides the result in a form suitable for delivery to HTTP
-    clients.
-
-    IMPORTANT: The result object may be held indefinitely by a server and may
-    be accessed by arbitrary threads. For that reason the result should not
-    hold on to any application resources and should be prepared to be invoked
-    from any thread.
-    """
-
-    headers = interface.Attribute(
-        'A sequence of tuples of result headers, such as '
-        '"Content-Type" and "Content-Length", etc.')
-
-    body = interface.Attribute(
-        'An iterable that provides the body data of the response.')
-
-
 
 class HTTPResponse(BaseResponse):
     interface.implements(IHTTPResponse, IHTTPApplicationResponse)
@@ -776,35 +755,38 @@ class HTTPResponse(BaseResponse):
 
 
     def setResult(self, result):
+        'See IHTTPResponse'
         if IResult.providedBy(result):
             r = result
         else:
             r = component.queryMultiAdapter((result, self._request), IResult)
             if r is None:
                 if isinstance(result, basestring):
-                    body, headers = self._implicitResult(result)
-                    r = DirectResult((body,), headers)
+                    r = result
                 elif result is None:
-                    body, headers = self._implicitResult('')
-                    r = DirectResult((body,), headers)
+                    r = ''
                 else:
                     raise TypeError(
-                        'The result should be adaptable to IResult.')
+                        'The result should be None, a string, or adaptable to '
+                        'IResult.')
+            if isinstance(r, basestring):
+                r, headers = self._implicitResult(r)
+                self._headers.update(dict((k, [v]) for (k, v) in headers))
+                r = (r,) # chunking should be much larger than per character
 
         self._result = r
-        self._headers.update(dict([(k, [v]) for (k, v) in r.headers]))
         if not self._status_set:
             self.setStatus(200)
 
 
     def consumeBody(self):
         'See IHTTPResponse'
-        return ''.join(self._result.body)
+        return ''.join(self._result)
 
 
     def consumeBodyIter(self):
         'See IHTTPResponse'
-        return self._result.body
+        return self._result
 
 
     def _implicitResult(self, body):
@@ -1011,22 +993,14 @@ def getCharsetUsingRequest(request):
 class DirectResult(object):
     """A generic result object.
 
-    The result's body can be any iteratable. It is the responsibility of the
+    The result's body can be any iterable. It is the responsibility of the
     application to specify all headers related to the content, such as the
     content type and length.
     """
     interface.implements(IResult)
 
-    def __init__(self, body, headers=()):
+    def __init__(self, body):
         self.body = body
-        self.headers = headers
 
-
-def StrResult(body, headers=()):
-    """A simple string result that represents any type of data.
-
-    It is the responsibility of the application to specify all the headers,
-    including content type and length.
-    """
-    return DirectResult((body,), headers)
-
+    def __iter__(self):
+        return iter(self.body)
