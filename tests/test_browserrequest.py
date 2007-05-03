@@ -134,7 +134,7 @@ class BrowserTests(HTTPTests):
         res = self._publisherResults()
         self.failUnlessEqual(
             res,
-            "Status: 200 Ok\r\n"
+            "Status: 200 OK\r\n"
             "Content-Length: 7\r\n"
             "Content-Type: text/plain;charset=utf-8\r\n"
             "X-Content-Type-Warning: guessed from content\r\n"

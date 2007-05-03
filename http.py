@@ -639,19 +639,12 @@ class HTTPResponse(BaseResponse):
         else:
             if type(status) in StringTypes:
                 status = status.lower()
-            if status in status_codes:
-                status = status_codes[status]
-            else:
-                status = 500
+            status = status_codes.get(status, 500)
         self._status = status
 
         if reason is None:
-            if status == 200:
-                reason = 'Ok'
-            elif status in status_reasons:
-                reason = status_reasons[status]
-            else:
-                reason = 'Unknown'
+            reason = status_reasons.get(status, "Unknown")
+
         self._reason = reason
         self._status_set = True
 

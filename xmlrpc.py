@@ -132,7 +132,7 @@ class XMLRPCResponse(HTTPResponse):
         ...     resp.handleException(exc_info)
 
         >>> resp.getStatusString()
-        '200 Ok'
+        '200 OK'
         >>> resp.getHeader('content-type')
         'text/xml;charset=utf-8'
         >>> body = ''.join(resp.consumeBody())
