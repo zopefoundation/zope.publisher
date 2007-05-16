@@ -88,7 +88,7 @@ status_reasons = {
 100: 'Continue',
 101: 'Switching Protocols',
 102: 'Processing',
-200: 'OK',
+200: 'Ok',
 201: 'Created',
 202: 'Accepted',
 203: 'Non-Authoritative Information',

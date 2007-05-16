@@ -174,7 +174,7 @@ class HTTPTests(unittest.TestCase):
         res = self._publisherResults()
         self.failUnlessEqual(
             res,
-            "Status: 200 OK\r\n"
+            "Status: 200 Ok\r\n"
             "Content-Length: 6\r\n"
             "X-Powered-By: Zope (www.zope.org), Python (www.python.org)\r\n"
             "\r\n"
