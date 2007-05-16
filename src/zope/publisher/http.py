@@ -53,6 +53,8 @@ from zope.publisher.base import RequestDataGetter
 # Default Encoding
 ENCODING = 'UTF-8'
 
+eventlog = logging.getLogger('eventlog')
+
 class CookieMapper(RequestDataMapper):
     _mapname = '_cookies'
 
@@ -77,9 +79,9 @@ def sane_environment(env):
 
 class HTTPVirtualHostChangedEvent(object):
     interface.implements(IHTTPVirtualHostChangedEvent)
-    
+
     request = None
-    
+
     def __init__(self, request):
         self.request = request
 
@@ -395,8 +397,7 @@ class HTTPRequest(BaseRequest):
         try:
             c = SimpleCookie(text)
         except CookieError, e:
-            log = logging.getLogger('eventlog')
-            log.warn(e)
+            eventlog.warn(e)
             return result
 
         for k,v in c.items():
@@ -832,13 +833,12 @@ class HTTPResponse(BaseResponse):
         self.setStatus(tname)
 
         body = self._html(title, "A server error occurred." )
+        self.setHeader("Content-Type", "text/html")
         self.setResult(body)
-
 
     def internalError(self):
         'See IPublisherResponse'
         self.setStatus(500, u"The engines can't take any more, Jim!")
-
 
     def _html(self, title, content):
         t = escape(title)
@@ -850,13 +850,11 @@ class HTTPResponse(BaseResponse):
             (t, t, content)
             )
 
-
     def retry(self):
         """
         Returns a response object to be used in a retry attempt
         """
         return self.__class__()
-
 
     def redirect(self, location, status=None):
         """Causes a redirection without raising an error"""
@@ -877,8 +875,7 @@ class HTTPResponse(BaseResponse):
         try:
             c = SimpleCookie()
         except CookieError, e:
-            log = logging.getLogger('eventlog')
-            log.warn(e)
+            eventlog.warn(e)
             return []
         for name, attrs in self._cookies.items():
             name = str(name)

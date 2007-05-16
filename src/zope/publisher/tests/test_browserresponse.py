@@ -16,9 +16,15 @@
 $Id$
 """
 
+import sys
 from unittest import TestCase, TestSuite, main, makeSuite
 from zope.publisher.browser import BrowserResponse
 from zope.interface.verify import verifyObject
+
+from zope.publisher.interfaces.http import IHTTPResponse
+from zope.publisher.interfaces.http import IHTTPApplicationResponse
+from zope.publisher.interfaces import IResponse
+
 
 # TODO: Waaa need more tests
 
@@ -125,21 +131,36 @@ class TestBrowserResponse(TestCase):
             int(response.getHeader('content-length')),
             len(html_page) + len(inserted_text))
 
-
     def test_interface(self):
-        from zope.publisher.interfaces.http import IHTTPResponse
-        from zope.publisher.interfaces.http import IHTTPApplicationResponse
-        from zope.publisher.interfaces import IResponse
         rp = BrowserResponse()
         verifyObject(IHTTPResponse, rp)
         verifyObject(IHTTPApplicationResponse, rp)
         verifyObject(IResponse, rp)
+
+    def test_handleException(self):
+        response = BrowserResponse()
+        try:
+            raise ValueError(1)
+        except:
+            exc_info = sys.exc_info()
+
+        response.handleException(exc_info)
+        self.assertEquals(response.getHeader("content-type"),
+            "text/html;charset=utf-8")
+        self.assertEquals(response.getStatus(), 500)
+        self.assertEquals(response.consumeBody(),
+            "<html><head><title>ValueError</title></head>\n"
+            "<body><h2>ValueError</h2>\n"
+            "A server error occurred.\n"
+            "</body></html>\n"
+            )
 
 
 def test_suite():
     return TestSuite((
         makeSuite(TestBrowserResponse),
         ))
+
 
 if __name__=='__main__':
     main(defaultTest='test_suite')

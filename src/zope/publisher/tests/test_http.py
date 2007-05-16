@@ -16,6 +16,8 @@
 
 $Id$
 """
+
+import sys
 import unittest
 from zope.testing import doctest
 import zope.testing.cleanup
@@ -650,8 +652,28 @@ class TestHTTPResponse(unittest.TestCase):
         self.failUnless('foo=bar;' in c)
         self.failIf('secure' in c)
 
+    def test_handleException(self):
+        response = HTTPResponse()
+        try:
+            raise ValueError(1)
+        except:
+            exc_info = sys.exc_info()
+
+        response.handleException(exc_info)
+        self.assertEquals(response.getHeader("content-type"),
+            "text/html;charset=utf-8")
+        self.assertEquals(response.getStatus(), 500)
+        self.assertEquals(response.consumeBody(),
+            "<html><head><title>ValueError</title></head>\n"
+            "<body><h2>ValueError</h2>\n"
+            "A server error occurred.\n"
+            "</body></html>\n"
+            )
+
+
 def cleanUp(test):
     zope.testing.cleanup.cleanUp()
+
 
 def test_suite():
     suite = unittest.TestSuite()
