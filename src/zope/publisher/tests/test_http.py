@@ -16,8 +16,8 @@
 
 $Id$
 """
-
 import sys
+import tempfile
 import unittest
 from zope.testing import doctest
 import zope.testing.cleanup
@@ -59,54 +59,85 @@ line 1
 line 2
 line 3'''
 
+# tempfiles have different types on different platforms, therefore use
+# this "canonical" way of finding out the type.
+TempFileType = tempfile.TemporaryFile().__class__
 
 class HTTPInputStreamTests(unittest.TestCase):
 
-    def setUp(self):
-        self.stream = HTTPInputStream(StringIO(data), {})
-
-    def getCacheStreamValue(self):
-        self.stream.cacheStream.seek(0)
-        result = self.stream.cacheStream.read()
+    def getCacheStreamValue(self, stream):
+        stream.cacheStream.seek(0)
+        result = stream.cacheStream.read()
         # We just did a read on a file opened for update.  If the next
         # operation on that file is a write, behavior is 100% undefined,
         # and it in fact frequently (but not always) blows up on Windows.
         # Behavior is 100% defined instead if we explictly seek.  Since
         # we expect to be at EOF now, explicitly seek to the end.
-        self.stream.cacheStream.seek(0, 2)
+        stream.cacheStream.seek(0, 2)
         return result
 
     def testRead(self):
+        stream = HTTPInputStream(StringIO(data), {})
         output = ''
-        self.assertEqual(output, self.getCacheStreamValue())
-        output += self.stream.read(5)
-        self.assertEqual(output, self.getCacheStreamValue())
-        output += self.stream.read()
-        self.assertEqual(output, self.getCacheStreamValue())
-        self.assertEqual(data, self.getCacheStreamValue())
+        self.assertEqual(output, self.getCacheStreamValue(stream))
+        output += stream.read(5)
+        self.assertEqual(output, self.getCacheStreamValue(stream))
+        output += stream.read()
+        self.assertEqual(output, self.getCacheStreamValue(stream))
+        self.assertEqual(data, self.getCacheStreamValue(stream))
 
     def testReadLine(self):
-        output = self.stream.readline()
-        self.assertEqual(output, self.getCacheStreamValue())
-        output += self.stream.readline()
-        self.assertEqual(output, self.getCacheStreamValue())
-        output += self.stream.readline()
-        self.assertEqual(output, self.getCacheStreamValue())
-        output += self.stream.readline()
-        self.assertEqual(output, self.getCacheStreamValue())
-        self.assertEqual(data, self.getCacheStreamValue())
+        stream = HTTPInputStream(StringIO(data), {})
+        output = stream.readline()
+        self.assertEqual(output, self.getCacheStreamValue(stream))
+        output += stream.readline()
+        self.assertEqual(output, self.getCacheStreamValue(stream))
+        output += stream.readline()
+        self.assertEqual(output, self.getCacheStreamValue(stream))
+        output += stream.readline()
+        self.assertEqual(output, self.getCacheStreamValue(stream))
+        self.assertEqual(data, self.getCacheStreamValue(stream))
 
     def testReadLines(self):
-        output = ''.join(self.stream.readlines(4))
-        self.assertEqual(output, self.getCacheStreamValue())
-        output += ''.join(self.stream.readlines())
-        self.assertEqual(output, self.getCacheStreamValue())
-        self.assertEqual(data, self.getCacheStreamValue())
+        stream = HTTPInputStream(StringIO(data), {})
+        output = ''.join(stream.readlines(4))
+        self.assertEqual(output, self.getCacheStreamValue(stream))
+        output += ''.join(stream.readlines())
+        self.assertEqual(output, self.getCacheStreamValue(stream))
+        self.assertEqual(data, self.getCacheStreamValue(stream))
 
-    def testGetChacheStream(self):
-        self.stream.read(5)
-        self.assertEqual(data, self.stream.getCacheStream().read())
+    def testGetCacheStream(self):
+        stream = HTTPInputStream(StringIO(data), {})
+        stream.read(5)
+        self.assertEqual(data, stream.getCacheStream().read())
 
+    def testCachingWithContentLength(self):
+        # The HTTPInputStream implementation will cache the input
+        # stream in a temporary file (instead of in memory) when the
+        # reported content length is over a certain number (100000 is
+        # definitely over that).
+
+        # HTTPInputStream understands both CONTENT_LENGTH...
+        stream = HTTPInputStream(StringIO(data), {'CONTENT_LENGTH': '100000'})
+        self.assert_(isinstance(stream.getCacheStream(), TempFileType))
+
+        # ... and HTTP_CONTENT_LENGTH.
+        stream = HTTPInputStream(StringIO(data), {'HTTP_CONTENT_LENGTH':
+                                                  '100000'})
+        self.assert_(isinstance(stream.getCacheStream(), TempFileType))
+
+        # If CONTENT_LENGTH is absent or empty, it takes the value
+        # given in HTTP_CONTENT_LENGTH:
+        stream = HTTPInputStream(StringIO(data),
+                                 {'CONTENT_LENGTH': '',
+                                  'HTTP_CONTENT_LENGTH': '100000'})
+        self.assert_(isinstance(stream.getCacheStream(), TempFileType))
+
+        # In fact, HTTPInputStream can be instantiated with both an
+        # empty CONTENT_LENGTH and an empty HTTP_CONTENT_LENGTH:
+        stream = HTTPInputStream(StringIO(data),
+                                 {'CONTENT_LENGTH': '',
+                                  'HTTP_CONTENT_LENGTH': ''})
 
 class HTTPTests(unittest.TestCase):
 

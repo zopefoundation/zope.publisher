@@ -192,9 +192,11 @@ class HTTPInputStream(object):
     def __init__(self, stream, environment):
         self.stream = stream
         size = environment.get('CONTENT_LENGTH')
-        if size is None:
+        # There can be no size in the environment (None) or the size
+        # can be an empty string, in which case we treat it as absent.
+        if not size:
             size = environment.get('HTTP_CONTENT_LENGTH')
-        if size is None or int(size) < 65536:
+        if not size or int(size) < 65536:
             self.cacheStream = StringIO()
         else:
             self.cacheStream = TemporaryFile()
