@@ -641,19 +641,19 @@ class TestHTTPResponse(unittest.TestCase):
         c = self._getCookieFromResponse([
                 ('foo', 'bar', {}),
                 ])
-        self.failUnless('foo=bar;' in c, 'foo=bar; not in %r' % c)
+        self.failUnless('foo=bar;' in c or 'foo=bar' in c, 'foo=bar; not in %r' % c)
 
         c = self._getCookieFromResponse([
                 ('foo', 'bar', {}),
                 ('alpha', 'beta', {}),
                 ])
-        self.failUnless('foo=bar;' in c)
-        self.failUnless('alpha=beta;' in c)
+        self.failUnless('foo=bar;' in c or 'foo=bar' in c)
+        self.failUnless('alpha=beta;' in c or 'alpha=beta' in c)
 
         c = self._getCookieFromResponse([
                 ('sign', u'\N{BIOHAZARD SIGN}', {}),
                 ])
-        self.failUnless(r'sign="\342\230\243";' in c)
+        self.failUnless((r'sign="\342\230\243";' in c) or (r'sign="\342\230\243"' in c))
 
         self.assertRaises(
                 CookieError,
@@ -671,16 +671,16 @@ class TestHTTPResponse(unittest.TestCase):
                     'seCure': True,
                     }),
                 ])[0]
-        self.failUnless('foo=bar;' in c)
+        self.failUnless('foo=bar;' in c or 'foo=bar' in c)
         self.failUnless('expires=Sat, 12 Jul 2014 23:26:28 GMT;' in c, repr(c))
         self.failUnless('Domain=example.com;' in c)
         self.failUnless('Path=/froboz;' in c)
         self.failUnless('Max-Age=3600;' in c)
         self.failUnless('Comment=blah%3B%E2%98%A3?;' in c, repr(c))
-        self.failUnless('secure;' in c)
+        self.failUnless('secure;' in c or 'secure' in c)
 
         c = self._getCookieFromResponse([('foo', 'bar', {'secure': False})])[0]
-        self.failUnless('foo=bar;' in c)
+        self.failUnless('foo=bar;' in c or 'foo=bar' in c)
         self.failIf('secure' in c)
 
     def test_handleException(self):
@@ -694,11 +694,15 @@ class TestHTTPResponse(unittest.TestCase):
         self.assertEquals(response.getHeader("content-type"),
             "text/html;charset=utf-8")
         self.assertEquals(response.getStatus(), 500)
-        self.assertEquals(response.consumeBody(),
+        self.assert_(response.consumeBody() in
+            ["<html><head><title>&lt;type 'exceptions.ValueError'&gt;</title></head>\n"
+            "<body><h2>&lt;type 'exceptions.ValueError'&gt;</h2>\n"
+            "A server error occurred.\n"
+            "</body></html>\n",
             "<html><head><title>ValueError</title></head>\n"
             "<body><h2>ValueError</h2>\n"
             "A server error occurred.\n"
-            "</body></html>\n"
+            "</body></html>\n"]
             )
 
 

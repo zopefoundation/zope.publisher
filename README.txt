@@ -8,6 +8,11 @@ compatibility.
 Changes
 =======
 
+Next Version
+------------
+
+- zope.publisher now works on Python2.5
+
 3.4.1b1 (2007-07-13)
 --------------------
 

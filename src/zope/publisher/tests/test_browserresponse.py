@@ -148,11 +148,15 @@ class TestBrowserResponse(TestCase):
         self.assertEquals(response.getHeader("content-type"),
             "text/html;charset=utf-8")
         self.assertEquals(response.getStatus(), 500)
-        self.assertEquals(response.consumeBody(),
+        self.assert_(response.consumeBody() in
+            ["<html><head><title>&lt;type 'exceptions.ValueError'&gt;</title></head>\n"
+            "<body><h2>&lt;type 'exceptions.ValueError'&gt;</h2>\n"
+            "A server error occurred.\n"
+            "</body></html>\n",
             "<html><head><title>ValueError</title></head>\n"
             "<body><h2>ValueError</h2>\n"
             "A server error occurred.\n"
-            "</body></html>\n"
+            "</body></html>\n"]
             )
 
 
