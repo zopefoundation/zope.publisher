@@ -15,21 +15,16 @@
 
 $Id$
 """
-
 import os
-
 from setuptools import setup, find_packages
 
 setup(name='zope.publisher',
       version = '3.4.1b2',
       url='http://svn.zope.org/zope.publisher',
       license='ZPL 2.1',
-      description='Zope publisher',
       author='Zope Corporation and Contributors',
       author_email='zope3-dev@zope.org',
-      long_description="Publish Python objects on web servers."
-                       "Provide an apply-like facility that"
-                       "works with any mapping object.",
+      description="The Zope publisher publishes Python objects on the web.",
 
       packages=find_packages('src'),
       package_dir = {'': 'src'},

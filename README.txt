@@ -8,10 +8,13 @@ compatibility.
 Changes
 =======
 
-Next Version
-------------
+3.4.1b2 (2007-08-02)
+--------------------
 
-- zope.publisher now works on Python2.5
+* zope.publisher now works on Python 2.5.
+
+* Fix a problem with request.get() when the object that's to be
+  retrieved is the request itself.
 
 3.4.1b1 (2007-07-13)
 --------------------
