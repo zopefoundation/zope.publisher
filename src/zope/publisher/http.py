@@ -586,14 +586,12 @@ class HTTPRequest(BaseRequest):
 
     def get(self, key, default=None):
         'See Interface.Common.Mapping.IReadMapping'
+        marker = object()
+        result = self._cookies.get(key, marker)
+        if result is not marker:
+            return result
 
-        result = self._cookies.get(key, self)
-        if result is not self: return result
-
-        result = self._environ.get(key, self)
-        if result is not self: return result
-
-        return default
+        return super(HTTPRequest, self).get(key, default)
 
     def keys(self):
         'See Interface.Common.Mapping.IEnumerableMapping'

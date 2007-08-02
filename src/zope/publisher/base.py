@@ -339,9 +339,9 @@ class BaseRequest(object):
 
     def get(self, key, default=None):
         'See Interface.Common.Mapping.IReadMapping'
-
-        result = self._environ.get(key, self)
-        if result is not self: return result
+        result = self._environ.get(key, _marker)
+        if result is not _marker:
+            return result
 
         return default
 

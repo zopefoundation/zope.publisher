@@ -19,10 +19,15 @@ $Id$
 import sys
 import tempfile
 import unittest
-from zope.testing import doctest
-import zope.testing.cleanup
+from StringIO import StringIO
+from Cookie import CookieError
 
 import zope.event
+import zope.testing.cleanup
+from zope.testing import doctest
+from zope.i18n.interfaces.locales import ILocale
+from zope.interface.verify import verifyObject
+
 from zope.interface import implements
 from zope.publisher.interfaces.logginginfo import ILoggingInfo
 from zope.publisher.http import HTTPRequest, HTTPResponse
@@ -32,13 +37,15 @@ from zope.publisher.base import DefaultPublication
 from zope.publisher.interfaces.http import IHTTPRequest, IHTTPResponse
 from zope.publisher.interfaces.http import IHTTPApplicationResponse
 from zope.publisher.interfaces import IResponse
+from zope.publisher.tests.publication import TestPublication
 
-from zope.i18n.interfaces.locales import ILocale
+from zope.publisher.tests.basetestipublicationrequest \
+     import BaseTestIPublicationRequest
+from zope.publisher.tests.basetestipublisherrequest \
+     import BaseTestIPublisherRequest
+from zope.publisher.tests.basetestiapplicationrequest \
+     import BaseTestIApplicationRequest
 
-from zope.interface.verify import verifyObject
-
-from StringIO import StringIO
-from Cookie import CookieError
 
 
 class UserStub(object):
@@ -706,6 +713,56 @@ class TestHTTPResponse(unittest.TestCase):
             )
 
 
+class APITests(BaseTestIPublicationRequest,
+               BaseTestIApplicationRequest,
+               BaseTestIPublisherRequest,
+               unittest.TestCase):
+
+    def _Test__new(self, environ=None, **kw):
+        if environ is None:
+            environ = kw
+        return HTTPRequest(StringIO(''), environ)
+
+    def test_IApplicationRequest_bodyStream(self):
+        request = HTTPRequest(StringIO('spam'), {})
+        self.assertEqual(request.bodyStream.read(), 'spam')
+
+    # Needed by BaseTestIEnumerableMapping tests:
+    def _IEnumerableMapping__stateDict(self):
+        return {'id': 'ZopeOrg', 'title': 'Zope Community Web Site',
+                'greet': 'Welcome to the Zope Community Web site'}
+
+    def _IEnumerableMapping__sample(self):
+        return self._Test__new(**(self._IEnumerableMapping__stateDict()))
+
+    def _IEnumerableMapping__absentKeys(self):
+        return 'foo', 'bar'
+
+    def test_IPublicationRequest_getPositionalArguments(self):
+        self.assertEqual(self._Test__new().getPositionalArguments(), ())
+
+    def test_IPublisherRequest_retry(self):
+        self.assertEqual(self._Test__new().supportsRetry(), True)
+
+    def test_IPublisherRequest_processInputs(self):
+        self._Test__new().processInputs()
+
+    def test_IPublisherRequest_traverse(self):
+        request = self._Test__new()
+        request.setPublication(TestPublication())
+        app = request.publication.getApplication(request)
+
+        request.setTraversalStack([])
+        self.assertEqual(request.traverse(app).name, '')
+        self.assertEqual(request._last_obj_traversed, app)
+        request.setTraversalStack(['ZopeCorp'])
+        self.assertEqual(request.traverse(app).name, 'ZopeCorp')
+        self.assertEqual(request._last_obj_traversed, app.ZopeCorp)
+        request.setTraversalStack(['Engineering', 'ZopeCorp'])
+        self.assertEqual(request.traverse(app).name, 'Engineering')
+        self.assertEqual(request._last_obj_traversed, app.ZopeCorp.Engineering)
+
+
 def cleanUp(test):
     zope.testing.cleanup.cleanUp()
 
@@ -717,6 +774,7 @@ def test_suite():
     suite.addTest(unittest.makeSuite(HTTPInputStreamTests))
     suite.addTest(doctest.DocFileSuite(
         '../httpresults.txt', setUp=cleanUp, tearDown=cleanUp))
+    suite.addTest(unittest.makeSuite(APITests))
     return suite
 
 

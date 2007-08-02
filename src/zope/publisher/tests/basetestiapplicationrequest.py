@@ -46,3 +46,13 @@ class BaseTestIApplicationRequest(BaseTestIEnumerableMapping):
         testIReadMapping(self, environment,
                          {'foo': 'Foo', 'bar': 'Bar'},
                          ['splat'])
+
+    def testGetAndDefaultInMapping(self):
+        # This is a bit of a hack, but we have no other way to make
+        # the request an item of itself (which we want to test).
+        request = self._Test__new()
+        request._environ['REQUEST'] = request
+
+        # Now make sure that request.get can actually deal with return
+        # self back to us correctly:
+        self.assert_(request.get('REQUEST') is request)

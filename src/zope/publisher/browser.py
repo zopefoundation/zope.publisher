@@ -560,18 +560,12 @@ class BrowserRequest(HTTPRequest):
 
     def get(self, key, default=None):
         'See Interface.Common.Mapping.IReadMapping'
+        marker = object()
+        result = self.form.get(key, marker)
+        if result is not marker:
+            return result
 
-        result = self.form.get(key, self)
-        if result is not self: return result
-
-        result = self._cookies.get(key, self)
-        if result is not self: return result
-
-        result = self._environ.get(key, self)
-        if result is not self: return result
-
-        return default
-
+        return super(BrowserRequest, self).get(key, default)
 
 class ZopeFieldStorage(FieldStorage):
 

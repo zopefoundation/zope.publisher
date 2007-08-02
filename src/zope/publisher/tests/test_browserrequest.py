@@ -17,10 +17,12 @@ $Id$
 """
 import sys
 import unittest
+from StringIO import StringIO
 
 from zope.interface import implements, directlyProvides, Interface
 from zope.interface.verify import verifyObject
 
+from zope.publisher.publish import publish as publish_
 from zope.publisher.http import HTTPCharsets
 from zope.publisher.browser import BrowserRequest
 from zope.publisher.interfaces import NotFound
@@ -28,12 +30,17 @@ from zope.publisher.interfaces import NotFound
 from zope.publisher.base import DefaultPublication
 from zope.publisher.interfaces.browser import IBrowserApplicationRequest
 from zope.publisher.interfaces.browser import IBrowserRequest
-
-from StringIO import StringIO
+from zope.publisher.interfaces.browser import IBrowserPublication
 
 from zope.publisher.tests.test_http import HTTPTests
+from zope.publisher.tests.publication import TestPublication
 
-from zope.publisher.publish import publish as publish_
+from zope.publisher.tests.basetestipublicationrequest \
+     import BaseTestIPublicationRequest
+from zope.publisher.tests.basetestipublisherrequest \
+     import BaseTestIPublisherRequest
+from zope.publisher.tests.basetestiapplicationrequest \
+     import BaseTestIApplicationRequest
 
 LARGE_FILE_BODY = """-----------------------------1
 Content-Disposition: form-data; name="upload"; filename="test"
@@ -473,9 +480,66 @@ class BrowserTests(HTTPTests):
         self.assertEqual(request.form, {u'HTTP_REFERER': u'peter'})
 
 
+class TestBrowserPublication(TestPublication):
+    implements(IBrowserPublication)
+
+    def getDefaultTraversal(self, request, ob):
+        return ob, ()
+
+class APITests(BaseTestIPublicationRequest,
+               BaseTestIApplicationRequest,
+               BaseTestIPublisherRequest,
+               unittest.TestCase):
+
+    def _Test__new(self, environ=None, **kw):
+        if environ is None:
+            environ = kw
+        return BrowserRequest(StringIO(''), environ)
+
+    def test_IApplicationRequest_bodyStream(self):
+        request = BrowserRequest(StringIO('spam'), {})
+        self.assertEqual(request.bodyStream.read(), 'spam')
+
+    # Needed by BaseTestIEnumerableMapping tests:
+    def _IEnumerableMapping__stateDict(self):
+        return {'id': 'ZopeOrg', 'title': 'Zope Community Web Site',
+                'greet': 'Welcome to the Zope Community Web site'}
+
+    def _IEnumerableMapping__sample(self):
+        return self._Test__new(**(self._IEnumerableMapping__stateDict()))
+
+    def _IEnumerableMapping__absentKeys(self):
+        return 'foo', 'bar'
+
+    def test_IPublicationRequest_getPositionalArguments(self):
+        self.assertEqual(self._Test__new().getPositionalArguments(), ())
+
+    def test_IPublisherRequest_retry(self):
+        self.assertEqual(self._Test__new().supportsRetry(), True)
+
+    def test_IPublisherRequest_processInputs(self):
+        self._Test__new().processInputs()
+
+    def test_IPublisherRequest_traverse(self):
+        request = self._Test__new()
+        request.setPublication(TestBrowserPublication())
+        app = request.publication.getApplication(request)
+
+        request.setTraversalStack([])
+        self.assertEqual(request.traverse(app).name, '')
+        self.assertEqual(request._last_obj_traversed, app)
+        request.setTraversalStack(['ZopeCorp'])
+        self.assertEqual(request.traverse(app).name, 'ZopeCorp')
+        self.assertEqual(request._last_obj_traversed, app.ZopeCorp)
+        request.setTraversalStack(['Engineering', 'ZopeCorp'])
+        self.assertEqual(request.traverse(app).name, 'Engineering')
+        self.assertEqual(request._last_obj_traversed, app.ZopeCorp.Engineering)
+
 def test_suite():
-    loader = unittest.TestLoader()
-    return loader.loadTestsFromTestCase(BrowserTests)
+    suite = unittest.TestSuite()
+    suite.addTest(unittest.makeSuite(BrowserTests))
+    suite.addTest(unittest.makeSuite(APITests))
+    return suite
 
 
 if __name__ == '__main__':
