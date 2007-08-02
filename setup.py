@@ -25,6 +25,7 @@ setup(name='zope.publisher',
       author='Zope Corporation and Contributors',
       author_email='zope3-dev@zope.org',
       description="The Zope publisher publishes Python objects on the web.",
+      long_description=open('README.txt').read(),
 
       packages=find_packages('src'),
       package_dir = {'': 'src'},
