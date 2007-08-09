@@ -27,13 +27,13 @@ from StringIO import StringIO
 import zope.component
 import zope.interface
 from zope.interface import implements
-from zope.publisher.interfaces.xmlrpc import \
-        IXMLRPCPublisher, IXMLRPCRequest, IXMLRPCPremarshaller
+from zope.publisher.interfaces.xmlrpc import (
+    IXMLRPCPublisher, IXMLRPCRequest, IXMLRPCPremarshaller, IXMLRPCSkinType)
 
-from zope.publisher.http import HTTPRequest, HTTPResponse, DirectResult
+import zope.publisher.http
 from zope.security.proxy import isinstance
 
-class XMLRPCRequest(HTTPRequest):
+class XMLRPCRequest(zope.publisher.http.HTTPRequest):
     implements(IXMLRPCRequest)
 
     _args = ()
@@ -80,7 +80,7 @@ class TestRequest(XMLRPCRequest):
         super(TestRequest, self).__init__(body_instream, _testEnv, response)
 
 
-class XMLRPCResponse(HTTPResponse):
+class XMLRPCResponse(zope.publisher.http.HTTPResponse):
     """XMLRPC response.
 
     This object is responsible for converting all output to valid XML-RPC.
@@ -117,7 +117,8 @@ class XMLRPCResponse(HTTPResponse):
         headers = [('content-type', 'text/xml;charset=utf-8'),
                    ('content-length', str(len(body)))]
         self._headers.update(dict((k, [v]) for (k, v) in headers))
-        super(XMLRPCResponse, self).setResult(DirectResult((body,)))
+        super(XMLRPCResponse, self).setResult(
+            zope.publisher.http.DirectResult((body,)))
 
 
     def handleException(self, exc_info):
@@ -232,3 +233,7 @@ def premarshal(data):
     if premarshaller is not None:
         return premarshaller()
     return data
+
+
+def applySkin(request, skin):
+    zope.publisher.http.applySkin(request, skin, IXMLRPCSkinType)

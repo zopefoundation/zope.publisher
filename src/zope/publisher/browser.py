@@ -34,6 +34,7 @@ from zope.i18n.interfaces import IUserPreferredLanguages
 from zope.i18n.interfaces import IUserPreferredCharsets
 from zope.location import Location
 
+import zope.publisher.http
 from zope.publisher.interfaces import NotFound
 from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.publisher.interfaces.browser import IDefaultBrowserLayer
@@ -44,7 +45,6 @@ from zope.publisher.interfaces.browser import IBrowserPage
 from zope.publisher.interfaces.browser import IBrowserSkinType
 from zope.publisher.interfaces.browser import ISkinChangedEvent
 from zope.publisher.interfaces.http import IHTTPRequest
-from zope.publisher.http import HTTPRequest, HTTPResponse
 
 __ArrayTypes = (ListType, TupleType)
 
@@ -210,7 +210,7 @@ class Record(object):
             + ", ".join(["%s: %s" % (key, repr(value))
             for key, value in items]) + "}")
 
-class BrowserRequest(HTTPRequest):
+class BrowserRequest(zope.publisher.http.HTTPRequest):
     implements(IBrowserRequest, IBrowserApplicationRequest)
 
     __slots__ = (
@@ -653,7 +653,7 @@ class TestRequest(BrowserRequest):
 
 
 
-class BrowserResponse(HTTPResponse):
+class BrowserResponse(zope.publisher.http.HTTPResponse):
     """Browser response
     """
 
@@ -1000,12 +1000,7 @@ def applySkin(request, skin):
     >>> cleanUp()
 
     """
-    # Remove all existing skin declarations (commonly the default skin).
-    ifaces = [iface for iface in directlyProvidedBy(request)
-              if not IBrowserSkinType.providedBy(iface)]
-    # Add the new skin.
-    ifaces.append(skin)
-    directlyProvides(request, *ifaces)
+    zope.publisher.http.applySkin(request, skin, IBrowserSkinType)
     zope.event.notify(SkinChangedEvent(request))
 
 class SkinChangedEvent(object):

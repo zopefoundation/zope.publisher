@@ -1,0 +1,48 @@
+====
+HTTP
+====
+
+Generic Skin Support
+++++++++++++++++++++
+   
+The skin support is generic. Create a new skin type:
+
+>>> import zope.interface
+>>> import zope.interface.interfaces
+>>> class ISkinType(zope.interface.interfaces.Interface):
+...     pass
+
+Create two skins:
+
+>>> class SkinA(zope.interface.Interface):
+...     pass
+>>> zope.interface.directlyProvides(SkinA, ISkinType)
+>>> class SkinB(zope.interface.Interface):
+...     pass
+>>> zope.interface.directlyProvides(SkinB, ISkinType)
+
+And create a  request:
+
+>>> class IRequest(zope.interface.Interface):
+...     pass
+>>> class Request(object):
+...     zope.interface.implements(IRequest)
+
+>>> request = Request()
+
+Now apply SkinA two our request
+
+>>> import zope.publisher.http
+>>> zope.publisher.http.applySkin(request, SkinA, ISkinType)
+>>> list(zope.interface.providedBy(request).interfaces())
+...     # doctest: +NORMALIZE_WHITESPACE
+[<InterfaceClass __builtin__.SkinA>,
+ <InterfaceClass __builtin__.IRequest>]
+
+Applying SkinB removes SkinA:
+
+>>> zope.publisher.http.applySkin(request, SkinB, ISkinType)
+>>> list(zope.interface.providedBy(request).interfaces())
+...     # doctest: +NORMALIZE_WHITESPACE
+[<InterfaceClass __builtin__.SkinB>,
+ <InterfaceClass __builtin__.IRequest>]

@@ -67,3 +67,46 @@ We have to make a security declaration first though:
   >>> stripped_binary = premarshal(proxied_binary)
   >>> type(stripped_binary) is Proxy
   False
+
+Skin-Support
+============
+
+There is also skin support for XML-RPC:
+
+Create two skins:
+
+>>> import zope.interface
+>>> from zope.publisher.interfaces.xmlrpc import IXMLRPCSkinType
+>>> class SkinA(zope.interface.Interface):
+...     pass
+>>> zope.interface.directlyProvides(SkinA, IXMLRPCSkinType)
+>>> class SkinB(zope.interface.Interface):
+...     pass
+>>> zope.interface.directlyProvides(SkinB, IXMLRPCSkinType)
+
+And create a  request:
+
+>>> class IRequest(zope.interface.Interface):
+...     pass
+>>> class Request(object):
+...     zope.interface.implements(IRequest)
+
+>>> request = Request()
+
+Now apply SkinA two our request
+
+>>> import zope.publisher.xmlrpc
+>>> zope.publisher.xmlrpc.applySkin(request, SkinA)
+>>> list(zope.interface.providedBy(request).interfaces())
+...     # doctest: +NORMALIZE_WHITESPACE
+[<InterfaceClass __builtin__.SkinA>,
+ <InterfaceClass __builtin__.IRequest>]
+
+
+Applying SkinB removes SkinA:
+
+>>> zope.publisher.xmlrpc.applySkin(request, SkinB)
+>>> list(zope.interface.providedBy(request).interfaces())
+...     # doctest: +NORMALIZE_WHITESPACE
+[<InterfaceClass __builtin__.SkinB>,
+ <InterfaceClass __builtin__.IRequest>]

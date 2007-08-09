@@ -996,3 +996,17 @@ class DirectResult(object):
 
     def __iter__(self):
         return iter(self.body)
+
+
+def applySkin(request, skin, skin_type):
+    """Change the presentation skin for this request.
+
+
+    """
+    # Remove all existing skin declarations (commonly the default skin).
+
+    ifaces = [iface for iface in interface.directlyProvidedBy(request)
+              if not skin_type.providedBy(iface)]
+    # Add the new skin.
+    ifaces.append(skin)
+    interface.directlyProvides(request, *ifaces)

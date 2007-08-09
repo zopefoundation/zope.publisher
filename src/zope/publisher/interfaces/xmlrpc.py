@@ -18,6 +18,7 @@ $Id$
 
 __docformat__ = "reStructuredText"
 
+import zope.interface.interfaces
 from zope.interface import Interface
 
 from zope.publisher.interfaces import IPublication
@@ -50,4 +51,5 @@ class IXMLRPCPremarshaller(Interface):
         """Return the given object without proxies."""
 
 
-
+class IXMLRPCSkinType(zope.interface.interfaces.IInterface):
+    """Skin for XML-RPC."""
