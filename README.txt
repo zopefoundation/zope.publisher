@@ -8,6 +8,12 @@ compatibility.
 Changes
 =======
 
+3.5
+---
+
+* Generalised the skin support a bit to allow skins not only for browser but
+  also for other requests, notably XML-RPC.
+
 3.4.1b2 (2007-08-02)
 --------------------
 
