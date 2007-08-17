@@ -822,7 +822,7 @@ class HTTPResponse(BaseResponse):
         Calls self.setBody() with an error response.
         """
         t, v = exc_info[:2]
-        if isinstance(t, ClassType):
+        if isinstance(t, ClassType) or isinstance(t, type):
             if issubclass(t, Redirect):
                 self.redirect(v.getLocation())
                 return
