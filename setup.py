@@ -20,7 +20,7 @@ from setuptools import setup, find_packages
 
 setup(name='zope.publisher',
       version = '3.4.1b3',
-      url='http://svn.zope.org/zope.publisher',
+      url='http://cheeseshop.python.org/pypi/zope.publisher',
       license='ZPL 2.1',
       author='Zope Corporation and Contributors',
       author_email='zope3-dev@zope.org',
