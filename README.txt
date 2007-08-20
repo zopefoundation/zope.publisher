@@ -8,8 +8,8 @@ compatibility.
 Changes
 =======
 
-3.5
----
+3.5.0a1 (unreleased)
+--------------------
 
 * Generalised the skin support a bit to allow skins not only for browser but
   also for other requests, notably XML-RPC.
