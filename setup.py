@@ -18,7 +18,7 @@ $Id$
 from setuptools import setup, find_packages
 
 setup(name='zope.publisher',
-      version = '3.4.1',
+      version = '3.4.2',
       url='http://pypi.python.org/pypi/zope.publisher',
       license='ZPL 2.1',
       author='Zope Corporation and Contributors',
