@@ -41,7 +41,7 @@ No changes.
 * Fix caching issue. The input stream never got cached in a temp file 
   because of a wrong content-length header lookup. Added CONTENT_LENGTH 
   header check in addition to the previous used HTTP_CONTENT_LENGTH. The 
-  HTTP_ prefix is sometimes added by some CGI proxies, but CONTENT_LENGTH
+  HTTP\_ prefix is sometimes added by some CGI proxies, but CONTENT_LENGTH
   is the right header info for the size.
 
 * Fix https://bugs.launchpad.net/zope3/+bug/98413:
