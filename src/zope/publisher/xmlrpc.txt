@@ -84,7 +84,7 @@ Create two skins:
 ...     pass
 >>> zope.interface.directlyProvides(SkinB, IXMLRPCSkinType)
 
-And create a  request:
+And create a request:
 
 >>> class IRequest(zope.interface.Interface):
 ...     pass
@@ -93,7 +93,7 @@ And create a  request:
 
 >>> request = Request()
 
-Now apply SkinA two our request
+Now apply SkinA to our request:
 
 >>> import zope.publisher.xmlrpc
 >>> zope.publisher.xmlrpc.applySkin(request, SkinA)
