@@ -524,6 +524,11 @@ class HTTPTests(unittest.TestCase):
                           'some output',
                           )
 
+    def test_PathTrailingWhitespace(self):
+        request = self._createRequest({'PATH_INFO': '/test '})
+        self.assertEqual(['test '], request.getTraversalStack())
+
+
 class ConcreteHTTPTests(HTTPTests):
     """Tests that we don't have to worry about subclasses inheriting and
     breaking.
@@ -761,7 +766,6 @@ class APITests(BaseTestIPublicationRequest,
         request.setTraversalStack(['Engineering', 'ZopeCorp'])
         self.assertEqual(request.traverse(app).name, 'Engineering')
         self.assertEqual(request._last_obj_traversed, app.ZopeCorp.Engineering)
-
 
 def cleanUp(test):
     zope.testing.cleanup.cleanUp()
