@@ -1,0 +1,15 @@
+=======
+CHANGES
+=======
+
+3.4.2 (unreleased)
+------------------
+
+- Made segmentation of URLs not strip (trailing) whitespace from path segments
+  to allow URLs ending in %20 to be handled correctly. (#172742)
+
+
+Before 3.4.2
+------------
+
+No changes were tracked.

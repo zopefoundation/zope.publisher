@@ -366,7 +366,7 @@ class BaseRequest(object):
         return "\n".join(map(lambda item: "%s:\t%s" % item, L1))
 
     def _setupPath_helper(self, attr):
-        path = self.get(attr, "/").strip()
+        path = self.get(attr, "/")
         if path.endswith('/'):
             # Remove trailing backslash, so that we will not get an empty
             # last entry when splitting the path.
