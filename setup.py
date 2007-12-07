@@ -15,21 +15,28 @@
 
 $Id$
 """
+
 from setuptools import setup, find_packages
 
+
+long_description = (open('README.txt').read() +
+                    '\n\n' +
+                    open('CHANGES.txt').read())
+
+
 setup(name='zope.publisher',
-      version = '3.4.2',
+      version='3.4dev',
       url='http://pypi.python.org/pypi/zope.publisher',
       license='ZPL 2.1',
       author='Zope Corporation and Contributors',
       author_email='zope3-dev@zope.org',
       description="The Zope publisher publishes Python objects on the web.",
-      long_description=open('README.txt').read(),
+      long_description=long_description,
 
       packages=find_packages('src'),
-      package_dir = {'': 'src'},
+      package_dir={'': 'src'},
       namespace_packages=['zope',],
-      tests_require = ['zope.testing'],
+      tests_require=['zope.testing'],
       install_requires=['setuptools',
                         'zope.component',
                         'zope.event',
@@ -43,6 +50,6 @@ setup(name='zope.publisher',
                         'zope.app.testing',
                         'zope.deprecation',
                         'zope.deferredimport'],
-      include_package_data = True,
-      zip_safe = False,
+      include_package_data=True,
+      zip_safe=False,
       )
