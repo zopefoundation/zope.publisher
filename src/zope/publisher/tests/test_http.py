@@ -778,8 +778,6 @@ def test_suite():
     suite.addTest(unittest.makeSuite(HTTPInputStreamTests))
     suite.addTest(doctest.DocFileSuite(
         '../httpresults.txt', setUp=cleanUp, tearDown=cleanUp))
-    suite.addTest(doctest.DocFileSuite(
-        '../http.txt', setUp=cleanUp, tearDown=cleanUp))
     suite.addTest(unittest.makeSuite(APITests))
     return suite
 

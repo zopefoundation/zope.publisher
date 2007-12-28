@@ -19,7 +19,7 @@ import os
 from setuptools import setup, find_packages
 
 setup(name='zope.publisher',
-      version = '3.5.0a1',
+      version = '3.5dev',
       url='http://cheeseshop.python.org/pypi/zope.publisher',
       license='ZPL 2.1',
       author='Zope Corporation and Contributors',
