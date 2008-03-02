@@ -2,8 +2,14 @@
 CHANGES
 =======
 
-After 3.4
----------
+3.5.0 (2008-03-02)
+------------------
+
+- Added a PasteDeploy app_factory implementation.  This should make
+  it easier to integrate Zope 3 applications with PasteDeploy.  It
+  also makes it easier to control the publication used, giving far
+  greater control over application policies (e.g. whether or not to
+  use the ZODB).
 
 - Made segmentation of URLs not strip (trailing) whitespace from path segments
   to allow URLs ending in %20 to be handled correctly. (#172742)

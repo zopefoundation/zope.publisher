@@ -18,6 +18,14 @@ $Id$
 import os
 from setuptools import setup, find_packages
 
+entry_points = """
+[paste.app_factory]
+main = zope.publisher.paste:Application
+
+[zope.publisher.publication_factory]
+sample = zope.publisher.tests.test_paste:SamplePublication
+"""
+
 setup(name='zope.publisher',
       version = '3.5dev',
       url='http://cheeseshop.python.org/pypi/zope.publisher',
@@ -26,6 +34,8 @@ setup(name='zope.publisher',
       author_email='zope3-dev@zope.org',
       description="The Zope publisher publishes Python objects on the web.",
       long_description=open('README.txt').read(),
+
+      entry_points = entry_points,
 
       packages=find_packages('src'),
       package_dir = {'': 'src'},
