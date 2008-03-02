@@ -11,10 +11,7 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""Setup for zope.publisher package
 
-$Id$
-"""
 import os
 from setuptools import setup, find_packages
 
@@ -27,7 +24,7 @@ sample = zope.publisher.tests.test_paste:SamplePublication
 """
 
 setup(name='zope.publisher',
-      version = '3.5dev',
+      version = '3.6dev',
       url='http://cheeseshop.python.org/pypi/zope.publisher',
       license='ZPL 2.1',
       author='Zope Corporation and Contributors',
