@@ -923,7 +923,7 @@ class HTTPCharsets(object):
         '''See interface IUserPreferredCharsets'''
         charsets = []
         sawstar = sawiso88591 = 0
-        header_present = 'HTTP_ACCEPT_CHARSET' in self.request
+        header_present = bool(self.request.get('HTTP_ACCEPT_CHARSET'))
         for charset in self.request.get('HTTP_ACCEPT_CHARSET', '').split(','):
             charset = charset.strip().lower()
             if charset:
