@@ -78,6 +78,16 @@ class HTTPCharsetTest(unittest.TestCase):
         self.assertEqual(list(browser_charsets.getPreferredCharsets()),
                          [])
 
+    def testTrivialHTTP_ACCEPT_CHARSET(self):
+        # If the client provides a trivial HTTP_ACCEPT_CHARSET, it should
+        # accept any charset (this test is aimed at Zope 2's handling
+        # of request queries for entries starting with HTTP_
+        # See: https://bugs.launchpad.net/zope2/+bug/143873
+        request = {'HTTP_ACCEPT_CHARSET': ''}
+        browser_charsets = HTTPCharsets(request)
+        self.assertEqual(list(browser_charsets.getPreferredCharsets()),
+                         [])
+
 
 def test_suite():
     loader=unittest.TestLoader()
