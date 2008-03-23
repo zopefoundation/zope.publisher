@@ -7,10 +7,16 @@ CHANGES
 
 Bugs fixed:
 
-When posting non-form (and non-multipart) data, the request body was
-consumed and discarded. This makes it impossible to deal with other
-post types, like xml-rpc or json without resorting to overly complex
-"request factory" contortions.
+- When posting non-form (and non-multipart) data, the request body was
+  consumed and discarded. This makes it impossible to deal with other
+  post types, like xml-rpc or json without resorting to overly complex
+  "request factory" contortions.
+
+- https://bugs.launchpad.net/zope2/+bug/143873
+
+  The zope.publisher.http.HTTPCharsets was confused by the Zope 2
+  publisher, which gives missleading information about which headers
+  it has.
 
 3.5.0 (2008-03-02)
 ------------------
