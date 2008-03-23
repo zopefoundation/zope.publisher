@@ -210,6 +210,7 @@ class Record(object):
             + ", ".join(["%s: %s" % (key, repr(value))
             for key, value in items]) + "}")
 
+_get_or_head = 'GET', 'HEAD'
 class BrowserRequest(HTTPRequest):
     implements(IBrowserRequest, IBrowserApplicationRequest)
 
@@ -252,9 +253,20 @@ class BrowserRequest(HTTPRequest):
     def processInputs(self):
         'See IPublisherRequest'
 
-        if self.method != 'GET':
+        if self.method not in _get_or_head:
             # Process self.form if not a GET request.
             fp = self._body_instream
+            if self.method == 'POST':
+                content_type = self._environ.get('CONTENT_TYPE')
+                if content_type and not (
+                    content_type == 'application/x-www-form-urlencoded'
+                    or
+                    content_type.startswith('multipart/')
+                    ):
+                    # for non-multi and non-form content types, FieldStorage
+                    # consumes the body and we have no good place to put it.
+                    # So we just won't call FieldStorage. :)
+                    return
         else:
             fp = None
 

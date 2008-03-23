@@ -2,6 +2,16 @@
 CHANGES
 =======
 
+3.5.1 (2008-03-23)
+------------------
+
+Bugs fixed:
+
+When posting non-form (and non-multipart) data, the request body was
+consumed and discarded. This makes it impossible to deal with other
+post types, like xml-rpc or json without resorting to overly complex
+"request factory" contortions.
+
 3.5.0 (2008-03-02)
 ------------------
 

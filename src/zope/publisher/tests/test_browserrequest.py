@@ -480,6 +480,15 @@ class BrowserTests(HTTPTests):
         self.assertEqual(request.form, {u'HTTP_REFERER': u'peter'})
 
 
+    def test_post_body_not_consumed_unnecessarily(self):
+        request = self._createRequest(
+            dict(REQUEST_METHOD='POST',
+                 CONTENT_TYPE='application/x-foo',
+                 ),
+            'test body')
+        request.processInputs()
+        self.assertEqual(request.bodyStream.read(), 'test body')
+
 class TestBrowserPublication(TestPublication):
     implements(IBrowserPublication)
 
