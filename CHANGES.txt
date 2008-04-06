@@ -2,6 +2,16 @@
 CHANGES
 =======
 
+3.5.2 (2008-04-06)
+------------------
+
+Bugs fixed:
+
+- A previous fix to handle posting of non-form data broke handling of
+  form data with extra information in the content type, as in::
+
+    application/x-www-form-urlencoded; charset=UTF-8
+
 3.5.1 (2008-03-23)
 ------------------
 
