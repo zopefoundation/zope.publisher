@@ -259,7 +259,7 @@ class BrowserRequest(HTTPRequest):
             if self.method == 'POST':
                 content_type = self._environ.get('CONTENT_TYPE')
                 if content_type and not (
-                    content_type == 'application/x-www-form-urlencoded'
+                    content_type.startswith('application/x-www-form-urlencoded')
                     or
                     content_type.startswith('multipart/')
                     ):

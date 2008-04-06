@@ -11,10 +11,7 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""Browser Request Tests
 
-$Id$
-"""
 import sys
 import unittest
 from StringIO import StringIO
@@ -488,6 +485,26 @@ class BrowserTests(HTTPTests):
             'test body')
         request.processInputs()
         self.assertEqual(request.bodyStream.read(), 'test body')
+
+    def test_post_body_not_necessarily(self):
+        request = self._createRequest(
+            dict(REQUEST_METHOD='POST',
+                 CONTENT_TYPE='application/x-www-form-urlencoded',
+                 ),
+            'x=1&y=2')
+        request.processInputs()
+        self.assertEqual(request.bodyStream.read(), '')
+        self.assertEqual(dict(request.form), dict(x='1', y='2'))
+
+        request = self._createRequest(
+            dict(REQUEST_METHOD='POST',
+                 CONTENT_TYPE=('application/x-www-form-urlencoded'
+                               '; charset=UTF-8'),
+                 ),
+            'x=1&y=2')
+        request.processInputs()
+        self.assertEqual(request.bodyStream.read(), '')
+        self.assertEqual(dict(request.form), dict(x='1', y='2'))
 
 class TestBrowserPublication(TestPublication):
     implements(IBrowserPublication)
