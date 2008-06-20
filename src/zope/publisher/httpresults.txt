@@ -9,7 +9,7 @@ strings.  Strings are inspected to deduce their content type, which is
 usually HTML.  Applications can override this by setting a response
 headers (calling request.response.setHeader).
 
-In Zope 2, applications could also call response.write.  This allows 
+In Zope 2, applications could also call response.write.  This allows
 both:
 
 - Effecient handling of large output
@@ -35,11 +35,11 @@ file (tempfile.TemporaryFile) and return the temporary file.
 Alternatively, if the data you want to return is already in a
 (non-temporary) file, just open and return that file.  The publisher
 (actually an adapter used by the publisher) will handle a returned
-file very efficiently.  
+file very efficiently.
 
 The publisher will compute the response content length from the file
 automatically. It is up to applications to set the content type.
-It will also take care of positioning the file to it's beginning, 
+It will also take care of positioning the file to it's beginning,
 so applications don't need to do this beforehand.
 
 This is actually accomplished via zope.app.wsgi.fileresult.FileResult,
@@ -82,7 +82,7 @@ To close, we'll build a quick example so you can see it working.
     >>> zope.component.provideAdapter(do_something_silly_to_unicode_results)
 
 That's returning a unicode string, which is special cased to (1) make an
-iterable that is chunked, (2) encode, and (3) set content-length.  
+iterable that is chunked, (2) encode, and (3) set content-length.
 
     >>> request = TestRequest()
     >>> request.response.setHeader('content-type', 'text/html')
@@ -135,4 +135,4 @@ simplest way to do this, but any other IResult should work.
     >>> request.response.setResult(DirectResult(('hi',)))
     >>> tuple(request.response.consumeBodyIter())
     ('hi',)
-    
+
