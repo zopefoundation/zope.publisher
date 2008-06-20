@@ -2,6 +2,16 @@
 CHANGES
 =======
 
+3.5.3 (2008-06-20)
+------------------
+
+Bugs fixed:
+
+- It turns out that some Web servers (Paste for example) do not send the EOF
+  character after the data has been transmitted and the read() of the cached
+  stream simply hangs if no expected content length has been specified.
+
+
 3.5.2 (2008-04-06)
 ------------------
 

@@ -200,9 +200,10 @@ class HTTPInputStream(object):
             self.cacheStream = StringIO()
         else:
             self.cacheStream = TemporaryFile()
+        self.size = size and int(size) or -1
 
     def getCacheStream(self):
-        self.read()
+        self.read(self.size)
         self.cacheStream.seek(0)
         return self.cacheStream
 
@@ -224,7 +225,7 @@ class HTTPInputStream(object):
         data = self.stream.readlines(hint)
         self.cacheStream.write(''.join(data))
         return data
-        
+
 
 DEFAULT_PORTS = {'http': '80', 'https': '443'}
 STAGGER_RETRIES = True

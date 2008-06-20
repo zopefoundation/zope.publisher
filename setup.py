@@ -24,8 +24,8 @@ sample = zope.publisher.tests.test_paste:SamplePublication
 """
 
 setup(name='zope.publisher',
-      version = '3.6dev',
-      url='http://cheeseshop.python.org/pypi/zope.publisher',
+      version = '3.5.3',
+      url='http://pypi.python.org/pypi/zope.publisher',
       license='ZPL 2.1',
       author='Zope Corporation and Contributors',
       author_email='zope3-dev@zope.org',

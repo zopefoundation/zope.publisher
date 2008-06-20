@@ -146,6 +146,27 @@ class HTTPInputStreamTests(unittest.TestCase):
                                  {'CONTENT_LENGTH': '',
                                   'HTTP_CONTENT_LENGTH': ''})
 
+    def testWorkingWithNonClosingStreams(self):
+        # It turns out that some Web servers (Paste for example) do not send
+        # the EOF signal after the data has been transmitted and the read()
+        # simply hangs if no expected content length has been specified.
+        #
+        # In this test we simulate the hanging of the server by throwing an
+        # exception.
+        class ServerHung(Exception):
+            pass
+
+        class NonClosingStream(object):
+            def read(self, size=-1):
+                if size == -1:
+                    raise ServerHung
+                return 'a'*size
+
+        stream = HTTPInputStream(NonClosingStream(), {'CONTENT_LENGTH': '10'})
+        self.assertEquals(stream.getCacheStream().read(), 'aaaaaaaaaa')
+        stream = HTTPInputStream(NonClosingStream(), {})
+        self.assertRaises(ServerHung, stream.getCacheStream)
+
 class HTTPTests(unittest.TestCase):
 
     _testEnv =  {
