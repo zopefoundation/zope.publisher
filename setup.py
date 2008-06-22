@@ -30,7 +30,9 @@ setup(name='zope.publisher',
       author='Zope Corporation and Contributors',
       author_email='zope3-dev@zope.org',
       description="The Zope publisher publishes Python objects on the web.",
-      long_description=open('README.txt').read(),
+      long_description=(open('README.txt').read()
+                        + '\n\n'
+                        + open('CHANGES.txt').read()),
 
       entry_points = entry_points,
 
