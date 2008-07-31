@@ -1,7 +1,7 @@
 Changes
 =======
 
-3.4.3 (unreleased)
+3.4.3 (2008-07-31)
 ------------------
 
 _ LP #253362: better dealing with malformed HTTP_ACCEPT_CHARSET headers
