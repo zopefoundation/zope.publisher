@@ -1,6 +1,15 @@
 CHANGES
 =======
 
+3.5.4 (unreleased)
+------------------
+
+Bugs fixed:
+
+- LP #253362: dealing more nicely with malformed HTTP_ACCEPT_CHARSET headers
+  within getPreferredCharsets().
+
+
 3.5.3 (2008-06-20)
 ------------------
 
