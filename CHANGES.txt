@@ -4,12 +4,12 @@ Changes
 3.4.3 (2008-07-31)
 ------------------
 
-_ LP #253362: better dealing with malformed HTTP_ACCEPT_CHARSET headers
+* LP #253362: better dealing with malformed HTTP_ACCEPT_CHARSET headers
 
 3.4.2 (2007-12-07)
 ------------------
 
-- Made segmentation of URLs not strip (trailing) whitespace from path segments
+* Made segmentation of URLs not strip (trailing) whitespace from path segments
   to allow URLs ending in %20 to be handled correctly. (#172742)
 
 3.4.1 (2007-09-29)
