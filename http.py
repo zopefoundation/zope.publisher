@@ -998,7 +998,10 @@ class HTTPCharsets(object):
             charset = charset.strip().lower()
             if charset:
                 if ';' in charset:
-                    charset, quality = charset.split(';')
+                    try:
+                        charset, quality = charset.split(';')
+                    except ValueError: 
+                        continue
                     if not quality.startswith('q='):
                         # not a quality parameter
                         quality = 1.0
