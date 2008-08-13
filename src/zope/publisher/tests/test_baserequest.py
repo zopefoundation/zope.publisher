@@ -27,6 +27,7 @@ from zope.publisher.tests.basetestiapplicationrequest \
      import BaseTestIApplicationRequest
 
 from StringIO import StringIO
+from zope.interface import Interface, providedBy, alsoProvides
 
 class TestBaseRequest(BaseTestIPublicationRequest,
                       BaseTestIApplicationRequest,
@@ -88,7 +89,32 @@ class TestBaseRequest(BaseTestIPublicationRequest,
     def test_SetRequestInResponse(self):
         request = self._Test__new()
         self.assertEqual(request.response._request, request)
-        
+
+    def test_retry_keeps_everything(self):
+        """lowlevel test for retry (see #98440)"""
+        # create a retryable request
+        from zope.publisher.browser import TestRequest
+        request = TestRequest()
+        self.assertTrue(request.supportsRetry())
+        # add an interface (this can be a layer)
+        class ISomeInterface(Interface):
+            pass
+        alsoProvides(request, ISomeInterface)
+        # create a retried request
+        retried = request.retry()
+
+        # the requests are not the same
+        self.assertTrue(request is not retried)
+        # the requests have the same attribute list
+        self.assertEqual(dir(request), dir(retried))
+        # the requests have the same interfaces
+        request_interfaces = sorted(list(providedBy(request)))
+        retried_interfaces = sorted(list(providedBy(retried)))
+        self.assertTrue(ISomeInterface.providedBy(retried))
+
+        self.assertEqual(request_interfaces, retried_interfaces)
+
+
 def test_suite():
     return makeSuite(TestBaseRequest)
 

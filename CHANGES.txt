@@ -1,10 +1,12 @@
 CHANGES
 =======
 
-3.6.0 (unreleased)
+3.5.4 (unreleased)
 ------------------
 
 Bugs fixed:
+
+* LP #98440: interfaces lost on retried request
 
 * LP #253362: dealing more nicely with malformed HTTP_ACCEPT_CHARSET headers
   within getPreferredCharsets().
