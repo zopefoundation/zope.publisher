@@ -436,13 +436,15 @@ class HTTPRequest(BaseRequest):
         count = getattr(self, '_retry_count', 0)
         self._retry_count = count + 1
 
-        new_response = self.response.retry()
         request = self.__class__(
             # Use the cache stream as the new input stream.
             body_instream=self._body_instream.getCacheStream(),
             environ=self._orig_env,
-            response=new_response,
+            response=self.response.retry(),
             )
+        # restore the interfaces
+        interface.alsoProvides(request, interface.providedBy(self))
+
         request.setPublication(self.publication)
         request._retry_count = self._retry_count
         return request
