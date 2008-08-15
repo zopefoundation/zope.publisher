@@ -216,6 +216,7 @@ class HTTPInputStream(object):
         # but twisted.web2.wsgi.InputStream.readline() doesn't accept it.
         # See http://www.zope.org/Collectors/Zope3-dev/535 and
         #     http://twistedmatrix.com/trac/ticket/1451
+        #     https://bugs.launchpad.net/zope3/+bug/98284
         data = self.stream.readline()
         self.cacheStream.write(data)
         return data
