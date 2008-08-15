@@ -212,12 +212,10 @@ class HTTPInputStream(object):
         return data
 
     def readline(self, size=None):
-        # XXX We should pass the ``size`` argument to self.stream.readline
-        # but twisted.web2.wsgi.InputStream.readline() doesn't accept it.
-        # See http://www.zope.org/Collectors/Zope3-dev/535 and
-        #     http://twistedmatrix.com/trac/ticket/1451
+        # Previous versions of Twisted did not support the ``size`` argument
+        # See http://twistedmatrix.com/trac/ticket/1451
         #     https://bugs.launchpad.net/zope3/+bug/98284
-        data = self.stream.readline()
+        data = self.stream.readline(size)
         self.cacheStream.write(data)
         return data
 
