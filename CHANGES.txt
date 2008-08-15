@@ -6,6 +6,9 @@ Changes
 
 * Fixed bug #98440 (interfaces lost on retried request)
 
+* LP #98284: Pass the ``size`` argument to readline, as the version of
+  twisted used in zope.app.twisted supports it
+
 3.4.3 (2008-07-31)
 ------------------
 
