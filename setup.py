@@ -28,7 +28,7 @@ setup(name='zope.publisher',
       url='http://pypi.python.org/pypi/zope.publisher',
       license='ZPL 2.1',
       author='Zope Corporation and Contributors',
-      author_email='zope3-dev@zope.org',
+      author_email='zope-dev@zope.org',
       description="The Zope publisher publishes Python objects on the web.",
       long_description=(open('README.txt').read()
                         + '\n\n'
