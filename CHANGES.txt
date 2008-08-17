@@ -1,7 +1,7 @@
 Changes
 =======
 
-3.4.4 (unreleased)
+3.4.4 (2008-08-18)
 ------------------
 
 * Fixed bug #98440 (interfaces lost on retried request)
