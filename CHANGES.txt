@@ -1,7 +1,7 @@
 Changes
 =======
 
-3.4.5 (unreleased)
+3.4.5 (2008-08-26)
 ------------------
 
 * Fix the LP #98284 fix: do not pass ``size`` argument of None that causes
