@@ -12,7 +12,11 @@ Bugs fixed:
   within getPreferredCharsets().
 
 * LP #98284: Pass the ``size`` argument to readline, as the version of
-  twisted used in zope.app.twisted supports it
+  twisted used in zope.app.twisted supports it.
+
+* Fix the LP #98284 fix: do not pass ``size`` argument of None that causes
+  cStringIO objects to barf with a TypeError.
+
 
 3.5.3 (2008-06-20)
 ------------------

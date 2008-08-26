@@ -216,7 +216,12 @@ class HTTPInputStream(object):
         # Previous versions of Twisted did not support the ``size`` argument
         # See http://twistedmatrix.com/trac/ticket/1451
         #     https://bugs.launchpad.net/zope3/+bug/98284
-        data = self.stream.readline(size)
+        # Note, however, that we cannot pass a size of None to cStringIO
+        # objects, or we'll get a TypeError: an integer is required
+        if size is not None:
+            data = self.stream.readline(size)
+        else:
+            data = self.stream.readline()
         self.cacheStream.write(data)
         return data
 
