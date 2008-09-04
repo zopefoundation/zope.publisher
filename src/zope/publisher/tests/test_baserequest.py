@@ -28,6 +28,7 @@ from zope.publisher.tests.basetestiapplicationrequest \
 
 from StringIO import StringIO
 from zope.interface import Interface, providedBy, alsoProvides
+from zope.component import provideAdapter
 
 class TestBaseRequest(BaseTestIPublicationRequest,
                       BaseTestIApplicationRequest,
@@ -92,27 +93,26 @@ class TestBaseRequest(BaseTestIPublicationRequest,
 
     def test_retry_keeps_everything(self):
         """lowlevel test for retry (see #98440)"""
+        from zope.publisher.browser import TestRequest, setDefaultSkin
+        from zope.publisher.interfaces.browser import IDefaultSkin, IBrowserRequest
         # create a retryable request
-        from zope.publisher.browser import TestRequest
         request = TestRequest()
         self.assertTrue(request.supportsRetry())
-        # add an interface (this can be a layer)
-        class ISomeInterface(Interface):
+        # create a skin and register it as the default skin
+        class ISomeSkin(Interface):
             pass
-        alsoProvides(request, ISomeInterface)
+        provideAdapter(ISomeSkin, (IBrowserRequest,), IDefaultSkin)
+        # set the default skin for the request
+        setDefaultSkin(request)
+
         # create a retried request
         retried = request.retry()
 
         # the requests are not the same
         self.assertTrue(request is not retried)
-        # the requests have the same attribute list
-        self.assertEqual(dir(request), dir(retried))
-        # the requests have the same interfaces
-        request_interfaces = sorted(list(providedBy(request)))
-        retried_interfaces = sorted(list(providedBy(retried)))
-        self.assertTrue(ISomeInterface.providedBy(retried))
-
-        self.assertEqual(request_interfaces, retried_interfaces)
+        # the requests both provide the default skin
+        self.assertTrue(ISomeSkin.providedBy(request))
+        self.assertTrue(ISomeSkin.providedBy(retried))
 
 
 def test_suite():

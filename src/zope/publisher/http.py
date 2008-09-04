@@ -28,6 +28,7 @@ from tempfile import TemporaryFile
 from zope import component, interface, event
 from zope.deprecation import deprecation
 
+import zope.publisher
 from zope.publisher import contenttype
 from zope.publisher.interfaces.http import IHTTPCredentials
 from zope.publisher.interfaces.http import IHTTPRequest
@@ -37,6 +38,7 @@ from zope.publisher.interfaces.http import IHTTPVirtualHostChangedEvent
 from zope.publisher.interfaces.http import IResult
 
 from zope.publisher.interfaces import Redirect
+from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.publisher.interfaces.http import IHTTPResponse
 from zope.publisher.interfaces.http import IHTTPApplicationResponse
 from zope.publisher.interfaces.logginginfo import ILoggingInfo
@@ -447,8 +449,10 @@ class HTTPRequest(BaseRequest):
             environ=self._orig_env,
             response=self.response.retry(),
             )
-        # restore the interfaces
-        interface.alsoProvides(request, interface.providedBy(self))
+        # restore the default skin
+        if IBrowserRequest.providedBy(self):
+            # only browser requests have skins
+            zope.publisher.browser.setDefaultSkin(request)
 
         request.setPublication(self.publication)
         request._retry_count = self._retry_count
