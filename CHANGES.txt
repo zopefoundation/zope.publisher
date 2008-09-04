@@ -4,7 +4,7 @@ Changes
 3.4.6 (unreleased)
 ------------------
 
-...
+* Better fix for LP #98440: restore only the default skin, not all interfaces
 
 3.4.5 (2008-08-26)
 ------------------
