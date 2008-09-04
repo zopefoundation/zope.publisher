@@ -1,7 +1,7 @@
 Changes
 =======
 
-3.4.6 (unreleased)
+3.4.6 (2008-09-04)
 ------------------
 
 * Better fix for LP #98440: restore only the default skin, not all interfaces
