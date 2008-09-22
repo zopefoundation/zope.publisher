@@ -1,10 +1,10 @@
 Changes
 =======
 
-3.4.7 (unreleased)
+3.4.7 (2008-09-22)
 ------------------
 
-* ...
+* LP# 273296: better dealing with malformed HTTP_ACCEPT_LANGUAGE headers
 
 3.4.6 (2008-09-04)
 ------------------
