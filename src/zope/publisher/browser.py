@@ -778,7 +778,11 @@ class BrowserLanguages(object):
                 q = l[1]
                 if q.startswith('q='):
                     q = q.split('=', 2)[1]
-                    quality = float(q)
+                    try:
+                        quality = float(q)
+                    except ValueError:
+                        # malformed quality value, skip it.
+                        continue
 
             if quality == 1.0:
                 # ... but we use 1.9 - 0.001 * position to
