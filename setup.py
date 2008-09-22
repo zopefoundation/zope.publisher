@@ -25,7 +25,7 @@ long_description = (open('README.txt').read() +
 
 
 setup(name='zope.publisher',
-      version='3.4.7',
+      version='3.4.8dev',
       url='http://pypi.python.org/pypi/zope.publisher',
       license='ZPL 2.1',
       author='Zope Corporation and Contributors',
