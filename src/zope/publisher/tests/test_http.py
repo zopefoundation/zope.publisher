@@ -343,6 +343,22 @@ class HTTPTests(unittest.TestCase):
         eq(locale.id.territory, None)
         eq(locale.id.variant, None)
 
+        # Now test for improper quality value, should ignore the header
+        req = self._createRequest({'HTTP_ACCEPT_LANGUAGE': 'en;q=xx'})
+        locale = req.locale
+        unless(ILocale.providedBy(locale))
+        eq(locale.id.language, None)
+        eq(locale.id.territory, None)
+        eq(locale.id.variant, None)
+
+        # Now test for very improper quality value, should ignore the header
+        req = self._createRequest({'HTTP_ACCEPT_LANGUAGE': 'asdf;qwer'})
+        locale = req.locale
+        unless(ILocale.providedBy(locale))
+        eq(locale.id.language, None)
+        eq(locale.id.territory, None)
+        eq(locale.id.variant, None)
+
         from zope.component.testing import tearDown
         tearDown()
 
