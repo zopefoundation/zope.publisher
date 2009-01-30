@@ -557,9 +557,10 @@ class HTTPTests(unittest.TestCase):
         req = self._createRequest(
             {'PATH_INFO': '/\xc3\xa4\xc3\xb6/\xc3\xbc\xc3\x9f/foo/bar.html'})
         self.assertEqual(req._traversal_stack,
-                         [u'bar.html', u'foo', u'\xfc\xdf', u'\xe4\xf6'])
+            [u'bar.html', u'foo', u'\u00fc\u00df', u'\u00e4\u00f6'])
         # the request should have converted PATH_INFO to unicode
-        self.assertEqual(req['PATH_INFO'], u'/\xe4\xf6/\xfc\xdf/foo/bar.html')
+        self.assertEqual(req['PATH_INFO'],
+            u'/\u00e4\u00f6/\u00fc\u00df/foo/bar.html')
 
     def testResponseWriteFaile(self):
         self.assertRaises(TypeError,
