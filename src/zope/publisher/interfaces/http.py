@@ -333,7 +333,7 @@ class IHTTPResponse(IResponse):
     def setStatus(status, reason=None):
         """Sets the HTTP status code of the response
 
-        The status parameter must be either an integer, a value
+        The status parameter must be either an integer (preferred), a value
         that can be converted to an integer using the int() function,
         or one of the standard status messages listed in the status_codes
         dict of the zope.publisher.http module (including "OK", "NotFound",
