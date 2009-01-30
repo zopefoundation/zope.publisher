@@ -193,11 +193,14 @@ class IResponse(Interface):
         """
 
     def handleException(exc_info):
-        """Handles an otherwise unhandled exception.
+        """Handles an exception.
 
-        The publication object gets the first chance to handle an exception,
-        and if it doesn't have a good way to do it, it defers to the
-        response.  Implementations should set the reponse body.
+        This method is intended only as a convenience for the publication
+        object.  The publication object can choose to handle exceptions by
+        calling this method.  The publication object can also choose not
+        to call this method at all.
+
+        Implementations set the reponse body.
         """
 
     def internalError():
@@ -278,9 +281,6 @@ class IPublication(Interface):
         - sets the body of the response, request.response, or
         - raises a Retry exception, or
         - throws another exception, which is a Bad Thing.
-
-        Note that this method should not leak, which means that
-        exc_info must be set to some other value before exiting the method.
         """
 
     def endRequest(request, ob):
@@ -376,7 +376,7 @@ class IPublisherRequest(IPublicationRequest):
         """Set the request's publication object
         """
 
-    def traverse(object):
+    def traverse(obj):
         """Traverse from the given object to the published object
 
         The published object is returned.
