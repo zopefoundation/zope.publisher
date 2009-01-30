@@ -647,12 +647,16 @@ class HTTPResponse(BaseResponse):
         self.authUser = '-'
 
     def setStatus(self, status, reason=None):
-        'See IHTTPResponse'
+        """See IHTTPResponse"""
         if status is None:
             status = 200
-        else:
-            if type(status) in StringTypes:
+        try:
+            status = int(status)
+        except ValueError:
+            if isinstance(status, basestring):
                 status = status.lower()
+            # Use a standard status code, falling back to 500 for
+            # nonstandard values (such as "valueerror")
             status = status_codes.get(status, 500)
         self._status = status
 
@@ -661,7 +665,6 @@ class HTTPResponse(BaseResponse):
 
         self._reason = reason
         self._status_set = True
-
 
     def getStatus(self):
         'See IHTTPResponse'

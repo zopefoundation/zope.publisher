@@ -4,7 +4,7 @@ CHANGES
 3.5.5 (unreleased)
 ------------------
 
-* ...
+* LP #322486: setStatus() now allows any int()-able status value.
 
 
 3.5.4 (2008-09-22)

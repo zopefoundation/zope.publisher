@@ -333,12 +333,17 @@ class IHTTPResponse(IResponse):
     def setStatus(status, reason=None):
         """Sets the HTTP status code of the response
 
-        The argument may either be an integer or a string from { OK,
-        Created, Accepted, NoContent, MovedPermanently,
-        MovedTemporarily, NotModified, BadRequest, Unauthorized,
-        Forbidden, NotFound, InternalError, NotImplemented,
-        BadGateway, ServiceUnavailable } that will be converted to the
-        correct integer value.
+        The status parameter must be either an integer, a value
+        that can be converted to an integer using the int() function,
+        or one of the standard status messages listed in the status_codes
+        dict of the zope.publisher.http module (including "OK", "NotFound",
+        and so on).  If the parameter is some other value, the status will
+        be set to 500.
+
+        The reason parameter is a short message to be sent with the status
+        code to the client.  If reason is not provided, a standard
+        reason will be supplied, falling back to "Unknown" for unregistered
+        status codes.
         """
 
     def getStatusString():

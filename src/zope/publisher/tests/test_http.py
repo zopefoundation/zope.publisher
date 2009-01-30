@@ -263,6 +263,12 @@ class HTTPTests(unittest.TestCase):
         request.response.redirect('http://foobar.com/explicit', 304)
         self.assertEquals(request.response.getStatus(), 304)
 
+    def testUnregisteredStatus(self):
+        # verify we can set the status to an unregistered int value
+        request = self._createRequest({}, '')
+        request.response.setStatus(289)
+        self.assertEquals(request.response.getStatus(), 289)
+
     def testRequestEnvironment(self):
         req = self._createRequest()
         publish(req, handle_errors=0) # Force expansion of URL variables
@@ -551,9 +557,9 @@ class HTTPTests(unittest.TestCase):
         req = self._createRequest(
             {'PATH_INFO': '/\xc3\xa4\xc3\xb6/\xc3\xbc\xc3\x9f/foo/bar.html'})
         self.assertEqual(req._traversal_stack,
-                         [u'bar.html', u'foo', u'ья', u'дц'])
+                         [u'bar.html', u'foo', u'\xfc\xdf', u'\xe4\xf6'])
         # the request should have converted PATH_INFO to unicode
-        self.assertEqual(req['PATH_INFO'], u'/дц/ья/foo/bar.html')
+        self.assertEqual(req['PATH_INFO'], u'/\xe4\xf6/\xfc\xdf/foo/bar.html')
 
     def testResponseWriteFaile(self):
         self.assertRaises(TypeError,
