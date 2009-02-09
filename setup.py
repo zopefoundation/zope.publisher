@@ -26,7 +26,7 @@ long_description = (open('README.txt').read() +
                     open('CHANGES.txt').read())
 
 setup(name='zope.publisher',
-      version = '3.3dev',
+      version = '3.3.3',
       url='http://svn.zope.org/zope.publisher',
       license='ZPL 2.1',
       description='Zope publisher',
