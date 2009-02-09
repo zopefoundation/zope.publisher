@@ -4,9 +4,13 @@ Changes
 3.3.x (unreleased)
 ------------------
 
-* ...
+- https://bugs.launchpad.net/zope2/+bug/143873
+
+  The zope.publisher.http.HTTPCharsets was confused by the Zope 2
+  publisher, which gives missleading information about which headers
+  it has.
 
 3.3.2 (2007-07-03)
 ------------------
 
-Release as a separate project, corresponds to zope.publisher from Zope 3.3.2
+- Release as a separate project, corresponds to zope.publisher from Zope 3.3.2
