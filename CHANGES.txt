@@ -35,6 +35,12 @@ Changes
 
 * LP #253362: better dealing with malformed HTTP_ACCEPT_CHARSET headers
 
+* https://bugs.launchpad.net/zope2/+bug/143873
+
+  The zope.publisher.http.HTTPCharsets was confused by the Zope 2
+  publisher, which gives misleading information about which headers
+  it has.
+
 3.4.2 (2007-12-07)
 ------------------
 
