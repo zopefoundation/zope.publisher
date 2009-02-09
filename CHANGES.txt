@@ -4,6 +4,10 @@ Changes
 3.3.x (unreleased)
 ------------------
 
+
+3.3.3 (2009-02-09)
+------------------
+
 - https://bugs.launchpad.net/zope2/+bug/143873
 
   The zope.publisher.http.HTTPCharsets was confused by the Zope 2
