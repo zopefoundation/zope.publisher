@@ -1,9 +1,9 @@
-zope.publisher Package Readme
-=============================
-
 Overview
 --------
 
-Python Object Publisher -- Publish Python objects on web servers.
-
-Provide an apply-like facility that works with any mapping object.
+zope.publisher allows you to publish Python objects on the web.  It
+has support for plain HTTP/WebDAV clients, web browsers as well as
+XML-RPC and FTP clients.  Input and output streams are represented by
+request and response objects which allow for easy client interaction
+from Python.  The behaviour of the publisher is geared towards WSGI
+compatibility.

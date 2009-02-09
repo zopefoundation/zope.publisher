@@ -1,0 +1,12 @@
+Changes
+=======
+
+3.3.x (unreleased)
+------------------
+
+* ...
+
+3.3.2 (2007-07-03)
+------------------
+
+Release as a separate project, corresponds to zope.publisher from Zope 3.3.2

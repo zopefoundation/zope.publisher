@@ -20,16 +20,19 @@ import os
 
 from setuptools import setup, find_packages
 
+
+long_description = (open('README.txt').read() +
+                    '\n\n' +
+                    open('CHANGES.txt').read())
+
 setup(name='zope.publisher',
-      version = '3.3.2',
+      version = '3.3dev',
       url='http://svn.zope.org/zope.publisher',
       license='ZPL 2.1',
       description='Zope publisher',
       author='Zope Corporation and Contributors',
       author_email='zope3-dev@zope.org',
-      long_description="Publish Python objects on web servers."
-                       "Provide an apply-like facility that"
-                       "works with any mapping object.",
+      long_description=long_description,
 
       packages=find_packages('src'),
 	  package_dir = {'': 'src'},
