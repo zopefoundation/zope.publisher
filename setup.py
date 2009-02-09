@@ -21,9 +21,8 @@ import os
 from setuptools import setup, find_packages
 
 setup(name='zope.publisher',
-      version = '3.4.0a1',
+      version = '3.3.2',
       url='http://svn.zope.org/zope.publisher',
-      dependency_links=['http://download.zope.org/distribution/',],
       license='ZPL 2.1',
       description='Zope publisher',
       author='Zope Corporation and Contributors',
@@ -50,6 +49,5 @@ setup(name='zope.publisher',
                         'zope.deprecation',
                         'zope.deferredimport'],
       include_package_data = True,
-
       zip_safe = False,
       )
