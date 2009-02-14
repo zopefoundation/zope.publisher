@@ -34,6 +34,7 @@ from zope.publisher.http import HTTPRequest, HTTPResponse
 from zope.publisher.http import HTTPInputStream, DirectResult
 from zope.publisher.publish import publish
 from zope.publisher.base import DefaultPublication
+from zope.publisher.interfaces import NotFound
 from zope.publisher.interfaces.http import IHTTPRequest, IHTTPResponse
 from zope.publisher.interfaces.http import IHTTPApplicationResponse
 from zope.publisher.interfaces import IResponse
@@ -224,6 +225,23 @@ class HTTPTests(unittest.TestCase):
             +
             ''.join(response.consumeBody())
             )
+
+    def test_double_dots(self):
+        # the code that parses PATH_INFO once tried to raise NotFound if the
+        # path it was given started with double-dots; unfortunately it didn't
+        # do it correctly, so it instead generated this error when trying to
+        # raise NotFound:
+        #     TypeError: __init__() takes at least 3 arguments (2 given)
+
+        # It really shouldn't generate NotFound because it doesn't have enough
+        # context to do so, and the publisher will raise it anyway given
+        # improper input.  It was fixed and this test added.
+
+        request = self._createRequest(extra_env={'PATH_INFO': '..'})
+        self.assertRaises(NotFound, publish, request, handle_errors=0)
+
+        request = self._createRequest(extra_env={'PATH_INFO': '../folder'})
+        self.assertRaises(NotFound, publish, request, handle_errors=0)
 
     def test_repr(self):
         request = self._createRequest()

@@ -4,7 +4,10 @@ CHANGES
 3.5.6 (unreleased)
 ------------------
 
-* ...
+Bugs fixed:
+
+* An untested code path that incorrectly attempted to construct a NotFound was
+  fixed, with a test.
 
 
 3.5.5 (2009-02-04)

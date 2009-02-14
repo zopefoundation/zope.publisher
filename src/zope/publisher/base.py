@@ -380,11 +380,14 @@ class BaseRequest(object):
             if not item or item == '.':
                 continue
             elif item == '..':
+                # try to remove the last name
                 try:
                     del clean[-1]
                 except IndexError:
-                    raise NotFound('..')
-            else: clean.append(item)
+                    # the list of names was empty, so do nothing and let the
+                    # string '..' be placed on the list
+                    pass
+            clean.append(item)
 
         clean.reverse()
         self.setTraversalStack(clean)
