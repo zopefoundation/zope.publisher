@@ -74,8 +74,8 @@ class IBrowserPublication(IPublication):
         """
 
 
-class ISkinable(Interface):
-    """A skinable (request) can apply a skin.
+class ISkinnable(Interface):
+    """A skinnable (request) can provide a skin.
     
     The implementation in BrowserRequest will apply a default skin/layer called
     ``IDefaultBrowserLayer`` if not default skin get registered.
@@ -96,7 +96,7 @@ class ISkinChangedEvent(Interface):
     request = Attribute("The request for which the skin was changed.")
 
 
-class IBrowserRequest(IHTTPRequest, ISkinable):
+class IBrowserRequest(IHTTPRequest, ISkinnable):
     """Browser-specific Request functionality.
 
     Note that the browser is special in many ways, since it exposes
