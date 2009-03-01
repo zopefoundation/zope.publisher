@@ -74,7 +74,29 @@ class IBrowserPublication(IPublication):
         """
 
 
-class IBrowserRequest(IHTTPRequest):
+class ISkinable(Interface):
+    """A skinable (request) can apply a skin.
+    
+    The implementation in BrowserRequest will apply a default skin/layer called
+    ``IDefaultBrowserLayer`` if not default skin get registered.
+    """
+
+
+class IDefaultSkin(Interface):
+    """Any component providing this interface must be a skin.
+
+    This is a marker interface, so that we can register the default skin as an
+    adapter from the presentation type to `IDefaultSkin`.
+    """
+
+
+class ISkinChangedEvent(Interface):
+    """Event that gets triggered when the skin of a request is changed."""
+
+    request = Attribute("The request for which the skin was changed.")
+
+
+class IBrowserRequest(IHTTPRequest, ISkinable):
     """Browser-specific Request functionality.
 
     Note that the browser is special in many ways, since it exposes
@@ -138,15 +160,3 @@ zope.deprecation.deprecated('ISkin',
                             'The old alias will go away in Zope 3.5.')
 #
 ##############################################################################
-
-class IDefaultSkin(Interface):
-    """Any component providing this interface must be a skin.
-
-    This is a marker interface, so that we can register the default skin as an
-    adapter from the presentation type to `IDefaultSkin`.
-    """
-
-class ISkinChangedEvent(Interface):
-    """Event that gets triggered when the skin of a request is changed."""
-
-    request = Attribute("The request for which the skin was changed.")

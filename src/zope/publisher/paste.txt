@@ -61,8 +61,7 @@ environment dictionary and a start-response function:
     ...        'REQUEST_METHOD': 'GET', 'wsgi.input':  cStringIO.StringIO('')}
 
     >>> for data in app(env, start_response):
-    ...     print data,
-    ... # doctest: +NORMALIZE_WHITESPACE
+    ...     print data
     200 Ok
     <html><body>Thanks for your request:<br />
     <h1>BrowserRequest</h1>
@@ -71,7 +70,7 @@ environment dictionary and a start-response function:
     PATH_INFO:	/a/b
     QUERY_STRING:	
     REQUEST_METHOD:	GET
-    wsgi.input:	<cStringIO.StringI object at 0xb7470a40>
+    wsgi.input:	<cStringIO.StringI object at ...>
     </pre>
     <h1>Publication arguments:</h1>
     Globals: {'global_option': 42}<br />

@@ -59,9 +59,7 @@ def test_suite():
     return unittest.TestSuite((
         doctest.DocFileSuite(
             '../paste.txt',
-            checker = renormalizing.RENormalizing([
-                (re.compile('at 0x[0-9a-f]+'), 'at <SOME ADDRESS>'),
-                ]),
+            optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE,
             ),
         ))
 

@@ -28,6 +28,7 @@ from zope.publisher.base import DefaultPublication
 from zope.publisher.interfaces.browser import IBrowserApplicationRequest
 from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.publisher.interfaces.browser import IBrowserPublication
+from zope.publisher.interfaces.browser import ISkinable
 
 from zope.publisher.tests.test_http import HTTPTests
 from zope.publisher.tests.publication import TestPublication
@@ -454,6 +455,7 @@ class BrowserTests(HTTPTests):
         request = self._createRequest()
         verifyObject(IBrowserRequest, request)
         verifyObject(IBrowserApplicationRequest, request)
+        verifyObject(ISkinable, request)
 
     def testIssue394(self):
         extra = {'PATH_INFO': '/folder/item3/'}
@@ -560,6 +562,16 @@ class APITests(BaseTestIPublicationRequest,
         request.setTraversalStack(['Engineering', 'ZopeCorp'])
         self.assertEqual(request.traverse(app).name, 'Engineering')
         self.assertEqual(request._last_obj_traversed, app.ZopeCorp.Engineering)
+
+    def test_IBrowserRequest(self):
+        verifyObject(IBrowserRequest, self._Test__new())
+
+    def test_ISkinable(self):
+        self.assertEqual(ISkinable.providedBy(self._Test__new()), True)
+
+    def testVerifyISkinable(self):
+        verifyObject(ISkinable, self._Test__new())
+
 
 def test_suite():
     suite = unittest.TestSuite()

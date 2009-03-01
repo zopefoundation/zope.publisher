@@ -1,6 +1,13 @@
 CHANGES
 =======
 
+3.5.7dev (unreleased)
+---------------------
+
+- Feature: added ISkinable which allows us to implement the apply skin pattern
+  not only for IBrowserRequest
+
+
 3.5.6 (2009-02-14)
 ------------------
 
