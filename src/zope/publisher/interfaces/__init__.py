@@ -16,14 +16,6 @@
 $Id$
 """
 __docformat__ = "reStructuredText"
-
-import zope.deferredimport
-
-zope.deferredimport.deprecated(
-    "ILayer will go away in Zope 3.5",
-    ILayer = 'zope.publisher.interfaces.back35:ILayer',
-    )
-
 from zope.component.interfaces import IPresentationRequest
 from zope.interface import Interface, Attribute, implements
 from zope.interface.common.mapping import IEnumerableMapping
@@ -79,6 +71,8 @@ class IDebugError(ITraversalException):
 class DebugError(TraversalException):
     implements(IDebugError)
 
+    message = None # override this not to cause warnings in python 2.6
+
     def __init__(self, ob, message):
         self.ob = ob
         self.message = message
@@ -99,6 +93,8 @@ class IBadRequest(IPublishingException):
 class BadRequest(PublishingException):
 
     implements(IBadRequest)
+
+    message = None # override this not to cause warnings in python 2.6
 
     def __init__(self, message):
         self.message = message

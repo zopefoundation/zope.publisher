@@ -26,7 +26,6 @@ import logging
 from tempfile import TemporaryFile
 
 from zope import component, interface, event
-from zope.deprecation import deprecation
 
 import zope.publisher
 from zope.publisher import contenttype
@@ -618,9 +617,6 @@ class HTTPResponse(BaseResponse):
 
     __slots__ = (
         'authUser',             # Authenticated user string
-        # BBB: Remove for Zope 3.4.
-        '_header_output',       # Hook object to collaborate with a server
-                                # for header generation.
         '_headers',
         '_cookies',
         '_status',              # The response status (usually an integer)

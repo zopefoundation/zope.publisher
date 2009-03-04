@@ -20,8 +20,6 @@ $Id$
 """
 from cStringIO import StringIO
 
-from zope.deprecation import deprecated
-
 from zope.interface import implements, providedBy
 from zope.interface.common.mapping import IReadMapping, IEnumerableMapping
 from zope.exceptions.exceptionformatter import print_exception

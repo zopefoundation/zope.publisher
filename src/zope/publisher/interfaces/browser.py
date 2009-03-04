@@ -142,21 +142,3 @@ class IDefaultBrowserLayer(IBrowserRequest):
 
 class IBrowserSkinType(IInterface):
     """A skin is a set of layers."""
-
-##############################################################################
-#
-# BBB 2006/02/18, to be removed after 12 months
-#
-
-# mark the default layer for BBB reasons
-from zope.publisher.interfaces.back35 import ILayer
-directlyProvides(IDefaultBrowserLayer, ILayer)
-
-import zope.deprecation
-ISkin = IBrowserSkinType
-zope.deprecation.deprecated('ISkin',
-                            'The zope.publisher.interfaces.browser.ISkin '
-                            'interface has been renamed to IBrowserSkinType. '
-                            'The old alias will go away in Zope 3.5.')
-#
-##############################################################################

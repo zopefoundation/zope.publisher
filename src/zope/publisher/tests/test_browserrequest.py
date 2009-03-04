@@ -492,6 +492,7 @@ class BrowserTests(HTTPTests):
         request = self._createRequest(
             dict(REQUEST_METHOD='POST',
                  CONTENT_TYPE='application/x-www-form-urlencoded',
+                 QUERY_STRING='',
                  ),
             'x=1&y=2')
         request.processInputs()
@@ -502,6 +503,7 @@ class BrowserTests(HTTPTests):
             dict(REQUEST_METHOD='POST',
                  CONTENT_TYPE=('application/x-www-form-urlencoded'
                                '; charset=UTF-8'),
+                 QUERY_STRING='',
                  ),
             'x=1&y=2')
         request.processInputs()

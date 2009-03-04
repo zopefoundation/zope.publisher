@@ -7,6 +7,9 @@ CHANGES
 - Feature: added ISkinnable interface which allows us to implement the apply
   skin pattern not only for IBrowserRequest
 
+- Fix: Don't cause warnings on Python 2.6
+
+- Remove deprecated code.
 
 3.5.6 (2009-02-14)
 ------------------
