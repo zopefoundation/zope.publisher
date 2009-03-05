@@ -94,13 +94,16 @@ class TestBaseRequest(BaseTestIPublicationRequest,
     def test_retry_keeps_everything(self):
         """lowlevel test for retry (see #98440)"""
         from zope.publisher.browser import TestRequest, setDefaultSkin
-        from zope.publisher.interfaces.browser import IDefaultSkin, IBrowserRequest
+        from zope.publisher.interfaces.browser import IDefaultSkin
+        from zope.publisher.interfaces.browser import IBrowserRequest
+        from zope.publisher.interfaces.browser import IBrowserSkinType
         # create a retryable request
         request = TestRequest()
         self.assertTrue(request.supportsRetry())
         # create a skin and register it as the default skin
         class ISomeSkin(Interface):
             pass
+        alsoProvides(ISomeSkin, IBrowserSkinType)
         provideAdapter(ISomeSkin, (IBrowserRequest,), IDefaultSkin)
         # set the default skin for the request
         setDefaultSkin(request)

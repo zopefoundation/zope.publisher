@@ -4,6 +4,28 @@ CHANGES
 3.5.7dev (unreleased)
 ---------------------
 
+- Fix: ensure that we only apply skin interface in setDefaultSkin which also
+  provide IBrowserSkinType. This will ensure that we find a skin if the
+  applySkin method will lookup for a skin based on this type interface.
+
+- Fix: Make it possible to use adapters and not only interfaces as skins from
+  the adapter registry. Right now the defaultSkin directive registers simple
+  interfaces as skin adapters which will run into a TypeError if someone tries
+  to adapter such a skin adapter. Probably we should change the defaultSkin
+  directive and register real adapters instead of using the interfaces as fake
+  adapters where we expect adapter factories.
+
+- Feature: allow to use applySkin with different skin types using the optional
+  argument skinType which is by default set to IBrowserSkinType
+
+- Feature: implemented the default skin pattern within adapters. This allows
+  us to register default skins for other requests then only IBrowserRequest
+  using IDefaultSkin adapters.
+  
+  Note, ISkinnable and ISkinType and the skin implementation should be moved
+  out of the browser request modules. Packages like z3c.jsonrpc do not depend
+  on IBrowserRequest but they are skinnable.
+
 - Feature: added ISkinnable interface which allows us to implement the apply
   skin pattern not only for IBrowserRequest
 

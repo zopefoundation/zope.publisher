@@ -6,6 +6,11 @@
 
   <interface interface="zope.publisher.interfaces.browser.IBrowserSkinType" />
   <interface interface="zope.publisher.interfaces.xmlrpc.IXMLRPCRequest" />
+
+  <interface
+      interface="zope.publisher.interfaces.browser.IDefaultBrowserLayer"
+      type="zope.publisher.interfaces.browser.IBrowserSkinType"
+      />
   
   <class class="xmlrpclib.Binary">
     <allow attributes="data encode decode" />
@@ -18,6 +23,13 @@
   <adapter factory=".xmlrpc.DateTimePreMarshaller" />
   <adapter factory=".xmlrpc.PythonDateTimePreMarshaller" />
   <adapter factory=".xmlrpc.DictPreMarshaller" />
+
+  <adapter
+      name="default"
+      factory=".browser.getDefaultSkin"
+      for="zope.publisher.interfaces.browser.IBrowserRequest"
+      provides="zope.publisher.interfaces.browser.IDefaultSkin"
+      />
 
   <apidoc:bookchapter
       zcml:condition="have apidoc"

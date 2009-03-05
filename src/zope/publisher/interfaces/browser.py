@@ -18,7 +18,7 @@ $Id$
 
 __docformat__ = "reStructuredText"
 
-from zope.interface import Interface, Attribute, directlyProvides
+from zope.interface import Interface, Attribute, directlyProvides, alsoProvides
 from zope.interface.interfaces import IInterface
 from zope.component.interfaces import IView
 
@@ -140,5 +140,8 @@ class IBrowserView(IView):
 class IDefaultBrowserLayer(IBrowserRequest):
     """The default layer."""
 
-class IBrowserSkinType(IInterface):
+class ISkinType(IInterface):
+    """Base interface for skin types."""
+
+class IBrowserSkinType(ISkinType):
     """A skin is a set of layers."""
