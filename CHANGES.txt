@@ -33,6 +33,10 @@ CHANGES
 
 - Remove deprecated code.
 
+- Clean-up: Move "zope.testing" from extras to dependencies, per Zope
+  Framework policy.  Remove zope.app.testing as a dependency: tests run fine
+  without it.
+
 3.5.6 (2009-02-14)
 ------------------
 

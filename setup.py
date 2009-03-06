@@ -48,11 +48,8 @@ setup(name='zope.publisher',
                         'zope.interface',
                         'zope.location',
                         'zope.proxy',
-                        'zope.security'],
-      extras_require=dict(
-          test=['zope.testing',
-                'zope.app.testing'],
-          ),
+                        'zope.security',
+                        'zope.testing'],
       include_package_data=True,
 
       zip_safe=False,
