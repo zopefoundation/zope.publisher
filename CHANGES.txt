@@ -31,6 +31,11 @@ CHANGES
 
 - Fix: Don't cause warnings on Python 2.6
 
+- Fix: Make IBrowserPage inherit IBrowserView.
+
+- Stop inheriting from some of deprecated (for years) interfaces defined
+  in zope.component.
+
 - Remove deprecated code.
 
 - Clean-up: Move "zope.testing" from extras to dependencies, per Zope

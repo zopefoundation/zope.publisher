@@ -16,7 +16,6 @@
 $Id$
 """
 __docformat__ = "reStructuredText"
-from zope.component.interfaces import IPresentationRequest
 from zope.interface import Interface, Attribute, implements
 from zope.interface.common.mapping import IEnumerableMapping
 from zope.interface.common.interfaces import IException, ILookupError
@@ -284,7 +283,7 @@ class IPublication(Interface):
         """
 
 
-class IPublicationRequest(IPresentationRequest, IParticipation):
+class IPublicationRequest(IParticipation):
     """Interface provided by requests to IPublication objects
     """
 
