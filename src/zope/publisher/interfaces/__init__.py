@@ -456,3 +456,9 @@ class IApplicationRequest(IEnumerableMapping):
 class IRequest(IPublisherRequest, IPublicationRequest, IApplicationRequest):
     """The basic request contract
     """
+
+class IView(Interface):
+    """Generic view contract"""
+
+    request = Attribute("The request object that requested the view")
+    context = Attribute("The context object that the view is for")

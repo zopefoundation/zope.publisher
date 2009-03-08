@@ -23,6 +23,7 @@ from zope.interface.interfaces import IInterface
 
 from zope.publisher.interfaces import IPublication
 from zope.publisher.interfaces import IPublishTraverse
+from zope.publisher.interfaces import IView
 from zope.publisher.interfaces.http import IHTTPApplicationRequest
 from zope.publisher.interfaces.http import IHTTPRequest
 
@@ -127,11 +128,8 @@ class IBrowserPublisher(IPublishTraverse):
         the base href.
         """
 
-class IBrowserView(Interface):
+class IBrowserView(IView):
     """Browser View"""
-
-    request = Attribute("The request object that requested the view")
-    context = Attribute("The context object that the view is for")
 
 
 class IBrowserPage(IBrowserView, IBrowserPublisher):
