@@ -23,9 +23,17 @@ from zope.interface.interfaces import IInterface
 
 from zope.publisher.interfaces import IPublication
 from zope.publisher.interfaces import IPublishTraverse
+from zope.publisher.interfaces import ISkinType
+from zope.publisher.interfaces import ISkinnable
 from zope.publisher.interfaces import IView
 from zope.publisher.interfaces.http import IHTTPApplicationRequest
 from zope.publisher.interfaces.http import IHTTPRequest
+
+# BBB moved to zope.publisher.interfaces since not only browser reuquest
+# can use the skin pattern
+from zope.publisher.interfaces import IDefaultSkin # BBB import
+from zope.publisher.interfaces import ISkinChangedEvent # BBB import
+
 
 class IBrowserApplicationRequest(IHTTPApplicationRequest):
     """Browser-specific requests
@@ -74,28 +82,6 @@ class IBrowserPublication(IPublication):
         """
 
 
-class ISkinnable(Interface):
-    """A skinnable (request) can provide a skin.
-    
-    The implementation in BrowserRequest will apply a default skin/layer called
-    ``IDefaultBrowserLayer`` if not default skin get registered.
-    """
-
-
-class IDefaultSkin(Interface):
-    """Any component providing this interface must be a skin.
-
-    This is a marker interface, so that we can register the default skin as an
-    adapter from the presentation type to `IDefaultSkin`.
-    """
-
-
-class ISkinChangedEvent(Interface):
-    """Event that gets triggered when the skin of a request is changed."""
-
-    request = Attribute("The request for which the skin was changed.")
-
-
 class IBrowserRequest(IHTTPRequest, ISkinnable):
     """Browser-specific Request functionality.
 
@@ -142,8 +128,6 @@ class IBrowserPage(IBrowserView, IBrowserPublisher):
 class IDefaultBrowserLayer(IBrowserRequest):
     """The default layer."""
 
-class ISkinType(IInterface):
-    """Base interface for skin types."""
 
 class IBrowserSkinType(ISkinType):
     """A skin is a set of layers."""

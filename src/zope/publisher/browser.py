@@ -37,17 +37,23 @@ from zope.i18n.interfaces import IUserPreferredCharsets
 from zope.location import Location
 
 from zope.publisher.interfaces import NotFound
+from zope.publisher.interfaces import IDefaultSkin
 from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.publisher.interfaces.browser import IDefaultBrowserLayer
-from zope.publisher.interfaces.browser import IDefaultSkin
 from zope.publisher.interfaces.browser import IBrowserApplicationRequest
 from zope.publisher.interfaces.browser import IBrowserView
 from zope.publisher.interfaces.browser import IBrowserPage
-from zope.publisher.interfaces.browser import ISkinType
 from zope.publisher.interfaces.browser import IBrowserSkinType
-from zope.publisher.interfaces.browser import ISkinChangedEvent
 from zope.publisher.interfaces.http import IHTTPRequest
 from zope.publisher.http import HTTPRequest, HTTPResponse
+
+# BBB imports, this compoennts get moved from this module
+from zope.publisher.interfaces import ISkinType #BBB import
+from zope.publisher.interfaces import ISkinChangedEvent #BBB import
+from zope.publisher.skinnable import setDefaultSkin #BBB import
+from zope.publisher.skinnable import applySkin #BBB import
+from zope.publisher.skinnable import SkinChangedEvent #BBB import
+
 
 __ArrayTypes = (ListType, TupleType)
 
@@ -914,197 +920,3 @@ class BrowserPage(BrowserView):
 def getDefaultSkin(request):
     """Returns the IDefaultSkin layer for IBrowserRequest."""
     return IDefaultBrowserLayer
-
-
-def setDefaultSkin(request):
-    """Sets the default skin for the request.
-
-    The default skin is a marker interface that can be registered as an
-    adapter that provides IDefaultSkin for the request type. A default skin
-    interface like any other skin must also provide IBrowserSkinType. This is
-    important since applySkin will lookup for skins based on this type.
-
-    Note: Any interfaces that are directly provided by the request coming into
-    this method are replaced by the applied layer/skin interface. This is very
-    important since the retry pattern can use a clean request without any
-    directly provided interface.
-
-    If a default skin is not available, the fallback default skin get applied
-    if available for the given request type. The default fallback skin is
-    implemented as an named adapter factory providing IDefaultSkin and
-    using ``default`` as name. 
-    
-    Important to know is that some skin adapters get registered as interfaces
-    and the fallback skins as adapters. See the defaultSkin directive in 
-    zope.app.publication.zcml for more information which registers plain
-    interfaces as adapters which are not adaptable. (issue?)
-
-    Each request can only have one (unnamed) default skin and will fallback to
-    the named (default) fallback skin if available.
-
-    Only the IBrowserRequest provides such a default fallback adapter. This
-    adapter will apply the IDefaultBrowserLayer if no explicit default skin
-    is registered.
-
-    To illustrate, we'll first use setDefaultSkin without a registered
-    IDefaultSkin adapter:
-
-      >>> class Request(object):
-      ...     implements(IBrowserRequest)
-
-      >>> request = Request()
-      >>> IDefaultBrowserLayer.providedBy(request)
-      False
-
-    If we try to set a default skin and no one exist we will not fail but
-    nothing happens
-
-      >>> setDefaultSkin(request)
-
-    Make sure our IDefaultBrowserLayer provides the IBrowserSkinType interface.
-    This is done in the configure.zcml using the interface directive:
-    
-      >>> IBrowserSkinType.providedBy(IDefaultBrowserLayer)
-      False
-
-      >>> alsoProvides(IDefaultBrowserLayer, IBrowserSkinType)
-      >>> IBrowserSkinType.providedBy(IDefaultBrowserLayer)
-      True
-
-    The getDefaultSkin provides an adapter providing IDefaultSkin which we
-    register as named adapter using ``default`` as name:
-    
-      >>> zope.component.provideAdapter(getDefaultSkin,
-      ...     (IBrowserRequest,), IDefaultSkin, name='default')
-
-      >>> setDefaultSkin(request)
-      >>> IDefaultBrowserLayer.providedBy(request)
-      True
-
-    When we register a default layer, wihtout that the skin provides an
-    ISkinType the skin doesn't get applied:
-
-      >>> from zope.interface import Interface
-      >>> class IMySkin(Interface):
-      ...     pass
-      >>> zope.component.provideAdapter(IMySkin, (IBrowserRequest,),
-      ...                               IDefaultSkin)
-
-      >>> setDefaultSkin(request)
-      >>> IMySkin.providedBy(request)
-      False
-      >>> IDefaultBrowserLayer.providedBy(request)
-      True
-
-    The default skin must provide IBrowserSkinType:
-    
-      >>> alsoProvides(IMySkin, IBrowserSkinType)
-      >>> IBrowserSkinType.providedBy(IMySkin)
-      True
-
-    setDefaultSkin uses the layer instead of IDefaultBrowserLayer:
-
-      >>> request = Request()
-      >>> IMySkin.providedBy(request)
-      False
-      >>> IDefaultBrowserLayer.providedBy(request)
-      False
-
-      >>> setDefaultSkin(request)
-
-      >>> IMySkin.providedBy(request)
-      True
-      >>> IDefaultBrowserLayer.providedBy(request)
-      False
-
-    Any interfaces that are directly provided by the request coming into this
-    method are replaced by the applied layer/skin interface. This is important
-    for our retry pattern which will ensure that we start with a clean request:
-
-      >>> request = Request()
-      >>> class IFoo(Interface):
-      ...     pass
-      >>> directlyProvides(request, IFoo)
-      >>> IFoo.providedBy(request)
-      True
-      >>> setDefaultSkin(request)
-      >>> IFoo.providedBy(request)
-      False
-
-    """
-    adapters = zope.component.getSiteManager().adapters
-    skin = adapters.lookup((providedBy(request),), IDefaultSkin, '')
-    if skin is None:
-        # find a named ``default`` adapter providing IDefaultSkin as fallback
-        skin = adapters.lookup((providedBy(request),), IDefaultSkin,
-            'default')
-    if skin is not None:
-        try:
-            # the default fallback skin is registered as a named adapter
-            skin = skin(request)
-        except TypeError, e:
-            # the defaultSkin directive registers skins as interfaces and not
-            # as adapters (issue?)
-            pass
-        if ISkinType.providedBy(skin):
-            # silently ignore skins which do not provide ISkinType
-            directlyProvides(request, skin)
-
-
-def applySkin(request, skin, skinType=IBrowserSkinType):
-    """Change the presentation skin for this request.
-
-    >>> import pprint
-    >>> from zope.interface import Interface
-    >>> class SkinA(Interface): pass
-    >>> directlyProvides(SkinA, IBrowserSkinType)
-    >>> class SkinB(Interface): pass
-    >>> directlyProvides(SkinB, IBrowserSkinType)
-    >>> class IRequest(Interface): pass
-
-    >>> class Request(object):
-    ...     implements(IRequest)
-
-    >>> req = Request()
-
-    >>> applySkin(req, SkinA)
-    >>> pprint.pprint(list(providedBy(req).interfaces()))
-    [<InterfaceClass zope.publisher.browser.SkinA>,
-     <InterfaceClass zope.publisher.browser.IRequest>]
-
-    >>> applySkin(req, SkinB)
-    >>> pprint.pprint(list(providedBy(req).interfaces()))
-    [<InterfaceClass zope.publisher.browser.SkinB>,
-     <InterfaceClass zope.publisher.browser.IRequest>]
-
-    Changing the skin on a request triggers the ISkinChanged event:
-
-    >>> import zope.component
-    >>> from zope.publisher.interfaces.browser import ISkinChangedEvent
-    >>> def receiveSkinEvent(event):
-    ...     print event.request
-    >>> zope.component.provideHandler(receiveSkinEvent, (ISkinChangedEvent,))
-    >>> applySkin(req, SkinA)   # doctest: +ELLIPSIS
-    <zope.publisher.browser.Request object at 0x...>
-
-    Make sure our registrations go away again.
-
-    >>> from zope.testing.cleanup import cleanUp
-    >>> cleanUp()
-
-    """
-    # Remove all existing skin declarations (commonly the default skin) based
-    # on the given skin type.
-    ifaces = [iface for iface in directlyProvidedBy(request)
-              if not skinType.providedBy(iface)]
-    # Add the new skin.
-    ifaces.append(skin)
-    directlyProvides(request, *ifaces)
-    zope.event.notify(SkinChangedEvent(request))
-
-class SkinChangedEvent(object):
-
-    zope.interface.implements(ISkinChangedEvent)
-
-    def __init__(self, request):
-        self.request = request

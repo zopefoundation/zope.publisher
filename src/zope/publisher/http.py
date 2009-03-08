@@ -451,7 +451,7 @@ class HTTPRequest(BaseRequest):
         # restore the default skin
         if IBrowserRequest.providedBy(self):
             # only browser requests have skins
-            zope.publisher.browser.setDefaultSkin(request)
+            zope.publisher.skinnable.setDefaultSkin(request)
 
         request.setPublication(self.publication)
         request._retry_count = self._retry_count

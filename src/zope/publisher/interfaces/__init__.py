@@ -17,9 +17,11 @@ $Id$
 """
 __docformat__ = "reStructuredText"
 from zope.interface import Interface, Attribute, implements
+from zope.interface.interfaces import IInterface
 from zope.interface.common.mapping import IEnumerableMapping
 from zope.interface.common.interfaces import IException, ILookupError
 from zope.security.interfaces import Unauthorized, IParticipation
+
 
 class IPublishingException(IException):
     pass
@@ -456,6 +458,33 @@ class IApplicationRequest(IEnumerableMapping):
 class IRequest(IPublisherRequest, IPublicationRequest, IApplicationRequest):
     """The basic request contract
     """
+
+
+class ISkinType(IInterface):
+    """Base interface for skin types."""
+
+
+class ISkinnable(Interface):
+    """A skinnable (request) can provide a skin.
+    
+    The implementation in BrowserRequest will apply a default skin/layer called
+    ``IDefaultBrowserLayer`` if not default skin get registered.
+    """
+
+
+class IDefaultSkin(Interface):
+    """Any component providing this interface must be a skin.
+
+    This is a marker interface, so that we can register the default skin as an
+    adapter from the presentation type to `IDefaultSkin`.
+    """
+
+
+class ISkinChangedEvent(Interface):
+    """Event that gets triggered when the skin of a request is changed."""
+
+    request = Attribute("The request for which the skin was changed.")
+
 
 class IView(Interface):
     """Generic view contract"""

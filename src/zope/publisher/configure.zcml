@@ -28,7 +28,7 @@
       name="default"
       factory=".browser.getDefaultSkin"
       for="zope.publisher.interfaces.browser.IBrowserRequest"
-      provides="zope.publisher.interfaces.browser.IDefaultSkin"
+      provides="zope.publisher.interfaces.IDefaultSkin"
       />
 
   <apidoc:bookchapter

@@ -1,8 +1,13 @@
 CHANGES
 =======
 
-3.5.7dev (unreleased)
----------------------
+3.6.0 (unreleased)
+------------------
+
+- Clean-up: Move skin related code from zope.publisher.interfaces.browser and
+  zope.publisher.browser to zope.publihser.interfaces and
+  zope.publisher.skinnable and provide BBB imports. See skinnable.txt for more
+  information.
 
 - Fix: ensure that we only apply skin interface in setDefaultSkin which also
   provide IBrowserSkinType. This will ensure that we find a skin if the

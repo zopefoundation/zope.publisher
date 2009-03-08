@@ -23,12 +23,11 @@ from zope.publisher.publish import publish as publish_
 from zope.publisher.http import HTTPCharsets
 from zope.publisher.browser import BrowserRequest
 from zope.publisher.interfaces import NotFound
-
-from zope.publisher.base import DefaultPublication
+from zope.publisher.interfaces import ISkinnable
 from zope.publisher.interfaces.browser import IBrowserApplicationRequest
 from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.publisher.interfaces.browser import IBrowserPublication
-from zope.publisher.interfaces.browser import ISkinnable
+from zope.publisher.base import DefaultPublication
 
 from zope.publisher.tests.test_http import HTTPTests
 from zope.publisher.tests.publication import TestPublication
