@@ -33,8 +33,9 @@ CHANGES
 
 - Fix: Make IBrowserPage inherit IBrowserView.
 
-- Stop inheriting from some of deprecated (for years) interfaces defined
-  in zope.component.
+- Move IView and IDefaultViewName from zope.component.interfaces to
+  zope.publisher.interfaces. Stop inheriting from deprecated (for years)
+  interfaces defined in zope.component.
 
 - Remove deprecated code.
 

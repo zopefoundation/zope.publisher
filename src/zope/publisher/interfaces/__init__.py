@@ -462,3 +462,11 @@ class IView(Interface):
 
     request = Attribute("The request object that requested the view")
     context = Attribute("The context object that the view is for")
+
+
+class IDefaultViewName(Interface):
+    """A string that contains the default view name
+
+    A default view name is used to select a view when a user hasn't
+    specified one.
+    """
