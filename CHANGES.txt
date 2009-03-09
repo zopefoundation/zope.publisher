@@ -4,7 +4,8 @@ CHANGES
 3.6.1 (unreleased)
 ------------------
 
-- ...
+- Fix: remove IBrowserRequest dependency in http implementation based on
+  condition for setDefaultSkin. Use ISkinnable instead of IBrowserRequest.
 
 3.6.0 (2009-03-08)
 ------------------
