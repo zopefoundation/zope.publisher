@@ -4,7 +4,9 @@ CHANGES
 3.6.2 (unreleased)
 ------------------
 
-- ...
+- Add an adapter from ``zope.security.interfaces.IPrincipal`` to
+  ``zope.publisher.interfaces.logginginfo.ILoggingInfo``. It was moved
+  from ``zope.app.security`` as a part of refactoring process. 
 
 3.6.1 (2009-03-09)
 ------------------

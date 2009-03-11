@@ -31,6 +31,12 @@
       provides="zope.publisher.interfaces.IDefaultSkin"
       />
 
+  <adapter
+      factory=".principallogging.PrincipalLogging"
+      provides=".interfaces.logginginfo.ILoggingInfo"
+      for="zope.security.interfaces.IPrincipal"
+      />
+
   <apidoc:bookchapter
       zcml:condition="have apidoc"
       id="zopepublisherhttpresults.txt"
