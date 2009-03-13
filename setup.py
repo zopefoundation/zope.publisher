@@ -41,6 +41,7 @@ setup(name='zope.publisher',
 
       namespace_packages=['zope',],
       install_requires=['setuptools',
+                        'zope.authentication',
                         'zope.component',
                         'zope.event',
                         'zope.exceptions',

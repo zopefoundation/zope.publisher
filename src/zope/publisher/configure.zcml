@@ -37,6 +37,18 @@
       for="zope.security.interfaces.IPrincipal"
       />
 
+  <adapter
+      factory=".http.BasicAuthAdapter"
+      provides="zope.authentication.interfaces.ILoginPassword"
+      for=".interfaces.http.IHTTPCredentials"
+      />
+
+  <adapter
+      factory=".ftp.FTPAuth"
+      provides="zope.authentication.interfaces.ILoginPassword"
+      for=".interfaces.ftp.IFTPCredentials"
+      />
+
   <apidoc:bookchapter
       zcml:condition="have apidoc"
       id="zopepublisherhttpresults.txt"

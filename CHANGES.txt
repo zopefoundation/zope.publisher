@@ -8,6 +8,13 @@ CHANGES
   ``zope.publisher.interfaces.logginginfo.ILoggingInfo``. It was moved
   from ``zope.app.security`` as a part of refactoring process. 
 
+- Add adapters from HTTP and FTP request to ``zope.authentication.ILoginPassword``
+  interface. They are moved from ``zope.app.security`` as a part of refactoring
+  process. This change adds a dependency on the ``zope.authentication`` package,
+  but it's okay, since it's a tiny contract definition-only package.
+
+  See http://mail.zope.org/pipermail/zope-dev/2009-March/035325.html for reasoning.
+
 3.6.1 (2009-03-09)
 ------------------
 

@@ -15,9 +15,12 @@
 
 $Id$
 """
+from zope.authentication.loginpassword import LoginPassword
+from zope.component import adapts
 from zope.interface import implements
 from zope.publisher.interfaces.ftp import IFTPCredentials, IFTPRequest
 from zope.publisher.base import BaseResponse, BaseRequest
+
 
 class FTPResponse(BaseResponse):
     __slots__ = '_exc', # Saved exception
@@ -33,6 +36,7 @@ class FTPResponse(BaseResponse):
 
     def handleException(self, exc_info):
         self._exc = exc_info
+
 
 class FTPRequest(BaseRequest):
     implements(IFTPCredentials, IFTPRequest)
@@ -66,3 +70,24 @@ class FTPRequest(BaseRequest):
     def unauthorized(self, challenge):
         'See IFTPCredentials'
 
+
+class FTPAuth(LoginPassword):
+    """ILoginPassword adapter for handling common FTP authentication."""
+
+    # This was moved from zope.app.security as a part of refactoring process,
+    # see http://mail.zope.org/pipermail/zope-dev/2009-March/035325.html for
+    # the reasoning.
+
+    adapts(IFTPCredentials)
+
+    def __init__(self, request):
+        self.__request = request
+        lpw = request._authUserPW()
+        if lpw is None:
+            login, password = None, None
+        else:
+            login, password = lpw
+        super(FTPAuth, self).__init__(login, password)
+
+    def needLogin(self, realm):
+        self.__request.unauthorized("Did not work")
