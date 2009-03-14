@@ -1,7 +1,7 @@
 CHANGES
 =======
 
-3.6.2 (unreleased)
+3.6.2 (2009-03-14)
 ------------------
 
 - Add an adapter from ``zope.security.interfaces.IPrincipal`` to
