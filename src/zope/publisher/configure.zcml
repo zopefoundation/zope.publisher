@@ -11,6 +11,15 @@
       interface="zope.publisher.interfaces.browser.IDefaultBrowserLayer"
       type="zope.publisher.interfaces.browser.IBrowserSkinType"
       />
+
+  <class class="zope.publisher.http.HTTPRequest">
+    <implements
+        zcml:condition="installed zope.annotation"
+        interface="zope.annotation.interfaces.IAttributeAnnotatable"
+        />
+  </class>
+
+  <adapter factory="zope.publisher.http.HTTPCharsets" />
   
   <class class="xmlrpclib.Binary">
     <allow attributes="data encode decode" />

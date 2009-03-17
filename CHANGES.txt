@@ -4,7 +4,11 @@ CHANGES
 3.6.3 (unreleased)
 ------------------
 
-- ...
+- Mark HTTPRequest as IAttributeAnnotatable if ``zope.annotation`` is available,
+  this was previously done by ``zope.app.i18n``.
+
+- Register `IHTTPRequest` -> `IUserPreferredCharsets` adapter in ZCML
+  configuration. This was also previously done by ``zope.app.i18n``.
 
 3.6.2 (2009-03-14)
 ------------------
