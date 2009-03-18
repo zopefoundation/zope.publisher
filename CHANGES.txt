@@ -1,7 +1,12 @@
 CHANGES
 =======
 
-3.6.3 (unreleased)
+3.6.4 (unreleased)
+------------------
+
+- ...
+
+3.6.3 (2009-03-18)
 ------------------
 
 - Mark HTTPRequest as IAttributeAnnotatable if ``zope.annotation`` is available,
