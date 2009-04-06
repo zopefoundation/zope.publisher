@@ -1,6 +1,15 @@
 CHANGES
 =======
 
+3.5.7 (unreleased)
+------------------
+
+- Pin transitive dependency on ``zope.app.component`` to a version less than
+  ``3.7.0``, which conflicts with this release.
+
+- Pin dependency on ``zope.component`` to a version less than
+  ``3.6.0``, which removed BBB interfaces used by this release.
+
 3.5.6 (2009-02-14)
 ------------------
 

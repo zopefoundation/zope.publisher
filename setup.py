@@ -24,38 +24,46 @@ sample = zope.publisher.tests.test_paste:SamplePublication
 """
 
 setup(name='zope.publisher',
-      version = '3.5.6',
+      version = '3.5.7dev',
       url='http://pypi.python.org/pypi/zope.publisher',
       license='ZPL 2.1',
       author='Zope Corporation and Contributors',
       author_email='zope-dev@zope.org',
       description="The Zope publisher publishes Python objects on the web.",
-      long_description=(open('README.txt').read()
-                        + '\n\n'
-                        + open('CHANGES.txt').read()),
-
+      long_description=(open('README.txt').read() + '\n\n'
+                      + open('CHANGES.txt').read()),
       entry_points = entry_points,
-
       packages=find_packages('src'),
       package_dir = {'': 'src'},
-
       namespace_packages=['zope',],
-      install_requires=['setuptools',
-                        'zope.component',
-                        'zope.event',
-                        'zope.exceptions',
-                        'zope.i18n',
-                        'zope.interface',
-                        'zope.location',
-                        'zope.proxy',
-                        'zope.security',
-                        'zope.deprecation',
-                        'zope.deferredimport'],
-      extras_require=dict(
-          test = ['zope.testing',
-                  'zope.app.testing'],
-          ),
       include_package_data = True,
-
       zip_safe = False,
-      )
+      install_requires=[
+        'setuptools',
+        'zope.component<=3.5.99',     # 3.6.0 removes BBB interfaces.
+        'zope.app.component<=3.6.99', # transitive: later versions require
+                                      # zope.publisher >= 3.6.0.
+        'zope.app.security<=3.6.99',  # transitive: later versions require
+                                      # zope.component >= 3.6.0.
+        'zope.app.authentication<=3.5.99',  # transitive: later versions
+                                      # require zope.component >= 3.6.0.
+        'zope.traversing<3.5.3',      # 3.5.3 depends on newer zope.publisher
+        'zope.container<=3.6.99',     # transitive;  newer versions
+                                      # depend on zope.publisher >= 3.6.0
+        'zope.event',
+        'zope.exceptions',
+        'zope.i18n',
+        'zope.interface',
+        'zope.location',
+        'zope.proxy',
+        'zope.security',
+        'zope.deprecation',
+        'zope.deferredimport',
+      ],
+      extras_require={
+        'test': [
+            'zope.testing',
+            'zope.app.testing',
+         ],
+      },
+)
