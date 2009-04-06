@@ -40,16 +40,7 @@ setup(name='zope.publisher',
       zip_safe = False,
       install_requires=[
         'setuptools',
-        'zope.component<=3.5.99',     # 3.6.0 removes BBB interfaces.
-        'zope.app.component<=3.6.99', # transitive: later versions require
-                                      # zope.publisher >= 3.6.0.
-        'zope.app.security<=3.6.99',  # transitive: later versions require
-                                      # zope.component >= 3.6.0.
-        'zope.app.authentication<=3.5.99',  # transitive: later versions
-                                      # require zope.component >= 3.6.0.
-        'zope.traversing<3.5.3',      # 3.5.3 depends on newer zope.publisher
-        'zope.container<=3.6.99',     # transitive;  newer versions
-                                      # depend on zope.publisher >= 3.6.0
+        'zope.component',
         'zope.event',
         'zope.exceptions',
         'zope.i18n',
