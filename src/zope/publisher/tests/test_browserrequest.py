@@ -505,6 +505,8 @@ class BrowserTests(HTTPTests):
         request.processInputs()
         self.assertEqual(request.bodyStream.read(), '')
         self.assertEqual(dict(request.form), dict(x='1', y='2'))
+        self.assertEqual(request.environment['X-POST-QUERY_STRING'],
+                         'a=5&b:int=6')
 
 class TestBrowserPublication(TestPublication):
     implements(IBrowserPublication)

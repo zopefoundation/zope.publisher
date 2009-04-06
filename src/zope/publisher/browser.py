@@ -267,6 +267,11 @@ class BrowserRequest(HTTPRequest):
                     # consumes the body and we have no good place to put it.
                     # So we just won't call FieldStorage. :)
                     return
+                # Python 2.6 notices QS-on-POST, which breaks BBB for us.
+                # Suppress that.
+                if 'QUERY_STRING' in self._environ:
+                    env = self._environ
+                    env['X-POST-QUERY_STRING'] = env.pop('QUERY_STRING')
         else:
             fp = None
 
