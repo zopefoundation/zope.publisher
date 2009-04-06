@@ -4,6 +4,10 @@ CHANGES
 3.5.7 (unreleased)
 ------------------
 
+- Move any ``QUERY_STRING`` submitted with a POST request to a new key in
+  the environment, ``X-POST-QUERY_STRING``, to prevent the Python 2.6 version
+  of ``cgi.FieldStorage`` from concatenating it onto the form data.
+
 - Pin buildout to the Zope 3.4.0 KGS index.
 
 3.5.6 (2009-02-14)
