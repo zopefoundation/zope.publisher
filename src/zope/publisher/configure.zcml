@@ -9,7 +9,6 @@
 
   <interface
       interface="zope.publisher.interfaces.browser.IDefaultBrowserLayer"
-      type="zope.publisher.interfaces.browser.IBrowserSkinType"
       />
 
   <class class="zope.publisher.http.HTTPRequest">

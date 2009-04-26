@@ -18,8 +18,7 @@ $Id$
 
 __docformat__ = "reStructuredText"
 
-from zope.interface import Interface, Attribute, directlyProvides, alsoProvides
-from zope.interface.interfaces import IInterface
+from zope.interface import Attribute, alsoProvides
 
 from zope.publisher.interfaces import IPublication
 from zope.publisher.interfaces import IPublishTraverse
@@ -125,9 +124,11 @@ class IBrowserPage(IBrowserView, IBrowserPublisher):
         """Compute a response body"""
 
 
+class IBrowserSkinType(ISkinType):
+    """A skin is a set of layers."""
+
+
 class IDefaultBrowserLayer(IBrowserRequest):
     """The default layer."""
 
-
-class IBrowserSkinType(ISkinType):
-    """A skin is a set of layers."""
+alsoProvides(IDefaultBrowserLayer, IBrowserSkinType)

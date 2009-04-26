@@ -4,13 +4,15 @@ CHANGES
 3.6.4 (unreleased)
 ------------------
 
-- ...
+- Move `getDefaultSkin` to the skinnable module next to the `setDefaultSkin`
+  method, leaving a BBB import in place. Mark `IDefaultBrowserLayer` as a
+  `IBrowserSkinType` in code instead of relying on the ZCML to be loaded.
 
 3.6.3 (2009-03-18)
 ------------------
 
-- Mark HTTPRequest as IAttributeAnnotatable if ``zope.annotation`` is available,
-  this was previously done by ``zope.app.i18n``.
+- Mark HTTPRequest as IAttributeAnnotatable if ``zope.annotation`` is
+  available, this was previously done by ``zope.app.i18n``.
 
 - Register `IHTTPRequest` -> `IUserPreferredCharsets` adapter in ZCML
   configuration. This was also previously done by ``zope.app.i18n``.
@@ -22,12 +24,14 @@ CHANGES
   ``zope.publisher.interfaces.logginginfo.ILoggingInfo``. It was moved
   from ``zope.app.security`` as a part of refactoring process. 
 
-- Add adapters from HTTP and FTP request to ``zope.authentication.ILoginPassword``
-  interface. They are moved from ``zope.app.security`` as a part of refactoring
-  process. This change adds a dependency on the ``zope.authentication`` package,
-  but it's okay, since it's a tiny contract definition-only package.
+- Add adapters from HTTP and FTP request to
+  ``zope.authentication.ILoginPassword`` interface. They are moved from
+  ``zope.app.security`` as a part of refactoring process. This change adds a
+  dependency on the ``zope.authentication`` package, but it's okay, since it's
+  a tiny contract definition-only package.
 
-  See http://mail.zope.org/pipermail/zope-dev/2009-March/035325.html for reasoning.
+  See http://mail.zope.org/pipermail/zope-dev/2009-March/035325.html for
+  reasoning.
 
 3.6.1 (2009-03-09)
 ------------------

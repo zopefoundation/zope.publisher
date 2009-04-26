@@ -29,9 +29,7 @@ import tempfile
 
 import zope.component
 import zope.interface
-from zope.interface import implements, directlyProvides, alsoProvides
-from zope.interface import directlyProvidedBy, providedBy
-from zope.interface.interfaces import IInterface
+from zope.interface import implements, directlyProvides
 from zope.i18n.interfaces import IUserPreferredLanguages
 from zope.i18n.interfaces import IUserPreferredCharsets
 from zope.location import Location
@@ -50,6 +48,7 @@ from zope.publisher.http import HTTPRequest, HTTPResponse
 # BBB imports, this compoennts get moved from this module
 from zope.publisher.interfaces import ISkinType #BBB import
 from zope.publisher.interfaces import ISkinChangedEvent #BBB import
+from zope.publisher.skinnable import getDefaultSkin #BBB import
 from zope.publisher.skinnable import setDefaultSkin #BBB import
 from zope.publisher.skinnable import applySkin #BBB import
 from zope.publisher.skinnable import SkinChangedEvent #BBB import
@@ -915,8 +914,3 @@ class BrowserPage(BrowserView):
     def __call__(self, *args, **kw):
         raise NotImplementedError("Subclasses should override __call__ to "
                                   "provide a response body")
-
-
-def getDefaultSkin(request):
-    """Returns the IDefaultSkin layer for IBrowserRequest."""
-    return IDefaultBrowserLayer

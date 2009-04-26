@@ -37,6 +37,11 @@ class SkinChangedEvent(object):
         self.request = request
 
 
+def getDefaultSkin(request):
+    """Returns the IDefaultSkin layer for IBrowserRequest."""
+    return interfaces.browser.IDefaultBrowserLayer
+
+
 def setDefaultSkin(request):
     """Sets the default skin for a given request."""
     adapters = zope.component.getSiteManager().adapters
