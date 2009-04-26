@@ -34,7 +34,7 @@
 
   <adapter
       name="default"
-      factory=".browser.getDefaultSkin"
+      factory=".skinnable.getDefaultSkin"
       for="zope.publisher.interfaces.browser.IBrowserRequest"
       provides="zope.publisher.interfaces.IDefaultSkin"
       />
