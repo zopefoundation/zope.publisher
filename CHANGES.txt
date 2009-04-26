@@ -4,6 +4,9 @@ CHANGES
 3.6.4 (unreleased)
 ------------------
 
+- Added some BBB code to setDefaultSkin to allow IBrowserRequest's to continue
+  to work without configuring any special adapter for IDefaultSkin.
+
 - Move `getDefaultSkin` to the skinnable module next to the `setDefaultSkin`
   method, leaving a BBB import in place. Mark `IDefaultBrowserLayer` as a
   `IBrowserSkinType` in code instead of relying on the ZCML to be loaded.

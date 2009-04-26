@@ -51,6 +51,11 @@ def setDefaultSkin(request):
         # find a named ``default`` adapter providing IDefaultSkin as fallback
         skin = adapters.lookup((zope.interface.providedBy(request),),
             interfaces.IDefaultSkin, 'default')
+        if skin is None:
+            # Let's be nice and continue to work for IBrowserRequest's
+            # without relying on adapter registrations
+            if interfaces.browser.IBrowserRequest.providedBy(request):
+                skin = getDefaultSkin
     if skin is not None:
         try:
             # the default fallback skin is registered as a named adapter
