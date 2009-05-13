@@ -18,13 +18,14 @@ $Id$
 
 __docformat__ = "reStructuredText"
 
-from zope.interface import Attribute, alsoProvides
+from zope.interface import Attribute
+from zope.interface import alsoProvides
+from zope.browser.interfaces import IBrowserView # BBB import
 
 from zope.publisher.interfaces import IPublication
 from zope.publisher.interfaces import IPublishTraverse
 from zope.publisher.interfaces import ISkinType
 from zope.publisher.interfaces import ISkinnable
-from zope.publisher.interfaces import IView
 from zope.publisher.interfaces.http import IHTTPApplicationRequest
 from zope.publisher.interfaces.http import IHTTPRequest
 
@@ -112,10 +113,6 @@ class IBrowserPublisher(IPublishTraverse):
         nonempty sequence of names), then the publisher will try to adjust
         the base href.
         """
-
-class IBrowserView(IView):
-    """Browser View"""
-
 
 class IBrowserPage(IBrowserView, IBrowserPublisher):
     """Browser page"""

@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# Copyright (c) 2001, 2002 Zope Corporation and Contributors.
+# Copyright (c) 2001-2009 Zope Corporation and Contributors.
 # All Rights Reserved.
 #
 # This software is subject to the provisions of the Zope Public License,
@@ -16,12 +16,17 @@
 $Id$
 """
 __docformat__ = "reStructuredText"
-from zope.interface import Interface, Attribute, implements
+
+from zope.browser.interfaces import IView # BBB import
+from zope.interface import Interface
+from zope.interface import Attribute
+from zope.interface import implements
 from zope.interface.interfaces import IInterface
 from zope.interface.common.mapping import IEnumerableMapping
-from zope.interface.common.interfaces import IException, ILookupError
-from zope.security.interfaces import Unauthorized, IParticipation
-
+from zope.interface.common.interfaces import IException
+from zope.interface.common.interfaces import ILookupError
+from zope.security.interfaces import IParticipation
+from zope.security.interfaces import Unauthorized
 
 class IPublishingException(IException):
     pass
@@ -485,12 +490,6 @@ class ISkinChangedEvent(Interface):
 
     request = Attribute("The request for which the skin was changed.")
 
-
-class IView(Interface):
-    """Generic view contract"""
-
-    request = Attribute("The request object that requested the view")
-    context = Attribute("The context object that the view is for")
 
 
 class IDefaultViewName(Interface):

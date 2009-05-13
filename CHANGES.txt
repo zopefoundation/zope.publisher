@@ -1,9 +1,11 @@
 CHANGES
 =======
 
-3.6.5 (unreleased)
+3.7.0 (unreleased)
 ------------------
 
+- Move ``IView`` and ``IBrowserView`` interfaces into
+  ``zope.browser.interfaces``, leaving BBB imports.
 
 3.6.4 (2009-04-26)
 ------------------
