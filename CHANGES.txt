@@ -1,6 +1,13 @@
 Changes
 =======
 
+3.4.6.1 (unreleased)
+--------------------
+
+* XMLPRC was broken for paste.httpserver
+  https://bugs.launchpad.net/bugs/332063
+  https://bugs.launchpad.net/bugs/283089
+
 3.4.6 (2008-09-04)
 ------------------
 
