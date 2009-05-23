@@ -474,6 +474,10 @@ class IHTTPVirtualHostChangedEvent(Interface):
     request = Attribute(u'The application request whose virtual host info has '
                         u'been altered')
 
+class IHTTPException(Interface):
+    """Marker interface for http exceptions views
+    """
+    pass
 
 class IMethodNotAllowed(IException):
     """An exception that signals the 405 Method Not Allowed HTTP error"""
