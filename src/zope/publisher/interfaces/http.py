@@ -20,6 +20,8 @@ __docformat__ = "reStructuredText"
 
 from zope.interface import Interface
 from zope.interface import Attribute
+from zope.interface import implements
+from zope.interface.common.interfaces import IException
 
 from zope.publisher.interfaces import IApplicationRequest
 from zope.publisher.interfaces import IPublishTraverse
@@ -471,3 +473,25 @@ class IHTTPVirtualHostChangedEvent(Interface):
     """
     request = Attribute(u'The application request whose virtual host info has '
                         u'been altered')
+
+
+class IMethodNotAllowed(IException):
+    """An exception that signals the 405 Method Not Allowed HTTP error"""
+
+    object = Attribute("""The object on which the error occurred""")
+
+    request = Attribute("""The request in which the error occurred""")
+
+
+class MethodNotAllowed(Exception):
+    """An exception that signals the 405 Method Not Allowed HTTP error"""
+
+    implements(IMethodNotAllowed)
+
+    def __init__(self, object, request):
+        self.object = object
+        self.request = request
+
+    def __str__(self):
+        return "%r, %r" % (self.object, self.request)
+

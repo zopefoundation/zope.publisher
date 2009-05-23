@@ -1,10 +1,12 @@
 CHANGES
 =======
 
-3.7.1 (unreleased)
+3.8.0 (unreleased)
 ------------------
 
-- TBD
+- Moved IMethodNotAllowed and MethodNotAllowed from zope.app.http to
+  zope.publisher.interfaces.http, fixing dependency cycles involving
+  zope.app.http.
 
 3.7.0 (2009-05-13)
 ------------------
