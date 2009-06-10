@@ -120,7 +120,7 @@ class XMLRPCTests(unittest.TestCase):
     def testProcessInput(self):
         req = self._createRequest({}, xmlrpc_call)
         req.processInputs()
-        self.failUnlessEqual(req._args, (1,))
+        self.failUnlessEqual(req.getPositionalArguments(), (1,))
         self.failUnlessEqual(tuple(req._path_suffix), ('action',))
 
 
@@ -128,7 +128,7 @@ class XMLRPCTests(unittest.TestCase):
         req = self._createRequest({}, xmlrpc_call)
         req.processInputs()
         action = req.traverse(self.app)
-        self.failUnlessEqual(action(*req._args),
+        self.failUnlessEqual(action(*req.getPositionalArguments()),
                              "Parameter[type: int; value: 1")
 
 
