@@ -4,7 +4,11 @@ Changes
 3.4.8 (unreleased)
 ------------------
 
-* ...
+* Fix LP #332063 and LP #283089: XMLRPC is broken for paster.httpserver
+  replace readlines with readline
+
+* Backport fix from z.p 3.5.3: PUT is broken for paster.httpserver
+  (revision 87610)
 
 3.4.7 (2008-09-22)
 ------------------

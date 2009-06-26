@@ -202,9 +202,10 @@ class HTTPInputStream(object):
             self.cacheStream = StringIO()
         else:
             self.cacheStream = TemporaryFile()
+        self.size = size and int(size) or -1
 
     def getCacheStream(self):
-        self.read()
+        self.read(self.size)
         self.cacheStream.seek(0)
         return self.cacheStream
 
