@@ -1,7 +1,7 @@
 Changes
 =======
 
-3.4.8 (unreleased)
+3.4.8 (2009-07-03)
 ------------------
 
 * Fix LP #332063 and LP #283089: XMLRPC is broken for paster.httpserver
