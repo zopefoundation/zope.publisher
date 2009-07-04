@@ -18,7 +18,8 @@ Provide an apply-like facility that works with any mapping object
 $Id$
 """
 import sys
-from zope.publisher.interfaces import Retry
+from zope import component
+from zope.publisher.interfaces import Retry, IReRaiseException
 from zope.proxy import removeAllProxies
 from zope.security.interfaces import IUnauthorized
 
