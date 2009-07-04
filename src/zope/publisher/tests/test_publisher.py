@@ -28,10 +28,6 @@ from zope.interface import implementedBy
 
 from StringIO import StringIO
 
-class TestPublication(DefaultPublication):
-    # Override handleException to reraise for testing purposes
-    def handleException(self, object, request, exc_info, retry_allowed=1):
-        raise exc_info[0], exc_info[1], exc_info[2]
 
 class PublisherTests(unittest.TestCase):
     def setUp(self):
@@ -58,7 +54,7 @@ class PublisherTests(unittest.TestCase):
         self.app.noDocString = NoDocstringItem()
 
     def _createRequest(self, path, **kw):
-        publication = TestPublication(self.app)
+        publication = DefaultPublication(self.app)
         path = path.split('/')
         path.reverse()
         request = TestRequest(StringIO(''), **kw)
@@ -96,6 +92,24 @@ class PublisherTests(unittest.TestCase):
 
     def testDebugError(self):
         self.assertRaises(DebugError, self._publisherResults, '/noDocString')
+
+    def testAnotherDebugError(self):
+
+        def dummyAdapter(context):
+            def returnFalse():
+                return False
+            return returnFalse
+
+        from zope.interface import Interface
+        from zope import component
+        from zope.publisher.interfaces import IReRaiseException
+        component.provideAdapter(dummyAdapter, (Unauthorized,), 
+                                 IReRaiseException)
+        self._publisherResults('/_item')
+        component.getGlobalSiteManager().unregisterAdapter(
+            factory=dummyAdapter, 
+            required=(Unauthorized,), 
+            provided=IReRaiseException)
 
 def test_suite():
     loader = unittest.TestLoader()
