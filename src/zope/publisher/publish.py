@@ -20,7 +20,7 @@ $Id$
 import sys
 from zope.publisher.interfaces import Retry
 from zope.proxy import removeAllProxies
-
+from zope.security.interfaces import IUnauthorized
 
 _marker = object()  # Create a new marker object.
 
@@ -138,11 +138,15 @@ def publish(request, handle_errors=True):
                             publication.afterCall(request, obj)
 
                         except:
+                            exc_info = sys.exc_info()
                             publication.handleException(
-                                obj, request, sys.exc_info(), True)
+                                obj, request, exc_info, True)
 
                             if not handle_errors:
-                                raise
+                                dummy, exc_value, dummy = exc_info
+                                reraise = component.queryAdapter(exc_value, IReRaiseException, default=None)
+                                if reraise is None or reraise():
+                                    raise
                     finally:
                         publication.endRequest(request, obj)
 

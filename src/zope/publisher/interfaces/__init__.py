@@ -498,3 +498,7 @@ class IDefaultViewName(Interface):
     A default view name is used to select a view when a user hasn't
     specified one.
     """
+
+class IReRaiseException(Interface):
+    """An exception that should be reraised, when handled in publisher.
+    """
