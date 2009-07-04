@@ -227,11 +227,17 @@ class IHTTPCredentials(Interface):
 
 
 class IHTTPApplicationResponse(Interface):
-    """HTTP Response
-    """
+    """HTTP Response"""
 
-    def redirect(location, status=302):
+    def redirect(location, status=302, trusted=False):
         """Causes a redirection without raising an error.
+
+        By default redirects are untrusted which restricts target URLs to the
+        same host that the request was sent to.
+
+        If the `trusted` flag is set, redirects are allowed for any target
+        URL.
+
         """
 
 class IHeaderOutput(Interface):

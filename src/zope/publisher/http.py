@@ -15,14 +15,17 @@
 
 $Id$
 """
-import re, time, random
+import logging
+import random
+import re
+import time
+import urlparse
 from cStringIO import StringIO
 from urllib import quote, unquote, splitport
 from types import StringTypes, ClassType
 from cgi import escape
 from Cookie import SimpleCookie
 from Cookie import CookieError
-import logging
 from tempfile import TemporaryFile
 
 from zope import component, interface, event
@@ -877,8 +880,15 @@ class HTTPResponse(BaseResponse):
         """
         return self.__class__()
 
-    def redirect(self, location, status=None):
+    def redirect(self, location, status=None, trusted=False):
         """Causes a redirection without raising an error"""
+        if not trusted:
+            scheme, target_host, path, query, fragment = (
+                urlparse.urlsplit(location))
+            if target_host and target_host != self._request['HTTP_HOST']:
+                raise ValueError(
+                    "Untrusted redirect to host %r not allowed." % target_host)
+
         if status is None:
             # parse the HTTP version and set default accordingly
             if (self._request.get("SERVER_PROTOCOL","HTTP/1.0") <

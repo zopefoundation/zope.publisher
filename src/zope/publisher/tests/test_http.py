@@ -282,6 +282,27 @@ class HTTPTests(unittest.TestCase):
         request.response.redirect('http://foobar.com/explicit', 304)
         self.assertEquals(request.response.getStatus(), 304)
 
+
+    def testUntrustedRedirect(self):
+        # Redirects are by default only allowed to target the same host as the
+        # request was directed to. This is to counter fishing.
+        request = self._createRequest({}, '')
+        self.assertRaises(
+            ValueError,
+            request.response.redirect, 'http://phishing-inc.com')
+
+        # Redirects with relative URLs are treated as redirects to the current
+        # host. They aren't really allowed per RFC but the response object
+        # supports them and people are probably using them.
+        location = request.response.redirect('/foo', trusted=False)
+        self.assertEquals('/foo', location)
+
+        # If we pass `trusted` for the redirect, we can redirect the browser
+        # anywhere we want, though.
+        location = request.response.redirect(
+            'http://my-friends.com', trusted=True)
+        self.assertEquals('http://my-friends.com', location)
+
     def testUnregisteredStatus(self):
         # verify we can set the status to an unregistered int value
         request = self._createRequest({}, '')

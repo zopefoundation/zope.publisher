@@ -728,7 +728,7 @@ class BrowserResponse(HTTPResponse):
     def setBase(self, base):
         self._base = base
 
-    def redirect(self, location, status=None):
+    def redirect(self, location, status=None, trusted=False):
         base = getattr(self, '_base', '')
         if base and isRelative(str(location)):
             l = base.rfind('/')
@@ -746,7 +746,7 @@ class BrowserResponse(HTTPResponse):
         # if isRelative(str(location)):
         #     raise AssertionError('Cannot determine absolute location')
 
-        return super(BrowserResponse, self).redirect(location, status)
+        return super(BrowserResponse, self).redirect(location, status, trusted)
 
     def reset(self):
         super(BrowserResponse, self).reset()

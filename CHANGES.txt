@@ -4,7 +4,9 @@ CHANGES
 3.8.1 (unreleased)
 ------------------
 
-- ...
+- Fix #98471: Restrict redirects to current host. This causes a ValueError to
+  be raised in the case of redirecting to a different host. If this is
+  intentional, the parameter `trusted` can be given.
 
 3.8.0 (2009-05-23)
 ------------------
