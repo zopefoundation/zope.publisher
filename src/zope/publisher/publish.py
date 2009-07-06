@@ -143,9 +143,9 @@ def publish(request, handle_errors=True):
                                 obj, request, exc_info, True)
 
                             if not handle_errors:
-                                dummy, exc_value, dummy = exc_info
                                 reraise = component.queryAdapter(
-                                    exc_value, IReRaiseException, default=None)
+                                    exc_info[1], IReRaiseException,
+                                    default=None)
                                 if reraise is None or reraise():
                                     raise
                     finally:
