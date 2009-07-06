@@ -114,7 +114,7 @@ class PublisherTests(unittest.TestCase):
         try:
             self._publisherResults('/_item')
         except Unauthorized:
-            raise self.fail('Unauthorized raised though this should '
+            self.fail('Unauthorized raised though this should '
                             'not happen')
         finally:
             self._unregisterExcAdapter(dontReRaiseAdapter)
