@@ -17,14 +17,15 @@ $Id$
 """
 import unittest
 
+from zope import component
 from zope.publisher.publish import publish
 from zope.publisher.base import TestRequest
 from zope.publisher.base import DefaultPublication
 from zope.publisher.interfaces import Unauthorized, NotFound, DebugError
-from zope.publisher.interfaces import IPublication
+from zope.publisher.interfaces import IPublication, IReRaiseException
 
 from zope.interface.verify import verifyClass
-from zope.interface import implementedBy
+from zope.interface import implementedBy, Interface
 
 from StringIO import StringIO
 
@@ -100,9 +101,6 @@ class PublisherTests(unittest.TestCase):
                 return False
             return returnFalse
 
-        from zope.interface import Interface
-        from zope import component
-        from zope.publisher.interfaces import IReRaiseException
         component.provideAdapter(dummyAdapter, (Unauthorized,), 
                                  IReRaiseException)
         self._publisherResults('/_item')
