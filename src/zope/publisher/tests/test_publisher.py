@@ -69,6 +69,15 @@ class PublisherTests(unittest.TestCase):
         publish(request, handle_errors=False)
         return response._result
 
+    def _registerExcAdapter(self, factory):
+        component.provideAdapter(factory, (Unauthorized,), IReRaiseException)
+
+    def _unregisterExcAdapter(self, factory):
+        gsm = component.getGlobalSiteManager()
+        gsm.unregisterAdapter(
+            factory=factory, required=(Unauthorized,),
+            provided=IReRaiseException)
+
     def testImplementsIPublication(self):
         self.failUnless(IPublication.providedBy(
                             DefaultPublication(self.app)))
@@ -94,21 +103,31 @@ class PublisherTests(unittest.TestCase):
     def testDebugError(self):
         self.assertRaises(DebugError, self._publisherResults, '/noDocString')
 
-    def testExcAdapterTellingNotToReraise(self):
+    def testIReRaiseExceptionAdapters(self):
 
         def dontReRaiseAdapter(context):
             def shouldBeReRaised():
                 return False
             return shouldBeReRaised
 
-        component.provideAdapter(dontReRaiseAdapter, (Unauthorized,), 
-                                 IReRaiseException)
-        self._publisherResults('/_item')
-        component.getGlobalSiteManager().unregisterAdapter(
-            factory=dontReRaiseAdapter, 
-            required=(Unauthorized,), 
-            provided=IReRaiseException)
+        self._registerExcAdapter(dontReRaiseAdapter)
+        try:
+            self._publisherResults('/_item')
+        except Unauthorized:
+            raise self.fail('Unauthorized raised though this should '
+                            'not happen')
+        finally:
+            self._unregisterExcAdapter(dontReRaiseAdapter)
 
+        def doReRaiseAdapter(context):
+            def shouldBeReRaised():
+                return True
+            return shouldBeReRaised
+
+        self._registerExcAdapter(doReRaiseAdapter)
+        self.failUnlessRaises(Unauthorized, self._publisherResults, '/_item')
+        self._unregisterExcAdapter(doReRaiseAdapter)
+            
 def test_suite():
     loader = unittest.TestLoader()
     return loader.loadTestsFromTestCase(PublisherTests)
