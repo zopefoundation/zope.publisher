@@ -94,18 +94,18 @@ class PublisherTests(unittest.TestCase):
     def testDebugError(self):
         self.assertRaises(DebugError, self._publisherResults, '/noDocString')
 
-    def testAnotherDebugError(self):
+    def testExcAdapterTellingNotToReraise(self):
 
-        def dummyAdapter(context):
-            def returnFalse():
+        def dontReRaiseAdapter(context):
+            def shouldBeReRaised():
                 return False
-            return returnFalse
+            return shouldBeReRaised
 
-        component.provideAdapter(dummyAdapter, (Unauthorized,), 
+        component.provideAdapter(dontReRaiseAdapter, (Unauthorized,), 
                                  IReRaiseException)
         self._publisherResults('/_item')
         component.getGlobalSiteManager().unregisterAdapter(
-            factory=dummyAdapter, 
+            factory=dontReRaiseAdapter, 
             required=(Unauthorized,), 
             provided=IReRaiseException)
 
