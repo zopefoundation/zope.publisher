@@ -21,7 +21,6 @@ import sys
 from zope import component
 from zope.publisher.interfaces import Retry, IReRaiseException
 from zope.proxy import removeAllProxies
-from zope.security.interfaces import IUnauthorized
 
 _marker = object()  # Create a new marker object.
 
