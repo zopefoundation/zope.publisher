@@ -143,6 +143,8 @@ def publish(request, handle_errors=True):
                                 obj, request, exc_info, True)
 
                             if not handle_errors:
+                                # Reraise only if there is no adapter
+                                # indicating that we shouldn't
                                 reraise = component.queryAdapter(
                                     exc_info[1], IReRaiseException,
                                     default=None)
