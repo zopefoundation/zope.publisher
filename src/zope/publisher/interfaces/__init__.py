@@ -501,4 +501,17 @@ class IDefaultViewName(Interface):
 
 class IReRaiseException(Interface):
     """An exception that should be reraised, when handled in publisher.
+
+    Under some circumstances (for instance if acting in a WSGI
+    pipeline with debugger middleware) certain exceptions occuring
+    while publishing should be handled by the Zope machinery and never
+    reach the 'outside world'.
+
+    Adapters providing this interface for a certain exception type
+    which also return ``False`` when being called, indicate by this
+    that the exception should not be reraised during publishing.
+
+    This makes it possible, for instance, to authenticate with
+    basic-auth when a debugger middleware is used and `IUnauthorized`
+    is raised.
     """
