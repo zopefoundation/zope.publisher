@@ -4,7 +4,10 @@ Changes
 3.4.9 (unreleased)
 ------------------
 
-* ...
+* Backport fix LP #332061 from trunk (rev 101967): publisher emitted
+  all exceptions to the outside world when running in
+  'handle_errors=False' mode. Introduced `IReRaiseException` interface
+  to adjust reraising of certain exceptions on a custom basis.
 
 3.4.8 (2009-07-03)
 ------------------
