@@ -4,7 +4,14 @@ CHANGES
 3.8.1 (unreleased)
 ------------------
 
-- ...
+- Introduced ``IReRaiseException`` interface. If during publishing an
+  exception occurs and for this exception an adapter is available that
+  returns ``False`` on being called, the exception won't be reraised
+  by the publisher. This happens only if ``handle_errors`` parameter
+  of the ``publish()`` method is set to ``False``. Fixes problems when
+  acting in a WSGI pipeline with a debugger middleware enabled.
+
+  See https://bugs.launchpad.net/grok/+bug/332061 for details.
 
 3.8.0 (2009-05-23)
 ------------------
