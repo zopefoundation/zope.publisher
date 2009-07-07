@@ -25,7 +25,7 @@ from zope.publisher.interfaces import Unauthorized, NotFound, DebugError
 from zope.publisher.interfaces import IPublication, IReRaiseException
 
 from zope.interface.verify import verifyClass
-from zope.interface import implementedBy, Interface
+from zope.interface import implementedBy
 
 from StringIO import StringIO
 
