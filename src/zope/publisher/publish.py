@@ -18,9 +18,9 @@ Provide an apply-like facility that works with any mapping object
 $Id$
 """
 import sys
-from zope.publisher.interfaces import Retry
+from zope import component
+from zope.publisher.interfaces import Retry, IReRaiseException
 from zope.proxy import removeAllProxies
-
 
 _marker = object()  # Create a new marker object.
 
@@ -138,11 +138,18 @@ def publish(request, handle_errors=True):
                             publication.afterCall(request, obj)
 
                         except:
+                            exc_info = sys.exc_info()
                             publication.handleException(
-                                obj, request, sys.exc_info(), True)
+                                obj, request, exc_info, True)
 
                             if not handle_errors:
-                                raise
+                                # Reraise only if there is no adapter
+                                # indicating that we shouldn't
+                                reraise = component.queryAdapter(
+                                    exc_info[1], IReRaiseException,
+                                    default=None)
+                                if reraise is None or reraise():
+                                    raise
                     finally:
                         publication.endRequest(request, obj)
 

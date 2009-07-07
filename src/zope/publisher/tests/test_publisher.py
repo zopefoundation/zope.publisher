@@ -17,21 +17,18 @@ $Id$
 """
 import unittest
 
+from zope import component
 from zope.publisher.publish import publish
 from zope.publisher.base import TestRequest
 from zope.publisher.base import DefaultPublication
 from zope.publisher.interfaces import Unauthorized, NotFound, DebugError
-from zope.publisher.interfaces import IPublication
+from zope.publisher.interfaces import IPublication, IReRaiseException
 
 from zope.interface.verify import verifyClass
 from zope.interface import implementedBy
 
 from StringIO import StringIO
 
-class TestPublication(DefaultPublication):
-    # Override handleException to reraise for testing purposes
-    def handleException(self, object, request, exc_info, retry_allowed=1):
-        raise exc_info[0], exc_info[1], exc_info[2]
 
 class PublisherTests(unittest.TestCase):
     def setUp(self):
@@ -58,7 +55,7 @@ class PublisherTests(unittest.TestCase):
         self.app.noDocString = NoDocstringItem()
 
     def _createRequest(self, path, **kw):
-        publication = TestPublication(self.app)
+        publication = DefaultPublication(self.app)
         path = path.split('/')
         path.reverse()
         request = TestRequest(StringIO(''), **kw)
@@ -71,6 +68,15 @@ class PublisherTests(unittest.TestCase):
         response = request.response
         publish(request, handle_errors=False)
         return response._result
+
+    def _registerExcAdapter(self, factory):
+        component.provideAdapter(factory, (Unauthorized,), IReRaiseException)
+
+    def _unregisterExcAdapter(self, factory):
+        gsm = component.getGlobalSiteManager()
+        gsm.unregisterAdapter(
+            factory=factory, required=(Unauthorized,),
+            provided=IReRaiseException)
 
     def testImplementsIPublication(self):
         self.failUnless(IPublication.providedBy(
@@ -97,6 +103,30 @@ class PublisherTests(unittest.TestCase):
     def testDebugError(self):
         self.assertRaises(DebugError, self._publisherResults, '/noDocString')
 
+    def testIReRaiseExceptionAdapters(self):
+        def dontReRaiseAdapter(context):
+            def shouldBeReRaised():
+                return False
+            return shouldBeReRaised
+
+        self._registerExcAdapter(dontReRaiseAdapter)
+        try:
+            self._publisherResults('/_item')
+        except Unauthorized:
+            self.fail('Unauthorized raised though this should '
+                            'not happen')
+        finally:
+            self._unregisterExcAdapter(dontReRaiseAdapter)
+
+        def doReRaiseAdapter(context):
+            def shouldBeReRaised():
+                return True
+            return shouldBeReRaised
+
+        self._registerExcAdapter(doReRaiseAdapter)
+        self.failUnlessRaises(Unauthorized, self._publisherResults, '/_item')
+        self._unregisterExcAdapter(doReRaiseAdapter)
+            
 def test_suite():
     loader = unittest.TestLoader()
     return loader.loadTestsFromTestCase(PublisherTests)
