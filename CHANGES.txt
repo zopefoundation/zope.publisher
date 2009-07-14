@@ -4,7 +4,7 @@ Changes
 3.4.10 (unreleased)
 -------------------
 
-* ...
+* Removed ``finally``-clause from test to keep Python2.4 happy.
 
 
 3.4.9 (2009-07-13)
