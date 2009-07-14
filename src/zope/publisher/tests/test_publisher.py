@@ -114,10 +114,10 @@ class PublisherTests(unittest.TestCase):
         try:
             self._publisherResults('/_item')
         except Unauthorized:
+            self._unregisterExcAdapter(dontReRaiseAdapter)
             self.fail('Unauthorized raised though this should '
                             'not happen')
-        finally:
-            self._unregisterExcAdapter(dontReRaiseAdapter)
+        self._unregisterExcAdapter(dontReRaiseAdapter)
 
         def doReRaiseAdapter(context):
             def shouldBeReRaised():
@@ -125,8 +125,14 @@ class PublisherTests(unittest.TestCase):
             return shouldBeReRaised
 
         self._registerExcAdapter(doReRaiseAdapter)
-        self.failUnlessRaises(Unauthorized, self._publisherResults, '/_item')
+        raised = True
+        try:
+            self._publisherResults('/_item')
+            raised = False
+        except:
+            pass
         self._unregisterExcAdapter(doReRaiseAdapter)
+        self.failUnlessEqual(raised, True)
             
 def test_suite():
     loader = unittest.TestLoader()
