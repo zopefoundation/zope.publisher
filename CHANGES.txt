@@ -17,6 +17,7 @@ CHANGES
   be raised in the case of redirecting to a different host. If this is
   intentional, the parameter `trusted` can be given.
 
+- Moved dependency on zope.testing from install_requires to tests_require.
 
 3.8.0 (2009-05-23)
 ------------------
