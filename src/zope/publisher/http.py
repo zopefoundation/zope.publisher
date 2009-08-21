@@ -234,7 +234,6 @@ class HTTPInputStream(object):
 
 
 DEFAULT_PORTS = {'http': '80', 'https': '443'}
-STAGGER_RETRIES = True
 
 class HTTPRequest(BaseRequest):
     """Model HTTP request data.
@@ -434,8 +433,6 @@ class HTTPRequest(BaseRequest):
         'See IPublisherRequest'
         count = getattr(self, '_retry_count', 0)
         if count < self.retry_max_count:
-            if STAGGER_RETRIES:
-                time.sleep(random.uniform(0, 2**(count)))
             return True
 
     def retry(self):

@@ -1,10 +1,13 @@
 CHANGES
 =======
 
-3.5.8 (unreleased)
+3.5.8 (2009-08-21)
 ------------------
 
-- ...
+- Removed behavior of doing a time.sleep in the supportsRetry http request
+  (backport from trunk, post-3.8.1).
+
+- Pin buildout more tightly to the 3.4.0 KGS (using versions, not the index).
 
 
 3.5.7 (2009-04-06)
