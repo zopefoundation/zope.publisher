@@ -19,6 +19,8 @@ CHANGES
 
 - Moved dependency on zope.testing from install_requires to tests_require.
 
+- Removed behavior of doing a time.sleep in the supportsRetry http request.
+
 3.8.0 (2009-05-23)
 ------------------
 
