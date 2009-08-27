@@ -23,7 +23,7 @@ sample = zope.publisher.tests.test_paste:SamplePublication
 """
 
 setup(name='zope.publisher',
-      version='3.8.1dev',
+      version='3.9.0dev',
       url='http://pypi.python.org/pypi/zope.publisher',
       license='ZPL 2.1',
       author='Zope Corporation and Contributors',
@@ -44,6 +44,7 @@ setup(name='zope.publisher',
                         'zope.authentication',
                         'zope.browser',
                         'zope.component',
+                        'zope.configuration',
                         'zope.event',
                         'zope.exceptions',
                         'zope.i18n',

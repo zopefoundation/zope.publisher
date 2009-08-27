@@ -18,7 +18,9 @@ $Id$
 import unittest
 
 from zope.publisher.browser import BrowserLanguages
-
+from zope.publisher.browser import CacheableBrowserLanguages
+from zope.publisher.browser import ModifiableBrowserLanguages
+from zope.publisher.browser import NotCompatibleAdapterError
 
 # Note: The expected output is in order of preference,
 # empty 'q=' means 'q=1', and if theres more than one
@@ -54,10 +56,44 @@ class BrowserLanguagesTest(unittest.TestCase):
             self.assertEqual(list(browser_languages.getPreferredLanguages()),
                              expected)
 
+class CacheableBrowserLanguagesTests(BrowserLanguagesTest):
+
+    def factory(self, request):
+        return CacheableBrowserLanguages(request)
+
+    def test_cached_languages(self):
+        eq = self.failUnlessEqual
+        request = TestRequest("da, en, pt")
+        browser_languages = self.factory(request)
+        eq(list(browser_languages.getPreferredLanguages()), ["da", "en", "pt"])
+        request["HTTP_ACCEPT_LANGUAGE"] = "ru, en"
+        eq(list(browser_languages.getPreferredLanguages()), ["da", "en", "pt"])
+
+class ModifiableBrowserLanguagesTests(CacheableBrowserLanguagesTests):
+
+    def factory(self, request):
+        return ModifiableBrowserLanguages(request)
+
+    def test_setPreferredLanguages(self):
+        eq = self.failUnlessEqual
+        request = TestRequest("da, en, pt")
+        browser_languages = self.factory(request)
+        eq(list(browser_languages.getPreferredLanguages()), ["da", "en", "pt"])
+        browser_languages.setPreferredLanguages(["ru", "en"])
+        self.failUnless(request.localized)
+        eq(list(browser_languages.getPreferredLanguages()), ["ru", "en"])
+
+    def test_conflicting_adapters(self):
+        request = TestRequest("da, en, pt")
+        not_compatible_browser_languages = BrowserLanguages(request)
+        browser_languages = self.factory(request)
+        self.assertRaises(NotCompatibleAdapterError,
+            browser_languages.setPreferredLanguages, ["ru", "en"])
+
 
 def test_suite():
-    loader=unittest.TestLoader()
-    return loader.loadTestsFromTestCase(BrowserLanguagesTest)
-
-if __name__=='__main__':
-    unittest.TextTestRunner().run(test_suite())
+    suite = unittest.TestSuite()
+    suite.addTest(unittest.makeSuite(BrowserLanguagesTest))
+    suite.addTest(unittest.makeSuite(CacheableBrowserLanguagesTests))
+    suite.addTest(unittest.makeSuite(ModifiableBrowserLanguagesTests))
+    return suite

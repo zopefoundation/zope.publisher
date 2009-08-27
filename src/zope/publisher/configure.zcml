@@ -16,12 +16,57 @@
         zcml:condition="installed zope.annotation"
         interface="zope.annotation.interfaces.IAttributeAnnotatable"
         />
+    <require
+        permission="zope.View"
+        interface="zope.publisher.interfaces.http.IHTTPApplicationRequest"/>
+  </class>
+
+  <class class="zope.publisher.http.URLGetter">
+    <allow attributes="get __getitem__ __str__" />
+  </class>
+
+  <class class="zope.publisher.http.DirectResult">
+    <allow interface="zope.publisher.http.IResult" />
+  </class>
+
+  <class class="zope.publisher.browser.BrowserRequest">
+    <allow
+      interface="zope.publisher.interfaces.browser.IBrowserApplicationRequest"
+      attributes="response locale __str__"
+      />
+  </class>
+
+  <class class="zope.publisher.browser.TestRequest">
+    <allow
+      interface="zope.publisher.interfaces.browser.IBrowserApplicationRequest"
+      attributes="response"
+      />
+  </class>
+
+  <class class="zope.publisher.browser.BrowserResponse">
+    <allow
+      interface="zope.publisher.interfaces.http.IHTTPResponse"
+      />
   </class>
 
   <adapter factory="zope.publisher.http.HTTPCharsets" />
+
+  <adapter
+    factory=".browser.ModifiableBrowserLanguages"
+    for="zope.publisher.interfaces.http.IHTTPRequest"
+    provides="zope.i18n.interfaces.IModifiableUserPreferredLanguages"
+    />
   
   <class class="xmlrpclib.Binary">
     <allow attributes="data encode decode" />
+  </class>
+
+  <class class="xmlrpclib.Fault">
+    <allow attributes="faultCode faultString" />
+  </class>
+
+  <class class="xmlrpclib.DateTime">
+    <allow attributes="value" />
   </class>
 
   <adapter factory=".xmlrpc.ListPreMarshaller" />

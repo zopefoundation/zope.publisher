@@ -28,7 +28,7 @@ import zope.component
 import zope.interface
 from zope.interface import implements
 from zope.publisher.interfaces.xmlrpc import \
-        IXMLRPCPublisher, IXMLRPCRequest, IXMLRPCPremarshaller
+        IXMLRPCPublisher, IXMLRPCRequest, IXMLRPCPremarshaller, IXMLRPCView
 
 from zope.publisher.http import HTTPRequest, HTTPResponse, DirectResult
 from zope.security.proxy import isinstance
@@ -161,6 +161,16 @@ class XMLRPCResponse(HTTPResponse):
         self.setResult(fault_text)
         # XML-RPC prefers a status of 200 ("ok") even when reporting errors.
         self.setStatus(200)
+
+
+class XMLRPCView(object):
+    """A base XML-RPC view that can be used as mix-in for XML-RPC views.""" 
+    implements(IXMLRPCView)
+
+    def __init__(self, context, request):
+        self.context = context
+        self.request = request
+
 
 class PreMarshallerBase(object):
     """Abstract base class for pre-marshallers."""

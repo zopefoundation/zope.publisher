@@ -43,7 +43,6 @@ class IDefaultViewNameAPI(zope.interface.Interface):
         a context.
         """
 
-# TODO: needs tests
 def getDefaultViewName(object, request, context=None):
     name = queryDefaultViewName(object, request, context=context)
     if name is not None:
