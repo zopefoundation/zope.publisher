@@ -20,7 +20,7 @@ __docformat__ = "reStructuredText"
 
 from zope.interface import Interface
 
-from zope.publisher.interfaces import IPublication
+from zope.publisher.interfaces import IPublication, IView
 from zope.publisher.interfaces import IPublishTraverse
 from zope.publisher.interfaces.http import IHTTPRequest
 
@@ -43,11 +43,11 @@ class IXMLRPCRequest(IHTTPRequest):
     """XML-RPC Request
     """
 
+class IXMLRPCView(IView):
+    """XMLRPC View"""
+
 class IXMLRPCPremarshaller(Interface):
     """Pre-Marshaller to remove proxies for xmlrpclib"""
 
     def __call__(self):
         """Return the given object without proxies."""
-
-
-

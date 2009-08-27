@@ -32,6 +32,7 @@ import zope.interface
 from zope.interface import implements, directlyProvides
 from zope.i18n.interfaces import IUserPreferredLanguages
 from zope.i18n.interfaces import IUserPreferredCharsets
+from zope.i18n.interfaces import IModifiableUserPreferredLanguages
 from zope.location import Location
 
 from zope.publisher.interfaces import NotFound
@@ -622,7 +623,10 @@ class FileUpload(object):
                 d[m] = getattr(file,m)
 
         self.headers = aFieldStorage.headers
-        self.filename = unicode(aFieldStorage.filename, 'UTF-8')
+        filename = unicode(aFieldStorage.filename, 'UTF-8')
+        # fix for IE full paths
+        filename = filename[filename.rfind('\\')+1:].strip()
+        self.filename = filename
 
 class RedirectingBrowserRequest(BrowserRequest):
     """Browser requests that redirect when the actual and effective URLs differ
@@ -822,6 +826,49 @@ class BrowserLanguages(object):
         accepts.reverse()
 
         return [lang for quality, lang in accepts]
+
+class NotCompatibleAdapterError(Exception):
+    """Adapter not compatible with
+       zope.i18n.interfaces.IModifiableBrowserLanguages has been used.
+    """
+
+BROWSER_LANGUAGES_KEY = "zope.publisher.browser.IUserPreferredLanguages"
+
+class CacheableBrowserLanguages(BrowserLanguages):
+
+    implements(IUserPreferredLanguages)
+
+    def getPreferredLanguages(self):
+        languages_data = self._getLanguagesData()
+        if "overridden" in languages_data:
+            return languages_data["overridden"]
+        elif "cached" not in languages_data:
+            languages_data["cached"] = super(
+                CacheableBrowserLanguages, self).getPreferredLanguages()
+        return languages_data["cached"]
+
+    def _getLanguagesData(self):
+        annotations = self.request.annotations
+        languages_data = annotations.get(BROWSER_LANGUAGES_KEY)
+        if languages_data is None:
+            annotations[BROWSER_LANGUAGES_KEY] = languages_data = {}
+        return languages_data
+
+class ModifiableBrowserLanguages(CacheableBrowserLanguages):
+
+    implements(IModifiableUserPreferredLanguages)
+
+    def setPreferredLanguages(self, languages):
+        languages_data = self.request.annotations.get(BROWSER_LANGUAGES_KEY)
+        if languages_data is None:
+            # Better way to create a compatible with
+            # IModifiableUserPreferredLanguages adapter is to use
+            # CacheableBrowserLanguages as base class or as example.
+            raise NotCompatibleAdapterError("Adapter not compatible with "
+                "zope.i18n.interfaces.IModifiableBrowserLanguages "
+                "has been used.")
+        languages_data["overridden"] = languages
+        self.request.setupLocale()
 
 class BrowserView(Location):
     """Browser View.

@@ -27,6 +27,7 @@ from zope.publisher.interfaces import IApplicationRequest
 from zope.publisher.interfaces import IPublishTraverse
 from zope.publisher.interfaces import IRequest
 from zope.publisher.interfaces import IResponse
+from zope.publisher.interfaces import IView
 
 
 class IVirtualHostRequest(Interface):
@@ -212,6 +213,10 @@ class IHTTPRequest(IRequest):
         """Setup the locale object based on languages returned by
         IUserPreferredLanguages adapter.
         """
+
+
+class IHTTPView(IView):
+    "HTTP View"
 
 
 class IHTTPCredentials(Interface):

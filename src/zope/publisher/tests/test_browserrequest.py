@@ -47,6 +47,15 @@ Here comes some text! %s
 -----------------------------1--
 """ % ('test' * 1000)
 
+IE_FILE_BODY = """-----------------------------1
+Content-Disposition: form-data; name="upload"; filename="C:\\Windows\\notepad.exe"
+Content-Type: text/plain
+
+Some data
+-----------------------------1--
+"""
+
+
 def publish(request):
     publish_(request, handle_errors=0)
 
@@ -199,6 +208,11 @@ class BrowserTests(HTTPTests):
         request  = self._createRequest(extra, body=LARGE_FILE_BODY)
         request.processInputs()
         self.assert_(request.form['upload'].name)
+
+        request  = self._createRequest(extra, body=IE_FILE_BODY)
+        request.processInputs()
+        self.assertEquals(request.form['upload'].filename, 'notepad.exe')
+
 
     def testDefault2(self):
         extra = {'PATH_INFO': '/folder/item2/view'}

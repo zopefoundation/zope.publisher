@@ -1,8 +1,16 @@
 CHANGES
 =======
 
-3.8.1 (unreleased)
+3.9.0 (2009-08-27)
 ------------------
+
+- Some parts of zope.app.publisher packages was moved into this package
+  during zope.app.publisher refactoring:
+  
+   * IModifiableUserPreferredLanguages adapter for requests
+   * browser:defaultView and browser:defaultSkin ZCML directives
+   * IHTTPView, IXMLRPCView and like interfaces
+   * security ZCML declarations for some of zope.publisher classes
 
 - Introduced ``IReRaiseException`` interface. If during publishing an
   exception occurs and for this exception an adapter is available that
@@ -20,6 +28,9 @@ CHANGES
 - Moved dependency on zope.testing from install_requires to tests_require.
 
 - Removed behavior of doing a time.sleep in the supportsRetry http request.
+
+- Add a fix for Internet Explorer versions that upload files will full
+  filesystem paths as filenames.
 
 3.8.0 (2009-05-23)
 ------------------
