@@ -1,7 +1,12 @@
 CHANGES
 =======
 
-3.9.0 (unreleased)
+3.9.1 (unreleased)
+------------------
+
+- ...
+
+3.9.0 (2009-08-27)
 ------------------
 
 - Some parts of zope.app.publisher packages was moved into this package
