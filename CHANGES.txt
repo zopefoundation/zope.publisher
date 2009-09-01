@@ -4,7 +4,10 @@ CHANGES
 3.9.1 (unreleased)
 ------------------
 
-- ...
+- Convert a location, passed to a redirect method of HTTPRequest to
+  string before checking for trusted host redirection, because a
+  location object may be some non-string convertable to string, like
+  URLGetter.
 
 3.9.0 (2009-08-27)
 ------------------

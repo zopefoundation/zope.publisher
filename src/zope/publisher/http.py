@@ -879,6 +879,11 @@ class HTTPResponse(BaseResponse):
 
     def redirect(self, location, status=None, trusted=False):
         """Causes a redirection without raising an error"""
+        
+        # convert to a string, as the location could be non-string
+        # convertable to string, for example, an URLGetter instance
+        location = str(location)
+        
         if not trusted:
             scheme, target_host, path, query, fragment = (
                 urlparse.urlsplit(location))

@@ -282,6 +282,11 @@ class HTTPTests(unittest.TestCase):
         request.response.redirect('http://foobar.com/explicit', 304)
         self.assertEquals(request.response.getStatus(), 304)
 
+        # test non-string location, like URLGetter
+        request = self._createRequest(env, '')
+        request.response.redirect(request.URL)
+        self.assertEquals(request.response.getStatus(), 303)
+        self.assertEquals(request.response.getHeader('location'), str(request.URL))
 
     def testUntrustedRedirect(self):
         # Redirects are by default only allowed to target the same host as the
