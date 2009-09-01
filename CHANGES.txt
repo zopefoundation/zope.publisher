@@ -1,7 +1,7 @@
 CHANGES
 =======
 
-3.9.1 (unreleased)
+3.9.1 (2009-09-01)
 ------------------
 
 - Convert a location, passed to a redirect method of HTTPRequest to
