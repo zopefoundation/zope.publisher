@@ -887,7 +887,7 @@ class HTTPResponse(BaseResponse):
         if not trusted:
             scheme, target_host, path, query, fragment = (
                 urlparse.urlsplit(location))
-            if target_host and target_host != self._request['HTTP_HOST']:
+            if target_host and target_host != self._request.get('HTTP_HOST'):
                 raise ValueError(
                     "Untrusted redirect to host %r not allowed." % target_host)
 
