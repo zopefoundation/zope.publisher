@@ -4,7 +4,7 @@ CHANGES
 3.9.2 (unreleased)
 ------------------
 
-- ...
+- Make redirect validation works without HTTP_HOST variable.
 
 3.9.1 (2009-09-01)
 ------------------
