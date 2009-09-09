@@ -6,6 +6,11 @@ CHANGES
 
 - Make redirect validation works without HTTP_HOST variable.
 
+- Add DoNotReRaiseException adapter that can be registered
+  for exceptions to flag that they should not be re-raised by
+  publisher when ``handle_errors`` parameter of the ``publish``
+  method is False.
+
 3.9.1 (2009-09-01)
 ------------------
 

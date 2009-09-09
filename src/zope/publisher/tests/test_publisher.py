@@ -18,7 +18,7 @@ $Id$
 import unittest
 
 from zope import component
-from zope.publisher.publish import publish
+from zope.publisher.publish import publish, DoNotReRaiseException
 from zope.publisher.base import TestRequest
 from zope.publisher.base import DefaultPublication
 from zope.publisher.interfaces import Unauthorized, NotFound, DebugError
@@ -105,19 +105,14 @@ class PublisherTests(unittest.TestCase):
 
     def testIReRaiseExceptionAdapters(self):
 
-        def dontReRaiseAdapter(context):
-            def shouldBeReRaised():
-                return False
-            return shouldBeReRaised
-
-        self._registerExcAdapter(dontReRaiseAdapter)
+        self._registerExcAdapter(DoNotReRaiseException)
         try:
             self._publisherResults('/_item')
         except Unauthorized:
-            self._unregisterExcAdapter(dontReRaiseAdapter)
+            self._unregisterExcAdapter(DoNotReRaiseException)
             self.fail('Unauthorized raised though this should '
                             'not happen')
-        self._unregisterExcAdapter(dontReRaiseAdapter)
+        self._unregisterExcAdapter(DoNotReRaiseException)
 
         def doReRaiseAdapter(context):
             def shouldBeReRaised():

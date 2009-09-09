@@ -515,3 +515,6 @@ class IReRaiseException(Interface):
     basic-auth when a debugger middleware is used and `IUnauthorized`
     is raised.
     """
+
+    def __call__(self):
+        """Return if an exception should be re-raised"""

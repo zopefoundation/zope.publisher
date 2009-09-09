@@ -19,6 +19,7 @@ $Id$
 """
 import sys
 from zope import component
+from zope.interface import implements
 from zope.publisher.interfaces import Retry, IReRaiseException
 from zope.proxy import removeAllProxies
 
@@ -192,3 +193,15 @@ def publish(request, handle_errors=True):
     # Return the request, since it might be a different object than the one
     # that was passed in.
     return request
+
+
+class DoNotReRaiseException(object):
+    """Marker adapter for exceptions that should not be re-raised"""
+    
+    implements(IReRaiseException)
+    
+    def __init__(self, exc):
+        pass
+
+    def __call__(self):
+        return False
