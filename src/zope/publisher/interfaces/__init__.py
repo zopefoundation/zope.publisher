@@ -516,5 +516,5 @@ class IReRaiseException(Interface):
     is raised.
     """
 
-    def __call__(self):
-        """Return if an exception should be re-raised"""
+    def __call__():
+        """Return True if an exception should be re-raised"""
