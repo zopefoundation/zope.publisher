@@ -15,44 +15,36 @@
 
 $Id$
 """
-import logging
-import random
-import re
-import time
-import urlparse
 from cStringIO import StringIO
-from urllib import quote, unquote, splitport
-from types import StringTypes, ClassType
-from cgi import escape
-from Cookie import SimpleCookie
-from Cookie import CookieError
-from tempfile import TemporaryFile
-
-from zope import component, interface, event
-
-import zope.publisher
-from zope.publisher import contenttype
-from zope.publisher.interfaces import Redirect
-from zope.publisher.interfaces import ISkinnable
-from zope.publisher.interfaces.http import IHTTPCredentials
-from zope.publisher.interfaces.http import IHTTPRequest
-from zope.publisher.interfaces.http import IHTTPApplicationRequest
-from zope.publisher.interfaces.http import IHTTPPublisher
-from zope.publisher.interfaces.http import IHTTPVirtualHostChangedEvent
-from zope.publisher.interfaces.http import IResult
-from zope.publisher.interfaces.http import IHTTPResponse
-from zope.publisher.interfaces.http import IHTTPApplicationResponse
-from zope.publisher.interfaces.logginginfo import ILoggingInfo
-from zope.publisher.skinnable import setDefaultSkin
+from zope.authentication.loginpassword import LoginPassword
 from zope.i18n.interfaces import IUserPreferredCharsets
 from zope.i18n.interfaces import IUserPreferredLanguages
 from zope.i18n.locales import locales, LoadLocaleError
-from zope.authentication.loginpassword import LoginPassword
-
 from zope.publisher import contenttype
 from zope.publisher.base import BaseRequest, BaseResponse
-from zope.publisher.base import RequestDataProperty, RequestDataMapper
 from zope.publisher.base import RequestDataGetter
+from zope.publisher.base import RequestDataProperty, RequestDataMapper
+from zope.publisher.interfaces import ISkinnable
+from zope.publisher.interfaces import Redirect
+from zope.publisher.interfaces.http import IHTTPApplicationRequest
+from zope.publisher.interfaces.http import IHTTPApplicationResponse
+from zope.publisher.interfaces.http import IHTTPCredentials
+from zope.publisher.interfaces.http import IHTTPRequest
+from zope.publisher.interfaces.http import IHTTPResponse
+from zope.publisher.interfaces.http import IHTTPVirtualHostChangedEvent
+from zope.publisher.interfaces.http import IResult
+from zope.publisher.interfaces.logginginfo import ILoggingInfo
+from zope.publisher.skinnable import setDefaultSkin
+import Cookie
+import cgi
+import logging
+import tempfile
+import types
+import urllib
+import urlparse
+import zope.component
+import zope.event
+import zope.interface
 
 
 # Default Encoding
@@ -83,7 +75,7 @@ def sane_environment(env):
     return dict
 
 class HTTPVirtualHostChangedEvent(object):
-    interface.implements(IHTTPVirtualHostChangedEvent)
+    zope.interface.implements(IHTTPVirtualHostChangedEvent)
 
     request = None
 
@@ -204,7 +196,7 @@ class HTTPInputStream(object):
         if not size or int(size) < 65536:
             self.cacheStream = StringIO()
         else:
-            self.cacheStream = TemporaryFile()
+            self.cacheStream = tempfile.TemporaryFile()
         self.size = size and int(size) or -1
 
     def getCacheStream(self):
@@ -283,9 +275,9 @@ class HTTPRequest(BaseRequest):
     values will be looked up in the order: environment variables,
     other variables, form data, and then cookies.
     """
-    interface.implements(IHTTPCredentials,
-                         IHTTPRequest,
-                         IHTTPApplicationRequest)
+    zope.interface.implements(IHTTPCredentials,
+                              IHTTPRequest,
+                              IHTTPApplicationRequest)
 
     __slots__ = (
         '__provides__',   # Allow request to directly provide interfaces
@@ -388,7 +380,7 @@ class HTTPRequest(BaseRequest):
 
         if environ.has_key('HTTP_HOST'):
             host = environ['HTTP_HOST'].strip()
-            hostname, port = splitport(host)
+            hostname, port = urllib.splitport(host)
         else:
             hostname = environ.get('SERVER_NAME', '').strip()
             port = environ.get('SERVER_PORT', '')
@@ -408,8 +400,8 @@ class HTTPRequest(BaseRequest):
 
         # ignore cookies on a CookieError
         try:
-            c = SimpleCookie(text)
-        except CookieError, e:
+            c = Cookie.SimpleCookie(text)
+        except Cookie.CookieError, e:
             eventlog.warn(e)
             return result
 
@@ -528,7 +520,8 @@ class HTTPRequest(BaseRequest):
                 raise IndexError(level)
             names = names[:-level]
         # See: http://www.ietf.org/rfc/rfc2718.txt, Section 2.2.5
-        names = [quote(name.encode("utf-8"), safe='/+@') for name in names]
+        names = [urllib.quote(name.encode("utf-8"), safe='/+@')
+                 for name in names]
 
         if path_only:
             if not names:
@@ -550,7 +543,8 @@ class HTTPRequest(BaseRequest):
             names = self._app_names
 
         # See: http://www.ietf.org/rfc/rfc2718.txt, Section 2.2.5
-        names = [quote(name.encode("utf-8"), safe='/+@') for name in names]
+        names = [urllib.quote(name.encode("utf-8"), safe='/+@')
+                 for name in names]
 
         if path_only:
             return names and ('/' + '/'.join(names)) or '/'
@@ -562,7 +556,7 @@ class HTTPRequest(BaseRequest):
         if port and str(port) != DEFAULT_PORTS.get(proto):
             host = '%s:%s' % (host, port)
         self._app_server = '%s://%s' % (proto, host)
-        event.notify(HTTPVirtualHostChangedEvent(self))
+        zope.event.notify(HTTPVirtualHostChangedEvent(self))
 
     def shiftNameToApplication(self):
         """Add the name being traversed to the application name
@@ -573,7 +567,7 @@ class HTTPRequest(BaseRequest):
         """
         if len(self._traversed_names) == 1:
             self._app_names.append(self._traversed_names.pop())
-            event.notify(HTTPVirtualHostChangedEvent(self))
+            zope.event.notify(HTTPVirtualHostChangedEvent(self))
             return
 
         raise ValueError("Can only shift leading traversal "
@@ -583,7 +577,7 @@ class HTTPRequest(BaseRequest):
         del self._traversed_names[:]
         self._vh_root = self._last_obj_traversed
         self._app_names = list(names)
-        event.notify(HTTPVirtualHostChangedEvent(self))
+        zope.event.notify(HTTPVirtualHostChangedEvent(self))
 
     def getVirtualHostRoot(self):
         return self._vh_root
@@ -614,7 +608,7 @@ class HTTPRequest(BaseRequest):
 
 
 class HTTPResponse(BaseResponse):
-    interface.implements(IHTTPResponse, IHTTPApplicationResponse)
+    zope.interface.implements(IHTTPResponse, IHTTPApplicationResponse)
 
     __slots__ = (
         'authUser',             # Authenticated user string
@@ -766,7 +760,8 @@ class HTTPResponse(BaseResponse):
         if IResult.providedBy(result):
             r = result
         else:
-            r = component.queryMultiAdapter((result, self._request), IResult)
+            r = zope.component.queryMultiAdapter(
+                (result, self._request), IResult)
             if r is None:
                 if isinstance(result, basestring):
                     r = result
@@ -841,7 +836,7 @@ class HTTPResponse(BaseResponse):
         Calls self.setBody() with an error response.
         """
         t, v = exc_info[:2]
-        if isinstance(t, (ClassType, type)):
+        if isinstance(t, (types.ClassType, type)):
             if issubclass(t, Redirect):
                 self.redirect(v.getLocation())
                 return
@@ -862,7 +857,7 @@ class HTTPResponse(BaseResponse):
         self.setStatus(500, u"The engines can't take any more, Jim!")
 
     def _html(self, title, content):
-        t = escape(title)
+        t = cgi.escape(title)
         return (
             u"<html><head><title>%s</title></head>\n"
             u"<body><h2>%s</h2>\n"
@@ -906,8 +901,8 @@ class HTTPResponse(BaseResponse):
 
     def _cookie_list(self):
         try:
-            c = SimpleCookie()
-        except CookieError, e:
+            c = Cookie.SimpleCookie()
+        except Cookie.CookieError, e:
             eventlog.warn(e)
             return []
         for name, attrs in self._cookies.items():
@@ -924,7 +919,7 @@ class HTTPResponse(BaseResponse):
                     k = 'max-age'
                 elif k == 'comment':
                     # Encode rather than throw an exception
-                    v = quote(v.encode('utf-8'), safe="/?:@&+")
+                    v = urllib.quote(v.encode('utf-8'), safe="/?:@&+")
                 c[name][k] = str(v)
         return str(c).splitlines()
 
@@ -944,8 +939,8 @@ def sort_charsets(x, y):
 
 
 class HTTPCharsets(object):
-    component.adapts(IHTTPRequest)
-    interface.implements(IUserPreferredCharsets)
+    zope.component.adapts(IHTTPRequest)
+    zope.interface.implements(IUserPreferredCharsets)
 
     def __init__(self, request):
         self.request = request
@@ -1023,7 +1018,7 @@ class DirectResult(object):
     application to specify all headers related to the content, such as the
     content type and length.
     """
-    interface.implements(IResult)
+    zope.interface.implements(IResult)
 
     def __init__(self, body):
         self.body = body
@@ -1039,7 +1034,7 @@ class BasicAuthAdapter(LoginPassword):
     # see http://mail.zope.org/pipermail/zope-dev/2009-March/035325.html for
     # the reasoning.
 
-    component.adapts(IHTTPCredentials)
+    zope.component.adapts(IHTTPCredentials)
 
     def __init__(self, request):
         self.__request = request
