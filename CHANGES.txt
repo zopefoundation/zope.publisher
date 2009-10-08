@@ -1,11 +1,12 @@
 CHANGES
 =======
 
-3.9.4 (unreleased)
-------------------
+3.10.0 (unreleased)
+-------------------
 
-- Nothing changed yet.
-
+- Moved the implementation of zope.publisher.contenttype to
+  zope.contenttype.parse, leaving BBB imports and moving tests along.
+  zope.contenttype is a new but light-weight dependency of this package.
 
 3.9.3 (2009-10-08)
 ------------------

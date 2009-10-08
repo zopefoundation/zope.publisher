@@ -20,7 +20,6 @@ from zope.authentication.loginpassword import LoginPassword
 from zope.i18n.interfaces import IUserPreferredCharsets
 from zope.i18n.interfaces import IUserPreferredLanguages
 from zope.i18n.locales import locales, LoadLocaleError
-from zope.publisher import contenttype
 from zope.publisher.base import BaseRequest, BaseResponse
 from zope.publisher.base import RequestDataGetter
 from zope.publisher.base import RequestDataProperty, RequestDataMapper
@@ -43,6 +42,7 @@ import types
 import urllib
 import urlparse
 import zope.component
+import zope.contenttype.parse
 import zope.event
 import zope.interface
 
@@ -804,8 +804,7 @@ class HTTPResponse(BaseResponse):
                     raise ValueError(
                         'Unicode results must have a text content type.')
 
-
-            major, minor, params = contenttype.parse(content_type)
+            major, minor, params = zope.contenttype.parse.parse(content_type)
 
             if 'charset' in params:
                 encoding = params['charset']
