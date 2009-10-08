@@ -1,7 +1,7 @@
 CHANGES
 =======
 
-3.9.3 (unreleased)
+3.9.3 (2009-10-08)
 ------------------
 
 - Fixed the check for untrusted redirects introduced in 3.9.0 so it works with
