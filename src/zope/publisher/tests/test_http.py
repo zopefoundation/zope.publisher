@@ -308,6 +308,34 @@ class HTTPTests(unittest.TestCase):
             'http://my-friends.com', trusted=True)
         self.assertEquals('http://my-friends.com', location)
 
+        # We can redirect to our own full server URL, with or without a port
+        # being specified. Let's explicitly set a host name to test this is
+        # this is how virtual hosting works:
+        request.setApplicationServer('example.com')
+        location = request.response.redirect('http://example.com')
+        self.assertEquals('http://example.com', location)
+
+        request.setApplicationServer('example.com', port=8080)
+        location = request.response.redirect('http://example.com:8080')
+        self.assertEquals('http://example.com:8080', location)
+
+        # The default port for HTTP and HTTPS may be omitted:
+        request.setApplicationServer('example.com')
+        location = request.response.redirect('http://example.com:80')
+        self.assertEquals('http://example.com:80', location)
+
+        request.setApplicationServer('example.com', port=80)
+        location = request.response.redirect('http://example.com')
+        self.assertEquals('http://example.com', location)
+
+        request.setApplicationServer('example.com', 'https')
+        location = request.response.redirect('https://example.com:443')
+        self.assertEquals('https://example.com:443', location)
+
+        request.setApplicationServer('example.com', 'https', 443)
+        location = request.response.redirect('https://example.com')
+        self.assertEquals('https://example.com', location)
+
     def testUnregisteredStatus(self):
         # verify we can set the status to an unregistered int value
         request = self._createRequest({}, '')

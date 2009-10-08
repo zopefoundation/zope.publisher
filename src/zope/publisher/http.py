@@ -874,17 +874,19 @@ class HTTPResponse(BaseResponse):
 
     def redirect(self, location, status=None, trusted=False):
         """Causes a redirection without raising an error"""
-        
+
         # convert to a string, as the location could be non-string
         # convertable to string, for example, an URLGetter instance
         location = str(location)
-        
+
         if not trusted:
-            scheme, target_host, path, query, fragment = (
-                urlparse.urlsplit(location))
-            if target_host and target_host != self._request.get('HTTP_HOST'):
-                raise ValueError(
-                    "Untrusted redirect to host %r not allowed." % target_host)
+            target_host = extract_host(location)
+            if target_host:
+                app_host = extract_host(self._request.getApplicationURL())
+                if target_host != app_host:
+                    raise ValueError(
+                        "Untrusted redirect to host %r not allowed."
+                        % target_host)
 
         if status is None:
             # parse the HTTP version and set default accordingly
@@ -936,6 +938,15 @@ def sort_charsets(x, y):
     if x[1] == 'utf-8':
         return -1
     return cmp(y, x)
+
+
+def extract_host(url):
+    scheme, host, path, query, fragment = urlparse.urlsplit(url)
+    if ':' not in host:
+        port = DEFAULT_PORTS.get(scheme)
+        if port:
+            host = '%s:%s' % (host, port)
+    return host
 
 
 class HTTPCharsets(object):
