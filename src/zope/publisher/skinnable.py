@@ -24,6 +24,7 @@ __docformat__ = 'restructuredtext'
 
 import zope.component
 import zope.interface
+import zope.interface.interfaces
 
 from zope.publisher import interfaces
 
@@ -48,27 +49,28 @@ def setDefaultSkin(request):
     skin = adapters.lookup((zope.interface.providedBy(request),),
         interfaces.IDefaultSkin, '')
     if skin is None:
-        # find a named ``default`` adapter providing IDefaultSkin as fallback
+        # Find a named ``default`` adapter providing IDefaultSkin as fallback.
         skin = adapters.lookup((zope.interface.providedBy(request),),
             interfaces.IDefaultSkin, 'default')
         if skin is None:
             # Let's be nice and continue to work for IBrowserRequest's
-            # without relying on adapter registrations
+            # without relying on adapter registrations.
             if interfaces.browser.IBrowserRequest.providedBy(request):
                 skin = getDefaultSkin
     if skin is not None:
-        try:
-            # the default fallback skin is registered as a named adapter
+        if not zope.interface.interfaces.IInterface.providedBy(skin):
+            # The default fallback skin is registered as a named adapter.
             skin = skin(request)
-        except TypeError, e:
-            # the defaultSkin directive registers skins as interfaces and not
-            # as adapters (issue?)
+        else:
+            # The defaultSkin directive registers skins as interfaces and not
+            # as adapters.  We will not try to adapt the request to an
+            # interface to produce an interface.
             pass
         if interfaces.ISkinType.providedBy(skin):
             # silently ignore skins which do not provide ISkinType
             zope.interface.directlyProvides(request, skin)
         else:
-            raise TypeError("Skin interface %s doesn't provide ISkinType" % 
+            raise TypeError("Skin interface %s doesn't provide ISkinType" %
                 skin)
 
 

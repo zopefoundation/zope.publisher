@@ -181,7 +181,7 @@ class BrowserTests(HTTPTests):
 
         """Produce a Fieldstorage with a name wich is None, this
         should be catched"""
-        
+
         extra = {'REQUEST_METHOD':'POST',
                  'PATH_INFO': u'/',
                  'CONTENT_TYPE': 'multipart/form-data;\
@@ -204,7 +204,7 @@ class BrowserTests(HTTPTests):
                  'PATH_INFO': u'/',
                  'CONTENT_TYPE': 'multipart/form-data;\
                  boundary=---------------------------1'}
-        
+
         request  = self._createRequest(extra, body=LARGE_FILE_BODY)
         request.processInputs()
         self.assert_(request.form['upload'].name)
@@ -279,6 +279,14 @@ class BrowserTests(HTTPTests):
         request = self._createRequest(extra)
         publish(request)
         self.assertEqual(request.form, {u'a':[u'5',u'6'], u'b':u'1'})
+
+    def testQueryStringIgnoredForPOST(self):
+        request = self._createRequest(
+            {"REQUEST_METHOD": "POST",
+             'PATH_INFO': '/folder/item3'}, body='c=5&d:int=6')
+        publish(request)
+        self.assertEqual(request.form, {u'c': u'5', u'd': 6})
+        self.assertEqual(request.get('QUERY_STRING'), 'a=5&b:int=6')
 
     def testFormTupleTypes(self):
         extra = {'QUERY_STRING':'a:tuple=5&a:tuple=6&b=1'}

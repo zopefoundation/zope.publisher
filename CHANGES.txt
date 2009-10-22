@@ -1,12 +1,19 @@
 CHANGES
 =======
 
-3.10.0 (unreleased)
+3.10.0 (2009-10-22)
 -------------------
 
 - Moved the implementation of zope.publisher.contenttype to
   zope.contenttype.parse, leaving BBB imports and moving tests along.
   zope.contenttype is a new but light-weight dependency of this package.
+
+- Supported Python 2.6 by keeping QUERY_STRING out of request.form if
+  the method is a POST.  The original QUERY_STRING is still available if
+  further processing is needed.
+
+- Better supported the zcml ``defaultSkin`` directive's behavior (registering
+  an interface as a default skin) in the ``setDefaultSkin`` function.
 
 3.9.3 (2009-10-08)
 ------------------
@@ -37,7 +44,7 @@ CHANGES
 
 - Some parts of zope.app.publisher packages was moved into this package
   during zope.app.publisher refactoring:
-  
+
    * IModifiableUserPreferredLanguages adapter for requests
    * browser:defaultView and browser:defaultSkin ZCML directives
    * IHTTPView, IXMLRPCView and like interfaces
@@ -104,7 +111,7 @@ CHANGES
 
 - Add an adapter from ``zope.security.interfaces.IPrincipal`` to
   ``zope.publisher.interfaces.logginginfo.ILoggingInfo``. It was moved
-  from ``zope.app.security`` as a part of refactoring process. 
+  from ``zope.app.security`` as a part of refactoring process.
 
 - Add adapters from HTTP and FTP request to
   ``zope.authentication.ILoginPassword`` interface. They are moved from
@@ -146,7 +153,7 @@ CHANGES
 - Feature: implemented the default skin pattern within adapters. This allows
   us to register default skins for other requests then only IBrowserRequest
   using IDefaultSkin adapters.
-  
+
   Note, ISkinnable and ISkinType and the skin implementation should be moved
   out of the browser request modules. Packages like z3c.jsonrpc do not depend
   on IBrowserRequest but they are skinnable.

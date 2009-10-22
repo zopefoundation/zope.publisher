@@ -285,7 +285,15 @@ class BrowserRequest(HTTPRequest):
         if 'QUERY_STRING' not in self._environ:
             self._environ['QUERY_STRING'] = ''
 
-        fs = ZopeFieldStorage(fp=fp, environ=self._environ,
+        # The Python 2.6 cgi module mixes the query string and POST values
+        # together.  We do not want this.
+        env = self._environ
+        if self.method == 'POST' and self._environ['QUERY_STRING']:
+            env = env.copy()
+            del env['QUERY_STRING']
+
+
+        fs = ZopeFieldStorage(fp=fp, environ=env,
                               keep_blank_values=1)
 
         fslist = getattr(fs, 'list', None)
