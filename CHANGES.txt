@@ -1,7 +1,7 @@
 CHANGES
 =======
 
-3.10.1 (unreleased)
+3.10.1 (2009-11-28)
 -------------------
 
 - Version 3.10.0 needs at least version 3.5 of zope.contenttype but it
