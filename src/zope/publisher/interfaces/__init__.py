@@ -465,6 +465,20 @@ class IRequest(IPublisherRequest, IPublicationRequest, IApplicationRequest):
     """
 
 
+class IEndRequestEvent(Interface):
+    """An event which gets sent when the publication is ended"""
+
+
+class EndRequestEvent(object):
+    """An event which gets sent when the publication is ended"""
+
+    implements(IEndRequestEvent)
+
+    def __init__(self, ob, request):
+        self.object = ob
+        self.request = request
+
+
 class ISkinType(IInterface):
     """Base interface for skin types."""
 
