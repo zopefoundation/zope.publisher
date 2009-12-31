@@ -1,7 +1,7 @@
 CHANGES
 =======
 
-3.12.0 (unreleased)
+3.12.0 (2009-12-31)
 -------------------
 
 - Reverted change done in 3.6.2. The zope.authentication dependency has been
