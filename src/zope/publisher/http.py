@@ -16,7 +16,6 @@
 $Id$
 """
 from cStringIO import StringIO
-from zope.authentication.loginpassword import LoginPassword
 from zope.i18n.interfaces import IUserPreferredCharsets
 from zope.i18n.interfaces import IUserPreferredLanguages
 from zope.i18n.locales import locales, LoadLocaleError
@@ -1037,24 +1036,8 @@ class DirectResult(object):
         return iter(self.body)
 
 
-class BasicAuthAdapter(LoginPassword):
-    """ILoginPassword adapter for handling HTTP Basic authentication"""
-
-    # This was moved from zope.app.security as a part of refactoring process,
-    # see http://mail.zope.org/pipermail/zope-dev/2009-March/035325.html for
-    # the reasoning.
-
-    zope.component.adapts(IHTTPCredentials)
-
-    def __init__(self, request):
-        self.__request = request
-        # TODO base64 decoding should be done here, not in request
-        lpw = request._authUserPW()
-        if lpw is None:
-            login, password = None, None
-        else:
-            login, password = lpw
-        super(BasicAuthAdapter, self).__init__(login, password)
-
-    def needLogin(self, realm):
-        self.__request.unauthorized('basic realm="%s"' % realm)
+# BBB
+try:
+    from zope.login.http import BasicAuthAdapter
+except ImportError:
+    pass
