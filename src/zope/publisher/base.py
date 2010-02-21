@@ -23,6 +23,7 @@ from cStringIO import StringIO
 from zope.interface import implements, providedBy
 from zope.interface.common.mapping import IReadMapping, IEnumerableMapping
 from zope.exceptions.exceptionformatter import print_exception
+from zope.security.proxy import removeSecurityProxy
 
 from zope.publisher.interfaces import IPublication, IHeld
 from zope.publisher.interfaces import NotFound, DebugError, Unauthorized
@@ -245,7 +246,7 @@ class BaseRequest(object):
 
             self._last_obj_traversed = obj
 
-            if obj is not prev_object:
+            if removeSecurityProxy(obj) is not removeSecurityProxy(prev_object):
                 # Invoke hooks (but not more than once).
                 publication.callTraversalHooks(self, obj)
 

@@ -28,6 +28,8 @@ from zope.component import provideAdapter
 from zope.testing import doctest
 from zope.i18n.interfaces.locales import ILocale
 from zope.interface.verify import verifyObject
+from zope.security.checker import ProxyFactory
+from zope.security.proxy import removeSecurityProxy
 
 from zope.interface import implements
 from zope.publisher.interfaces.logginginfo import ILoggingInfo
@@ -595,6 +597,31 @@ class HTTPTests(unittest.TestCase):
         req.traverse(self.app)
         self.assertEquals(req._traversed_names, ['item'])
         self.assertEquals(req._vh_root, self.app.folder)
+
+    def test_traverseDuplicateHooks(self):
+        """
+        BaseRequest.traverse should not call traversal hooks on elements
+        previously traversed but wrapped in a security Proxy.
+        """
+        hooks = []
+        class HookPublication(DefaultPublication):
+
+            def callTraversalHooks(self, request, object):
+                hooks.append(object)
+
+            def traverseName(self, request, ob, name, check_auth=1):
+                # Fake the virtual host
+                if name == "vh":
+                    return ProxyFactory(ob)
+                return super(HookPublication, self).traverseName(
+                    request, removeSecurityProxy(ob), name, check_auth=1)
+
+        publication = HookPublication(self.app)
+        req = self._createRequest()
+        req.setPublication(publication)
+        req.setTraversalStack(req.getTraversalStack() + ["vh"])
+        req.traverse(self.app)
+        self.assertEquals(len(hooks), 3)
 
     def testInterface(self):
         from zope.publisher.interfaces.http import IHTTPCredentials
