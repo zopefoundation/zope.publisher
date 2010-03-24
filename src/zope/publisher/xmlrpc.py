@@ -46,10 +46,15 @@ class XMLRPCRequest(HTTPRequest):
         'See IPublisherRequest'
         # Parse the request XML structure
 
-        # XXX using readlines() instead of lines()
-        # as twisted's BufferedStream sends back
-        # an empty stream here for read() (bug)
-        lines = ''.join(self._body_instream.readlines())
+        # Using lines() does not work as Twisted's BufferedStream sends back
+        # an empty stream here for read() (bug). Using readlines() does not
+        # work with paster.httpserver. However, readline() works fine.
+        lines = ''
+        while True:
+            line = self._body_instream.readline()
+            if not line:
+                break
+            lines += line
         self._args, function = xmlrpclib.loads(lines)
 
         # Translate '.' to '/' in function to represent object traversal.
