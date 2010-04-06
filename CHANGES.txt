@@ -6,6 +6,13 @@ Changes
 
 * Removed ``finally``-clause from test to keep Python2.4 happy.
 
+* Backport r101467 from trunk.
+
+  Fix for https://bugs.launchpad.net/zope3/+bug/98337
+
+  Previously, when the Accept-Charset specified a charset that could not encode
+  the result, a system error appeared, now we fall back to UTF-8, as per
+  RFC 2616 section 10.4.7.
 
 3.4.9 (2009-07-13)
 ------------------
@@ -95,9 +102,9 @@ No changes.
 3.4.0b1 (2007-07-05)
 --------------------
 
-* Fix caching issue. The input stream never got cached in a temp file 
-  because of a wrong content-length header lookup. Added CONTENT_LENGTH 
-  header check in addition to the previous used HTTP_CONTENT_LENGTH. The 
+* Fix caching issue. The input stream never got cached in a temp file
+  because of a wrong content-length header lookup. Added CONTENT_LENGTH
+  header check in addition to the previous used HTTP_CONTENT_LENGTH. The
   HTTP\_ prefix is sometimes added by some CGI proxies, but CONTENT_LENGTH
   is the right header info for the size.
 

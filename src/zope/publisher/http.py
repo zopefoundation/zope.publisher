@@ -814,10 +814,19 @@ class HTTPResponse(BaseResponse):
 
             if 'charset' in params:
                 encoding = params['charset']
-            else:
-                content_type += ';charset=%s' %encoding
 
-            body = body.encode(encoding)
+            try:
+                body = body.encode(encoding)
+            except UnicodeEncodeError:
+                # RFC 2616 section 10.4.7 allows us to return an
+                # unacceptable encoding instead of 406 Not Acceptable
+                # response.
+                encoding = 'utf-8'
+                body = body.encode(encoding)
+
+            params['charset'] = encoding
+            content_type = "%s/%s;" % (major, minor)
+            content_type += ";".join(k + "=" + v for k, v in params.items())
 
         if content_type:
             headers = [('content-type', content_type),
@@ -826,7 +835,6 @@ class HTTPResponse(BaseResponse):
             headers = [('content-length', str(len(body)))]
 
         return body, headers
-
 
     def handleException(self, exc_info):
         """

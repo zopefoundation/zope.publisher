@@ -24,6 +24,7 @@ from Cookie import CookieError
 
 import zope.event
 import zope.testing.cleanup
+from zope.component import provideAdapter
 from zope.testing import doctest
 from zope.i18n.interfaces.locales import ILocale
 from zope.interface.verify import verifyObject
@@ -31,7 +32,7 @@ from zope.interface.verify import verifyObject
 from zope.interface import implements
 from zope.publisher.interfaces.logginginfo import ILoggingInfo
 from zope.publisher.http import HTTPRequest, HTTPResponse
-from zope.publisher.http import HTTPInputStream, DirectResult
+from zope.publisher.http import HTTPInputStream, DirectResult, HTTPCharsets
 from zope.publisher.publish import publish
 from zope.publisher.base import DefaultPublication
 from zope.publisher.interfaces.http import IHTTPRequest, IHTTPResponse
@@ -297,7 +298,6 @@ class HTTPTests(unittest.TestCase):
         eq = self.assertEqual
         unless = self.failUnless
 
-        from zope.component import provideAdapter
         from zope.publisher.browser import BrowserLanguages
         from zope.publisher.interfaces.http import IHTTPRequest
         from zope.i18n.interfaces import IUserPreferredLanguages
@@ -565,6 +565,23 @@ class HTTPTests(unittest.TestCase):
         request = self._createRequest({'PATH_INFO': '/test '})
         self.assertEqual(['test '], request.getTraversalStack())
 
+    def test_unacceptable_charset(self):
+        # Regression test for https://bugs.launchpad.net/zope3/+bug/98337
+        request = self._createRequest({'HTTP_ACCEPT_CHARSET': 'ISO-8859-1'})
+        result = u"Latin a with ogonek\u0105 Cyrillic ya \u044f"
+        provideAdapter(HTTPCharsets)
+        request.response.setHeader('Content-Type', 'text/plain')
+
+        # Instead of failing with HTTP code 406 we ignore the
+        # Accept-Charset header and return a response in UTF-8.
+        request.response.setResult(result)
+
+        body = request.response.consumeBody()
+        self.assertEquals(request.response.getStatus(), 200)
+        self.assertEquals(request.response.getHeader('Content-Type'),
+                          'text/plain;charset=utf-8')
+        self.assertEquals(body,
+                          'Latin a with ogonek\xc4\x85 Cyrillic ya \xd1\x8f')
 
 class ConcreteHTTPTests(HTTPTests):
     """Tests that we don't have to worry about subclasses inheriting and
