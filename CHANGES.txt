@@ -1,7 +1,7 @@
 Changes
 =======
 
-3.4.10 (unreleased)
+3.4.10 (2010-04-06)
 -------------------
 
 * Removed ``finally``-clause from test to keep Python2.4 happy.
