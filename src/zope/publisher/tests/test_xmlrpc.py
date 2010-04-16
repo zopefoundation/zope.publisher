@@ -15,9 +15,9 @@
 
 $Id$
 """
+import doctest
 import xmlrpclib
 import zope.component.testing
-from zope.testing import doctest
 from zope.publisher import xmlrpc
 from zope.security.checker import defineChecker, Checker, CheckerPublic
 

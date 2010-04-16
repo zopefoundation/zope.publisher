@@ -21,11 +21,11 @@ import tempfile
 import unittest
 from cStringIO import StringIO
 from Cookie import CookieError
+from doctest import DocFileSuite
 
 import zope.event
 import zope.testing.cleanup
 from zope.component import provideAdapter
-from zope.testing import doctest
 from zope.i18n.interfaces.locales import ILocale
 from zope.interface.verify import verifyObject
 from zope.security.checker import ProxyFactory
@@ -936,7 +936,7 @@ def test_suite():
     suite.addTest(unittest.makeSuite(ConcreteHTTPTests))
     suite.addTest(unittest.makeSuite(TestHTTPResponse))
     suite.addTest(unittest.makeSuite(HTTPInputStreamTests))
-    suite.addTest(doctest.DocFileSuite(
+    suite.addTest(DocFileSuite(
         '../httpresults.txt', setUp=cleanUp, tearDown=cleanUp))
     suite.addTest(unittest.makeSuite(APITests))
     return suite

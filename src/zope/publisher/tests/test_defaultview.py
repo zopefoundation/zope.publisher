@@ -16,8 +16,8 @@
 $Id$
 """
 import unittest
+from doctest import DocTestSuite
 from zope.testing.cleanup import cleanUp
-from zope.testing.doctestunit import DocTestSuite
 
 def cleanUpDoc(args):
     cleanUp()

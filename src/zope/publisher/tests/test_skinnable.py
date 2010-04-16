@@ -16,8 +16,8 @@
 
 $Id: test_http.py 96537 2009-02-14 15:13:58Z benji_york $
 """
-
 import unittest
+import doctest
 import zope.testing
 
 
@@ -27,7 +27,7 @@ def cleanUp(test):
 
 def test_suite():
     return unittest.TestSuite(
-        zope.testing.doctest.DocFileSuite('../skinnable.txt',
+        doctest.DocFileSuite('../skinnable.txt',
             setUp=cleanUp, tearDown=cleanUp))
 
 

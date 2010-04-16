@@ -4,6 +4,8 @@ CHANGES
 3.12.2 (unreleased)
 -------------------
 
+- Removed use of 'zope.testing.doctestunit' in favor of stdlib's 'doctest.
+
 - Fixed bug where xml-rpc requests would hang when served using
   paster.httpserver.
 

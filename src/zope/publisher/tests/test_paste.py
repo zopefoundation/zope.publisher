@@ -12,7 +12,8 @@
 #
 ##############################################################################
 import re, unittest
-from zope.testing import doctest, renormalizing
+import doctest
+from zope.testing import renormalizing
 
 class SamplePublication:
 
