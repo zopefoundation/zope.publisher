@@ -170,7 +170,12 @@ def publish(request, handle_errors=True):
                             retryException.getOriginalException(), False)
                         break
                     else:
-                        raise
+                        to_raise = retryException.getOriginalException()
+                        if to_raise is None:
+                            # There is no original exception inside
+                            # the Retry, so just reraise it.
+                            raise
+                        break
 
             except:
                 # Bad exception handler or retry method.

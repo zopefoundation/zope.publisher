@@ -4,11 +4,15 @@ CHANGES
 3.12.3 (unreleased)
 -------------------
 
+- LP #209440: Don't obscure original exception when handling retries
+  in ``publish.publish()`` with ``handleErrors == False``.   This change
+  makes debugging such exception in unit tests easier.
+  Thanks to James Henstridge for the patch.
+
 - LP #98395: allow unicode output of XML content whose mimetype does not
   begin with ``text/``, per RFC 3023 as well as for content types ending
   in ``+xml`` such as Mozilla XUL's ``application/vnd+xml``.  Thanks to
   Justin Ryan for the patch.
-
 
 3.12.2 (2010-04-16)
 -------------------

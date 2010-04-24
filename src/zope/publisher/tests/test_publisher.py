@@ -22,13 +22,16 @@ from zope.publisher.publish import publish, DoNotReRaiseException
 from zope.publisher.base import TestRequest
 from zope.publisher.base import DefaultPublication
 from zope.publisher.interfaces import Unauthorized, NotFound, DebugError
-from zope.publisher.interfaces import IPublication, IReRaiseException
+from zope.publisher.interfaces import IPublication, IReRaiseException, \
+                                      Retry
 
 from zope.interface.verify import verifyClass
 from zope.interface import implementedBy
 
 from StringIO import StringIO
 
+class ErrorToRetry(Exception):
+    """A sample exception that should be retried."""
 
 class PublisherTests(unittest.TestCase):
     def setUp(self):
@@ -47,12 +50,18 @@ class PublisherTests(unittest.TestCase):
             def __call__(self):
                 return "Yo! No docstring!"
 
+        class RetryItem:
+            """An item that the publication will attempt to retry."""
+            def __call__(self):
+                raise ErrorToRetry()
+
         self.app = AppRoot()
         self.app.folder = Folder()
         self.app.folder.item = Item()
 
         self.app._item = Item()
         self.app.noDocString = NoDocstringItem()
+        self.app.retryItem = RetryItem()
 
     def _createRequest(self, path, **kw):
         publication = DefaultPublication(self.app)
@@ -128,7 +137,36 @@ class PublisherTests(unittest.TestCase):
             pass
         self._unregisterExcAdapter(doReRaiseAdapter)
         self.failUnlessEqual(raised, True)
-            
+
+    def testRetryErrorIsUnwrapped(self):
+        test = self
+        class RetryPublication(DefaultPublication):
+            def handleException(self, object, request, exc_info,
+                                retry_allowed=True):
+                test.assertTrue(issubclass(exc_info[0], ErrorToRetry))
+                raise Retry(exc_info)
+
+        request = self._createRequest('/retryItem')
+        request.setPublication(RetryPublication(self.app))
+        self.assertFalse(request.supportsRetry())
+        self.assertRaises(ErrorToRetry, publish, request, handle_errors=False)
+
+    def testBareRetryErrorPassedThrough(self):
+        test = self
+        class RetryPublication(DefaultPublication):
+            def handleException(self, object, request, exc_info,
+                                retry_allowed=True):
+                test.assertTrue(issubclass(exc_info[0], ErrorToRetry))
+                raise Retry()
+
+        request = self._createRequest('/retryItem')
+        request.setPublication(RetryPublication(self.app))
+        self.assertFalse(request.supportsRetry())
+        # Retry exception is passed through because it doesn't contain
+        # an original exception.
+        self.assertRaises(Retry, publish, request, handle_errors=False)
+
+
 def test_suite():
     loader = unittest.TestLoader()
     return loader.loadTestsFromTestCase(PublisherTests)
