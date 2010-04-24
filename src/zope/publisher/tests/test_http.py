@@ -848,7 +848,8 @@ class TestHTTPResponse(unittest.TestCase):
         c = self._getCookieFromResponse([
                 ('foo', 'bar', {}),
                 ])
-        self.failUnless('foo=bar;' in c or 'foo=bar' in c, 'foo=bar; not in %r' % c)
+        self.failUnless('foo=bar;' in c or 'foo=bar' in c,
+                        'foo=bar; not in %r' % c)
 
         c = self._getCookieFromResponse([
                 ('foo', 'bar', {}),
@@ -860,7 +861,8 @@ class TestHTTPResponse(unittest.TestCase):
         c = self._getCookieFromResponse([
                 ('sign', u'\N{BIOHAZARD SIGN}', {}),
                 ])
-        self.failUnless((r'sign="\342\230\243";' in c) or (r'sign="\342\230\243"' in c))
+        self.failUnless((r'sign="\342\230\243";' in c) or
+                        (r'sign="\342\230\243"' in c))
 
         self.assertRaises(
                 CookieError,
@@ -902,7 +904,8 @@ class TestHTTPResponse(unittest.TestCase):
             "text/html;charset=utf-8")
         self.assertEquals(response.getStatus(), 500)
         self.assert_(response.consumeBody() in
-            ["<html><head><title>&lt;type 'exceptions.ValueError'&gt;</title></head>\n"
+            ["<html><head>"
+               "<title>&lt;type 'exceptions.ValueError'&gt;</title></head>\n"
             "<body><h2>&lt;type 'exceptions.ValueError'&gt;</h2>\n"
             "A server error occurred.\n"
             "</body></html>\n",
