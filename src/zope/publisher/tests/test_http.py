@@ -793,6 +793,37 @@ class TestHTTPResponse(unittest.TestCase):
         eq("text/plain;charset=cp1251", headers["Content-Type"])
         eq("test", body)
 
+        # see https://bugs.launchpad.net/zope.publisher/+bug/98395
+        # RFC 3023 types and */*+xml output as unicode
+
+        headers, body = self._getResultFromResponse(u"test", "utf-8",
+            {"content-type": "text/xml"})
+        eq("text/xml;charset=utf-8", headers["Content-Type"])
+        eq("test", body)
+
+        headers, body = self._getResultFromResponse(u"test", "utf-8",
+            {"content-type": "application/xml"})
+        eq("application/xml;charset=utf-8", headers["Content-Type"])
+        eq("test", body)
+
+        headers, body = self._getResultFromResponse(u"test", "utf-8",
+            {"content-type": "text/xml-external-parsed-entity"})
+        eq("text/xml-external-parsed-entity;charset=utf-8", headers["Content-Type"])
+        eq("test", body)
+
+        headers, body = self._getResultFromResponse(u"test", "utf-8",
+            {"content-type": "application/xml-external-parsed-entity"})
+        eq("application/xml-external-parsed-entity;charset=utf-8", headers["Content-Type"])
+        eq("test", body)
+
+        # Mozilla XUL
+        headers, body = self._getResultFromResponse(u"test", "utf-8",
+            {"content-type": "application/vnd+xml"})
+        eq("application/vnd+xml;charset=utf-8", headers["Content-Type"])
+        eq("test", body)
+
+        # end RFC 3023 / xml as unicode
+
         headers, body = self._getResultFromResponse("test", "utf-8",
             {"content-type": "image/gif"})
         eq("image/gif", headers["Content-Type"])

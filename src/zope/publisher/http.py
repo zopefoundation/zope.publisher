@@ -49,6 +49,10 @@ import zope.interface
 # Default Encoding
 ENCODING = 'UTF-8'
 
+# not just text/* but RFC 3023 and */*+xml
+import re
+unicode_mimetypes_re = re.compile(r"^text\/.*$|^.*\/xml.*$|^.*\+xml$")
+
 eventlog = logging.getLogger('eventlog')
 
 class CookieMapper(RequestDataMapper):
@@ -795,13 +799,9 @@ class HTTPResponse(BaseResponse):
         content_type = self.getHeader('content-type')
 
         if isinstance(body, unicode):
-            try:
-                if not content_type.startswith('text/'):
-                    raise ValueError(
-                        'Unicode results must have a text content type.')
-            except AttributeError:
-                    raise ValueError(
-                        'Unicode results must have a text content type.')
+            if not unicode_mimetypes_re.match(content_type):
+                raise ValueError(
+                    'Unicode results must have a text, RFC 3023, or +xml content type.')
 
             major, minor, params = zope.contenttype.parse.parse(content_type)
 
