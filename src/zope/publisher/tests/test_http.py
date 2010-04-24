@@ -288,7 +288,8 @@ class HTTPTests(unittest.TestCase):
         request = self._createRequest(env, '')
         request.response.redirect(request.URL)
         self.assertEquals(request.response.getStatus(), 303)
-        self.assertEquals(request.response.getHeader('location'), str(request.URL))
+        self.assertEquals(request.response.getHeader('location'),
+                          str(request.URL))
 
     def testUntrustedRedirect(self):
         # Redirects are by default only allowed to target the same host as the
@@ -751,7 +752,8 @@ class TestHTTPResponse(unittest.TestCase):
         headers, body = self._parseResult(response)
         # Check that the data have been written, and that the header
         # has been preserved
-        self.assertEqual(headers['Content-Type'], 'text/plain;charset=us-ascii')
+        self.assertEqual(headers['Content-Type'],
+                         'text/plain;charset=us-ascii')
         self.assertEqual(body, data)
 
         # Make sure that no Content-Length header was added
@@ -808,12 +810,14 @@ class TestHTTPResponse(unittest.TestCase):
 
         headers, body = self._getResultFromResponse(u"test", "utf-8",
             {"content-type": "text/xml-external-parsed-entity"})
-        eq("text/xml-external-parsed-entity;charset=utf-8", headers["Content-Type"])
+        eq("text/xml-external-parsed-entity;charset=utf-8",
+           headers["Content-Type"])
         eq("test", body)
 
         headers, body = self._getResultFromResponse(u"test", "utf-8",
             {"content-type": "application/xml-external-parsed-entity"})
-        eq("application/xml-external-parsed-entity;charset=utf-8", headers["Content-Type"])
+        eq("application/xml-external-parsed-entity;charset=utf-8",
+           headers["Content-Type"])
         eq("test", body)
 
         # Mozilla XUL

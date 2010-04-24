@@ -801,7 +801,8 @@ class HTTPResponse(BaseResponse):
         if isinstance(body, unicode):
             if not unicode_mimetypes_re.match(content_type):
                 raise ValueError(
-                    'Unicode results must have a text, RFC 3023, or +xml content type.')
+                    'Unicode results must have a text, RFC 3023, or '
+                    '+xml content type.')
 
             major, minor, params = zope.contenttype.parse.parse(content_type)
 
