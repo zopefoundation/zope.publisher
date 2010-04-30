@@ -1,7 +1,8 @@
 CHANGES
 =======
 
-3.12.3 (unreleased)
+
+3.12.3 (2010-04-30)
 -------------------
 
 - LP #209440: Don't obscure original exception when handling retries
