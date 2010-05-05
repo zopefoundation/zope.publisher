@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# Copyright (c) 2006 Zope Corporation and Contributors.
+# Copyright (c) 2006 Zope Foundation and Contributors.
 # All Rights Reserved.
 #
 # This software is subject to the provisions of the Zope Public License,
@@ -31,7 +31,7 @@ setup(name='zope.publisher',
       version = '3.12.4dev',
       url='http://pypi.python.org/pypi/zope.publisher',
       license='ZPL 2.1',
-      author='Zope Corporation and Contributors',
+      author='Zope Foundation and Contributors',
       author_email='zope-dev@zope.org',
       description="The Zope publisher publishes Python objects on the web.",
       long_description=(open('README.txt').read()
