@@ -31,4 +31,4 @@ class PrincipalLogging(object):
         self.principal = principal
 
     def getLogMessage(self):
-        return repr(self.principal.id)[2:-1]
+        return self.principal.id.encode('ascii', 'backslashreplace')
