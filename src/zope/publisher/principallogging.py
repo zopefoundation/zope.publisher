@@ -21,6 +21,7 @@ from zope.interface import implements
 from zope.publisher.interfaces.logginginfo import ILoggingInfo
 from zope.security.interfaces import IPrincipal
 
+
 class PrincipalLogging(object):
 
     adapts(IPrincipal)
@@ -30,4 +31,4 @@ class PrincipalLogging(object):
         self.principal = principal
 
     def getLogMessage(self):
-        return str(self.principal.id)
+        return repr(self.principal.id)[2:-1]

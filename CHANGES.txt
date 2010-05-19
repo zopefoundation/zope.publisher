@@ -4,7 +4,7 @@ CHANGES
 3.12.4 (unreleased)
 -------------------
 
-- TBD
+- LP #131460: Make principal logging unicode safe.
 
 3.12.3 (2010-04-30)
 -------------------

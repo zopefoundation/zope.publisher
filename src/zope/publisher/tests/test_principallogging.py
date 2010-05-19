@@ -18,9 +18,11 @@ $Id$
 import unittest
 from zope.interface.verify import verifyObject
 
+
 class PrincipalStub(object):
 
-    id = 42
+    id = u'\xfc principal'
+
 
 class TestPrincipalLogging(unittest.TestCase):
 
@@ -35,7 +37,8 @@ class TestPrincipalLogging(unittest.TestCase):
         from zope.publisher.principallogging import PrincipalLogging
         principal = PrincipalStub()
         pl = PrincipalLogging(principal)
-        self.assertEquals(pl.getLogMessage(), '42')
+        self.assertEquals(pl.getLogMessage(), '\\xfc principal')
+
 
 def test_suite():
     suite = unittest.TestSuite()
