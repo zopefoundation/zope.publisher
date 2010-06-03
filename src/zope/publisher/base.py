@@ -15,8 +15,6 @@
 
 Specifically, 'BaseRequest', 'BaseResponse', and 'DefaultPublication' are
 specified here.
-
-$Id$
 """
 from cStringIO import StringIO
 

@@ -17,8 +17,6 @@ Here we define the specific 'BrowserRequest' and 'BrowserResponse' class. The
 big improvement of the 'BrowserRequest' to 'HTTPRequest' is that is can handle
 HTML form data and convert them into a Python-native format. Even file data is
 packaged into a nice, Python-friendly 'FileUpload' object.
-
-$Id: browser.py 97505 2009-03-05 00:47:39Z rogerineichen $
 """
 __docformat__ = 'restructuredtext'
 

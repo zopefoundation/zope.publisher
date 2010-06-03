@@ -12,8 +12,6 @@
 #
 ##############################################################################
 """Testing the XML-RPC Publisher code.
-
-$Id$
 """
 import doctest
 import xmlrpclib

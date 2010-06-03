@@ -12,8 +12,6 @@
 #
 ##############################################################################
 """IPublisherReuqest Test
-
-$Id$
 """
 
 from zope.interface.verify import verifyObject

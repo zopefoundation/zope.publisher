@@ -12,8 +12,6 @@
 #
 ##############################################################################
 """IApplicationRequest Base Test
-
-$Id$
 """
 from zope.interface.verify import verifyObject
 from zope.publisher.interfaces import IApplicationRequest

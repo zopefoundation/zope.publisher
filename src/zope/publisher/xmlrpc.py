@@ -14,8 +14,6 @@
 """XML-RPC Publisher
 
 This module contains the XMLRPCRequest and XMLRPCResponse
-
-$Id$
 """
 __docformat__ = 'restructuredtext'
 

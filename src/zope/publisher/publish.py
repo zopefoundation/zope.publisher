@@ -14,8 +14,6 @@
 """Python Object Publisher -- Publish Python objects on web servers
 
 Provide an apply-like facility that works with any mapping object
-
-$Id$
 """
 import sys
 from zope import component

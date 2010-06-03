@@ -11,10 +11,10 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""An adapter from zope.security.interfaces.IPrincipal to
-zope.publisher.interfaces.logginginfo.ILoggingInfo.
+"""Adapter:
 
-$Id$
+Adapts zope.security.interfaces.IPrincipal to
+zope.publisher.interfaces.logginginfo.ILoggingInfo.
 """
 from zope.component import adapts
 from zope.interface import implements

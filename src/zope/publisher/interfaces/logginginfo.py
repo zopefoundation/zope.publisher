@@ -12,8 +12,6 @@
 #
 ##############################################################################
 """An interface for LoggingInfo.
-
-$Id$
 """
 
 __docformat__ = "reStructuredText"

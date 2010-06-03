@@ -12,8 +12,6 @@
 #
 ##############################################################################
 """Interfaces for the XMLRPC publisher.
-
-$Id$
 """
 
 __docformat__ = "reStructuredText"

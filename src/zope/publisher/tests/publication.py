@@ -12,8 +12,6 @@
 #
 ##############################################################################
 """Publication test
-
-$Id$
 """
 
 from zope.publisher.interfaces import IPublication

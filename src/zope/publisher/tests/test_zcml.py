@@ -12,8 +12,6 @@
 #
 ##############################################################################
 """Tests for browser:defaultSkin and browser:defaultView directives
-
-$Id: tests.py 103163 2009-08-24 16:22:07Z nadako $
 """
 from cStringIO import StringIO
 import unittest

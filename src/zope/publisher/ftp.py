@@ -12,8 +12,6 @@
 #
 ##############################################################################
 """FTP Publisher
-
-$Id$
 """
 from zope.interface import implements
 from zope.publisher.interfaces.ftp import IFTPCredentials, IFTPRequest

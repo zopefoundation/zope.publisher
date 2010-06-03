@@ -12,8 +12,6 @@
 #
 ##############################################################################
 """Retrieval of HTTP character set information.
-
-$Id$
 """
 import unittest
 

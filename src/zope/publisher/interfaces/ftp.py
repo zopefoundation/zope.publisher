@@ -12,8 +12,6 @@
 #
 ##############################################################################
 """Virtual File System interfaces for the publisher.
-
-$Id$
 """
 
 __docformat__ = "reStructuredText"

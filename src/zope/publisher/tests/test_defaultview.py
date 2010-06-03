@@ -12,8 +12,6 @@
 #
 ##############################################################################
 """Default View Tests
-
-$Id$
 """
 import unittest
 from doctest import DocTestSuite

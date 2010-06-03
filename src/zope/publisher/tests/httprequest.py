@@ -14,8 +14,6 @@
 """Test request for writing tests that need HTTP requests.
 
 Note that this is used by tests in other packages.
-
-$Id$
 """
 
 from StringIO import StringIO

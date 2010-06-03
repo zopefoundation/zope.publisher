@@ -12,8 +12,6 @@
 #
 ##############################################################################
 """Interfaces for the publisher.
-
-$Id$
 """
 __docformat__ = "reStructuredText"
 

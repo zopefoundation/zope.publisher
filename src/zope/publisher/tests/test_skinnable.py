@@ -13,8 +13,6 @@
 #
 ##############################################################################
 """HTTP Publisher Tests
-
-$Id: test_http.py 96537 2009-02-14 15:13:58Z benji_york $
 """
 import unittest
 import doctest

@@ -12,8 +12,6 @@
 #
 ##############################################################################
 """Default view name API
-
-$Id$
 """
 from zope.component.interfaces import ComponentLookupError
 from zope.component import getSiteManager

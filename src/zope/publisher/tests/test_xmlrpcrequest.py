@@ -12,8 +12,6 @@
 #
 ##############################################################################
 """XML-RPC Request Tests
-
-$Id$
 """
 import unittest
 from StringIO import StringIO

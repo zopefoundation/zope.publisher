@@ -12,8 +12,6 @@
 #
 ##############################################################################
 """Tests for BaseResponse
-
-$Id$
 """
 
 from unittest import TestCase, TestSuite, main, makeSuite

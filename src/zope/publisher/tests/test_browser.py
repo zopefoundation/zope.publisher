@@ -12,8 +12,6 @@
 #
 ##############################################################################
 """Test zope.publisher.browser doctests
-
-$Id$
 """
 import unittest
 from doctest import DocTestSuite

@@ -12,8 +12,6 @@
 #
 ##############################################################################
 """FTP Publisher Tests
-
-$Id$
 """
 import sys
 from cStringIO import StringIO

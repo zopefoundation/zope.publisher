@@ -12,8 +12,6 @@
 #
 ##############################################################################
 """HTTP-related publisher interfaces.
-
-$Id$
 """
 
 __docformat__ = "reStructuredText"

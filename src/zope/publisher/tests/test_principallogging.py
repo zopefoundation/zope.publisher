@@ -12,8 +12,6 @@
 #
 ##############################################################################
 """Test for PrincipalLogging adapter.
-
-$Id$
 """
 import unittest
 from zope.interface.verify import verifyObject

@@ -12,8 +12,6 @@
 #
 ##############################################################################
 """Default view and default skin ZCML configuration feature.
-
-$Id: metaconfigure.py 103163 2009-08-24 16:22:07Z nadako $
 """
 from zope import component
 from zope.component.interface import provideInterface

@@ -12,8 +12,6 @@
 #
 ##############################################################################
 """Test objects and interfaces.
-
-$Id$
 """
 
 from zope.interface import Interface, implements

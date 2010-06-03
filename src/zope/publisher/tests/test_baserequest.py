@@ -12,8 +12,6 @@
 #
 ##############################################################################
 """baserequest tests
-
-$Id$
 """
 from unittest import TestCase, main, makeSuite
 

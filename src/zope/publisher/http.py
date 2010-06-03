@@ -12,8 +12,6 @@
 #
 ##############################################################################
 """HTTP Publisher
-
-$Id$
 """
 from cStringIO import StringIO
 from zope.i18n.interfaces import IUserPreferredCharsets

@@ -12,8 +12,6 @@
 #
 ##############################################################################
 """Request Data-Property Tests
-
-$Id$
 """
 from unittest import TestCase, main, makeSuite
 
