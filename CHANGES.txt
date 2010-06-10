@@ -5,6 +5,7 @@ CHANGES
 -------------------
 
 - LP #131460: Make principal logging unicode safe.
+- Remove use of string exceptions in tests, http://bugs.debian.org/585343
 
 3.12.3 (2010-04-30)
 -------------------

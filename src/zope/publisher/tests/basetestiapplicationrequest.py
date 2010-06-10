@@ -37,7 +37,7 @@ class BaseTestIApplicationRequest(BaseTestIEnumerableMapping):
         except AttributeError:
             pass
         else:
-            raise "Shouldn't be able to set environment"
+            raise AssertionError("Shouldn't be able to set environment")
 
         environment = request.environment
 

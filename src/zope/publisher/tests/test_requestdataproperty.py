@@ -55,13 +55,19 @@ class Test(TestCase):
 
     def testNoAssign(self):
         data = Data()
-        try: data.something = {}
-        except AttributeError: pass
-        else: raise """Shouldn't be able to assign"""
-        try: data.somedata = {}
-        except AttributeError: pass
-        else: raise """Shouldn't be able to assign"""
+        try:
+            data.something = {}
+        except AttributeError:
+            pass
+        else:
+            raise AssertionError("Shouldn't be able to assign")
 
+        try:
+            data.somedata = {}
+        except AttributeError:
+            pass
+        else:
+            raise AssertionError("Shouldn't be able to assign")
 
 def test_suite():
     return makeSuite(Test)
