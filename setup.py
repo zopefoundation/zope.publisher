@@ -28,7 +28,7 @@ sample = zope.publisher.tests.test_paste:SamplePublication
 """
 
 setup(name='zope.publisher',
-      version = '3.12.4dev',
+      version = '3.12.4',
       url='http://pypi.python.org/pypi/zope.publisher',
       license='ZPL 2.1',
       author='Zope Foundation and Contributors',
@@ -42,9 +42,7 @@ setup(name='zope.publisher',
 
       packages=find_packages('src'),
       package_dir={'': 'src'},
-
       namespace_packages=['zope',],
-      tests_require=['zope.testing'],
       install_requires=['setuptools',
                         'zope.browser',
                         'zope.component',
@@ -58,6 +56,7 @@ setup(name='zope.publisher',
                         'zope.proxy',
                         'zope.security',
                        ],
+      extras_require={'tests': ['zope.testing']},
       include_package_data=True,
 
       zip_safe=False,
