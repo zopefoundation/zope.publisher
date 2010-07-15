@@ -463,18 +463,44 @@ class IRequest(IPublisherRequest, IPublicationRequest, IApplicationRequest):
     """
 
 
-class IEndRequestEvent(Interface):
-    """An event which gets sent when the publication is ended"""
+class IRequestEvent(Interface):
+    """An event which is about or for a request."""
+
+    request = Attribute("The request this event is about.")
 
 
-class EndRequestEvent(object):
+class IEndRequestEvent(IRequestEvent):
+    """An event which gets sent when the publication is ended."""
+
+
+class IStartRequestEvent(IRequestEvent):
+    """An event which gets sent before publication of a request."""
+
+
+class RequestEvent(object):
+    """Events for requests.
+    
+    :ivar request: The request the event is for.
+    """
+
+    def __init__(self, request):
+        self.request = request
+
+
+class EndRequestEvent(RequestEvent):
     """An event which gets sent when the publication is ended"""
 
     implements(IEndRequestEvent)
 
     def __init__(self, ob, request):
+        super(EndRequestEvent, self).__init__(request)
         self.object = ob
-        self.request = request
+
+
+class StartRequestEvent(RequestEvent):
+    """An event send when before publication of a request."""
+
+    implements(IStartRequestEvent)
 
 
 class ISkinType(IInterface):
@@ -497,10 +523,8 @@ class IDefaultSkin(Interface):
     """
 
 
-class ISkinChangedEvent(Interface):
+class ISkinChangedEvent(IRequestEvent):
     """Event that gets triggered when the skin of a request is changed."""
-
-    request = Attribute("The request for which the skin was changed.")
 
 
 
