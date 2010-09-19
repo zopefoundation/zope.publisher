@@ -14,6 +14,7 @@
 """Tests for browser:defaultSkin and browser:defaultView directives
 """
 from cStringIO import StringIO
+import doctest
 import unittest
 
 from zope.testing import cleanup
@@ -164,4 +165,7 @@ class Test(cleanup.CleanUp, unittest.TestCase):
         self.assertTrue(isinstance(v, V2))
 
 def test_suite():
-    return unittest.makeSuite(Test)
+    return unittest.TestSuite((
+            unittest.makeSuite(Test),
+            doctest.DocFileSuite('../configure.txt'),
+            ))

@@ -4,7 +4,9 @@ CHANGES
 3.12.5 (unreleased)
 -------------------
 
-(No changes)
+- Renamed the ``tests`` extra to ``test``.
+
+- Added a test for our own configure.zcml.
 
 3.12.4 (2010-07-15)
 -------------------

@@ -4,6 +4,10 @@
     xmlns:zcml="http://namespaces.zope.org/zcml"
     >
 
+  <include file="meta.zcml" package="zope.component" />
+  <include file="meta.zcml" package="zope.security" />
+  <include file="permissions.zcml" package="zope.security" />
+
   <interface interface="zope.publisher.interfaces.browser.IBrowserSkinType" />
   <interface interface="zope.publisher.interfaces.xmlrpc.IXMLRPCRequest" />
 
