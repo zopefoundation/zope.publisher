@@ -56,7 +56,7 @@ setup(name='zope.publisher',
                         'zope.proxy',
                         'zope.security',
                        ],
-      extras_require={'tests': ['zope.testing']},
+      extras_require={'test': ['zope.testing']},
       include_package_data=True,
 
       zip_safe=False,
