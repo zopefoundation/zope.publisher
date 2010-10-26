@@ -69,22 +69,20 @@ class HTTPCharsetTest(unittest.TestCase):
                          ['utf-8', 'iso-8859-1', '*'])
 
     def testNoHTTP_ACCEPT_CHARSET(self):
-        # If the client doesn't provide a HTTP_ACCEPT_CHARSET, it should
-        # accept any charset
+        # If the client doesn't provide a HTTP_ACCEPT_CHARSET, it can
+        # accept any charset.
         request = {}
         browser_charsets = HTTPCharsets(request)
         self.assertEqual(list(browser_charsets.getPreferredCharsets()),
-                         [])
+                         ['utf-8'])
 
     def testTrivialHTTP_ACCEPT_CHARSET(self):
-        # If the client provides a trivial HTTP_ACCEPT_CHARSET, it should
-        # accept any charset (this test is aimed at Zope 2's handling
-        # of request queries for entries starting with HTTP_
-        # See: https://bugs.launchpad.net/zope2/+bug/143873
+        # If the client provides a trivial HTTP_ACCEPT_CHARSET, it can
+        # accept any charset
         request = {'HTTP_ACCEPT_CHARSET': ''}
         browser_charsets = HTTPCharsets(request)
         self.assertEqual(list(browser_charsets.getPreferredCharsets()),
-                         [])
+                         ['utf-8'])
 
     def testMalformedHTTP_ACCEPT_CHARSET(self):
         """ Test for Launchpad #253362 """

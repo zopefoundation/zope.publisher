@@ -1000,6 +1000,8 @@ class HTTPCharsets(object):
         charsets = [charset for quality, charset in charsets]
         if sawstar and 'utf-8' not in charsets:
             charsets.insert(0, 'utf-8')
+        elif charsets == []:
+            charsets = ['utf-8']
         return charsets
 
 
