@@ -8,6 +8,8 @@ CHANGES
 
 - Added a test for our own configure.zcml.
 
+- As per W3C spec UTF-8 will be the charset if the browser does not set a header.
+
 3.12.4 (2010-07-15)
 -------------------
 
