@@ -1,7 +1,7 @@
 CHANGES
 =======
 
-3.12.5 (unreleased)
+3.12.5 (2010-12-14)
 -------------------
 
 - Renamed the ``tests`` extra to ``test``.
