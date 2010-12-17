@@ -1,10 +1,10 @@
 CHANGES
 =======
 
-3.12.6 (unreleased)
+3.12.6 (2010-12-17)
 -------------------
 
-- Nothing changed yet.
+- Uploading a non-CRLF version to pypi.
 
 
 3.12.5 (2010-12-14)
