@@ -249,6 +249,7 @@ class BrowserRequest(HTTPRequest):
         if self.charsets is None:
             envadapter = IUserPreferredCharsets(self)
             self.charsets = envadapter.getPreferredCharsets() or ['utf-8']
+            self.charsets = [c for c in self.charsets if c != '*']
         for charset in self.charsets:
             try:
                 text = unicode(text, charset)

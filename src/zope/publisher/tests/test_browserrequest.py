@@ -274,6 +274,15 @@ class BrowserTests(HTTPTests):
         self.assert_(isinstance(request.form[u'street'], unicode))
         self.assertEqual(unicode(encoded, 'utf-8'), request.form['street'])
 
+    def testFormAcceptsStarButNotUTF8(self):
+        extra = {
+            'QUERY_STRING': 'a=5&b:int=6&latin_1=\xf6', # latin-1
+            'HTTP_ACCEPT_CHARSET': 'utf-8;q=0.7, *;q=0.7',
+            }
+        request = self._createRequest(extra)
+        # don't error when * is in ACCEPT_CHARSET and data is not UTF-8
+        publish(request)
+
     def testFormListTypes(self):
         extra = {'QUERY_STRING':'a:list=5&a:list=6&b=1'}
         request = self._createRequest(extra)
