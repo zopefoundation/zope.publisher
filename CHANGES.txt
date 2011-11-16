@@ -5,6 +5,7 @@ CHANGES
 -------------------
 
 - Fix error when no charset matches form data and HTTP_ACCEPT_CHARSET contains a *.
+- Add test convenience helper ``create_interaction`` and ``with interaction()``.
 
 
 3.12.6 (2010-12-17)
