@@ -152,6 +152,49 @@ def init_status_codes():
 init_status_codes()
 
 
+class LenientCookie(Cookie.SimpleCookie):
+    """LenientCookie will not destroy all cookies
+       in a request when one invalid key is used
+    """
+
+    def __setitem__(self, key, value):
+        rval, cval = self.value_encode(value)
+        try:
+            self._BaseCookie__set(key, rval, cval)
+        except Cookie.CookieError, e:
+            eventlog.warning(e)
+
+    def _BaseCookie__ParseString(self, str, patt=Cookie._CookiePattern):
+        i = 0            # Our starting point
+        n = len(str)     # Length of string
+        M = None         # current morsel
+    
+        while 0 <= i < n:
+            # Start looking for a cookie
+            match = patt.search(str, i)
+            if not match: break          # No more cookies
+    
+            K,V = match.group("key"), match.group("val")
+            i = match.end(0)
+    
+            # Parse the key, value in case it's metainfo
+            if K[0] == "$":
+                # We ignore attributes which pertain to the cookie
+                # mechanism as a whole.  See RFC 2109.
+                # (Does anyone care?)
+                if M:
+                    M[ K[1:] ] = V
+            elif K.lower() in Cookie.Morsel._reserved:
+                if M:
+                    M[ K ] = _unquote(V)
+            else:
+                rval, cval = self.value_decode(V)
+                try:
+                    self._BaseCookie__set(K, rval, cval)
+                except Cookie.CookieError, e:
+                    eventlog.warning(e)
+        
+
 class URLGetter(object):
 
     __slots__ = "__request"
@@ -401,7 +444,7 @@ class HTTPRequest(BaseRequest):
 
         # ignore cookies on a CookieError
         try:
-            c = Cookie.SimpleCookie(text)
+            c = LenientCookie(text)
         except Cookie.CookieError, e:
             eventlog.warn(e)
             return result
@@ -900,7 +943,7 @@ class HTTPResponse(BaseResponse):
 
     def _cookie_list(self):
         try:
-            c = Cookie.SimpleCookie()
+            c = LenientCookie()
         except Cookie.CookieError, e:
             eventlog.warn(e)
             return []

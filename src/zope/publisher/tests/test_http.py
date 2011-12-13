@@ -461,17 +461,18 @@ class HTTPTests(unittest.TestCase):
         self.failIf(req.cookies.has_key('path'))
 
     def testCookieErrorToLog(self):
+        # Cookies accompanying an invalid one shouldn't be trashed.
         cookies = {
             'HTTP_COOKIE':
                 'foo=bar; path=/; spam="eggs", ldap/OU="Williams"'
         }
         req = self._createRequest(extra_env=cookies)
 
-        self.failIf(req.cookies.has_key('foo'))
-        self.failIf(req.has_key('foo'))
+        self.assertEquals(req.cookies[u'foo'], u'bar')
+        self.assertEquals(req[u'foo'], u'bar')
 
-        self.failIf(req.cookies.has_key('spam'))
-        self.failIf(req.has_key('spam'))
+        self.assertEquals(req.cookies[u'spam'], u'eggs')
+        self.assertEquals(req[u'spam'], u'eggs')
 
         self.failIf(req.cookies.has_key('ldap/OU'))
         self.failIf(req.has_key('ldap/OU'))
@@ -861,12 +862,6 @@ class TestHTTPResponse(unittest.TestCase):
                 ])
         self.failUnless((r'sign="\342\230\243";' in c) or
                         (r'sign="\342\230\243"' in c))
-
-        self.assertRaises(
-                CookieError,
-                self._getCookieFromResponse,
-                [('path', 'invalid key', {}),]
-                )
 
         c = self._getCookieFromResponse([
                 ('foo', 'bar', {
