@@ -186,7 +186,7 @@ class LenientCookie(Cookie.SimpleCookie):
                     M[ K[1:] ] = V
             elif K.lower() in Cookie.Morsel._reserved:
                 if M:
-                    M[ K ] = _unquote(V)
+                    M[ K ] = Cookie._unquote(V)
             else:
                 rval, cval = self.value_decode(V)
                 try:
