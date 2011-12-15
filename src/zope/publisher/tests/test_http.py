@@ -444,7 +444,7 @@ class HTTPTests(unittest.TestCase):
     def testCookies(self):
         cookies = {
             'HTTP_COOKIE':
-                'foo=bar; path=/; spam="eggs", this="Should be accepted"'
+                'foo=bar; path=/; spam="eggs", this="Should be fine"; $t="f"'
         }
         req = self._createRequest(extra_env=cookies)
 
@@ -454,11 +454,14 @@ class HTTPTests(unittest.TestCase):
         self.assertEquals(req.cookies[u'spam'], u'eggs')
         self.assertEquals(req[u'spam'], u'eggs')
 
-        self.assertEquals(req.cookies[u'this'], u'Should be accepted')
-        self.assertEquals(req[u'this'], u'Should be accepted')
+        self.assertEquals(req.cookies[u'this'], u'Should be fine')
+        self.assertEquals(req[u'this'], u'Should be fine')
 
         # Reserved key
         self.failIf(req.cookies.has_key('path'))
+
+        self.failIf(req.cookies.has_key('t'))
+        self.failIf(req.cookies.has_key('$t'))
 
     def testCookieErrorToLog(self):
         # Cookies accompanying an invalid one shouldn't be trashed.
@@ -476,9 +479,6 @@ class HTTPTests(unittest.TestCase):
 
         self.failIf(req.cookies.has_key('ldap/OU'))
         self.failIf(req.has_key('ldap/OU'))
-
-        # Reserved key
-        self.failIf(req.cookies.has_key('path'))
 
     def testCookiesUnicode(self):
         # Cookie values are assumed to be UTF-8 encoded

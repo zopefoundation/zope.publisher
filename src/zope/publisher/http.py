@@ -183,7 +183,11 @@ class LenientCookie(Cookie.SimpleCookie):
                 # mechanism as a whole.  See RFC 2109.
                 # (Does anyone care?)
                 if M:
-                    M[ K[1:] ] = V
+                    try:
+                        M[ K[1:] ] = V
+                    except Cookie.CookieError:
+                        # We don't care.
+                        pass 
             elif K.lower() in Cookie.Morsel._reserved:
                 if M:
                     M[ K ] = Cookie._unquote(V)
@@ -191,6 +195,7 @@ class LenientCookie(Cookie.SimpleCookie):
                 rval, cval = self.value_decode(V)
                 try:
                     self._BaseCookie__set(K, rval, cval)
+                    M = self[K]
                 except Cookie.CookieError, e:
                     eventlog.warning(e)
         
