@@ -168,15 +168,15 @@ class LenientCookie(Cookie.SimpleCookie):
         i = 0            # Our starting point
         n = len(str)     # Length of string
         M = None         # current morsel
-    
+
         while 0 <= i < n:
             # Start looking for a cookie
             match = patt.search(str, i)
             if not match: break          # No more cookies
-    
+
             K,V = match.group("key"), match.group("val")
             i = match.end(0)
-    
+
             # Parse the key, value in case it's metainfo
             if K[0] == "$":
                 # We ignore attributes which pertain to the cookie
@@ -187,7 +187,7 @@ class LenientCookie(Cookie.SimpleCookie):
                         M[ K[1:] ] = V
                     except Cookie.CookieError:
                         # We don't care.
-                        pass 
+                        pass
             elif K.lower() in Cookie.Morsel._reserved:
                 if M:
                     M[ K ] = Cookie._unquote(V)
@@ -198,7 +198,7 @@ class LenientCookie(Cookie.SimpleCookie):
                     M = self[K]
                 except Cookie.CookieError, e:
                     eventlog.warning(e)
-        
+
 
 class URLGetter(object):
 
