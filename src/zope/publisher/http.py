@@ -75,8 +75,8 @@ def sane_environment(env):
         dict['PATH_INFO'] = dict['PATH_INFO'].decode('utf-8')
     return dict
 
+@zope.interface.implementer(IHTTPVirtualHostChangedEvent)
 class HTTPVirtualHostChangedEvent(object):
-    zope.interface.implements(IHTTPVirtualHostChangedEvent)
 
     request = None
 
@@ -231,6 +231,9 @@ class HTTPInputStream(object):
 
 DEFAULT_PORTS = {'http': '80', 'https': '443'}
 
+@zope.interface.implementer(IHTTPCredentials,
+                            IHTTPRequest,
+                            IHTTPApplicationRequest)
 class HTTPRequest(BaseRequest):
     """Model HTTP request data.
 
@@ -276,9 +279,6 @@ class HTTPRequest(BaseRequest):
     values will be looked up in the order: environment variables,
     other variables, form data, and then cookies.
     """
-    zope.interface.implements(IHTTPCredentials,
-                              IHTTPRequest,
-                              IHTTPApplicationRequest)
 
     __slots__ = (
         '__provides__',   # Allow request to directly provide interfaces
@@ -608,8 +608,8 @@ class HTTPRequest(BaseRequest):
 
 
 
+@zope.interface.implementer(IHTTPResponse, IHTTPApplicationResponse)
 class HTTPResponse(BaseResponse):
-    zope.interface.implements(IHTTPResponse, IHTTPApplicationResponse)
 
     __slots__ = (
         'authUser',             # Authenticated user string
@@ -946,9 +946,9 @@ def extract_host(url):
     return host
 
 
+@zope.interface.implementer(IUserPreferredCharsets)
+@zope.component.adapter(IHTTPRequest)
 class HTTPCharsets(object):
-    zope.component.adapts(IHTTPRequest)
-    zope.interface.implements(IUserPreferredCharsets)
 
     def __init__(self, request):
         self.request = request
@@ -1021,6 +1021,7 @@ def getCharsetUsingRequest(request):
     return charset
 
 
+@zope.interface.implementer(IResult)
 class DirectResult(object):
     """A generic result object.
 
@@ -1028,7 +1029,6 @@ class DirectResult(object):
     application to specify all headers related to the content, such as the
     content type and length.
     """
-    zope.interface.implements(IResult)
 
     def __init__(self, body):
         self.body = body

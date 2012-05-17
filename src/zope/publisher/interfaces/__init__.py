@@ -18,7 +18,7 @@ __docformat__ = "reStructuredText"
 from zope.browser.interfaces import IView # BBB import
 from zope.interface import Interface
 from zope.interface import Attribute
-from zope.interface import implements
+from zope.interface import implementer
 from zope.interface.interfaces import IInterface
 from zope.interface.common.mapping import IEnumerableMapping
 from zope.interface.common.interfaces import IException
@@ -29,14 +29,16 @@ from zope.security.interfaces import Unauthorized
 class IPublishingException(IException):
     pass
 
+@implementer(IPublishingException)
 class PublishingException(Exception):
-    implements(IPublishingException)
+    pass
 
 class ITraversalException(IPublishingException):
     pass
 
+@implementer(ITraversalException)
 class TraversalException(PublishingException):
-    implements(ITraversalException)
+    pass
 
 class INotFound(ILookupError, ITraversalException):
     def getObject():
@@ -45,8 +47,8 @@ class INotFound(ILookupError, ITraversalException):
     def getName():
         'Returns the name that was being traversed.'
 
+@implementer(INotFound)
 class NotFound(LookupError, TraversalException):
-    implements(INotFound)
 
     def __init__(self, ob, name, request=None):
         self.ob = ob
@@ -72,8 +74,8 @@ class IDebugError(ITraversalException):
     def getMessage():
         'Returns the debug message.'
 
+@implementer(IDebugError)
 class DebugError(TraversalException):
-    implements(IDebugError)
 
     message = None # override this not to cause warnings in python 2.6
 
@@ -94,9 +96,8 @@ class IBadRequest(IPublishingException):
     def __str__():
         'Returns the error message.'
 
+@implementer(IBadRequest)
 class BadRequest(PublishingException):
-
-    implements(IBadRequest)
 
     message = None # override this not to cause warnings in python 2.6
 
@@ -110,9 +111,8 @@ class IRedirect(IPublishingException):
     def getLocation():
         'Returns the location.'
 
+@implementer(IRedirect)
 class Redirect(PublishingException):
-
-    implements(IRedirect)
 
     def __init__(self, location):
         self.location = location
@@ -127,10 +127,9 @@ class IRetry(IPublishingException):
     def getOriginalException():
         'Returns the original exception object.'
 
+@implementer(IRetry)
 class Retry(PublishingException):
     """Raise this to retry a request."""
-
-    implements(IRetry)
 
     def __init__(self, orig_exc=None):
         """orig_exc must be a 3-tuple as returned from sys.exc_info() or None"""
@@ -487,20 +486,18 @@ class RequestEvent(object):
         self.request = request
 
 
+@implementer(IEndRequestEvent)
 class EndRequestEvent(RequestEvent):
     """An event which gets sent when the publication is ended"""
-
-    implements(IEndRequestEvent)
 
     def __init__(self, ob, request):
         super(EndRequestEvent, self).__init__(request)
         self.object = ob
 
 
+@implementer(IStartRequestEvent)
 class StartRequestEvent(RequestEvent):
     """An event send when before publication of a request."""
-
-    implements(IStartRequestEvent)
 
 
 class ISkinType(IInterface):

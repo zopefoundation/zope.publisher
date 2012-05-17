@@ -29,7 +29,7 @@ from zope.interface.verify import verifyObject
 from zope.security.checker import ProxyFactory
 from zope.security.proxy import removeSecurityProxy
 
-from zope.interface import implements
+from zope.interface import implementer
 from zope.publisher.interfaces.logginginfo import ILoggingInfo
 from zope.publisher.http import HTTPRequest, HTTPResponse
 from zope.publisher.http import HTTPInputStream, DirectResult, HTTPCharsets
@@ -50,8 +50,8 @@ from zope.publisher.tests.basetestiapplicationrequest \
 
 
 
+@implementer(ILoggingInfo)
 class UserStub(object):
-    implements(ILoggingInfo)
 
     def __init__(self, id):
         self._id = id

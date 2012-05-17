@@ -18,7 +18,7 @@ specified here.
 """
 from cStringIO import StringIO
 
-from zope.interface import implements, providedBy
+from zope.interface import implementer
 from zope.interface.common.mapping import IReadMapping, IEnumerableMapping
 from zope.exceptions.exceptionformatter import print_exception
 from zope.security.proxy import removeSecurityProxy
@@ -30,6 +30,7 @@ from zope.publisher.publish import mapply
 
 _marker = object()
 
+@implementer(IResponse)
 class BaseResponse(object):
     """Base Response Class
     """
@@ -39,7 +40,6 @@ class BaseResponse(object):
         '_request',   # The associated request (if any)
         )
 
-    implements(IResponse)
 
     def __init__(self):
         self._request = None
@@ -67,9 +67,8 @@ class BaseResponse(object):
         'See IPublisherResponse'
         return self.__class__()
 
+@implementer(IReadMapping)
 class RequestDataGetter(object):
-
-    implements(IReadMapping)
 
     def __init__(self, request):
         self.__get = getattr(request, self._gettrname)
@@ -86,9 +85,8 @@ class RequestDataGetter(object):
 
     has_key = __contains__
 
+@implementer(IEnumerableMapping)
 class RequestDataMapper(object):
-
-    implements(IEnumerableMapping)
 
     def __init__(self, request):
         self.__map = getattr(request, self._mapname)
@@ -137,15 +135,15 @@ class RequestEnvironment(RequestDataMapper):
     _mapname = '_environ'
 
 
+@implementer(IDebugFlags)
 class DebugFlags(object):
     """Debugging flags."""
-
-    implements(IDebugFlags)
 
     sourceAnnotations = False
     showTAL = False
 
 
+@implementer(IRequest)
 class BaseRequest(object):
     """Represents a publishing request.
 
@@ -158,8 +156,6 @@ class BaseRequest(object):
     The request object is a mapping object that represents a
     collection of variable to value mappings.
     """
-
-    implements(IRequest)
 
     __slots__ = (
         '__provides__',      # Allow request to directly provide interfaces
@@ -406,6 +402,7 @@ class TestRequest(BaseRequest):
 
         super(TestRequest, self).__init__(body_instream, environ)
 
+@implementer(IPublication)
 class DefaultPublication(object):
     """A stub publication.
 
@@ -413,7 +410,6 @@ class DefaultPublication(object):
     starting with an underscore and any objects (specifically: method)
     that doesn't have a docstring.
     """
-    implements(IPublication)
 
     require_docstrings = True
 

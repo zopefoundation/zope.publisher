@@ -15,11 +15,10 @@
 """
 
 from zope.publisher.interfaces import IPublication
-from zope.interface import implements
+from zope.interface import implementer
 
+@implementer(IPublication)
 class TestPublication(object):
-
-    implements(IPublication)
 
     def afterCall(self, request, ob):
         '''See interface IPublication'''

@@ -16,7 +16,7 @@ import sys
 import unittest
 from StringIO import StringIO
 
-from zope.interface import implements, directlyProvides, Interface
+from zope.interface import implementer, directlyProvides, Interface
 from zope.interface.verify import verifyObject
 
 from zope.publisher.publish import publish as publish_
@@ -540,8 +540,8 @@ class BrowserTests(HTTPTests):
         self.assertEqual(request.bodyStream.read(), '')
         self.assertEqual(dict(request.form), dict(x='1', y='2'))
 
+@implementer(IBrowserPublication)
 class TestBrowserPublication(TestPublication):
-    implements(IBrowserPublication)
 
     def getDefaultTraversal(self, request, ob):
         return ob, ()

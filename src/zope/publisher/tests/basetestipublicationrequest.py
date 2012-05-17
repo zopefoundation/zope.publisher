@@ -15,13 +15,13 @@
 """
 import sys
 
-from zope.interface import Interface, directlyProvides, implements
+from zope.interface import Interface, directlyProvides, implementer
 from zope.interface.verify import verifyObject
 from zope.publisher.interfaces import IPublicationRequest, IHeld
 from zope.publisher.interfaces.browser import IBrowserSkinType
 
+@implementer(IHeld)
 class Held:
-    implements(IHeld)
 
     released = False
 

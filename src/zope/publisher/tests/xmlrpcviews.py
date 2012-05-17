@@ -13,13 +13,13 @@
 ##############################################################################
 """XML-RPC Views test objects
 """
-from zope.interface import Interface, implements
+from zope.interface import Interface, implementer
 from zope.publisher.interfaces.xmlrpc import IXMLRPCPublisher
 
 class IC(Interface): pass
 
+@implementer(IXMLRPCPublisher)
 class V1(object):
-    implements(IXMLRPCPublisher)
 
     def __init__(self, context, request):
         self.context = context
@@ -28,11 +28,11 @@ class V1(object):
 class VZMI(V1):
     pass
 
+@implementer(IXMLRPCPublisher)
 class R1(object):
     def __init__(self, request):
         self.request = request
 
-    implements(IXMLRPCPublisher)
 
 class RZMI(R1):
     pass

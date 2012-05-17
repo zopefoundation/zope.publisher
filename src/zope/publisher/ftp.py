@@ -13,7 +13,7 @@
 ##############################################################################
 """FTP Publisher
 """
-from zope.interface import implements
+from zope.interface import implementer
 from zope.publisher.interfaces.ftp import IFTPCredentials, IFTPRequest
 from zope.publisher.base import BaseResponse, BaseRequest
 
@@ -34,8 +34,8 @@ class FTPResponse(BaseResponse):
         self._exc = exc_info
 
 
+@implementer(IFTPCredentials, IFTPRequest)
 class FTPRequest(BaseRequest):
-    implements(IFTPCredentials, IFTPRequest)
 
     __slots__ = '_auth'
 

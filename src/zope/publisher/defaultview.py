@@ -59,8 +59,9 @@ def queryDefaultViewName(object, request, default=None, context=None):
       >>> import zope.interface
       >>> class IMyObject(zope.interface.Interface):
       ...   pass
-      >>> class MyObject(object):
-      ...   zope.interface.implements(IMyObject)
+      >>> @zope.interface.implementer(IMyObject)
+      ... class MyObject(object):
+      ...   pass
       >>> queryDefaultViewName(MyObject(), object()) is None
       True
 

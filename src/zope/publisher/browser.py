@@ -27,7 +27,7 @@ import tempfile
 
 import zope.component
 import zope.interface
-from zope.interface import implements, directlyProvides
+from zope.interface import implementer, directlyProvides
 from zope.i18n.interfaces import IUserPreferredLanguages
 from zope.i18n.interfaces import IUserPreferredCharsets
 from zope.i18n.interfaces import IModifiableUserPreferredLanguages
@@ -218,8 +218,8 @@ class Record(object):
             for key, value in items]) + "}")
 
 _get_or_head = 'GET', 'HEAD'
+@implementer(IBrowserRequest, IBrowserApplicationRequest)
 class BrowserRequest(HTTPRequest):
-    implements(IBrowserRequest, IBrowserApplicationRequest)
 
     __slots__ = (
         '__provides__', # Allow request to directly provide interfaces
@@ -782,9 +782,9 @@ def normalize_lang(lang):
     lang = lang.replace(' ', '')
     return lang
 
+@zope.component.adapter(IHTTPRequest)
+@implementer(IUserPreferredLanguages)
 class BrowserLanguages(object):
-    zope.component.adapts(IHTTPRequest)
-    implements(IUserPreferredLanguages)
 
     def __init__(self, request):
         self.request = request
@@ -841,9 +841,8 @@ class NotCompatibleAdapterError(Exception):
 
 BROWSER_LANGUAGES_KEY = "zope.publisher.browser.IUserPreferredLanguages"
 
+@implementer(IUserPreferredLanguages)
 class CacheableBrowserLanguages(BrowserLanguages):
-
-    implements(IUserPreferredLanguages)
 
     def getPreferredLanguages(self):
         languages_data = self._getLanguagesData()
@@ -861,9 +860,8 @@ class CacheableBrowserLanguages(BrowserLanguages):
             annotations[BROWSER_LANGUAGES_KEY] = languages_data = {}
         return languages_data
 
+@implementer(IModifiableUserPreferredLanguages)
 class ModifiableBrowserLanguages(CacheableBrowserLanguages):
-
-    implements(IModifiableUserPreferredLanguages)
 
     def setPreferredLanguages(self, languages):
         languages_data = self.request.annotations.get(BROWSER_LANGUAGES_KEY)
@@ -877,6 +875,7 @@ class ModifiableBrowserLanguages(CacheableBrowserLanguages):
         languages_data["overridden"] = languages
         self.request.setupLocale()
 
+@implementer(IBrowserView)
 class BrowserView(Location):
     """Browser View.
 
@@ -892,7 +891,6 @@ class BrowserView(Location):
     >>> view.__parent__
     'parent'
     """
-    implements(IBrowserView)
 
     def __init__(self, context, request):
         self.context = context
@@ -906,6 +904,7 @@ class BrowserView(Location):
 
     __parent__ = property(__getParent, __setParent)
 
+@implementer(IBrowserPage)
 class BrowserPage(BrowserView):
     """Browser page
 
@@ -957,7 +956,6 @@ class BrowserPage(BrowserView):
     It is the subclass' responsibility to do that.
 
     """
-    implements(IBrowserPage)
 
     def browserDefault(self, request):
         return self, ()

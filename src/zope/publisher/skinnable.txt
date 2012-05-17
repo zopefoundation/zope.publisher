@@ -82,9 +82,9 @@ interface:
 
   >>> import zope.interface
   >>> from zope.publisher.base import BaseRequest
-  >>> class JSONRequest(BaseRequest):
+  >>> @zope.interface.implementer(IJSONRequest)
+  ... class JSONRequest(BaseRequest):
   ...     """JSON request implementation."""
-  ...     zope.interface.implements(IJSONRequest)
 
 Now our request provides IJSONRequest because it implement that interface:
 

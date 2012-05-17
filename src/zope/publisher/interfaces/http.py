@@ -18,7 +18,7 @@ __docformat__ = "reStructuredText"
 
 from zope.interface import Interface
 from zope.interface import Attribute
-from zope.interface import implements
+from zope.interface import implementer
 from zope.interface.common.interfaces import IException
 
 from zope.publisher.interfaces import IApplicationRequest
@@ -496,10 +496,10 @@ class IMethodNotAllowed(IException):
     request = Attribute("""The request in which the error occurred""")
 
 
+@implementer(IMethodNotAllowed)
 class MethodNotAllowed(Exception):
     """An exception that signals the 405 Method Not Allowed HTTP error"""
 
-    implements(IMethodNotAllowed)
 
     def __init__(self, object, request):
         self.object = object

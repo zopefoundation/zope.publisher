@@ -27,10 +27,10 @@ import zope.interface.interfaces
 from zope.publisher import interfaces
 
 
+@zope.interface.implementer(interfaces.ISkinChangedEvent)
 class SkinChangedEvent(object):
     """Skin changed event."""
 
-    zope.interface.implements(interfaces.ISkinChangedEvent)
 
     def __init__(self, request):
         self.request = request
