@@ -36,6 +36,8 @@ def interaction(principal_id, **kw):
         # There already is an interaction. Great. Leave it alone.
         yield
     else:
-        principal = create_interaction(principal_id)
-        yield principal
-        zope.security.management.endInteraction()
+        principal = create_interaction(principal_id, **kw)
+        try:
+            yield principal
+        finally:
+            zope.security.management.endInteraction()

@@ -12,6 +12,8 @@ CHANGES
 
 - Dropped support for Python 2.4 and 2.5.
 
+- Wrap ``with interaction()`` in try/finally.
+
 
 3.13.0 (2011-11-17)
 -------------------

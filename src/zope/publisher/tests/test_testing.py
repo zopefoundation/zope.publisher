@@ -20,6 +20,9 @@ import zope.security.management
 
 class InteractionHelperTest(unittest.TestCase):
 
+    def tearDown(self):
+        zope.security.management.endInteraction()
+
     def test_create_interaction_should_return_principal(self):
         principal = zope.publisher.testing.create_interaction(
             'foo', groups=['bar'], description='desc')
@@ -34,3 +37,12 @@ class InteractionHelperTest(unittest.TestCase):
             interaction = zope.security.management.getInteraction()
             request = interaction.participations[0]
             self.assertEqual('foo', request.principal.id)
+        self.assertFalse(zope.security.management.queryInteraction())
+
+    def test_contextmanager_ends_interaction_on_exception(self):
+        try:
+            with zope.publisher.testing.interaction('foo'):
+                raise RuntimeError()
+        except RuntimeError:
+            pass
+        self.assertFalse(zope.security.management.queryInteraction())
