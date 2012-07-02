@@ -1,7 +1,7 @@
 CHANGES
 =======
 
-3.13.1 (unreleased)
+3.13.1 (2012-07-02)
 -------------------
 
 - Wrap ``with interaction()`` in try/finally.
