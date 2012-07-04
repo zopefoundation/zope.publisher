@@ -18,9 +18,8 @@ import zope.security.management
 import zope.security.testing
 
 
-# The interaction helpers conceptually rather belong to zope.security, but
-# since that doesn't (and shouldn't) depend on zope.publisher, we have to put
-# them here, unfortunately.
+# These are enhanced versions of the ones in zope.security.testing,
+# they use a TestRequest instead of a TestParticipation.
 
 def create_interaction(principal_id, **kw):
     principal = zope.security.testing.Principal(principal_id, **kw)
