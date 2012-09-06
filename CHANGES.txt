@@ -14,6 +14,12 @@ CHANGES
 
 - Wrap ``with interaction()`` in try/finally.
 
+- Don't guess the content type with 304 responses which MUST NOT /
+  SHOULD NOT include it according to:
+  http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.5
+
+  Unfortunately, the content type will still be guessed if the result is
+  set before the status.
 
 3.13.0 (2011-11-17)
 -------------------

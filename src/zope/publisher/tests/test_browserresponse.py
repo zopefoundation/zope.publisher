@@ -85,6 +85,18 @@ class TestBrowserResponse(TestCase):
             response.getHeader('content-type').startswith("text/plain")
             )
 
+    def test_not_DWIM_for_304_response(self):
+        # Don't guess the content type with 304 responses which MUST NOT /
+        # SHOULD NOT include it.
+        # 
+        # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.5
+        #
+        # NOTE: The content type is sill guessed if status us set after
+        #       the result :(
+        response = BrowserResponse()
+        response.setStatus(304)
+        response.setResult('')
+        self.assertEqual(response.getHeader('content-type'), None)
 
     def testInsertBase(self):
         response = BrowserResponse()
