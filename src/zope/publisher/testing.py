@@ -12,10 +12,18 @@
 #
 ##############################################################################
 
+import sys
 import contextlib
 import zope.publisher.browser
 import zope.security.management
 import zope.security.testing
+
+PY2 = sys.version_info[0] == 2
+
+if PY2:
+    _u = unicode
+else:
+    _u = str
 
 
 # These are enhanced versions of the ones in zope.security.testing,

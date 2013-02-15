@@ -14,7 +14,7 @@
 """XML-RPC Request Tests
 """
 import unittest
-from StringIO import StringIO
+from io import BytesIO
 
 from zope.publisher.base import DefaultPublication
 from zope.publisher.http import HTTPCharsets
@@ -39,7 +39,7 @@ class TestXMLRPCRequest(XMLRPCRequest, HTTPCharsets):
         XMLRPCRequest.__init__(self, *args, **kw)
 
 
-xmlrpc_call = u'''<?xml version='1.0'?>
+xmlrpc_call = '''<?xml version='1.0'?>
 <methodCall>
   <methodName>action</methodName>
   <params>
@@ -109,7 +109,7 @@ class XMLRPCTests(unittest.TestCase):
             env['CONTENT_LENGTH'] = str(len(body))
 
         publication = Publication(self.app)
-        instream = StringIO(body)
+        instream = BytesIO(body)
         request = TestXMLRPCRequest(instream, env)
         request.setPublication(publication)
         return request

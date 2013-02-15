@@ -21,7 +21,6 @@ packaged into a nice, Python-friendly 'FileUpload' object.
 __docformat__ = 'restructuredtext'
 
 import re
-from types import ListType, TupleType, StringType
 from cgi import FieldStorage
 import tempfile
 
@@ -53,7 +52,7 @@ from zope.publisher.skinnable import applySkin #BBB import
 from zope.publisher.skinnable import SkinChangedEvent #BBB import
 
 
-__ArrayTypes = (ListType, TupleType)
+__ArrayTypes = (list, tuple)
 
 start_of_header_search=re.compile('(<head[^>]*>)', re.I).search
 base_re_search=re.compile('(<base.*?>)',re.I).search
@@ -89,7 +88,7 @@ def field2required(v):
 
 def field2int(v):
     if isinstance(v, __ArrayTypes):
-        return map(field2int, v)
+        return list(map(field2int, v))
     v = field2string(v)
     if not v:
         raise ValueError('Empty entry when <strong>integer</strong> expected')
@@ -100,7 +99,7 @@ def field2int(v):
 
 def field2float(v):
     if isinstance(v, __ArrayTypes):
-        return map(field2float, v)
+        return list(map(field2float, v))
     v = field2string(v)
     if not v:
         raise ValueError(
@@ -113,7 +112,7 @@ def field2float(v):
 
 def field2long(v):
     if isinstance(v, __ArrayTypes):
-        return map(field2long, v)
+        return list(map(field2long, v))
     v = field2string(v)
 
     # handle trailing 'L' if present.
@@ -122,7 +121,7 @@ def field2long(v):
     if not v:
         raise ValueError('Empty entry when <strong>integer</strong> expected')
     try:
-        return long(v)
+        return int(v)
     except ValueError:
         raise ValueError("A long integer was expected in the value '%s'" % v)
 
@@ -165,7 +164,7 @@ def registerTypeConverter(field_type, converter, replace=False):
     type_converters[field_type] = converter
 
 
-isCGI_NAME = {
+isCGI_NAME = lambda key: key in {
     # These fields are placed in request.environ instead of request.form.
     'SERVER_SOFTWARE' : 1,
     'SERVER_NAME' : 1,
@@ -185,12 +184,12 @@ isCGI_NAME = {
     'CONTENT_TYPE' : 1,
     'CONTENT_LENGTH' : 1,
     'SERVER_URL': 1,
-    }.has_key
+    }
 
-hide_key={
+hide_key=lambda key: key in {
     'HTTP_AUTHORIZATION':1,
     'HTTP_CGI_AUTHORIZATION': 1,
-    }.has_key
+     }
 
 class Record(object):
 
@@ -206,12 +205,12 @@ class Record(object):
         return self.__dict__[key]
 
     def __str__(self):
-        items = self.__dict__.items()
+        items = list(self.__dict__.items())
         items.sort()
         return "{" + ", ".join(["%s: %s" % item for item in items]) + "}"
 
     def __repr__(self):
-        items = self.__dict__.items()
+        items = list(self.__dict__.items())
         items.sort()
         return ("{"
             + ", ".join(["%s: %s" % (key, repr(value))
@@ -393,7 +392,7 @@ class BrowserRequest(HTTPRequest):
         if key is not None:
             key = self._decode(key)
 
-        if type(item) == StringType:
+        if type(item) == str:
             item = self._decode(item)
 
         if flags:
@@ -583,7 +582,7 @@ class BrowserRequest(HTTPRequest):
         d.update(self._environ)
         d.update(self._cookies)
         d.update(self.form)
-        return d.keys()
+        return list(d.keys())
 
 
     def get(self, key, default=None):
@@ -661,8 +660,8 @@ class TestRequest(BrowserRequest):
         if kw:
             _testEnv.update(kw)
         if body_instream is None:
-            from StringIO import StringIO
-            body_instream = StringIO('')
+            from io import BytesIO
+            body_instream = BytesIO()
 
         super(TestRequest, self).__init__(body_instream, _testEnv)
         if form:

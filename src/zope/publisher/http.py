@@ -13,7 +13,8 @@
 ##############################################################################
 """HTTP Publisher
 """
-from cStringIO import StringIO
+import sys
+from io import BytesIO
 from zope.i18n.interfaces import IUserPreferredCharsets
 from zope.i18n.interfaces import IUserPreferredLanguages
 from zope.i18n.locales import locales, LoadLocaleError
@@ -31,18 +32,23 @@ from zope.publisher.interfaces.http import IHTTPVirtualHostChangedEvent
 from zope.publisher.interfaces.http import IResult
 from zope.publisher.interfaces.logginginfo import ILoggingInfo
 from zope.publisher.skinnable import setDefaultSkin
-import Cookie
 import cgi
 import logging
 import tempfile
 import types
-import urllib
-import urlparse
 import zope.component
 import zope.contenttype.parse
 import zope.event
 import zope.interface
 
+PY2 = sys.version_info[0] == 2
+if PY2:
+    import Cookie as cookies
+    from urllib import splitport, quote
+    from urlparse import urlsplit
+else:
+    import http.cookies as cookies
+    from urllib.parse import splitport, quote, urlsplit
 
 # Default Encoding
 ENCODING = 'UTF-8'
@@ -176,7 +182,7 @@ class URLGetter(object):
                 return self.__request.getURL(i)
             else:
                 return self.__request.getApplicationURL(i)
-        except IndexError, v:
+        except IndexError as v:
             if v[0] == i:
                 return default
             raise
@@ -195,7 +201,7 @@ class HTTPInputStream(object):
         if not size:
             size = environment.get('HTTP_CONTENT_LENGTH')
         if not size or int(size) < 65536:
-            self.cacheStream = StringIO()
+            self.cacheStream = BytesIO()
         else:
             self.cacheStream = tempfile.TemporaryFile()
         self.size = size and int(size) or -1
@@ -352,7 +358,7 @@ class HTTPRequest(BaseRequest):
         script = get_env('SCRIPT_NAME', '').strip()
 
         # _script and the other _names are meant for URL construction
-        self._app_names = filter(None, script.split('/'))
+        self._app_names = [f for f in script.split('/') if f]
 
         # get server URL and store it too, since we are already looking it up
         server_url = get_env('SERVER_URL', None)
@@ -381,7 +387,7 @@ class HTTPRequest(BaseRequest):
 
         if environ.has_key('HTTP_HOST'):
             host = environ['HTTP_HOST'].strip()
-            hostname, port = urllib.splitport(host)
+            hostname, port = splitport(host)
         else:
             hostname = environ.get('SERVER_NAME', '').strip()
             port = environ.get('SERVER_PORT', '')
@@ -401,8 +407,8 @@ class HTTPRequest(BaseRequest):
 
         # ignore cookies on a CookieError
         try:
-            c = Cookie.SimpleCookie(text)
-        except Cookie.CookieError, e:
+            c = cookies.SimpleCookie(text)
+        except cookies.CookieError as e:
             eventlog.warn(e)
             return result
 
@@ -521,8 +527,7 @@ class HTTPRequest(BaseRequest):
                 raise IndexError(level)
             names = names[:-level]
         # See: http://www.ietf.org/rfc/rfc2718.txt, Section 2.2.5
-        names = [urllib.quote(name.encode("utf-8"), safe='/+@')
-                 for name in names]
+        names = [quote(name.encode("utf-8"), safe='/+@') for name in names]
 
         if path_only:
             if not names:
@@ -544,8 +549,7 @@ class HTTPRequest(BaseRequest):
             names = self._app_names
 
         # See: http://www.ietf.org/rfc/rfc2718.txt, Section 2.2.5
-        names = [urllib.quote(name.encode("utf-8"), safe='/+@')
-                 for name in names]
+        names = [quote(name.encode("utf-8"), safe='/+@') for name in names]
 
         if path_only:
             return names and ('/' + '/'.join(names)) or '/'
@@ -900,8 +904,8 @@ class HTTPResponse(BaseResponse):
 
     def _cookie_list(self):
         try:
-            c = Cookie.SimpleCookie()
-        except Cookie.CookieError, e:
+            c = cookies.SimpleCookie()
+        except cookies.CookieError as e:
             eventlog.warn(e)
             return []
         for name, attrs in self._cookies.items():
@@ -918,7 +922,7 @@ class HTTPResponse(BaseResponse):
                     k = 'max-age'
                 elif k == 'comment':
                     # Encode rather than throw an exception
-                    v = urllib.quote(v.encode('utf-8'), safe="/?:@&+")
+                    v = quote(v.encode('utf-8'), safe="/?:@&+")
                 c[name][k] = str(v)
         return str(c).splitlines()
 
@@ -938,7 +942,7 @@ def sort_charsets(x, y):
 
 
 def extract_host(url):
-    scheme, host, path, query, fragment = urlparse.urlsplit(url)
+    scheme, host, path, query, fragment = urlsplit(url)
     if ':' not in host:
         port = DEFAULT_PORTS.get(scheme)
         if port:
