@@ -88,8 +88,11 @@ interface:
 
 Now our request provides IJSONRequest because it implement that interface:
 
-  >>> from StringIO import StringIO
-  >>> request = JSONRequest(StringIO(''), {})
+  >>> try:
+  ...     from StringIO import BytesIO
+  ... except ImportError:
+  ...     from io import BytesIO
+  >>> request = JSONRequest(BytesIO(b''), {})
   >>> IJSONRequest.providedBy(request)
   True
 

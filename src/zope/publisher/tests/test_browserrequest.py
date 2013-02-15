@@ -14,7 +14,6 @@
 
 import sys
 import unittest
-from StringIO import StringIO
 
 from zope.interface import implementer, directlyProvides, Interface
 from zope.interface.verify import verifyObject
@@ -38,6 +37,11 @@ from zope.publisher.tests.basetestipublisherrequest \
      import BaseTestIPublisherRequest
 from zope.publisher.tests.basetestiapplicationrequest \
      import BaseTestIApplicationRequest
+
+try:
+    from cStringIO import StringIO as BytesIO
+except ImportError:
+    from io import BytesIO
 
 LARGE_FILE_BODY = """-----------------------------1
 Content-Disposition: form-data; name="upload"; filename="test"
@@ -101,7 +105,7 @@ class BrowserTests(HTTPTests):
         class Item(object):
             """Required docstring for the publisher."""
             def __call__(self, a, b):
-                return u"%s, %s" % (`a`, `b`)
+                return u"%s, %s" % (repr(a), repr(b))
 
         class Item3(object):
             """Required docstring for the publisher."""
@@ -115,7 +119,7 @@ class BrowserTests(HTTPTests):
 
             def index(self, a, b):
                 """Required docstring for the publisher."""
-                return u"%s, %s" % (`a`, `b`)
+                return u"%s, %s" % (repr(a), repr(b))
 
         class Item2(object):
             """Required docstring for the publisher."""
@@ -131,14 +135,14 @@ class BrowserTests(HTTPTests):
         self.app.folder.item2 = Item2()
         self.app.folder.item3 = Item3()
 
-    def _createRequest(self, extra_env={}, body=""):
+    def _createRequest(self, extra_env={}, body=b''):
         env = self._testEnv.copy()
         env.update(extra_env)
         if len(body):
             env['CONTENT_LENGTH'] = str(len(body))
 
         publication = Publication(self.app)
-        instream = StringIO(body)
+        instream = BytesIO(body)
         request = TestBrowserRequest(instream, env)
         request.setPublication(publication)
         return request

@@ -14,11 +14,15 @@
 """XML-RPC Request Tests
 """
 import unittest
-from StringIO import StringIO
 
 from zope.publisher.base import DefaultPublication
 from zope.publisher.http import HTTPCharsets
 from zope.publisher.xmlrpc import XMLRPCRequest
+
+try:
+    from cStringIO import StringIO as BytesIO
+except ImportError:
+    from io import BytesIO
 
 class Publication(DefaultPublication):
 
@@ -39,7 +43,7 @@ class TestXMLRPCRequest(XMLRPCRequest, HTTPCharsets):
         XMLRPCRequest.__init__(self, *args, **kw)
 
 
-xmlrpc_call = u'''<?xml version='1.0'?>
+xmlrpc_call = b'''<?xml version='1.0'?>
 <methodCall>
   <methodName>action</methodName>
   <params>
@@ -57,16 +61,16 @@ class XMLRPCTests(unittest.TestCase):
     """
 
     _testEnv =  {
-        'PATH_INFO':          '/folder/item2/view/',
-        'QUERY_STRING':       '',
-        'SERVER_URL':         'http://foobar.com',
-        'HTTP_HOST':          'foobar.com',
-        'CONTENT_LENGTH':     '0',
-        'REQUEST_METHOD':     'POST',
-        'HTTP_AUTHORIZATION': 'Should be in accessible',
-        'GATEWAY_INTERFACE':  'TestFooInterface/1.0',
-        'HTTP_OFF_THE_WALL':  "Spam 'n eggs",
-        'HTTP_ACCEPT_CHARSET': 'ISO-8859-1, UTF-8;q=0.66, UTF-16;q=0.33',
+        'PATH_INFO':           b'/folder/item2/view/',
+        'QUERY_STRING':        b'',
+        'SERVER_URL':          b'http://foobar.com',
+        'HTTP_HOST':           b'foobar.com',
+        'CONTENT_LENGTH':      b'0',
+        'REQUEST_METHOD':      b'POST',
+        'HTTP_AUTHORIZATION':  b'Should be in accessible',
+        'GATEWAY_INTERFACE':   b'TestFooInterface/1.0',
+        'HTTP_OFF_THE_WALL':   b"Spam 'n eggs",
+        'HTTP_ACCEPT_CHARSET': b'ISO-8859-1, UTF-8;q=0.66, UTF-16;q=0.33',
     }
 
     def setUp(self):
@@ -81,7 +85,7 @@ class XMLRPCTests(unittest.TestCase):
         class Item(object):
 
             def __call__(self, a, b):
-                return "%s, %s" % (`a`, `b`)
+                return "%s, %s" % (repr(a), repr(b))
 
             def doit(self, a, b):
                 return 'do something %s %s' % (a, b)
@@ -90,7 +94,7 @@ class XMLRPCTests(unittest.TestCase):
 
             def action(self, a):
                 return "Parameter[type: %s; value: %s" %(
-                    type(a).__name__, `a`)
+                    type(a).__name__, repr(a))
 
         class Item2(object):
             view = View()
@@ -102,14 +106,14 @@ class XMLRPCTests(unittest.TestCase):
         self.app.folder.item2 = Item2()
 
 
-    def _createRequest(self, extra_env={}, body=""):
+    def _createRequest(self, extra_env={}, body=b''):
         env = self._testEnv.copy()
         env.update(extra_env)
         if len(body):
             env['CONTENT_LENGTH'] = str(len(body))
 
         publication = Publication(self.app)
-        instream = StringIO(body)
+        instream = BytesIO(body)
         request = TestXMLRPCRequest(instream, env)
         request.setPublication(publication)
         return request

@@ -13,13 +13,16 @@
 ##############################################################################
 """IPublication Test
 """
-
 import sys
 from unittest import TestCase, main, makeSuite
-from StringIO import StringIO
 from zope.interface.verify import verifyObject
 
 from zope.publisher.interfaces import IPublication
+
+try:
+    from cStringIO import StringIO as BytesIO
+except ImportError:
+    from io import BytesIO
 
 class BaseIPublicationTest(object):
 
@@ -46,7 +49,7 @@ class Test(BaseIPublicationTest, TestCase):
 
     def _Test__request(self):
         from zope.publisher.base import BaseRequest
-        request = BaseRequest(StringIO(''), {})
+        request = BaseRequest(BytesIO(b''), {})
         request.setTraversalStack(['Engineering', 'ZopeCorp'])
         publication = self._Test__new()
         request.setPublication(publication)

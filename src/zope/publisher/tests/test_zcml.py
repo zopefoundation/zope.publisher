@@ -13,7 +13,6 @@
 ##############################################################################
 """Tests for browser:defaultSkin and browser:defaultView directives
 """
-from cStringIO import StringIO
 import doctest
 import unittest
 
@@ -28,6 +27,12 @@ from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.interface import Interface, implementer, providedBy, directlyProvides
 
 import zope.publisher
+
+try:
+    from cStringIO import StringIO as BytesIO
+except ImportError:
+    from io import BytesIO
+
 
 class IOb(Interface):
     pass
@@ -52,7 +57,7 @@ class V2(BrowserView):
 request = TestRequest()
 ob = Ob()
 
-template = """<configure
+template = b"""<configure
    xmlns='http://namespaces.zope.org/zope'
    xmlns:browser='http://namespaces.zope.org/browser'
    i18n_domain='zope'>
@@ -68,7 +73,7 @@ class Test(cleanup.CleanUp, unittest.TestCase):
     def testDefaultView(self):
         self.assertTrue(
             component.queryMultiAdapter((ob, request), IDefaultViewName) is None)
-        xmlconfig(StringIO(template % (
+        xmlconfig(BytesIO(template % (
             '''
             <browser:defaultView
                 name="test"
@@ -88,8 +93,8 @@ class Test(cleanup.CleanUp, unittest.TestCase):
             component.queryMultiAdapter((ob, request2), IDefaultViewName),
             None)
 
-        xmlconfig(StringIO(template % (
-            '''
+        xmlconfig(BytesIO(template % (
+            b'''
             <browser:defaultView
                 for="zope.publisher.tests.test_zcml.IOb"
                 name="test"
@@ -114,8 +119,8 @@ class Test(cleanup.CleanUp, unittest.TestCase):
             component.queryMultiAdapter((ob, request), IDefaultViewName),
             None)
 
-        xmlconfig(StringIO(template % (
-            '''
+        xmlconfig(BytesIO(template % (
+            b'''
             <browser:defaultView
                 for="zope.publisher.tests.test_zcml.Ob"
                 name="test"
@@ -134,8 +139,8 @@ class Test(cleanup.CleanUp, unittest.TestCase):
             None)
 
         XMLConfig('meta.zcml', component)()
-        xmlconfig(StringIO(template % (
-            '''
+        xmlconfig(BytesIO(template % (
+            b'''
             <interface
                 interface="
                   zope.publisher.tests.test_zcml.ITestSkin"

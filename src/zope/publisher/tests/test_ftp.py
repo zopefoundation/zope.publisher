@@ -14,14 +14,18 @@
 """FTP Publisher Tests
 """
 import sys
-from cStringIO import StringIO
 from unittest import TestCase, TestSuite, main, makeSuite
 import zope.publisher.ftp
+
+try:
+    from cStringIO import StringIO as BytesIO
+except ImportError:
+    from io import BytesIO
 
 class Test(TestCase):
 
     def setUp(self):
-        self.__input = StringIO('')
+        self.__input = BytesIO(b'')
         env = {'credentials': ('bob', '123'),
                'path': '/a/b/c',
                'command': 'foo',

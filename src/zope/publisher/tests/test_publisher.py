@@ -26,7 +26,10 @@ from zope.publisher.interfaces import IPublication, IReRaiseException, \
 from zope.interface.verify import verifyClass
 from zope.interface import implementedBy
 
-from StringIO import StringIO
+try:
+    from cStringIO import StringIO as BytesIO
+except ImportError:
+    from io import BytesIO
 
 class ErrorToRetry(Exception):
     """A sample exception that should be retried."""
@@ -65,7 +68,7 @@ class PublisherTests(unittest.TestCase):
         publication = DefaultPublication(self.app)
         path = path.split('/')
         path.reverse()
-        request = TestRequest(StringIO(''), **kw)
+        request = TestRequest(BytesIO(b''), **kw)
         request.setTraversalStack(path)
         request.setPublication(publication)
         return request

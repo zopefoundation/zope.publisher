@@ -13,7 +13,17 @@
 ##############################################################################
 """HTTP Publisher
 """
-from cStringIO import StringIO
+import base64
+import cgi
+import logging
+import re
+import tempfile
+import types
+import urllib
+import zope.component
+import zope.contenttype.parse
+import zope.event
+import zope.interface
 from zope.i18n.interfaces import IUserPreferredCharsets
 from zope.i18n.interfaces import IUserPreferredLanguages
 from zope.i18n.locales import locales, LoadLocaleError
@@ -31,24 +41,34 @@ from zope.publisher.interfaces.http import IHTTPVirtualHostChangedEvent
 from zope.publisher.interfaces.http import IResult
 from zope.publisher.interfaces.logginginfo import ILoggingInfo
 from zope.publisher.skinnable import setDefaultSkin
-import Cookie
-import cgi
-import logging
-import tempfile
-import types
-import urllib
-import urlparse
-import zope.component
-import zope.contenttype.parse
-import zope.event
-import zope.interface
 
+try:
+    from cStringIO import StringIO as BytesIO
+except ImportError:
+    from io import BytesIO
+
+try:
+    import Cookie as cookies
+except ImportError:
+    # Py3
+    from http import cookies
+
+try:
+    import urlparse
+except ImportError:
+    # Py3
+    from urllib.parse import urlparse
+
+try:
+    unicode
+except NameError:
+    # Py3
+    unicode = str
 
 # Default Encoding
 ENCODING = 'UTF-8'
 
 # not just text/* but RFC 3023 and */*+xml
-import re
 unicode_mimetypes_re = re.compile(r"^text\/.*$|^.*\/xml.*$|^.*\+xml$")
 
 eventlog = logging.getLogger('eventlog')
@@ -176,7 +196,7 @@ class URLGetter(object):
                 return self.__request.getURL(i)
             else:
                 return self.__request.getApplicationURL(i)
-        except IndexError, v:
+        except IndexError as v:
             if v[0] == i:
                 return default
             raise
@@ -195,7 +215,7 @@ class HTTPInputStream(object):
         if not size:
             size = environment.get('HTTP_CONTENT_LENGTH')
         if not size or int(size) < 65536:
-            self.cacheStream = StringIO()
+            self.cacheStream = BytesIO()
         else:
             self.cacheStream = tempfile.TemporaryFile()
         self.size = size and int(size) or -1
@@ -214,7 +234,7 @@ class HTTPInputStream(object):
         # Previous versions of Twisted did not support the ``size`` argument
         # See http://twistedmatrix.com/trac/ticket/1451
         #     https://bugs.launchpad.net/zope3/+bug/98284
-        # Note, however, that we cannot pass a size of None to cStringIO
+        # Note, however, that we cannot pass a size of None to BytesIO
         # objects, or we'll get a TypeError: an integer is required
         if size is not None:
             data = self.stream.readline(size)
@@ -349,10 +369,10 @@ class HTTPRequest(BaseRequest):
         get_env = self._environ.get
         # Get base info first. This isn't likely to cause
         # errors and might be useful to error handlers.
-        script = get_env('SCRIPT_NAME', '').strip()
+        script = get_env('SCRIPT_NAME', b'').strip()
 
         # _script and the other _names are meant for URL construction
-        self._app_names = filter(None, script.split('/'))
+        self._app_names = list(filter(None, script.split(b'/')))
 
         # get server URL and store it too, since we are already looking it up
         server_url = get_env('SERVER_URL', None)
@@ -361,11 +381,11 @@ class HTTPRequest(BaseRequest):
         else:
             server_url = self.__deduceServerURL()
 
-        if server_url.endswith('/'):
+        if server_url.endswith(b'/'):
             server_url = server_url[:-1]
 
         # strip off leading /'s of script
-        while script.startswith('/'):
+        while script.startswith(b'/'):
             script = script[1:]
 
         self._app_server = server_url
@@ -373,13 +393,13 @@ class HTTPRequest(BaseRequest):
     def __deduceServerURL(self):
         environ = self._environ
 
-        if (environ.get('HTTPS', '').lower() == "on" or
-            environ.get('SERVER_PORT_SECURE') == "1"):
+        if (environ.get('HTTPS', '').lower() == b"on" or
+            environ.get('SERVER_PORT_SECURE') == b"1"):
             protocol = 'https'
         else:
             protocol = 'http'
 
-        if environ.has_key('HTTP_HOST'):
+        if 'HTTP_HOST' in environ:
             host = environ['HTTP_HOST'].strip()
             hostname, port = urllib.splitport(host)
         else:
@@ -401,8 +421,8 @@ class HTTPRequest(BaseRequest):
 
         # ignore cookies on a CookieError
         try:
-            c = Cookie.SimpleCookie(text)
-        except Cookie.CookieError, e:
+            c = cookies.SimpleCookie(text)
+        except cookies.CookieError as e:
             eventlog.warn(e)
             return result
 
@@ -489,9 +509,9 @@ class HTTPRequest(BaseRequest):
 
     def _authUserPW(self):
         'See IHTTPCredentials'
-        if self._auth and self._auth.lower().startswith('basic '):
+        if self._auth and self._auth.lower().startswith(b'basic '):
             encoded = self._auth.split(None, 1)[-1]
-            name, password = encoded.decode("base64").split(':', 1)
+            name, password = base64.decode(encoded).split(':', 1)
             return name, password
 
     def unauthorized(self, challenge):
@@ -833,7 +853,7 @@ class HTTPResponse(BaseResponse):
         Calls self.setBody() with an error response.
         """
         t, v = exc_info[:2]
-        if isinstance(t, (types.ClassType, type)):
+        if isinstance(t, (type, type)):
             if issubclass(t, Redirect):
                 self.redirect(v.getLocation())
                 return
@@ -900,8 +920,8 @@ class HTTPResponse(BaseResponse):
 
     def _cookie_list(self):
         try:
-            c = Cookie.SimpleCookie()
-        except Cookie.CookieError, e:
+            c = cookies.SimpleCookie()
+        except cookies.CookieError as e:
             eventlog.warn(e)
             return []
         for name, attrs in self._cookies.items():
@@ -929,12 +949,8 @@ class HTTPResponse(BaseResponse):
             "for more information."
             )
 
-def sort_charsets(x, y):
-    if y[1] == 'utf-8':
-        return 1
-    if x[1] == 'utf-8':
-        return -1
-    return cmp(y, x)
+def sort_charsets_key(x):
+    return (int(x[1] == 'utf-8'), x)
 
 
 def extract_host(url):
@@ -996,7 +1012,7 @@ class HTTPCharsets(object):
         # range , unlike many other encodings. Since Zope can easily use very
         # different ranges, like providing a French-Chinese dictionary, it is
         # always good to use UTF-8.
-        charsets.sort(sort_charsets)
+        charsets = sorted(charsets, key=sort_charsets_key, reverse=True)
         charsets = [charset for quality, charset in charsets]
         if sawstar and 'utf-8' not in charsets:
             charsets.insert(0, 'utf-8')

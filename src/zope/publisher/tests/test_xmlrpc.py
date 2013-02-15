@@ -14,10 +14,14 @@
 """Testing the XML-RPC Publisher code.
 """
 import doctest
-import xmlrpclib
 import zope.component.testing
 from zope.publisher import xmlrpc
 from zope.security.checker import defineChecker, Checker, CheckerPublic
+
+try:
+    import xmlrpclib
+except ImportError:
+    import xmlrpc.client as xmlrpclib
 
 def setUp(test):
     zope.component.testing.setUp(test)
@@ -40,7 +44,7 @@ def setUp(test):
                   Checker({'value':CheckerPublic}, {}))
 
 def test_suite():
-    return doctest.DocFileSuite( 
+    return doctest.DocFileSuite(
         "xmlrpc.txt", package="zope.publisher",
         setUp=setUp, tearDown=zope.component.testing.tearDown,
         optionflags=doctest.ELLIPSIS

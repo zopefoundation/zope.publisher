@@ -21,7 +21,6 @@ packaged into a nice, Python-friendly 'FileUpload' object.
 __docformat__ = 'restructuredtext'
 
 import re
-from types import ListType, TupleType, StringType
 from cgi import FieldStorage
 import tempfile
 
@@ -51,9 +50,14 @@ from zope.publisher.skinnable import getDefaultSkin #BBB import
 from zope.publisher.skinnable import setDefaultSkin #BBB import
 from zope.publisher.skinnable import applySkin #BBB import
 from zope.publisher.skinnable import SkinChangedEvent #BBB import
+import six
 
+try:
+    from cStringIO import StringIO as BytesIO
+except ImportError:
+    from io import BytesIO
 
-__ArrayTypes = (ListType, TupleType)
+__ArrayTypes = (list, type)
 
 start_of_header_search=re.compile('(<head[^>]*>)', re.I).search
 base_re_search=re.compile('(<base.*?>)',re.I).search
@@ -89,7 +93,7 @@ def field2required(v):
 
 def field2int(v):
     if isinstance(v, __ArrayTypes):
-        return map(field2int, v)
+        return list(map(field2int, v))
     v = field2string(v)
     if not v:
         raise ValueError('Empty entry when <strong>integer</strong> expected')
@@ -100,7 +104,7 @@ def field2int(v):
 
 def field2float(v):
     if isinstance(v, __ArrayTypes):
-        return map(field2float, v)
+        return list(map(field2float, v))
     v = field2string(v)
     if not v:
         raise ValueError(
@@ -113,7 +117,7 @@ def field2float(v):
 
 def field2long(v):
     if isinstance(v, __ArrayTypes):
-        return map(field2long, v)
+        return list(map(field2long, v))
     v = field2string(v)
 
     # handle trailing 'L' if present.
@@ -185,12 +189,12 @@ isCGI_NAME = {
     'CONTENT_TYPE' : 1,
     'CONTENT_LENGTH' : 1,
     'SERVER_URL': 1,
-    }.has_key
+    }.__contains__
 
 hide_key={
     'HTTP_AUTHORIZATION':1,
     'HTTP_CGI_AUTHORIZATION': 1,
-    }.has_key
+    }.__contains__
 
 class Record(object):
 
@@ -393,7 +397,7 @@ class BrowserRequest(HTTPRequest):
         if key is not None:
             key = self._decode(key)
 
-        if type(item) == StringType:
+        if isinstance(item, bytes):
             item = self._decode(item)
 
         if flags:
@@ -516,7 +520,7 @@ class BrowserRequest(HTTPRequest):
         """Insert defaults into form dictionary."""
         form = self.form
 
-        for keys, values in self.__defaults.iteritems():
+        for keys, values in six.iteritems(self.__defaults):
             if not keys in form:
                 form[keys] = values
             else:
@@ -661,8 +665,7 @@ class TestRequest(BrowserRequest):
         if kw:
             _testEnv.update(kw)
         if body_instream is None:
-            from StringIO import StringIO
-            body_instream = StringIO('')
+            body_instream = BytesIO(b'')
 
         super(TestRequest, self).__init__(body_instream, _testEnv)
         if form:

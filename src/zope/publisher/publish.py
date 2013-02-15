@@ -15,6 +15,7 @@
 
 Provide an apply-like facility that works with any mapping object
 """
+import six
 import sys
 from zope import component
 from zope.interface import implementer
@@ -64,8 +65,8 @@ def mapply(obj, positional=(), request={}):
 
     unwrapped, wrapperCount = unwrapMethod(unwrapped)
 
-    code = unwrapped.func_code
-    defaults = unwrapped.func_defaults
+    code = unwrapped.__code__
+    defaults = unwrapped.__defaults__
     names = code.co_varnames[wrapperCount:code.co_argcount]
 
     nargs = len(names)
@@ -154,7 +155,7 @@ def publish(request, handle_errors=True):
 
                     break # Successful.
 
-                except Retry, retryException:
+                except Retry as retryException:
                     if request.supportsRetry():
                         # Create a copy of the request and use it.
                         newrequest = request.retry()
@@ -187,7 +188,7 @@ def publish(request, handle_errors=True):
 
         response = request.response
         if to_raise is not None:
-            raise to_raise[0], to_raise[1], to_raise[2]
+            six.reraise(to_raise[0], to_raise[1], to_raise[2])
 
     finally:
         to_raise = None  # Avoid circ. ref.
@@ -201,8 +202,7 @@ def publish(request, handle_errors=True):
 @implementer(IReRaiseException)
 class DoNotReRaiseException(object):
     """Marker adapter for exceptions that should not be re-raised"""
-    
-    
+
     def __init__(self, exc):
         pass
 

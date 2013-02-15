@@ -18,6 +18,8 @@ from zope.component import getSiteManager
 
 import zope.interface
 from zope.publisher.interfaces import IDefaultViewName
+from six.moves import map
+from six.moves import zip
 
 
 class IDefaultViewNameAPI(zope.interface.Interface):

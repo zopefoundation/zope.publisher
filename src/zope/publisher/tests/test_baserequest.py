@@ -24,9 +24,13 @@ from zope.publisher.tests.basetestipublisherrequest \
 from zope.publisher.tests.basetestiapplicationrequest \
      import BaseTestIApplicationRequest
 
-from StringIO import StringIO
 from zope.interface import Interface, providedBy, alsoProvides
 from zope.component import provideAdapter
+
+try:
+    from cStringIO import StringIO as BytesIO
+except ImportError:
+    from io import BytesIO
 
 class TestBaseRequest(BaseTestIPublicationRequest,
                       BaseTestIApplicationRequest,
@@ -35,7 +39,7 @@ class TestBaseRequest(BaseTestIPublicationRequest,
 
     def _Test__new(self, **kw):
         from zope.publisher.base import BaseRequest
-        return BaseRequest(StringIO(''), kw)
+        return BaseRequest(BytesIO(b''), kw)
 
     def _Test__expectedViewType(self):
         return None # we don't expect
@@ -43,7 +47,7 @@ class TestBaseRequest(BaseTestIPublicationRequest,
     def test_IApplicationRequest_bodyStream(self):
         from zope.publisher.base import BaseRequest
 
-        request = BaseRequest(StringIO('spam'), {})
+        request = BaseRequest(BytesIO(b'spam'), {})
         self.assertEqual(request.bodyStream.read(), 'spam')
 
     def test_IPublicationRequest_getPositionalArguments(self):
