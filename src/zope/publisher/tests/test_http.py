@@ -17,8 +17,7 @@
 import sys
 import tempfile
 import unittest
-from cStringIO import StringIO
-from Cookie import CookieError
+from io import BytesIO
 from doctest import DocFileSuite
 
 import zope.event
@@ -47,7 +46,12 @@ from zope.publisher.tests.basetestipublisherrequest \
      import BaseTestIPublisherRequest
 from zope.publisher.tests.basetestiapplicationrequest \
      import BaseTestIApplicationRequest
+from zope.publisher.testing import output_checker
 
+if sys.version_info[0] > 2:
+    from http.cookies import CookieError
+else:
+    from Cookie import CookieError
 
 
 @implementer(ILoggingInfo)
@@ -63,7 +67,7 @@ class UserStub(object):
         return self._id
 
 
-data = '''\
+data = b'''\
 line 1
 line 2
 line 3'''
@@ -86,7 +90,7 @@ class HTTPInputStreamTests(unittest.TestCase):
         return result
 
     def testRead(self):
-        stream = HTTPInputStream(StringIO(data), {})
+        stream = HTTPInputStream(BytesIO(data), {})
         output = ''
         self.assertEqual(output, self.getCacheStreamValue(stream))
         output += stream.read(5)
@@ -96,7 +100,7 @@ class HTTPInputStreamTests(unittest.TestCase):
         self.assertEqual(data, self.getCacheStreamValue(stream))
 
     def testReadLine(self):
-        stream = HTTPInputStream(StringIO(data), {})
+        stream = HTTPInputStream(BytesIO(data), {})
         output = stream.readline()
         self.assertEqual(output, self.getCacheStreamValue(stream))
         output += stream.readline()
@@ -108,7 +112,7 @@ class HTTPInputStreamTests(unittest.TestCase):
         self.assertEqual(data, self.getCacheStreamValue(stream))
 
     def testReadLines(self):
-        stream = HTTPInputStream(StringIO(data), {})
+        stream = HTTPInputStream(BytesIO(data), {})
         output = ''.join(stream.readlines(4))
         self.assertEqual(output, self.getCacheStreamValue(stream))
         output += ''.join(stream.readlines())
@@ -116,7 +120,7 @@ class HTTPInputStreamTests(unittest.TestCase):
         self.assertEqual(data, self.getCacheStreamValue(stream))
 
     def testGetCacheStream(self):
-        stream = HTTPInputStream(StringIO(data), {})
+        stream = HTTPInputStream(BytesIO(data), {})
         stream.read(5)
         self.assertEqual(data, stream.getCacheStream().read())
 
@@ -127,24 +131,24 @@ class HTTPInputStreamTests(unittest.TestCase):
         # definitely over that).
 
         # HTTPInputStream understands both CONTENT_LENGTH...
-        stream = HTTPInputStream(StringIO(data), {'CONTENT_LENGTH': '100000'})
+        stream = HTTPInputStream(BytesIO(data), {'CONTENT_LENGTH': '100000'})
         self.assert_(isinstance(stream.getCacheStream(), TempFileType))
 
         # ... and HTTP_CONTENT_LENGTH.
-        stream = HTTPInputStream(StringIO(data), {'HTTP_CONTENT_LENGTH':
+        stream = HTTPInputStream(BytesIO(data), {'HTTP_CONTENT_LENGTH':
                                                   '100000'})
         self.assert_(isinstance(stream.getCacheStream(), TempFileType))
 
         # If CONTENT_LENGTH is absent or empty, it takes the value
         # given in HTTP_CONTENT_LENGTH:
-        stream = HTTPInputStream(StringIO(data),
+        stream = HTTPInputStream(BytesIO(data),
                                  {'CONTENT_LENGTH': '',
                                   'HTTP_CONTENT_LENGTH': '100000'})
         self.assert_(isinstance(stream.getCacheStream(), TempFileType))
 
         # In fact, HTTPInputStream can be instantiated with both an
         # empty CONTENT_LENGTH and an empty HTTP_CONTENT_LENGTH:
-        stream = HTTPInputStream(StringIO(data),
+        stream = HTTPInputStream(BytesIO(data),
                                  {'CONTENT_LENGTH': '',
                                   'HTTP_CONTENT_LENGTH': ''})
 
@@ -194,26 +198,26 @@ class HTTPTests(unittest.TestCase):
         class Item(object):
             """Required docstring for the publisher."""
             def __call__(self, a, b):
-                return "%s, %s" % (`a`, `b`)
+                return "%s, %s" % (repr(a), repr(b))
 
         self.app = AppRoot()
         self.app.folder = Folder()
         self.app.folder.item = Item()
         self.app.xxx = Item()
 
-    def _createRequest(self, extra_env={}, body=""):
+    def _createRequest(self, extra_env={}, body=b""):
         env = self._testEnv.copy()
         env.update(extra_env)
         if len(body):
             env['CONTENT_LENGTH'] = str(len(body))
 
         publication = DefaultPublication(self.app)
-        instream = StringIO(body)
+        instream = BytesIO(body)
         request = HTTPRequest(instream, env)
         request.setPublication(publication)
         return request
 
-    def _publisherResults(self, extra_env={}, body=""):
+    def _publisherResults(self, extra_env={}, body=b""):
         request = self._createRequest(extra_env, body)
         response = request.response
         publish(request, handle_errors=False)
@@ -264,7 +268,7 @@ class HTTPTests(unittest.TestCase):
         # test HTTP/1.0
         env = {'SERVER_PROTOCOL':'HTTP/1.0'}
 
-        request = self._createRequest(env, '')
+        request = self._createRequest(env, b'')
         location = request.response.redirect('http://foobar.com/redirected')
         self.assertEquals(location, 'http://foobar.com/redirected')
         self.assertEquals(request.response.getStatus(), 302)
@@ -273,17 +277,17 @@ class HTTPTests(unittest.TestCase):
         # test HTTP/1.1
         env = {'SERVER_PROTOCOL':'HTTP/1.1'}
 
-        request = self._createRequest(env, '')
+        request = self._createRequest(env, b'')
         location = request.response.redirect('http://foobar.com/redirected')
         self.assertEquals(request.response.getStatus(), 303)
 
         # test explicit status
-        request = self._createRequest(env, '')
+        request = self._createRequest(env, b'')
         request.response.redirect('http://foobar.com/explicit', 304)
         self.assertEquals(request.response.getStatus(), 304)
 
         # test non-string location, like URLGetter
-        request = self._createRequest(env, '')
+        request = self._createRequest(env, b'')
         request.response.redirect(request.URL)
         self.assertEquals(request.response.getStatus(), 303)
         self.assertEquals(request.response.getHeader('location'),
@@ -292,7 +296,7 @@ class HTTPTests(unittest.TestCase):
     def testUntrustedRedirect(self):
         # Redirects are by default only allowed to target the same host as the
         # request was directed to. This is to counter fishing.
-        request = self._createRequest({}, '')
+        request = self._createRequest({}, b'')
         self.assertRaises(
             ValueError,
             request.response.redirect, 'http://phishing-inc.com')
@@ -339,7 +343,7 @@ class HTTPTests(unittest.TestCase):
 
     def testUnregisteredStatus(self):
         # verify we can set the status to an unregistered int value
-        request = self._createRequest({}, '')
+        request = self._createRequest({}, b'')
         request.response.setStatus(289)
         self.assertEquals(request.response.getStatus(), 289)
 
@@ -502,14 +506,15 @@ class HTTPTests(unittest.TestCase):
 
     def testBasicAuth(self):
         from zope.publisher.interfaces.http import IHTTPCredentials
+        import base64
         req = self._createRequest()
         verifyObject(IHTTPCredentials, req)
         lpq = req._authUserPW()
         self.assertEquals(lpq, None)
         env = {}
-        login, password = ("tim", "123:456")
-        s = ("%s:%s" % (login, password)).encode("base64").rstrip()
-        env['HTTP_AUTHORIZATION'] = "Basic %s" % s
+        login, password = (b"tim", b"123:456")
+        s = base64.b64encode(b':'.join((login, password)))
+        env['HTTP_AUTHORIZATION'] = "Basic %s" % s.decode('ascii')
         req = self._createRequest(env)
         lpw = req._authUserPW()
         self.assertEquals(lpw, (login, password))
@@ -922,11 +927,11 @@ class APITests(BaseTestIPublicationRequest,
     def _Test__new(self, environ=None, **kw):
         if environ is None:
             environ = kw
-        return HTTPRequest(StringIO(''), environ)
+        return HTTPRequest(BytesIO(b''), environ)
 
     def test_IApplicationRequest_bodyStream(self):
-        request = HTTPRequest(StringIO('spam'), {})
-        self.assertEqual(request.bodyStream.read(), 'spam')
+        request = HTTPRequest(BytesIO(b'spam'), {})
+        self.assertEqual(request.bodyStream.read(), b'spam')
 
     # Needed by BaseTestIEnumerableMapping tests:
     def _IEnumerableMapping__stateDict(self):
@@ -973,7 +978,8 @@ def test_suite():
     suite.addTest(unittest.makeSuite(TestHTTPResponse))
     suite.addTest(unittest.makeSuite(HTTPInputStreamTests))
     suite.addTest(DocFileSuite(
-        '../httpresults.txt', setUp=cleanUp, tearDown=cleanUp))
+        '../httpresults.txt', setUp=cleanUp, tearDown=cleanUp,
+        checker=output_checker))
     suite.addTest(unittest.makeSuite(APITests))
     return suite
 

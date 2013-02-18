@@ -14,6 +14,7 @@
 """HTTP Publisher
 """
 import sys
+import base64
 from io import BytesIO
 from zope.i18n.interfaces import IUserPreferredCharsets
 from zope.i18n.interfaces import IUserPreferredLanguages
@@ -49,6 +50,7 @@ if PY2:
 else:
     import http.cookies as cookies
     from urllib.parse import splitport, quote, urlsplit
+    basestring = unicode = str
 
 # Default Encoding
 ENCODING = 'UTF-8'
@@ -77,7 +79,7 @@ def sane_environment(env):
         dict[key] = val
     if 'HTTP_CGI_AUTHORIZATION' in dict:
         dict['HTTP_AUTHORIZATION'] = dict.pop('HTTP_CGI_AUTHORIZATION')
-    if 'PATH_INFO' in dict:
+    if 'PATH_INFO' in dict and isinstance('PATH_INFO', bytes):
         dict['PATH_INFO'] = dict['PATH_INFO'].decode('utf-8')
     return dict
 
@@ -385,7 +387,7 @@ class HTTPRequest(BaseRequest):
         else:
             protocol = 'http'
 
-        if environ.has_key('HTTP_HOST'):
+        if 'HTTP_HOST' in environ:
             host = environ['HTTP_HOST'].strip()
             hostname, port = splitport(host)
         else:
@@ -497,7 +499,9 @@ class HTTPRequest(BaseRequest):
         'See IHTTPCredentials'
         if self._auth and self._auth.lower().startswith('basic '):
             encoded = self._auth.split(None, 1)[-1]
-            name, password = encoded.decode("base64").split(':', 1)
+            decoded = base64.b64decode(encoded.encode('iso-8859-1'))
+            name, password = bytes.split(decoded, b':', 1)
+            #name, password = base64.b64decode(encoded.encode('ascii')).split(':', 1)
             return name, password
 
     def unauthorized(self, challenge):
@@ -933,13 +937,12 @@ class HTTPResponse(BaseResponse):
             "for more information."
             )
 
-def sort_charsets(x, y):
-    if y[1] == 'utf-8':
-        return 1
-    if x[1] == 'utf-8':
-        return -1
-    return cmp(y, x)
-
+def sort_charsets(charset):
+    # Make utf-8 to be the last element of the sorted list
+    if charset[1] == 'utf-8':
+        return (1, charset)
+    # Otherwise, sort by charset
+    return (0, charset)
 
 def extract_host(url):
     scheme, host, path, query, fragment = urlsplit(url)
@@ -1000,7 +1003,7 @@ class HTTPCharsets(object):
         # range , unlike many other encodings. Since Zope can easily use very
         # different ranges, like providing a French-Chinese dictionary, it is
         # always good to use UTF-8.
-        charsets.sort(sort_charsets)
+        charsets.sort(key=sort_charsets, reverse=True)
         charsets = [charset for quality, charset in charsets]
         if sawstar and 'utf-8' not in charsets:
             charsets.insert(0, 'utf-8')

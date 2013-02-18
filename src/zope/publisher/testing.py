@@ -13,17 +13,30 @@
 ##############################################################################
 
 import sys
+import re
 import contextlib
 import zope.publisher.browser
 import zope.security.management
 import zope.security.testing
+from zope.testing import renormalizing
 
 PY2 = sys.version_info[0] == 2
 
 if PY2:
     _u = unicode
+    import doctest
+    rules = [(re.compile("b('.*?')"), r"\1"),
+             (re.compile('b(".*?")'), r"\1"),
+            ]
+    output_checker = renormalizing.RENormalizing(rules)
 else:
     _u = str
+    rules = [(re.compile("u('.*?')"), r"\1"),
+             (re.compile('u(".*?")'), r"\1"),
+             (re.compile("b('.*?')"), r"\1"),
+             (re.compile('b(".*?")'), r"\1"),
+            ]
+    output_checker = renormalizing.RENormalizing(rules)
 
 
 # These are enhanced versions of the ones in zope.security.testing,

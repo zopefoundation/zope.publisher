@@ -18,8 +18,6 @@ from unittest import TestCase, TestSuite, main, makeSuite
 from zope.publisher.base import BaseResponse
 from zope.publisher.interfaces import IResponse
 from zope.interface.verify import verifyObject
-from StringIO import StringIO
-
 
 class TestBaseResponse(TestCase):
 
