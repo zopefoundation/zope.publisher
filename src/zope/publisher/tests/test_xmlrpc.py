@@ -13,11 +13,16 @@
 ##############################################################################
 """Testing the XML-RPC Publisher code.
 """
+import sys
 import doctest
-import xmlrpclib
 import zope.component.testing
 from zope.publisher import xmlrpc
 from zope.security.checker import defineChecker, Checker, CheckerPublic
+
+if sys.version_info[0] == 2:
+    import xmlrpclib
+else:
+    import xmlrpc.client as xmlrpclib
 
 def setUp(test):
     zope.component.testing.setUp(test)

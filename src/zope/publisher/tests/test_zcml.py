@@ -13,7 +13,7 @@
 ##############################################################################
 """Tests for browser:defaultSkin and browser:defaultView directives
 """
-from cStringIO import StringIO
+from io import BytesIO
 import doctest
 import unittest
 
@@ -68,7 +68,7 @@ class Test(cleanup.CleanUp, unittest.TestCase):
     def testDefaultView(self):
         self.assertTrue(
             component.queryMultiAdapter((ob, request), IDefaultViewName) is None)
-        xmlconfig(StringIO(template % (
+        xmlconfig(BytesIO(template % (
             '''
             <browser:defaultView
                 name="test"
@@ -88,7 +88,7 @@ class Test(cleanup.CleanUp, unittest.TestCase):
             component.queryMultiAdapter((ob, request2), IDefaultViewName),
             None)
 
-        xmlconfig(StringIO(template % (
+        xmlconfig(BytesIO(template % (
             '''
             <browser:defaultView
                 for="zope.publisher.tests.test_zcml.IOb"
@@ -114,7 +114,7 @@ class Test(cleanup.CleanUp, unittest.TestCase):
             component.queryMultiAdapter((ob, request), IDefaultViewName),
             None)
 
-        xmlconfig(StringIO(template % (
+        xmlconfig(BytesIO(template % (
             '''
             <browser:defaultView
                 for="zope.publisher.tests.test_zcml.Ob"
@@ -134,7 +134,7 @@ class Test(cleanup.CleanUp, unittest.TestCase):
             None)
 
         XMLConfig('meta.zcml', component)()
-        xmlconfig(StringIO(template % (
+        xmlconfig(BytesIO(template % (
             '''
             <interface
                 interface="

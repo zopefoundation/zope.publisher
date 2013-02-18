@@ -81,7 +81,7 @@ class XMLRPCTests(unittest.TestCase):
         class Item(object):
 
             def __call__(self, a, b):
-                return "%s, %s" % (`a`, `b`)
+                return "%s, %s" % (repr(a), repr(b))
 
             def doit(self, a, b):
                 return 'do something %s %s' % (a, b)
@@ -90,7 +90,7 @@ class XMLRPCTests(unittest.TestCase):
 
             def action(self, a):
                 return "Parameter[type: %s; value: %s" %(
-                    type(a).__name__, `a`)
+                    type(a).__name__, repr(a))
 
         class Item2(object):
             view = View()

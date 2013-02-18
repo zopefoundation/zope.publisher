@@ -18,9 +18,8 @@ This module contains the XMLRPCRequest and XMLRPCResponse
 __docformat__ = 'restructuredtext'
 
 import sys
-import xmlrpclib
 import datetime
-from StringIO import StringIO
+from io import StringIO
 
 import zope.component
 import zope.interface
@@ -30,6 +29,11 @@ from zope.publisher.interfaces.xmlrpc import \
 
 from zope.publisher.http import HTTPRequest, HTTPResponse, DirectResult
 from zope.security.proxy import isinstance
+
+if sys.version_info[0] == 2:
+    import xmlrpclib
+else:
+    import xmlrpc.client as xmlrpclib
 
 @implementer(IXMLRPCRequest)
 class XMLRPCRequest(HTTPRequest):
@@ -183,7 +187,7 @@ class PreMarshallerBase(object):
         self.data = data
 
     def __call__(self):
-        raise Exception, "Not implemented"
+        raise Exception("Not implemented")
 
 @zope.component.adapter(dict)
 class DictPreMarshaller(PreMarshallerBase):
