@@ -41,11 +41,11 @@ def unwrapMethod(obj):
         if bases is not None:
             raise TypeError("mapply() can not call class constructors")
 
-        im_func = getattr(unwrapped, 'im_func', None)
+        im_func = getattr(unwrapped, '__func__', None)
         if im_func is not None:
             unwrapped = im_func
             wrapperCount += 1
-        elif getattr(unwrapped, 'func_code', None) is not None:
+        elif getattr(unwrapped, '__code__', None) is not None:
             break
         else:
             unwrapped = getattr(unwrapped, '__call__' , None)

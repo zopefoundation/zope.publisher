@@ -25,7 +25,10 @@ PYTHON3 = sys.version_info[0] == 3
 if PYTHON2:
     _u = unicode
     from xmlrpclib import *
+    import types
+    CLASS_TYPES = (type, types.ClassType)
 else:
     _u = str
+    CLASS_TYPES = (type,)
     from xmlrpc.client import *
 

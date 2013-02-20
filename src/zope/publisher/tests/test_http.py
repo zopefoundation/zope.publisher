@@ -228,7 +228,7 @@ class HTTPTests(unittest.TestCase):
             +
             "\r\n".join([("%s: %s" % h) for h in headers]) + "\r\n\r\n"
             +
-            ''.join(response.consumeBody())
+            response.consumeBody().decode('utf8')
             )
 
     def test_double_dots(self):
@@ -691,7 +691,7 @@ class HTTPTests(unittest.TestCase):
         self.assertEquals(request.response.getHeader('Content-Type'),
                           'text/plain;charset=utf-8')
         self.assertEquals(body,
-                          'Latin a with ogonek\xc4\x85 Cyrillic ya \xd1\x8f')
+                          b'Latin a with ogonek\xc4\x85 Cyrillic ya \xd1\x8f')
 
 class ConcreteHTTPTests(HTTPTests):
     """Tests that we don't have to worry about subclasses inheriting and

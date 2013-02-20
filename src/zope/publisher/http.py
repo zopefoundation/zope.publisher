@@ -42,8 +42,9 @@ import zope.contenttype.parse
 import zope.event
 import zope.interface
 
-PY2 = sys.version_info[0] == 2
-if PY2:
+from zope.publisher._compat import PYTHON2, CLASS_TYPES, _u
+
+if PYTHON2:
     import Cookie as cookies
     from urllib import splitport, quote
     from urlparse import urlsplit
@@ -79,8 +80,11 @@ def sane_environment(env):
         dict[key] = val
     if 'HTTP_CGI_AUTHORIZATION' in dict:
         dict['HTTP_AUTHORIZATION'] = dict.pop('HTTP_CGI_AUTHORIZATION')
-    if 'PATH_INFO' in dict and isinstance('PATH_INFO', bytes):
-        dict['PATH_INFO'] = dict['PATH_INFO'].decode('utf-8')
+    if 'PATH_INFO' in dict:
+        # Recode PATH_INFO to UTF-8 from original latin1
+        pi = dict['PATH_INFO']
+        pi = pi if isinstance(pi, bytes) else pi.encode('latin1')
+        dict['PATH_INFO'] = pi.decode(ENCODING)
     return dict
 
 @zope.interface.implementer(IHTTPVirtualHostChangedEvent)
@@ -185,7 +189,7 @@ class URLGetter(object):
             else:
                 return self.__request.getApplicationURL(i)
         except IndexError as v:
-            if v[0] == i:
+            if v.args[0] == i:
                 return default
             raise
 
@@ -415,7 +419,12 @@ class HTTPRequest(BaseRequest):
             return result
 
         for k,v in c.items():
-            result[unicode(k, ENCODING)] = unicode(v.value, ENCODING)
+            # recode cookie value to ENCODING (UTF-8)
+            rk = _u(k if type(k) == bytes
+                    else k.encode('latin1'), ENCODING)
+            rv = _u(v.value if type(v.value) == bytes
+                    else v.value.encode('latin1'), ENCODING)
+            result[rk] = rv
 
         return result
 
@@ -792,7 +801,7 @@ class HTTPResponse(BaseResponse):
 
     def consumeBody(self):
         'See IHTTPResponse'
-        return ''.join(self._result)
+        return b''.join(self._result)
 
 
     def consumeBodyIter(self):
@@ -841,13 +850,13 @@ class HTTPResponse(BaseResponse):
         Calls self.setBody() with an error response.
         """
         t, v = exc_info[:2]
-        if isinstance(t, (types.ClassType, type)):
+        if isinstance(t, CLASS_TYPES):
             if issubclass(t, Redirect):
                 self.redirect(v.getLocation())
                 return
             title = tname = t.__name__
         else:
-            title = tname = unicode(t)
+            title = tname = _u(t)
 
         # Throwing non-protocol-specific exceptions is a good way
         # for apps to control the status code.

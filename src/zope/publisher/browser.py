@@ -51,6 +51,8 @@ from zope.publisher.skinnable import setDefaultSkin #BBB import
 from zope.publisher.skinnable import applySkin #BBB import
 from zope.publisher.skinnable import SkinChangedEvent #BBB import
 
+from zope.publisher._compat import PYTHON2, _u
+
 
 __ArrayTypes = (list, tuple)
 
@@ -245,13 +247,19 @@ class BrowserRequest(HTTPRequest):
 
     def _decode(self, text):
         """Try to decode the text using one of the available charsets."""
+        # According to PEP-3333, in python-3, QUERY_STRING is a string,
+        # representing 'latin-1' encoded byte array. So, if we are in python-3
+        # context, encode text as 'latin-1' first, to try to decode
+        # resulting byte array using user-supplied charset.
+        if not isinstance(text, bytes):
+            text = text.encode('latin-1')
         if self.charsets is None:
             envadapter = IUserPreferredCharsets(self)
             self.charsets = envadapter.getPreferredCharsets() or ['utf-8']
             self.charsets = [c for c in self.charsets if c != '*']
         for charset in self.charsets:
             try:
-                text = unicode(text, charset)
+                text = _u(text, charset)
                 break
             except UnicodeError:
                 pass
@@ -291,8 +299,9 @@ class BrowserRequest(HTTPRequest):
             del env['QUERY_STRING']
 
 
+        args = {'encoding': 'utf-8'} if not PYTHON2 else {}
         fs = ZopeFieldStorage(fp=fp, environ=env,
-                              keep_blank_values=1)
+                              keep_blank_values=1, **args)
 
         fslist = getattr(fs, 'list', None)
         if fslist is not None:
@@ -388,11 +397,10 @@ class BrowserRequest(HTTPRequest):
                 # skip over empty fields
                 return
 
-        # Make it unicode if not None
         if key is not None:
             key = self._decode(key)
 
-        if type(item) == str:
+        if isinstance(item, (str, bytes)):
             item = self._decode(item)
 
         if flags:
@@ -515,7 +523,7 @@ class BrowserRequest(HTTPRequest):
         """Insert defaults into form dictionary."""
         form = self.form
 
-        for keys, values in self.__defaults.iteritems():
+        for keys, values in self.__defaults.items():
             if not keys in form:
                 form[keys] = values
             else:
@@ -629,7 +637,9 @@ class FileUpload(object):
                 d[m] = getattr(file,m)
 
         self.headers = aFieldStorage.headers
-        filename = unicode(aFieldStorage.filename, 'UTF-8')
+        filename = aFieldStorage.filename
+        if isinstance(aFieldStorage.filename, bytes):
+            filename = _u(aFieldStorage.filename, 'UTF-8')
         # fix for IE full paths
         filename = filename[filename.rfind('\\')+1:].strip()
         self.filename = filename
