@@ -51,7 +51,8 @@ if PYTHON2:
 else:
     import http.cookies as cookies
     from urllib.parse import splitport, quote, urlsplit
-    basestring = unicode = str
+    unicode = str
+    basestring = (str, bytes)
 
 # Default Encoding
 ENCODING = 'UTF-8'

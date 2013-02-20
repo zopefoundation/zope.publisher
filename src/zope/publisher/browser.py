@@ -41,7 +41,7 @@ from zope.publisher.interfaces.browser import IBrowserView
 from zope.publisher.interfaces.browser import IBrowserPage
 from zope.publisher.interfaces.browser import IBrowserSkinType
 from zope.publisher.interfaces.http import IHTTPRequest
-from zope.publisher.http import HTTPRequest, HTTPResponse
+from zope.publisher.http import HTTPRequest, HTTPResponse, getCharsetUsingRequest
 
 # BBB imports, this compoennts get moved from this module
 from zope.publisher.interfaces import ISkinType #BBB import
@@ -56,8 +56,8 @@ from zope.publisher._compat import PYTHON2, _u
 
 __ArrayTypes = (list, tuple)
 
-start_of_header_search=re.compile('(<head[^>]*>)', re.I).search
-base_re_search=re.compile('(<base.*?>)',re.I).search
+start_of_header_search=re.compile(b'(<head[^>]*>)', re.I).search
+base_re_search=re.compile(b'(<base.*?>)',re.I).search
 isRelative = re.compile("[-_.!~*a-zA-z0-9'()@&=+$,]+(/|$)").match
 newlines = re.compile('\r\n|\n\r|\r')
 
@@ -737,9 +737,17 @@ class BrowserResponse(HTTPResponse):
                     ibase = base_re_search(body)
                     if ibase is None:
                         # Make sure the base URL is not a unicode string.
-                        base = str(self.getBase())
-                        body = ('%s\n<base href="%s" />\n%s' %
-                                (body[:index], base, body[index:]))
+                        base = self.getBase()
+                        if not isinstance(base, bytes):
+                            encoding = getCharsetUsingRequest(self._request) or 'utf-8'
+                            base = self.getBase().encode(encoding)
+                        #body = (b'%s\n<base href="%s" />\n%s' %
+                        #        (body[:index], base, body[index:]))
+                        body = b''.join([body[:index],
+                                         b'\n<base href="',
+                                         base,
+                                         b'" />\n',
+                                         body[index:]])
         return body
 
     def getBase(self):

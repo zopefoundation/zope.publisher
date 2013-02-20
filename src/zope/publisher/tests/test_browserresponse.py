@@ -95,7 +95,7 @@ class TestBrowserResponse(TestCase):
         #       the result :(
         response = BrowserResponse()
         response.setStatus(304)
-        response.setResult('')
+        response.setResult(b'')
         self.assertEqual(response.getHeader('content-type'), None)
 
     def testInsertBase(self):
@@ -107,21 +107,21 @@ class TestBrowserResponse(TestCase):
         # Make sure that bases are inserted
         response.setBase('http://localhost/folder/')
         self.assert_(
-            '<base href="http://localhost/folder/" />' in
-            insertBase('<html><head></head><body>Page</body></html>'))
+            b'<base href="http://localhost/folder/" />' in
+            insertBase(b'<html><head></head><body>Page</body></html>'))
 
         # Ensure that unicode bases work as well
         response.setBase(u'http://localhost/folder/')
-        body = insertBase('<html><head></head><body>Page</body></html>')
-        self.assert_(isinstance(body, str))
-        self.assert_('<base href="http://localhost/folder/" />' in body)
+        body = insertBase(b'<html><head></head><body>Page</body></html>')
+        self.assert_(isinstance(body, bytes))
+        self.assert_(b'<base href="http://localhost/folder/" />' in body)
 
         # Ensure that encoded bodies work, when a base is inserted.
         response.setBase('http://localhost/folder')
         result = insertBase(
-            '<html><head></head><body>\xc3\x9bung</body></html>')
-        self.assert_(isinstance(body, str))
-        self.assert_('<base href="http://localhost/folder" />' in result)
+            b'<html><head></head><body>\xc3\x9bung</body></html>')
+        self.assert_(isinstance(body, bytes))
+        self.assert_(b'<base href="http://localhost/folder" />' in result)
 
     def testInsertBaseInSetResultUpdatesContentLength(self):
         # Make sure that the Content-Length header is updated to account
@@ -131,7 +131,7 @@ class TestBrowserResponse(TestCase):
         base = 'http://localhost/folder/'
         response.setBase(base)
         inserted_text = '\n<base href="%s" />\n' % base
-        html_page = """<html>
+        html_page = b"""<html>
             <head></head>
             <blah>
             </html>
@@ -159,15 +159,15 @@ class TestBrowserResponse(TestCase):
             "text/html;charset=utf-8")
         self.assertEquals(response.getStatus(), 500)
         self.assert_(response.consumeBody() in
-            ["<html><head><title>&lt;type 'exceptions.ValueError'&gt;</title></head>\n"
-            "<body><h2>&lt;type 'exceptions.ValueError'&gt;</h2>\n"
-            "A server error occurred.\n"
-            "</body></html>\n",
-            "<html><head><title>ValueError</title></head>\n"
-            "<body><h2>ValueError</h2>\n"
-            "A server error occurred.\n"
-            "</body></html>\n"]
-            )
+            [b"<html><head><title>&lt;type 'exceptions.ValueError'&gt;</title></head>\n"
+             b"<body><h2>&lt;type 'exceptions.ValueError'&gt;</h2>\n"
+             b"A server error occurred.\n"
+             b"</body></html>\n",
+             b"<html><head><title>ValueError</title></head>\n"
+             b"<body><h2>ValueError</h2>\n"
+             b"A server error occurred.\n"
+             b"</body></html>\n"]
+                     )
 
 
 def test_suite():
