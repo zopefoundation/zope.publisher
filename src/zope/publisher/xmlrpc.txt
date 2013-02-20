@@ -38,10 +38,18 @@ But we can strip the proxies using premarshal:
 
 So xmlrpclib will be happy. :)
 
+Import xmlrpclib depending on current python interpreter version
+
+  >>> import sys
+  >>> if sys.version_info[0] == 2:
+  ...     import xmlrpclib
+  ... else:
+  ...     import xmlrpc.client as xmlrpclib
+
+
 We can also use premarshal to strip proxies off of Fault objects.
 We have to make a security declaration first though:
 
-  >>> import xmlrpclib
   >>> fault = xmlrpclib.Fault(1, 'waaa')
   >>> proxied_fault = ProxyFactory(fault)
   >>> stripped_fault = premarshal(proxied_fault)
@@ -51,7 +59,7 @@ We have to make a security declaration first though:
 Standard python datetime objects are also handled:
 
   >>> import datetime
-  >>> sample = datetime.datetime(2006,06,17,21,41,00)
+  >>> sample = datetime.datetime(2006,6,17,21,41,00)
   >>> stripped_date = premarshal(sample)
   >>> isinstance(stripped_date, datetime.datetime)
   False
@@ -61,8 +69,7 @@ Standard python datetime objects are also handled:
 We can also use premarshal to strip proxies off of Binary objects.
 We have to make a security declaration first though:
 
-  >>> import xmlrpclib
-  >>> binary = xmlrpclib.Binary('foobar')
+  >>> binary = xmlrpclib.Binary(b'foobar')
   >>> proxied_binary = ProxyFactory(binary)
   >>> stripped_binary = premarshal(proxied_binary)
   >>> type(stripped_binary) is Proxy

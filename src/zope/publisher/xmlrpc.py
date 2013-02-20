@@ -202,7 +202,7 @@ class ListPreMarshaller(PreMarshallerBase):
     """Pre-marshaller for list"""
 
     def __call__(self):
-        return map(premarshal, self.data)
+        return [premarshal(x) for x in self.data]
 
 @zope.component.adapter(tuple)
 class TuplePreMarshaller(ListPreMarshaller):
