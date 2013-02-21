@@ -16,6 +16,7 @@
 import unittest
 
 from zope.publisher.publish import mapply
+from zope.publisher._compat import PYTHON2
 
 
 class MapplyTests(unittest.TestCase):
@@ -44,9 +45,19 @@ class MapplyTests(unittest.TestCase):
         v = mapply(cc.compute, (), values)
         self.failUnlessEqual(v, '334')
 
+    @unittest.skipUnless(PYTHON2, "Classic classes are only available in py3")
+    def testClassicClass(self):
+        values = {'a':2, 'b':3}
+        class c(object):
+            a = 3
+            def __call__(self, b, c=4):
+                return '%d%d%d' % (self.a, b, c)
+            compute = __call__
+        cc = c()
+
         class c2:
             """Must be a classic class."""
-            
+
         c2inst = c2()
         c2inst.__call__ = cc
         v = mapply(c2inst, (), values)
