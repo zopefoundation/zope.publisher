@@ -35,7 +35,7 @@ class TestBrowserResponse(TestCase):
             <blah>
             </html>
             """)
-        self.assert_(response.getHeader('content-type').startswith("text/html")
+        self.assertTrue(response.getHeader('content-type').startswith("text/html")
                      )
 
         response = BrowserResponse()
@@ -45,7 +45,7 @@ class TestBrowserResponse(TestCase):
             <blah>
             </html>
             """)
-        self.assert_(response.getHeader('content-type').startswith("text/html")
+        self.assertTrue(response.getHeader('content-type').startswith("text/html")
                      )
 
         response = BrowserResponse()
@@ -55,7 +55,7 @@ class TestBrowserResponse(TestCase):
             <blah>
             </html>
             """)
-        self.assert_(response.getHeader('content-type').startswith("text/html")
+        self.assertTrue(response.getHeader('content-type').startswith("text/html")
                      )
 
         response = BrowserResponse()
@@ -66,14 +66,14 @@ class TestBrowserResponse(TestCase):
             <blah>
             </html>
             """)
-        self.assert_(response.getHeader('content-type').startswith("text/html")
+        self.assertTrue(response.getHeader('content-type').startswith("text/html")
                      )
 
         response = BrowserResponse()
         response.setResult(
             """Hello world
             """)
-        self.assert_(response.getHeader('content-type').startswith(
+        self.assertTrue(response.getHeader('content-type').startswith(
             "text/plain")
                      )
 
@@ -81,7 +81,7 @@ class TestBrowserResponse(TestCase):
         response.setResult(
             """<p>Hello world
             """)
-        self.assert_(
+        self.assertTrue(
             response.getHeader('content-type').startswith("text/plain")
             )
 
@@ -106,22 +106,22 @@ class TestBrowserResponse(TestCase):
 
         # Make sure that bases are inserted
         response.setBase('http://localhost/folder/')
-        self.assert_(
+        self.assertTrue(
             b'<base href="http://localhost/folder/" />' in
             insertBase(b'<html><head></head><body>Page</body></html>'))
 
         # Ensure that unicode bases work as well
         response.setBase(u'http://localhost/folder/')
         body = insertBase(b'<html><head></head><body>Page</body></html>')
-        self.assert_(isinstance(body, bytes))
-        self.assert_(b'<base href="http://localhost/folder/" />' in body)
+        self.assertTrue(isinstance(body, bytes))
+        self.assertTrue(b'<base href="http://localhost/folder/" />' in body)
 
         # Ensure that encoded bodies work, when a base is inserted.
         response.setBase('http://localhost/folder')
         result = insertBase(
             b'<html><head></head><body>\xc3\x9bung</body></html>')
-        self.assert_(isinstance(body, bytes))
-        self.assert_(b'<base href="http://localhost/folder" />' in result)
+        self.assertTrue(isinstance(body, bytes))
+        self.assertTrue(b'<base href="http://localhost/folder" />' in result)
 
     def testInsertBaseInSetResultUpdatesContentLength(self):
         # Make sure that the Content-Length header is updated to account
@@ -137,7 +137,7 @@ class TestBrowserResponse(TestCase):
             </html>
             """
         response.setResult(html_page)
-        self.assertEquals(
+        self.assertEqual(
             int(response.getHeader('content-length')),
             len(html_page) + len(inserted_text))
 
@@ -155,10 +155,10 @@ class TestBrowserResponse(TestCase):
             exc_info = sys.exc_info()
 
         response.handleException(exc_info)
-        self.assertEquals(response.getHeader("content-type"),
+        self.assertEqual(response.getHeader("content-type"),
             "text/html;charset=utf-8")
-        self.assertEquals(response.getStatus(), 500)
-        self.assert_(response.consumeBody() in
+        self.assertEqual(response.getStatus(), 500)
+        self.assertTrue(response.consumeBody() in
             [b"<html><head><title>&lt;type 'exceptions.ValueError'&gt;</title></head>\n"
              b"<body><h2>&lt;type 'exceptions.ValueError'&gt;</h2>\n"
              b"A server error occurred.\n"

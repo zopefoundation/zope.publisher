@@ -86,7 +86,7 @@ class PublisherTests(unittest.TestCase):
             provided=IReRaiseException)
 
     def testImplementsIPublication(self):
-        self.failUnless(IPublication.providedBy(
+        self.assertTrue(IPublication.providedBy(
                             DefaultPublication(self.app)))
 
     def testInterfacesVerify(self):
@@ -95,11 +95,11 @@ class PublisherTests(unittest.TestCase):
 
     def testTraversalToItem(self):
         res = self._publisherResults('/folder/item')
-        self.failUnlessEqual(res, 'item')
+        self.assertEqual(res, 'item')
         res = self._publisherResults('/folder/item/')
-        self.failUnlessEqual(res, 'item')
+        self.assertEqual(res, 'item')
         res = self._publisherResults('folder/item')
-        self.failUnlessEqual(res, 'item')
+        self.assertEqual(res, 'item')
 
     def testUnderscoreUnauthorizedException(self):
         self.assertRaises(Unauthorized, self._publisherResults, '/_item')
@@ -134,7 +134,7 @@ class PublisherTests(unittest.TestCase):
         except:
             pass
         self._unregisterExcAdapter(doReRaiseAdapter)
-        self.failUnlessEqual(raised, True)
+        self.assertEqual(raised, True)
 
     def testRetryErrorIsUnwrapped(self):
         test = self

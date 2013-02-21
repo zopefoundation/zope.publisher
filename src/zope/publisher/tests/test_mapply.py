@@ -25,10 +25,10 @@ class MapplyTests(unittest.TestCase):
             return '%d%d%d' % (a, b, c)
         values = {'a':2, 'b':3, 'c':5}
         v = mapply(compute, (), values)
-        self.failUnlessEqual(v, '235')
+        self.assertEqual(v, '235')
 
         v = mapply(compute, (7,), values)
-        self.failUnlessEqual(v, '735')
+        self.assertEqual(v, '735')
 
     def testClass(self):
         values = {'a':2, 'b':3, 'c':5}
@@ -39,11 +39,11 @@ class MapplyTests(unittest.TestCase):
             compute = __call__
         cc = c()
         v = mapply(cc, (), values)
-        self.failUnlessEqual(v, '335')
+        self.assertEqual(v, '335')
 
         del values['c']
         v = mapply(cc.compute, (), values)
-        self.failUnlessEqual(v, '334')
+        self.assertEqual(v, '334')
 
     def testClassicClass(self):
         if not PYTHON2:
@@ -64,7 +64,7 @@ class MapplyTests(unittest.TestCase):
         c2inst = c2()
         c2inst.__call__ = cc
         v = mapply(c2inst, (), values)
-        self.failUnlessEqual(v, '334')
+        self.assertEqual(v, '334')
 
 def test_suite():
     loader = unittest.TestLoader()

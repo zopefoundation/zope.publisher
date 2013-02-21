@@ -149,7 +149,7 @@ class BrowserTests(HTTPTests):
 
     def testTraversalToItem(self):
         res = self._publisherResults()
-        self.failUnlessEqual(
+        self.assertEqual(
             res,
             "Status: 200 Ok\r\n"
             "Content-Length: 6\r\n"
@@ -163,7 +163,7 @@ class BrowserTests(HTTPTests):
         request = self._createRequest()
         response = request.response
         publish(request)
-        self.failIf(response.getBase())
+        self.assertFalse(response.getBase())
 
     def testDefault(self):
         extra = {'PATH_INFO': '/folder/item2'}
@@ -211,11 +211,11 @@ class BrowserTests(HTTPTests):
 
         request  = self._createRequest(extra, body=LARGE_FILE_BODY)
         request.processInputs()
-        self.assert_(request.form['upload'].name)
+        self.assertTrue(request.form['upload'].name)
 
         request  = self._createRequest(extra, body=IE_FILE_BODY)
         request.processInputs()
-        self.assertEquals(request.form['upload'].filename, 'notepad.exe')
+        self.assertEqual(request.form['upload'].filename, 'notepad.exe')
 
 
     def testDefault2(self):
@@ -231,14 +231,14 @@ class BrowserTests(HTTPTests):
         request = self._createRequest(extra)
         response = request.response
         publish(request)
-        self.failIf(response.getBase())
+        self.assertFalse(response.getBase())
 
     def testDefault4(self):
         extra = {'PATH_INFO': '/folder/item2/view/'}
         request = self._createRequest(extra)
         response = request.response
         publish(request)
-        self.failIf(response.getBase())
+        self.assertFalse(response.getBase())
 
     def testDefault6(self):
         extra = {'PATH_INFO': '/folder/item2/'}
@@ -275,7 +275,7 @@ class BrowserTests(HTTPTests):
         # many mainstream browsers do not send HTTP_ACCEPT_CHARSET
         del request._environ['HTTP_ACCEPT_CHARSET']
         publish(request)
-        self.assert_(isinstance(request.form[u'street'], unicode))
+        self.assertTrue(isinstance(request.form[u'street'], unicode))
         self.assertEqual(u'K\xf6hlerstra\xdfe', request.form['street'])
 
     def testFormAcceptsStarButNotUTF8(self):
