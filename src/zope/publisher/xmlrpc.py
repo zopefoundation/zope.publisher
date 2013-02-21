@@ -51,7 +51,7 @@ class XMLRPCRequest(HTTPRequest):
         # Using lines() does not work as Twisted's BufferedStream sends back
         # an empty stream here for read() (bug). Using readlines() does not
         # work with paster.httpserver. However, readline() works fine.
-        lines = ''
+        lines = b''
         while True:
             line = self._body_instream.readline()
             if not line:

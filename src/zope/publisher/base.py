@@ -28,6 +28,8 @@ from zope.publisher.interfaces import NotFound, DebugError, Unauthorized
 from zope.publisher.interfaces import IRequest, IResponse, IDebugFlags
 from zope.publisher.publish import mapply
 
+from zope.publisher._compat import PYTHON2
+
 _marker = object()
 
 @implementer(IResponse)
@@ -50,7 +52,9 @@ class BaseResponse(object):
 
     def handleException(self, exc_info):
         'See IPublisherResponse'
-        f = BytesIO()
+        # We want exception to be formatted to native strings. Pick
+        # respective io class depending on python version.
+        f = BytesIO() if PYTHON2 else StringIO()
         print_exception(
             exc_info[0], exc_info[1], exc_info[2], 100, f)
         self.setResult(f.getvalue())
@@ -398,7 +402,7 @@ class TestRequest(BaseRequest):
 
         environ['PATH_INFO'] = path
         if body_instream is None:
-            body_instream = BytesIO('')
+            body_instream = BytesIO(b'')
 
         super(TestRequest, self).__init__(body_instream, environ)
 

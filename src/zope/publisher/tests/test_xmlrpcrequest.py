@@ -39,7 +39,7 @@ class TestXMLRPCRequest(XMLRPCRequest, HTTPCharsets):
         XMLRPCRequest.__init__(self, *args, **kw)
 
 
-xmlrpc_call = '''<?xml version='1.0'?>
+xmlrpc_call = b'''<?xml version='1.0'?>
 <methodCall>
   <methodName>action</methodName>
   <params>
