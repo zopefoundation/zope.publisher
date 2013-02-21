@@ -91,7 +91,7 @@ class HTTPInputStreamTests(unittest.TestCase):
 
     def testRead(self):
         stream = HTTPInputStream(BytesIO(data), {})
-        output = ''
+        output = b''
         self.assertEqual(output, self.getCacheStreamValue(stream))
         output += stream.read(5)
         self.assertEqual(output, self.getCacheStreamValue(stream))
@@ -113,9 +113,9 @@ class HTTPInputStreamTests(unittest.TestCase):
 
     def testReadLines(self):
         stream = HTTPInputStream(BytesIO(data), {})
-        output = ''.join(stream.readlines(4))
+        output = b''.join(stream.readlines(4))
         self.assertEqual(output, self.getCacheStreamValue(stream))
-        output += ''.join(stream.readlines())
+        output += b''.join(stream.readlines())
         self.assertEqual(output, self.getCacheStreamValue(stream))
         self.assertEqual(data, self.getCacheStreamValue(stream))
 
@@ -166,10 +166,10 @@ class HTTPInputStreamTests(unittest.TestCase):
             def read(self, size=-1):
                 if size == -1:
                     raise ServerHung
-                return 'a'*size
+                return b'a'*size
 
         stream = HTTPInputStream(NonClosingStream(), {'CONTENT_LENGTH': '10'})
-        self.assertEquals(stream.getCacheStream().read(), 'aaaaaaaaaa')
+        self.assertEquals(stream.getCacheStream().read(), b'aaaaaaaaaa')
         stream = HTTPInputStream(NonClosingStream(), {})
         self.assertRaises(ServerHung, stream.getCacheStream)
 
@@ -198,7 +198,7 @@ class HTTPTests(unittest.TestCase):
         class Item(object):
             """Required docstring for the publisher."""
             def __call__(self, a, b):
-                return "%s, %s" % (repr(a), repr(b))
+                return ("%s, %s" % (repr(a), repr(b))).encode('latin1')
 
         self.app = AppRoot()
         self.app.folder = Folder()
@@ -731,13 +731,13 @@ class TestHTTPResponse(unittest.TestCase):
         return response
 
     def _parseResult(self, response):
-        return dict(response.getHeaders()), ''.join(response.consumeBody())
+        return dict(response.getHeaders()), response.consumeBody()
 
     def _getResultFromResponse(self, body, charset='utf-8', headers=None):
         response = self._createResponse()
         assert(charset == 'utf-8')
         if headers is not None:
-            for hdr, val in headers.iteritems():
+            for hdr, val in headers.items():
                 response.setHeader(hdr, val)
         response.setResult(body)
         return self._parseResult(response)
@@ -749,7 +749,7 @@ class TestHTTPResponse(unittest.TestCase):
         response.setHeader('Content-Type', 'text/plain;charset=us-ascii')
 
         # Output the data
-        data = 'a'*10
+        data = b'a'*10
         response.setResult(DirectResult(data))
 
         headers, body = self._parseResult(response)
@@ -768,35 +768,35 @@ class TestHTTPResponse(unittest.TestCase):
         headers, body = self._getResultFromResponse("test", "utf-8",
             {"content-type": "text/plain"})
         eq("4", headers["Content-Length"])
-        eq("test", body)
+        eq(b"test", body)
 
         headers, body = self._getResultFromResponse(
             u'\u0442\u0435\u0441\u0442', "utf-8",
             {"content-type": "text/plain"})
         eq("8", headers["Content-Length"])
-        eq('\xd1\x82\xd0\xb5\xd1\x81\xd1\x82', body)
+        eq(b'\xd1\x82\xd0\xb5\xd1\x81\xd1\x82', body)
 
     def testContentType(self):
         eq = self.failUnlessEqual
 
-        headers, body = self._getResultFromResponse("test", "utf-8")
+        headers, body = self._getResultFromResponse(b"test", "utf-8")
         eq("", headers.get("Content-Type", ""))
-        eq("test", body)
+        eq(b"test", body)
 
         headers, body = self._getResultFromResponse(u"test",
             headers={"content-type": "text/plain"})
         eq("text/plain;charset=utf-8", headers["Content-Type"])
-        eq("test", body)
+        eq(b"test", body)
 
         headers, body = self._getResultFromResponse(u"test", "utf-8",
             {"content-type": "text/html"})
         eq("text/html;charset=utf-8", headers["Content-Type"])
-        eq("test", body)
+        eq(b"test", body)
 
         headers, body = self._getResultFromResponse(u"test", "utf-8",
             {"content-type": "text/plain;charset=cp1251"})
         eq("text/plain;charset=cp1251", headers["Content-Type"])
-        eq("test", body)
+        eq(b"test", body)
 
         # see https://bugs.launchpad.net/zope.publisher/+bug/98395
         # RFC 3023 types and */*+xml output as unicode
@@ -804,37 +804,37 @@ class TestHTTPResponse(unittest.TestCase):
         headers, body = self._getResultFromResponse(u"test", "utf-8",
             {"content-type": "text/xml"})
         eq("text/xml;charset=utf-8", headers["Content-Type"])
-        eq("test", body)
+        eq(b"test", body)
 
         headers, body = self._getResultFromResponse(u"test", "utf-8",
             {"content-type": "application/xml"})
         eq("application/xml;charset=utf-8", headers["Content-Type"])
-        eq("test", body)
+        eq(b"test", body)
 
         headers, body = self._getResultFromResponse(u"test", "utf-8",
             {"content-type": "text/xml-external-parsed-entity"})
         eq("text/xml-external-parsed-entity;charset=utf-8",
            headers["Content-Type"])
-        eq("test", body)
+        eq(b"test", body)
 
         headers, body = self._getResultFromResponse(u"test", "utf-8",
             {"content-type": "application/xml-external-parsed-entity"})
         eq("application/xml-external-parsed-entity;charset=utf-8",
            headers["Content-Type"])
-        eq("test", body)
+        eq(b"test", body)
 
         # Mozilla XUL
         headers, body = self._getResultFromResponse(u"test", "utf-8",
             {"content-type": "application/vnd+xml"})
         eq("application/vnd+xml;charset=utf-8", headers["Content-Type"])
-        eq("test", body)
+        eq(b"test", body)
 
         # end RFC 3023 / xml as unicode
 
-        headers, body = self._getResultFromResponse("test", "utf-8",
+        headers, body = self._getResultFromResponse(b"test", "utf-8",
             {"content-type": "image/gif"})
         eq("image/gif", headers["Content-Type"])
-        eq("test", body)
+        eq(b"test", body)
 
     def _getCookieFromResponse(self, cookies):
         # Shove the cookies through request, parse the Set-Cookie header
@@ -842,7 +842,7 @@ class TestHTTPResponse(unittest.TestCase):
         response = self._createResponse()
         for name, value, kw in cookies:
             response.setCookie(name, value, **kw)
-        response.setResult('test')
+        response.setResult(b'test')
         return [header[1]
                 for header in response.getHeaders()
                 if header[0] == "Set-Cookie"]
@@ -907,16 +907,16 @@ class TestHTTPResponse(unittest.TestCase):
             "text/html;charset=utf-8")
         self.assertEquals(response.getStatus(), 500)
         self.assert_(response.consumeBody() in
-            ["<html><head>"
-               "<title>&lt;type 'exceptions.ValueError'&gt;</title></head>\n"
-            "<body><h2>&lt;type 'exceptions.ValueError'&gt;</h2>\n"
-            "A server error occurred.\n"
-            "</body></html>\n",
-            "<html><head><title>ValueError</title></head>\n"
-            "<body><h2>ValueError</h2>\n"
-            "A server error occurred.\n"
-            "</body></html>\n"]
-            )
+             [b"<html><head>"
+              b"<title>&lt;type 'exceptions.ValueError'&gt;</title></head>\n"
+              b"<body><h2>&lt;type 'exceptions.ValueError'&gt;</h2>\n"
+              b"A server error occurred.\n"
+              b"</body></html>\n",
+              b"<html><head><title>ValueError</title></head>\n"
+              b"<body><h2>ValueError</h2>\n"
+              b"A server error occurred.\n"
+              b"</body></html>\n"]
+             )
 
 
 class APITests(BaseTestIPublicationRequest,

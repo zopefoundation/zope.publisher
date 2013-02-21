@@ -238,7 +238,7 @@ class HTTPInputStream(object):
 
     def readlines(self, hint=0):
         data = self.stream.readlines(hint)
-        self.cacheStream.write(''.join(data))
+        self.cacheStream.write(b''.join(data))
         return data
 
 
@@ -815,12 +815,13 @@ class HTTPResponse(BaseResponse):
         content_type = self.getHeader('content-type')
 
         if isinstance(body, unicode):
-            if not unicode_mimetypes_re.match(content_type):
+            ct = content_type
+            if not unicode_mimetypes_re.match(ct):
                 raise ValueError(
                     'Unicode results must have a text, RFC 3023, or '
                     '+xml content type.')
 
-            major, minor, params = zope.contenttype.parse.parse(content_type)
+            major, minor, params = zope.contenttype.parse.parse(ct)
 
             if 'charset' in params:
                 encoding = params['charset']
@@ -924,7 +925,16 @@ class HTTPResponse(BaseResponse):
             return []
         for name, attrs in self._cookies.items():
             name = str(name)
-            c[name] = attrs['value'].encode(ENCODING)
+
+            # In python-2.x, Cookie module expects plain bytes (not unicode).
+            # However, in python-3.x, latin-1 unicode string is expected (not
+            # bytes).  We make this distinction clear here.
+            cookieval = attrs['value'].encode(ENCODING)
+            if PYTHON2:
+                c[name] = cookieval
+            else:
+                c[name] = cookieval.decode('latin-1')
+
             for k,v in attrs.items():
                 if k == 'value':
                     continue
@@ -1051,6 +1061,8 @@ class DirectResult(object):
         self.body = body
 
     def __iter__(self):
+        if isinstance(self.body, bytes):
+            return iter([self.body])
         return iter(self.body)
 
 
