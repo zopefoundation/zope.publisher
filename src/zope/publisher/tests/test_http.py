@@ -131,24 +131,24 @@ class HTTPInputStreamTests(unittest.TestCase):
         # definitely over that).
 
         # HTTPInputStream understands both CONTENT_LENGTH...
-        stream = HTTPInputStream(BytesIO(data), {'CONTENT_LENGTH': '100000'})
-        self.assertTrue(isinstance(stream.getCacheStream(), TempFileType))
+        stream1 = HTTPInputStream(BytesIO(data), {'CONTENT_LENGTH': '100000'})
+        self.assertTrue(isinstance(stream1.getCacheStream(), TempFileType))
 
         # ... and HTTP_CONTENT_LENGTH.
-        stream = HTTPInputStream(BytesIO(data), {'HTTP_CONTENT_LENGTH':
+        stream2 = HTTPInputStream(BytesIO(data), {'HTTP_CONTENT_LENGTH':
                                                   '100000'})
-        self.assertTrue(isinstance(stream.getCacheStream(), TempFileType))
+        self.assertTrue(isinstance(stream2.getCacheStream(), TempFileType))
 
         # If CONTENT_LENGTH is absent or empty, it takes the value
         # given in HTTP_CONTENT_LENGTH:
-        stream = HTTPInputStream(BytesIO(data),
+        stream3 = HTTPInputStream(BytesIO(data),
                                  {'CONTENT_LENGTH': '',
                                   'HTTP_CONTENT_LENGTH': '100000'})
-        self.assertTrue(isinstance(stream.getCacheStream(), TempFileType))
+        self.assertTrue(isinstance(stream3.getCacheStream(), TempFileType))
 
         # In fact, HTTPInputStream can be instantiated with both an
         # empty CONTENT_LENGTH and an empty HTTP_CONTENT_LENGTH:
-        stream = HTTPInputStream(BytesIO(data),
+        stream4 = HTTPInputStream(BytesIO(data),
                                  {'CONTENT_LENGTH': '',
                                   'HTTP_CONTENT_LENGTH': ''})
 

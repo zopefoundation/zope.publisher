@@ -33,7 +33,6 @@ from zope.publisher.interfaces.http import IHTTPVirtualHostChangedEvent
 from zope.publisher.interfaces.http import IResult
 from zope.publisher.interfaces.logginginfo import ILoggingInfo
 from zope.publisher.skinnable import setDefaultSkin
-import cgi
 import logging
 import tempfile
 import types
@@ -48,9 +47,11 @@ if PYTHON2:
     import Cookie as cookies
     from urllib import splitport, quote
     from urlparse import urlsplit
+    from cgi import escape
 else:
     import http.cookies as cookies
     from urllib.parse import splitport, quote, urlsplit
+    from html import escape
     unicode = str
     basestring = (str, bytes)
 
@@ -416,7 +417,7 @@ class HTTPRequest(BaseRequest):
         try:
             c = cookies.SimpleCookie(text)
         except cookies.CookieError as e:
-            eventlog.warn(e)
+            eventlog.warning(e)
             return result
 
         for k,v in c.items():
@@ -873,7 +874,7 @@ class HTTPResponse(BaseResponse):
         self.setStatus(500, u"The engines can't take any more, Jim!")
 
     def _html(self, title, content):
-        t = cgi.escape(title)
+        t = escape(title)
         return (
             u"<html><head><title>%s</title></head>\n"
             u"<body><h2>%s</h2>\n"
@@ -921,7 +922,7 @@ class HTTPResponse(BaseResponse):
         try:
             c = cookies.SimpleCookie()
         except cookies.CookieError as e:
-            eventlog.warn(e)
+            eventlog.warning(e)
             return []
         for name, attrs in self._cookies.items():
             name = str(name)
