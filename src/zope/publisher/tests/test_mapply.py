@@ -45,8 +45,11 @@ class MapplyTests(unittest.TestCase):
         v = mapply(cc.compute, (), values)
         self.failUnlessEqual(v, '334')
 
-    @unittest.skipUnless(PYTHON2, "Classic classes are only available in py3")
     def testClassicClass(self):
+        if not PYTHON2:
+            # Classic classes are only available in py3
+            return
+
         values = {'a':2, 'b':3}
         class c(object):
             a = 3
