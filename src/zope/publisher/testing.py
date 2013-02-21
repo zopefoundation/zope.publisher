@@ -12,10 +12,27 @@
 #
 ##############################################################################
 
+import re
 import contextlib
 import zope.publisher.browser
 import zope.security.management
 import zope.security.testing
+from zope.testing import renormalizing
+
+from zope.publisher._compat import PYTHON2
+
+if PYTHON2:
+    rules = [(re.compile("b('.*?')"), r"\1"),
+             (re.compile('b(".*?")'), r"\1"),
+            ]
+    output_checker = renormalizing.RENormalizing(rules)
+else:
+    rules = [(re.compile("u('.*?')"), r"\1"),
+             (re.compile('u(".*?")'), r"\1"),
+             (re.compile("b('.*?')"), r"\1"),
+             (re.compile('b(".*?")'), r"\1"),
+            ]
+    output_checker = renormalizing.RENormalizing(rules)
 
 
 # These are enhanced versions of the ones in zope.security.testing,

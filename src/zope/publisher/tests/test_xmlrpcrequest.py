@@ -14,7 +14,7 @@
 """XML-RPC Request Tests
 """
 import unittest
-from StringIO import StringIO
+from io import BytesIO
 
 from zope.publisher.base import DefaultPublication
 from zope.publisher.http import HTTPCharsets
@@ -39,7 +39,7 @@ class TestXMLRPCRequest(XMLRPCRequest, HTTPCharsets):
         XMLRPCRequest.__init__(self, *args, **kw)
 
 
-xmlrpc_call = u'''<?xml version='1.0'?>
+xmlrpc_call = b'''<?xml version='1.0'?>
 <methodCall>
   <methodName>action</methodName>
   <params>
@@ -81,7 +81,7 @@ class XMLRPCTests(unittest.TestCase):
         class Item(object):
 
             def __call__(self, a, b):
-                return "%s, %s" % (`a`, `b`)
+                return "%s, %s" % (repr(a), repr(b))
 
             def doit(self, a, b):
                 return 'do something %s %s' % (a, b)
@@ -90,7 +90,7 @@ class XMLRPCTests(unittest.TestCase):
 
             def action(self, a):
                 return "Parameter[type: %s; value: %s" %(
-                    type(a).__name__, `a`)
+                    type(a).__name__, repr(a))
 
         class Item2(object):
             view = View()
@@ -109,7 +109,7 @@ class XMLRPCTests(unittest.TestCase):
             env['CONTENT_LENGTH'] = str(len(body))
 
         publication = Publication(self.app)
-        instream = StringIO(body)
+        instream = BytesIO(body)
         request = TestXMLRPCRequest(instream, env)
         request.setPublication(publication)
         return request
@@ -118,15 +118,15 @@ class XMLRPCTests(unittest.TestCase):
     def testProcessInput(self):
         req = self._createRequest({}, xmlrpc_call)
         req.processInputs()
-        self.failUnlessEqual(req.getPositionalArguments(), (1,))
-        self.failUnlessEqual(tuple(req._path_suffix), ('action',))
+        self.assertEqual(req.getPositionalArguments(), (1,))
+        self.assertEqual(tuple(req._path_suffix), ('action',))
 
 
     def testTraversal(self):
         req = self._createRequest({}, xmlrpc_call)
         req.processInputs()
         action = req.traverse(self.app)
-        self.failUnlessEqual(action(*req.getPositionalArguments()),
+        self.assertEqual(action(*req.getPositionalArguments()),
                              "Parameter[type: int; value: 1")
 
 

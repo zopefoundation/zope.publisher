@@ -60,7 +60,7 @@ class CacheableBrowserLanguagesTests(BrowserLanguagesTest):
         return CacheableBrowserLanguages(request)
 
     def test_cached_languages(self):
-        eq = self.failUnlessEqual
+        eq = self.assertEqual
         request = TestRequest("da, en, pt")
         browser_languages = self.factory(request)
         eq(list(browser_languages.getPreferredLanguages()), ["da", "en", "pt"])
@@ -73,12 +73,12 @@ class ModifiableBrowserLanguagesTests(CacheableBrowserLanguagesTests):
         return ModifiableBrowserLanguages(request)
 
     def test_setPreferredLanguages(self):
-        eq = self.failUnlessEqual
+        eq = self.assertEqual
         request = TestRequest("da, en, pt")
         browser_languages = self.factory(request)
         eq(list(browser_languages.getPreferredLanguages()), ["da", "en", "pt"])
         browser_languages.setPreferredLanguages(["ru", "en"])
-        self.failUnless(request.localized)
+        self.assertTrue(request.localized)
         eq(list(browser_languages.getPreferredLanguages()), ["ru", "en"])
 
     def test_conflicting_adapters(self):

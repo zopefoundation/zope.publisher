@@ -13,7 +13,9 @@
 ##############################################################################
 """HTTP Publisher
 """
-from cStringIO import StringIO
+import sys
+import base64
+from io import BytesIO
 from zope.i18n.interfaces import IUserPreferredCharsets
 from zope.i18n.interfaces import IUserPreferredLanguages
 from zope.i18n.locales import locales, LoadLocaleError
@@ -31,18 +33,27 @@ from zope.publisher.interfaces.http import IHTTPVirtualHostChangedEvent
 from zope.publisher.interfaces.http import IResult
 from zope.publisher.interfaces.logginginfo import ILoggingInfo
 from zope.publisher.skinnable import setDefaultSkin
-import Cookie
-import cgi
 import logging
 import tempfile
 import types
-import urllib
-import urlparse
 import zope.component
 import zope.contenttype.parse
 import zope.event
 import zope.interface
 
+from zope.publisher._compat import PYTHON2, CLASS_TYPES, _u
+
+if PYTHON2:
+    import Cookie as cookies
+    from urllib import splitport, quote
+    from urlparse import urlsplit
+    from cgi import escape
+else:
+    import http.cookies as cookies
+    from urllib.parse import splitport, quote, urlsplit
+    from html import escape
+    unicode = str
+    basestring = (str, bytes)
 
 # Default Encoding
 ENCODING = 'UTF-8'
@@ -72,7 +83,10 @@ def sane_environment(env):
     if 'HTTP_CGI_AUTHORIZATION' in dict:
         dict['HTTP_AUTHORIZATION'] = dict.pop('HTTP_CGI_AUTHORIZATION')
     if 'PATH_INFO' in dict:
-        dict['PATH_INFO'] = dict['PATH_INFO'].decode('utf-8')
+        # Recode PATH_INFO to UTF-8 from original latin1
+        pi = dict['PATH_INFO']
+        pi = pi if isinstance(pi, bytes) else pi.encode('latin1')
+        dict['PATH_INFO'] = pi.decode(ENCODING)
     return dict
 
 @zope.interface.implementer(IHTTPVirtualHostChangedEvent)
@@ -176,8 +190,8 @@ class URLGetter(object):
                 return self.__request.getURL(i)
             else:
                 return self.__request.getApplicationURL(i)
-        except IndexError, v:
-            if v[0] == i:
+        except IndexError as v:
+            if v.args[0] == i:
                 return default
             raise
 
@@ -195,7 +209,7 @@ class HTTPInputStream(object):
         if not size:
             size = environment.get('HTTP_CONTENT_LENGTH')
         if not size or int(size) < 65536:
-            self.cacheStream = StringIO()
+            self.cacheStream = BytesIO()
         else:
             self.cacheStream = tempfile.TemporaryFile()
         self.size = size and int(size) or -1
@@ -225,7 +239,7 @@ class HTTPInputStream(object):
 
     def readlines(self, hint=0):
         data = self.stream.readlines(hint)
-        self.cacheStream.write(''.join(data))
+        self.cacheStream.write(b''.join(data))
         return data
 
 
@@ -352,7 +366,7 @@ class HTTPRequest(BaseRequest):
         script = get_env('SCRIPT_NAME', '').strip()
 
         # _script and the other _names are meant for URL construction
-        self._app_names = filter(None, script.split('/'))
+        self._app_names = [f for f in script.split('/') if f]
 
         # get server URL and store it too, since we are already looking it up
         server_url = get_env('SERVER_URL', None)
@@ -379,9 +393,9 @@ class HTTPRequest(BaseRequest):
         else:
             protocol = 'http'
 
-        if environ.has_key('HTTP_HOST'):
+        if 'HTTP_HOST' in environ:
             host = environ['HTTP_HOST'].strip()
-            hostname, port = urllib.splitport(host)
+            hostname, port = splitport(host)
         else:
             hostname = environ.get('SERVER_NAME', '').strip()
             port = environ.get('SERVER_PORT', '')
@@ -401,13 +415,18 @@ class HTTPRequest(BaseRequest):
 
         # ignore cookies on a CookieError
         try:
-            c = Cookie.SimpleCookie(text)
-        except Cookie.CookieError, e:
-            eventlog.warn(e)
+            c = cookies.SimpleCookie(text)
+        except cookies.CookieError as e:
+            eventlog.warning(e)
             return result
 
         for k,v in c.items():
-            result[unicode(k, ENCODING)] = unicode(v.value, ENCODING)
+            # recode cookie value to ENCODING (UTF-8)
+            rk = _u(k if type(k) == bytes
+                    else k.encode('latin1'), ENCODING)
+            rv = _u(v.value if type(v.value) == bytes
+                    else v.value.encode('latin1'), ENCODING)
+            result[rk] = rv
 
         return result
 
@@ -491,7 +510,9 @@ class HTTPRequest(BaseRequest):
         'See IHTTPCredentials'
         if self._auth and self._auth.lower().startswith('basic '):
             encoded = self._auth.split(None, 1)[-1]
-            name, password = encoded.decode("base64").split(':', 1)
+            decoded = base64.b64decode(encoded.encode('iso-8859-1'))
+            name, password = bytes.split(decoded, b':', 1)
+            #name, password = base64.b64decode(encoded.encode('ascii')).split(':', 1)
             return name, password
 
     def unauthorized(self, challenge):
@@ -521,8 +542,7 @@ class HTTPRequest(BaseRequest):
                 raise IndexError(level)
             names = names[:-level]
         # See: http://www.ietf.org/rfc/rfc2718.txt, Section 2.2.5
-        names = [urllib.quote(name.encode("utf-8"), safe='/+@')
-                 for name in names]
+        names = [quote(name.encode("utf-8"), safe='/+@') for name in names]
 
         if path_only:
             if not names:
@@ -544,8 +564,7 @@ class HTTPRequest(BaseRequest):
             names = self._app_names
 
         # See: http://www.ietf.org/rfc/rfc2718.txt, Section 2.2.5
-        names = [urllib.quote(name.encode("utf-8"), safe='/+@')
-                 for name in names]
+        names = [quote(name.encode("utf-8"), safe='/+@') for name in names]
 
         if path_only:
             return names and ('/' + '/'.join(names)) or '/'
@@ -784,7 +803,7 @@ class HTTPResponse(BaseResponse):
 
     def consumeBody(self):
         'See IHTTPResponse'
-        return ''.join(self._result)
+        return b''.join(self._result)
 
 
     def consumeBodyIter(self):
@@ -797,12 +816,13 @@ class HTTPResponse(BaseResponse):
         content_type = self.getHeader('content-type')
 
         if isinstance(body, unicode):
-            if not unicode_mimetypes_re.match(content_type):
+            ct = content_type
+            if not unicode_mimetypes_re.match(ct):
                 raise ValueError(
                     'Unicode results must have a text, RFC 3023, or '
                     '+xml content type.')
 
-            major, minor, params = zope.contenttype.parse.parse(content_type)
+            major, minor, params = zope.contenttype.parse.parse(ct)
 
             if 'charset' in params:
                 encoding = params['charset']
@@ -833,13 +853,13 @@ class HTTPResponse(BaseResponse):
         Calls self.setBody() with an error response.
         """
         t, v = exc_info[:2]
-        if isinstance(t, (types.ClassType, type)):
+        if isinstance(t, CLASS_TYPES):
             if issubclass(t, Redirect):
                 self.redirect(v.getLocation())
                 return
             title = tname = t.__name__
         else:
-            title = tname = unicode(t)
+            title = tname = _u(t)
 
         # Throwing non-protocol-specific exceptions is a good way
         # for apps to control the status code.
@@ -854,7 +874,7 @@ class HTTPResponse(BaseResponse):
         self.setStatus(500, u"The engines can't take any more, Jim!")
 
     def _html(self, title, content):
-        t = cgi.escape(title)
+        t = escape(title)
         return (
             u"<html><head><title>%s</title></head>\n"
             u"<body><h2>%s</h2>\n"
@@ -900,13 +920,22 @@ class HTTPResponse(BaseResponse):
 
     def _cookie_list(self):
         try:
-            c = Cookie.SimpleCookie()
-        except Cookie.CookieError, e:
-            eventlog.warn(e)
+            c = cookies.SimpleCookie()
+        except cookies.CookieError as e:
+            eventlog.warning(e)
             return []
         for name, attrs in self._cookies.items():
             name = str(name)
-            c[name] = attrs['value'].encode(ENCODING)
+
+            # In python-2.x, Cookie module expects plain bytes (not unicode).
+            # However, in python-3.x, latin-1 unicode string is expected (not
+            # bytes).  We make this distinction clear here.
+            cookieval = attrs['value'].encode(ENCODING)
+            if PYTHON2:
+                c[name] = cookieval
+            else:
+                c[name] = cookieval.decode('latin-1')
+
             for k,v in attrs.items():
                 if k == 'value':
                     continue
@@ -918,7 +947,7 @@ class HTTPResponse(BaseResponse):
                     k = 'max-age'
                 elif k == 'comment':
                     # Encode rather than throw an exception
-                    v = urllib.quote(v.encode('utf-8'), safe="/?:@&+")
+                    v = quote(v.encode('utf-8'), safe="/?:@&+")
                 c[name][k] = str(v)
         return str(c).splitlines()
 
@@ -929,16 +958,15 @@ class HTTPResponse(BaseResponse):
             "for more information."
             )
 
-def sort_charsets(x, y):
-    if y[1] == 'utf-8':
-        return 1
-    if x[1] == 'utf-8':
-        return -1
-    return cmp(y, x)
-
+def sort_charsets(charset):
+    # Make utf-8 to be the last element of the sorted list
+    if charset[1] == 'utf-8':
+        return (1, charset)
+    # Otherwise, sort by charset
+    return (0, charset)
 
 def extract_host(url):
-    scheme, host, path, query, fragment = urlparse.urlsplit(url)
+    scheme, host, path, query, fragment = urlsplit(url)
     if ':' not in host:
         port = DEFAULT_PORTS.get(scheme)
         if port:
@@ -996,7 +1024,7 @@ class HTTPCharsets(object):
         # range , unlike many other encodings. Since Zope can easily use very
         # different ranges, like providing a French-Chinese dictionary, it is
         # always good to use UTF-8.
-        charsets.sort(sort_charsets)
+        charsets.sort(key=sort_charsets, reverse=True)
         charsets = [charset for quality, charset in charsets]
         if sawstar and 'utf-8' not in charsets:
             charsets.insert(0, 'utf-8')
@@ -1034,6 +1062,8 @@ class DirectResult(object):
         self.body = body
 
     def __iter__(self):
+        if isinstance(self.body, bytes):
+            return iter([self.body])
         return iter(self.body)
 
 

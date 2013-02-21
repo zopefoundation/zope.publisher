@@ -11,24 +11,24 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""Tests for BaseResponse
+"""Compatibility module for xmlrpclib
+
+This module unifies namespace for xmlrpclib, that changed its name in
+python-3.x (became xmlrpc.client).
+
+The intention is to let xmlrpclib names to be importable from zcml.
 """
+import sys
+PYTHON2 = sys.version_info[0] == 2
+PYTHON3 = sys.version_info[0] == 3
 
-from unittest import TestCase, TestSuite, main, makeSuite
-from zope.publisher.base import BaseResponse
-from zope.publisher.interfaces import IResponse
-from zope.interface.verify import verifyObject
+if PYTHON2:
+    _u = unicode
+    from xmlrpclib import *
+    import types
+    CLASS_TYPES = (type, types.ClassType)
+else:
+    _u = str
+    CLASS_TYPES = (type,)
+    from xmlrpc.client import *
 
-class TestBaseResponse(TestCase):
-
-    def test_interface(self):
-        verifyObject(IResponse, BaseResponse())
-
-
-def test_suite():
-    return TestSuite((
-        makeSuite(TestBaseResponse),
-        ))
-
-if __name__=='__main__':
-    main(defaultTest='test_suite')

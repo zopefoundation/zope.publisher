@@ -13,6 +13,7 @@
 ##############################################################################
 """FTP Publisher
 """
+import six
 from zope.interface import implementer
 from zope.publisher.interfaces.ftp import IFTPCredentials, IFTPRequest
 from zope.publisher.base import BaseResponse, BaseRequest
@@ -27,7 +28,7 @@ class FTPResponse(BaseResponse):
 
     def getResult(self):
         if getattr(self, '_exc', None) is not None:
-            raise self._exc[0], self._exc[1], self._exc[2]
+            six.reraise(self._exc[0], self._exc[1], self._exc[2])
         return self._result
 
     def handleException(self, exc_info):

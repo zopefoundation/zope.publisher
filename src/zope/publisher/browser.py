@@ -21,7 +21,6 @@ packaged into a nice, Python-friendly 'FileUpload' object.
 __docformat__ = 'restructuredtext'
 
 import re
-from types import ListType, TupleType, StringType
 from cgi import FieldStorage
 import tempfile
 
@@ -42,7 +41,7 @@ from zope.publisher.interfaces.browser import IBrowserView
 from zope.publisher.interfaces.browser import IBrowserPage
 from zope.publisher.interfaces.browser import IBrowserSkinType
 from zope.publisher.interfaces.http import IHTTPRequest
-from zope.publisher.http import HTTPRequest, HTTPResponse
+from zope.publisher.http import HTTPRequest, HTTPResponse, getCharsetUsingRequest
 
 # BBB imports, this compoennts get moved from this module
 from zope.publisher.interfaces import ISkinType #BBB import
@@ -52,11 +51,13 @@ from zope.publisher.skinnable import setDefaultSkin #BBB import
 from zope.publisher.skinnable import applySkin #BBB import
 from zope.publisher.skinnable import SkinChangedEvent #BBB import
 
+from zope.publisher._compat import PYTHON2, _u
 
-__ArrayTypes = (ListType, TupleType)
 
-start_of_header_search=re.compile('(<head[^>]*>)', re.I).search
-base_re_search=re.compile('(<base.*?>)',re.I).search
+__ArrayTypes = (list, tuple)
+
+start_of_header_search=re.compile(b'(<head[^>]*>)', re.I).search
+base_re_search=re.compile(b'(<base.*?>)',re.I).search
 isRelative = re.compile("[-_.!~*a-zA-z0-9'()@&=+$,]+(/|$)").match
 newlines = re.compile('\r\n|\n\r|\r')
 
@@ -89,7 +90,7 @@ def field2required(v):
 
 def field2int(v):
     if isinstance(v, __ArrayTypes):
-        return map(field2int, v)
+        return list(map(field2int, v))
     v = field2string(v)
     if not v:
         raise ValueError('Empty entry when <strong>integer</strong> expected')
@@ -100,7 +101,7 @@ def field2int(v):
 
 def field2float(v):
     if isinstance(v, __ArrayTypes):
-        return map(field2float, v)
+        return list(map(field2float, v))
     v = field2string(v)
     if not v:
         raise ValueError(
@@ -113,7 +114,7 @@ def field2float(v):
 
 def field2long(v):
     if isinstance(v, __ArrayTypes):
-        return map(field2long, v)
+        return list(map(field2long, v))
     v = field2string(v)
 
     # handle trailing 'L' if present.
@@ -122,7 +123,7 @@ def field2long(v):
     if not v:
         raise ValueError('Empty entry when <strong>integer</strong> expected')
     try:
-        return long(v)
+        return int(v)
     except ValueError:
         raise ValueError("A long integer was expected in the value '%s'" % v)
 
@@ -165,7 +166,7 @@ def registerTypeConverter(field_type, converter, replace=False):
     type_converters[field_type] = converter
 
 
-isCGI_NAME = {
+isCGI_NAME = lambda key: key in {
     # These fields are placed in request.environ instead of request.form.
     'SERVER_SOFTWARE' : 1,
     'SERVER_NAME' : 1,
@@ -185,12 +186,12 @@ isCGI_NAME = {
     'CONTENT_TYPE' : 1,
     'CONTENT_LENGTH' : 1,
     'SERVER_URL': 1,
-    }.has_key
+    }
 
-hide_key={
+hide_key=lambda key: key in {
     'HTTP_AUTHORIZATION':1,
     'HTTP_CGI_AUTHORIZATION': 1,
-    }.has_key
+     }
 
 class Record(object):
 
@@ -206,12 +207,12 @@ class Record(object):
         return self.__dict__[key]
 
     def __str__(self):
-        items = self.__dict__.items()
+        items = list(self.__dict__.items())
         items.sort()
         return "{" + ", ".join(["%s: %s" % item for item in items]) + "}"
 
     def __repr__(self):
-        items = self.__dict__.items()
+        items = list(self.__dict__.items())
         items.sort()
         return ("{"
             + ", ".join(["%s: %s" % (key, repr(value))
@@ -246,13 +247,19 @@ class BrowserRequest(HTTPRequest):
 
     def _decode(self, text):
         """Try to decode the text using one of the available charsets."""
+        # According to PEP-3333, in python-3, QUERY_STRING is a string,
+        # representing 'latin-1' encoded byte array. So, if we are in python-3
+        # context, encode text as 'latin-1' first, to try to decode
+        # resulting byte array using user-supplied charset.
+        if not isinstance(text, bytes):
+            text = text.encode('latin-1')
         if self.charsets is None:
             envadapter = IUserPreferredCharsets(self)
             self.charsets = envadapter.getPreferredCharsets() or ['utf-8']
             self.charsets = [c for c in self.charsets if c != '*']
         for charset in self.charsets:
             try:
-                text = unicode(text, charset)
+                text = _u(text, charset)
                 break
             except UnicodeError:
                 pass
@@ -292,8 +299,9 @@ class BrowserRequest(HTTPRequest):
             del env['QUERY_STRING']
 
 
+        args = {'encoding': 'utf-8'} if not PYTHON2 else {}
         fs = ZopeFieldStorage(fp=fp, environ=env,
-                              keep_blank_values=1)
+                              keep_blank_values=1, **args)
 
         fslist = getattr(fs, 'list', None)
         if fslist is not None:
@@ -389,11 +397,10 @@ class BrowserRequest(HTTPRequest):
                 # skip over empty fields
                 return
 
-        # Make it unicode if not None
         if key is not None:
             key = self._decode(key)
 
-        if type(item) == StringType:
+        if isinstance(item, (str, bytes)):
             item = self._decode(item)
 
         if flags:
@@ -516,7 +523,7 @@ class BrowserRequest(HTTPRequest):
         """Insert defaults into form dictionary."""
         form = self.form
 
-        for keys, values in self.__defaults.iteritems():
+        for keys, values in self.__defaults.items():
             if not keys in form:
                 form[keys] = values
             else:
@@ -583,7 +590,7 @@ class BrowserRequest(HTTPRequest):
         d.update(self._environ)
         d.update(self._cookies)
         d.update(self.form)
-        return d.keys()
+        return list(d.keys())
 
 
     def get(self, key, default=None):
@@ -630,7 +637,9 @@ class FileUpload(object):
                 d[m] = getattr(file,m)
 
         self.headers = aFieldStorage.headers
-        filename = unicode(aFieldStorage.filename, 'UTF-8')
+        filename = aFieldStorage.filename
+        if isinstance(aFieldStorage.filename, bytes):
+            filename = _u(aFieldStorage.filename, 'UTF-8')
         # fix for IE full paths
         filename = filename[filename.rfind('\\')+1:].strip()
         self.filename = filename
@@ -661,8 +670,8 @@ class TestRequest(BrowserRequest):
         if kw:
             _testEnv.update(kw)
         if body_instream is None:
-            from StringIO import StringIO
-            body_instream = StringIO('')
+            from io import BytesIO
+            body_instream = BytesIO()
 
         super(TestRequest, self).__init__(body_instream, _testEnv)
         if form:
@@ -728,9 +737,17 @@ class BrowserResponse(HTTPResponse):
                     ibase = base_re_search(body)
                     if ibase is None:
                         # Make sure the base URL is not a unicode string.
-                        base = str(self.getBase())
-                        body = ('%s\n<base href="%s" />\n%s' %
-                                (body[:index], base, body[index:]))
+                        base = self.getBase()
+                        if not isinstance(base, bytes):
+                            encoding = getCharsetUsingRequest(self._request) or 'utf-8'
+                            base = self.getBase().encode(encoding)
+                        #body = (b'%s\n<base href="%s" />\n%s' %
+                        #        (body[:index], base, body[index:]))
+                        body = b''.join([body[:index],
+                                         b'\n<base href="',
+                                         base,
+                                         b'" />\n',
+                                         body[index:]])
         return body
 
     def getBase(self):

@@ -16,6 +16,8 @@
 Provide an apply-like facility that works with any mapping object
 """
 import sys
+
+import six
 from zope import component
 from zope.interface import implementer
 from zope.publisher.interfaces import Retry, IReRaiseException
@@ -39,11 +41,11 @@ def unwrapMethod(obj):
         if bases is not None:
             raise TypeError("mapply() can not call class constructors")
 
-        im_func = getattr(unwrapped, 'im_func', None)
+        im_func = getattr(unwrapped, '__func__', None)
         if im_func is not None:
             unwrapped = im_func
             wrapperCount += 1
-        elif getattr(unwrapped, 'func_code', None) is not None:
+        elif getattr(unwrapped, '__code__', None) is not None:
             break
         else:
             unwrapped = getattr(unwrapped, '__call__' , None)
@@ -64,8 +66,8 @@ def mapply(obj, positional=(), request={}):
 
     unwrapped, wrapperCount = unwrapMethod(unwrapped)
 
-    code = unwrapped.func_code
-    defaults = unwrapped.func_defaults
+    code = unwrapped.__code__
+    defaults = unwrapped.__defaults__
     names = code.co_varnames[wrapperCount:code.co_argcount]
 
     nargs = len(names)
@@ -154,7 +156,7 @@ def publish(request, handle_errors=True):
 
                     break # Successful.
 
-                except Retry, retryException:
+                except Retry as retryException:
                     if request.supportsRetry():
                         # Create a copy of the request and use it.
                         newrequest = request.retry()
@@ -187,7 +189,7 @@ def publish(request, handle_errors=True):
 
         response = request.response
         if to_raise is not None:
-            raise to_raise[0], to_raise[1], to_raise[2]
+            six.reraise(to_raise[0], to_raise[1], to_raise[2])
 
     finally:
         to_raise = None  # Avoid circ. ref.

@@ -29,6 +29,11 @@ passed.
 Detailed example
 ================
 
+We will use python3 compatible print statement, so import it from the
+future.
+
+    >>> from __future__ import print_function
+
 There's a sample publication class in
 zope.publisher.tests.test_paste.SamplePublication. It is a class that
 takes a global_config positional argument and arbitrary keyword
@@ -55,13 +60,13 @@ We can perform a test web request by calling the app factory with an
 environment dictionary and a start-response function:
 
     >>> def start_response(status, headers):
-    ...     print status
-    >>> import cStringIO
+    ...     print(status)
+    >>> import io
     >>> env = {'CONTENT_TYPE': 'text/plain', 'PATH_INFO': '/a/b',
-    ...        'REQUEST_METHOD': 'GET', 'wsgi.input':  cStringIO.StringIO('')}
+    ...        'REQUEST_METHOD': 'GET', 'wsgi.input':  io.BytesIO(b'')}
 
     >>> for data in app(env, start_response):
-    ...     print data
+    ...     print(data.decode('latin-1'))
     200 Ok
     <html><body>Thanks for your request:<br />
     <h1>BrowserRequest</h1>
@@ -70,7 +75,7 @@ environment dictionary and a start-response function:
     PATH_INFO:	/a/b
     QUERY_STRING:	
     REQUEST_METHOD:	GET
-    wsgi.input:	<cStringIO.StringI object at ...>
+    wsgi.input:	<...io.BytesIO object at ...>
     </pre>
     <h1>Publication arguments:</h1>
     Globals: {'global_option': 42}<br />

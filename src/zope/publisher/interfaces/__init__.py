@@ -62,10 +62,10 @@ class NotFound(LookupError, TraversalException):
 
     def __str__(self):
         try:
-            ob = `self.ob`
+            ob = repr(self.ob)
         except:
             ob = 'unprintable object'
-        return 'Object: %s, name: %s' % (ob, `self.name`)
+        return 'Object: %s, name: %s' % (ob, repr(self.name))
 
 class IDebugError(ITraversalException):
     def getObject():

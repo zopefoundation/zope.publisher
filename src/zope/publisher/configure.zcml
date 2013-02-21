@@ -61,15 +61,15 @@
     provides="zope.i18n.interfaces.IModifiableUserPreferredLanguages"
     />
   
-  <class class="xmlrpclib.Binary">
+  <class class="._compat.Binary">
     <allow attributes="data encode decode" />
   </class>
 
-  <class class="xmlrpclib.Fault">
+  <class class="._compat.Fault">
     <allow attributes="faultCode faultString" />
   </class>
 
-  <class class="xmlrpclib.DateTime">
+  <class class="._compat.DateTime">
     <allow attributes="value" />
   </class>
 
