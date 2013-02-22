@@ -19,7 +19,7 @@ __docformat__ = 'restructuredtext'
 
 import sys
 import datetime
-from io import StringIO
+from io import BytesIO
 
 import zope.component
 import zope.interface
@@ -82,7 +82,7 @@ class TestRequest(XMLRPCRequest):
         if kw:
             _testEnv.update(kw)
         if body_instream is None:
-            body_instream = StringIO('')
+            body_instream = BytesIO(b'')
 
         super(TestRequest, self).__init__(body_instream, _testEnv, response)
 
