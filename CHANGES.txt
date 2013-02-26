@@ -1,6 +1,11 @@
 CHANGES
 =======
 
+4.0.0a2 (2013-02-22)
+--------------------
+
+- Use BytesIO in zope.publisher.xmlrpc.TestRequest.
+
 4.0.0a1 (2013-02-21)
 --------------------
 
