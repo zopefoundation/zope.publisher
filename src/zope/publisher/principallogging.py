@@ -31,4 +31,4 @@ class PrincipalLogging(object):
 
     def getLogMessage(self):
         pid = self.principal.id
-        return pid.encode('ascii', 'backslashreplace').decode('latin1')
+        return pid.encode('ascii', 'backslashreplace')

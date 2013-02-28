@@ -35,7 +35,7 @@ class TestPrincipalLogging(unittest.TestCase):
         from zope.publisher.principallogging import PrincipalLogging
         principal = PrincipalStub()
         pl = PrincipalLogging(principal)
-        self.assertEqual(pl.getLogMessage(), '\\xfc principal')
+        self.assertEqual(pl.getLogMessage(), b'\\xfc principal')
 
 
 def test_suite():

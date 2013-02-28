@@ -1,6 +1,11 @@
 CHANGES
 =======
 
+4.0.0a3 (2013-02-28)
+--------------------
+
+- PrincipalLogging.getLogMessage will return bytes instead of unicode.
+
 4.0.0a2 (2013-02-22)
 --------------------
 
