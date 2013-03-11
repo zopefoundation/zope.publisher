@@ -49,7 +49,8 @@ ENCODING = 'UTF-8'
 
 # not just text/* but RFC 3023 and */*+xml
 import re
-unicode_mimetypes_re = re.compile(r"^text\/.*$|^.*\/xml.*$|^.*\+xml$")
+unicode_mimetypes_re = re.compile(
+    r"^text\/.*$|^.*\/xml.*$|^.*\+xml$|^application/json$")
 
 eventlog = logging.getLogger('eventlog')
 
@@ -799,8 +800,8 @@ class HTTPResponse(BaseResponse):
         if isinstance(body, unicode):
             if not unicode_mimetypes_re.match(content_type):
                 raise ValueError(
-                    'Unicode results must have a text, RFC 3023, or '
-                    '+xml content type.')
+                    'Unicode results must have a text, RFC 3023, RFC 4627,'
+                    ' or +xml content type.')
 
             major, minor, params = zope.contenttype.parse.parse(content_type)
 
@@ -816,9 +817,14 @@ class HTTPResponse(BaseResponse):
                 encoding = 'utf-8'
                 body = body.encode(encoding)
 
-            params['charset'] = encoding
-            content_type = "%s/%s;" % (major, minor)
-            content_type += ";".join(k + "=" + v for k, v in params.items())
+            if (major, minor) != ('application', 'json'):
+                # The RFC says this is UTF-8, and the type has no params.
+                params['charset'] = encoding
+            content_type = "%s/%s" % (major, minor)
+            if params:
+                content_type += ";"
+                content_type += ";".join(k + "=" + v
+                                         for k, v in params.items())
 
         if content_type:
             headers = [('content-type', content_type),

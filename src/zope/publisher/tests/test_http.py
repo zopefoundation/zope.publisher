@@ -831,6 +831,11 @@ class TestHTTPResponse(unittest.TestCase):
         eq("image/gif", headers["Content-Type"])
         eq("test", body)
 
+        headers, body = self._getResultFromResponse(u"test", "utf-8",
+            {"content-type": "application/json"})
+        eq("application/json", headers["Content-Type"])
+        eq(b"test", body)
+
     def _getCookieFromResponse(self, cookies):
         # Shove the cookies through request, parse the Set-Cookie header
         # and spit out a list of headers for examination
