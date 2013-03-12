@@ -1,6 +1,12 @@
 CHANGES
 =======
 
+4.0.0a4 (2013-03-12)
+--------------------
+
+- Support UTF-8-encoding application/json responses returned as Unicode.
+- Added YAML for travis-ci.
+
 4.0.0a3 (2013-02-28)
 --------------------
 
