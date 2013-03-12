@@ -1,10 +1,10 @@
 CHANGES
 =======
 
-3.13.2 (unreleased)
+3.13.2 (2013-03-12)
 -------------------
 
-- Nothing changed yet.
+- Support UTF-8-encoding application/json responses returned as Unicode.
 
 
 3.13.1 (2012-07-02)
