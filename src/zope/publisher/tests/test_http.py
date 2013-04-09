@@ -205,6 +205,11 @@ class HTTPTests(unittest.TestCase):
         self.app.folder.item = Item()
         self.app.xxx = Item()
 
+    def tearDown(self):
+        # unregister adapters registered in tests
+        from zope.component.testing import tearDown
+        tearDown()
+
     def _createRequest(self, extra_env={}, body=b""):
         env = self._testEnv.copy()
         env.update(extra_env)
@@ -441,9 +446,6 @@ class HTTPTests(unittest.TestCase):
         eq(locale.id.language, None)
         eq(locale.id.territory, None)
         eq(locale.id.variant, None)
-
-        from zope.component.testing import tearDown
-        tearDown()
 
     def testCookies(self):
         cookies = {
