@@ -718,6 +718,40 @@ class ConcreteHTTPTests(HTTPTests):
         publish(r, handle_errors=0)
         self.assertRaises(ValueError, r.shiftNameToApplication)
 
+    def test_non_existing_charset(self):
+        # regression test for breakage when getPreferredCharsets returns an
+        # unknown charset.  seen in the wild with utf-8q=0 as the charset.
+
+        # Mock charset adapter to inject fake charset
+        call_log = []
+        class MyCharsets(object):
+
+            def __init__(self, request):
+                self.request = request
+
+            def getPreferredCharsets(self):
+                call_log.append(None)
+                return ['utf-8q=0']
+
+        from zope.publisher.interfaces.http import IHTTPRequest
+        from zope.i18n.interfaces import IUserPreferredCharsets
+        provideAdapter(MyCharsets, [IHTTPRequest],
+                       IUserPreferredCharsets)
+
+        # set the response on a result
+        request = self._createRequest()
+        request.response.setHeader('Content-Type', 'text/plain')
+        result = u"Latin a with ogonek\u0105 Cyrillic ya \u044f"
+        request.response.setResult(result)
+
+        body = request.response.consumeBody()
+        self.assertEqual(request.response.getStatus(), 200)
+        self.assertEqual(request.response.getHeader('Content-Type'),
+                          'text/plain;charset=utf-8')
+        self.assertEqual(body,
+                          b'Latin a with ogonek\xc4\x85 Cyrillic ya \xd1\x8f')
+        # assert that our mock was used
+        self.assertEqual(len(call_log), 1)
 
 
 class TestHTTPResponse(unittest.TestCase):

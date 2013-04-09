@@ -830,7 +830,7 @@ class HTTPResponse(BaseResponse):
 
             try:
                 body = body.encode(encoding)
-            except UnicodeEncodeError:
+            except (UnicodeEncodeError, LookupError):
                 # RFC 2616 section 10.4.7 allows us to return an
                 # unacceptable encoding instead of 406 Not Acceptable
                 # response.
