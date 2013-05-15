@@ -2,5 +2,6 @@
 .tox
 bin
 develop-eggs
-src/*.egg-info/
+*.egg-info/
 dist
+*.pyc
