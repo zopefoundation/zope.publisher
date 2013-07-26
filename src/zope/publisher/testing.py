@@ -12,15 +12,31 @@
 #
 ##############################################################################
 
+import re
 import contextlib
 import zope.publisher.browser
 import zope.security.management
 import zope.security.testing
+from zope.testing import renormalizing
+
+from zope.publisher._compat import PYTHON2
+
+if PYTHON2:
+    rules = [(re.compile("b('.*?')"), r"\1"),
+             (re.compile('b(".*?")'), r"\1"),
+            ]
+    output_checker = renormalizing.RENormalizing(rules)
+else:
+    rules = [(re.compile("u('.*?')"), r"\1"),
+             (re.compile('u(".*?")'), r"\1"),
+             (re.compile("b('.*?')"), r"\1"),
+             (re.compile('b(".*?")'), r"\1"),
+            ]
+    output_checker = renormalizing.RENormalizing(rules)
 
 
-# The interaction helpers conceptually rather belong to zope.security, but
-# since that doesn't (and shouldn't) depend on zope.publisher, we have to put
-# them here, unfortunately.
+# These are enhanced versions of the ones in zope.security.testing,
+# they use a TestRequest instead of a TestParticipation.
 
 def create_interaction(principal_id, **kw):
     principal = zope.security.testing.Principal(principal_id, **kw)
@@ -36,6 +52,8 @@ def interaction(principal_id, **kw):
         # There already is an interaction. Great. Leave it alone.
         yield
     else:
-        principal = create_interaction(principal_id)
-        yield principal
-        zope.security.management.endInteraction()
+        principal = create_interaction(principal_id, **kw)
+        try:
+            yield principal
+        finally:
+            zope.security.management.endInteraction()

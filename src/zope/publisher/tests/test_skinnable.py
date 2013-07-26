@@ -14,9 +14,12 @@
 ##############################################################################
 """HTTP Publisher Tests
 """
+import re
 import unittest
 import doctest
+
 import zope.testing
+from zope.testing.renormalizing import RENormalizing
 
 
 def cleanUp(test):
@@ -24,9 +27,14 @@ def cleanUp(test):
 
 
 def test_suite():
+    checker = RENormalizing([
+        # Python 3 includes module name in exceptions
+        (re.compile(r"__builtin__"), "builtins"),
+    ])
+
     return unittest.TestSuite(
         doctest.DocFileSuite('../skinnable.txt',
-            setUp=cleanUp, tearDown=cleanUp))
+            setUp=cleanUp, tearDown=cleanUp, checker=checker))
 
 
 if __name__ == '__main__':

@@ -15,13 +15,13 @@
 """
 import sys
 
-from zope.interface import Interface, directlyProvides, implements
+from zope.interface import Interface, directlyProvides, implementer
 from zope.interface.verify import verifyObject
 from zope.publisher.interfaces import IPublicationRequest, IHeld
 from zope.publisher.interfaces.browser import IBrowserSkinType
 
+@implementer(IHeld)
 class Held:
-    implements(IHeld)
 
     released = False
 
@@ -58,15 +58,15 @@ class BaseTestIPublicationRequest(object):
         rcresource2 = sys.getrefcount(resource2)
         request.hold(resource2)
 
-        self.failUnless(sys.getrefcount(resource) > rcresource)
-        self.failUnless(sys.getrefcount(resource2) > rcresource2)
-        self.failIf(resource2.released)
+        self.assertTrue(sys.getrefcount(resource) > rcresource)
+        self.assertTrue(sys.getrefcount(resource2) > rcresource2)
+        self.assertFalse(resource2.released)
 
         request.close()
 
-        self.failUnless(resource2.released)
+        self.assertTrue(resource2.released)
         # Responses are not unreferenced during close()
-        self.failUnless(sys.getrefcount(response) >= rcresponse)
+        self.assertTrue(sys.getrefcount(response) >= rcresponse)
         self.assertEqual(sys.getrefcount(resource), rcresource)
         self.assertEqual(sys.getrefcount(resource2), rcresource2)
 

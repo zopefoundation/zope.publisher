@@ -16,19 +16,19 @@
 Adapts zope.security.interfaces.IPrincipal to
 zope.publisher.interfaces.logginginfo.ILoggingInfo.
 """
-from zope.component import adapts
-from zope.interface import implements
+from zope.component import adapter
+from zope.interface import implementer
 from zope.publisher.interfaces.logginginfo import ILoggingInfo
 from zope.security.interfaces import IPrincipal
 
 
+@adapter(IPrincipal)
+@implementer(ILoggingInfo)
 class PrincipalLogging(object):
-
-    adapts(IPrincipal)
-    implements(ILoggingInfo)
 
     def __init__(self, principal):
         self.principal = principal
 
     def getLogMessage(self):
-        return self.principal.id.encode('ascii', 'backslashreplace')
+        pid = self.principal.id
+        return pid.encode('ascii', 'backslashreplace')

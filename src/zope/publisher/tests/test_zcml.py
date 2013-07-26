@@ -13,7 +13,7 @@
 ##############################################################################
 """Tests for browser:defaultSkin and browser:defaultView directives
 """
-from cStringIO import StringIO
+from io import BytesIO
 import doctest
 import unittest
 
@@ -25,15 +25,16 @@ from zope.publisher.browser import TestRequest, BrowserView
 from zope.publisher.defaultview import getDefaultViewName
 from zope.publisher.interfaces import IDefaultViewName, IDefaultSkin
 from zope.publisher.interfaces.browser import IBrowserRequest
-from zope.interface import Interface, implements, providedBy, directlyProvides
+from zope.interface import Interface, implementer, providedBy, directlyProvides
 
 import zope.publisher
 
 class IOb(Interface):
     pass
 
+@implementer(IOb)
 class Ob(object):
-    implements(IOb)
+    pass
 
 class ITestLayer(IBrowserRequest):
     """Test Layer."""
@@ -58,6 +59,10 @@ template = """<configure
    %s
    </configure>"""
 
+def templated(contents):
+    body = template % contents
+    return BytesIO(body.encode('latin-1'))
+
 class Test(cleanup.CleanUp, unittest.TestCase):
 
     def setUp(self):
@@ -67,26 +72,27 @@ class Test(cleanup.CleanUp, unittest.TestCase):
     def testDefaultView(self):
         self.assertTrue(
             component.queryMultiAdapter((ob, request), IDefaultViewName) is None)
-        xmlconfig(StringIO(template % (
+        xmlconfig(templated(
             '''
             <browser:defaultView
                 name="test"
                 for="zope.publisher.tests.test_zcml.IOb" />
             '''
-            )))
+            ))
 
         self.assertEqual(getDefaultViewName(ob, request), 'test')
 
     def testDefaultViewWithLayer(self):
+        @implementer(ITestLayer)
         class FakeRequest(TestRequest):
-            implements(ITestLayer)
+            pass
         request2 = FakeRequest()
 
         self.assertEqual(
             component.queryMultiAdapter((ob, request2), IDefaultViewName),
             None)
 
-        xmlconfig(StringIO(template % (
+        xmlconfig(templated(
             '''
             <browser:defaultView
                 for="zope.publisher.tests.test_zcml.IOb"
@@ -98,7 +104,7 @@ class Test(cleanup.CleanUp, unittest.TestCase):
                 name="test2"
                 />
             '''
-            )))
+            ))
 
         self.assertEqual(
             zope.publisher.defaultview.getDefaultViewName(ob, request2),
@@ -112,14 +118,14 @@ class Test(cleanup.CleanUp, unittest.TestCase):
             component.queryMultiAdapter((ob, request), IDefaultViewName),
             None)
 
-        xmlconfig(StringIO(template % (
+        xmlconfig(templated(
             '''
             <browser:defaultView
                 for="zope.publisher.tests.test_zcml.Ob"
                 name="test"
                 />
             '''
-            )))
+            ))
 
         self.assertEqual(
             zope.publisher.defaultview.getDefaultViewName(ob, request),
@@ -132,7 +138,7 @@ class Test(cleanup.CleanUp, unittest.TestCase):
             None)
 
         XMLConfig('meta.zcml', component)()
-        xmlconfig(StringIO(template % (
+        xmlconfig(templated(
             '''
             <interface
                 interface="
@@ -154,7 +160,7 @@ class Test(cleanup.CleanUp, unittest.TestCase):
                 factory="zope.publisher.tests.test_zcml.V2"
                 />
             '''
-            )))
+            ))
 
         # Simulate Zope Publication behavior in beforeTraversal()
         adapters = component.getSiteManager().adapters

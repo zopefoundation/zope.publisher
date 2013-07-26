@@ -82,14 +82,14 @@ interface:
 
   >>> import zope.interface
   >>> from zope.publisher.base import BaseRequest
-  >>> class JSONRequest(BaseRequest):
+  >>> @zope.interface.implementer(IJSONRequest)
+  ... class JSONRequest(BaseRequest):
   ...     """JSON request implementation."""
-  ...     zope.interface.implements(IJSONRequest)
 
 Now our request provides IJSONRequest because it implement that interface:
 
-  >>> from StringIO import StringIO
-  >>> request = JSONRequest(StringIO(''), {})
+  >>> from io import BytesIO
+  >>> request = JSONRequest(BytesIO(b''), {})
   >>> IJSONRequest.providedBy(request)
   True
 
@@ -160,7 +160,7 @@ registered as an adapter.
   >>> sm = zope.component.getSiteManager()
   >>> sm.registerAdapter(
   ...     IJSONDefaultLayer, (IJSONRequest,), IDefaultSkin, name='default')
-  >>> request = JSONRequest(StringIO(''), {})
+  >>> request = JSONRequest(BytesIO(b''), {})
   >>> IJSONDefaultLayer.providedBy(request)
   False
   >>> setDefaultSkin(request)
@@ -210,7 +210,7 @@ The default skin must provide ISkinType:
 
 setDefaultSkin uses the custom layer interface instead of IJSONDefaultLayer:
 
-  >>> request = JSONRequest(StringIO(''), {})
+  >>> request = JSONRequest(BytesIO(b''), {})
   >>> IMySkin.providedBy(request)
   False
 
@@ -229,7 +229,7 @@ Any interfaces that are directly provided by the request coming into this
 method are replaced by the applied layer/skin interface. This is important
 for our retry pattern which will ensure that we start with a clean request:
 
-  >>> request = JSONRequest(StringIO(''), {})
+  >>> request = JSONRequest(BytesIO(b''), {})
   >>> class IFoo(Interface):
   ...     pass
 
@@ -261,7 +261,7 @@ skins:
 
 Let's start with a fresh request:
 
-  >>> request = JSONRequest(StringIO(''), {})
+  >>> request = JSONRequest(BytesIO(b''), {})
 
 Now we can apply the SkinA:
 
@@ -287,7 +287,7 @@ setDefaultSkin and applySkin
 If we set a default skin and later apply a custom skin, the default skin get
 removed at the time the applySkin get called within a new ISkinType:
 
-  >>> request = JSONRequest(StringIO(''), {})
+  >>> request = JSONRequest(BytesIO(b''), {})
 
 Note, that our IMySkin is the default skin for IJSONRequest. We can aprove that
 by lookup an IDefaultSkin interface for our request:
@@ -319,12 +319,17 @@ ISkinA get applied:
 SkinChangedEvent
 ----------------
 
+We will use python-3 style print function, so we import it from the
+future:
+
+  >>> from __future__ import print_function
+
 Changing the skin on a request triggers the ISkinChangedEvent event:
 
   >>> import zope.component
   >>> from zope.publisher.interfaces import ISkinChangedEvent
   >>> def receiveSkinEvent(event):
-  ...     print "Notified SkinEvent for:", event.request.__class__.__name__
+  ...     print("Notified SkinEvent for: %s" % event.request.__class__.__name__)
   >>> zope.component.provideHandler(receiveSkinEvent, (ISkinChangedEvent,))
   >>> applySkin(request, ISkinA)
   Notified SkinEvent for: JSONRequest

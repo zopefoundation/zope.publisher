@@ -67,17 +67,27 @@ different options possible.
 
 To close, we'll build a quick example so you can see it working.
 
+(To make the code work in both python-2.x and python-3.x, define ``unicode`` name for
+python-3.x:
+
+    >>> import sys
+    >>> if sys.version_info[0] > 2:
+    ...     unicode = str
+
     >>> import zope.interface
     >>> import zope.component
     >>> from zope.publisher.browser import TestRequest
     >>> from zope.publisher.interfaces.http import IResult, IHTTPRequest
-    >>> import cgi
+    >>> try:
+    ...     from html import escape
+    ... except ImportError:
+    ...     from cgi import escape
     >>> @zope.interface.implementer(IResult)
     ... @zope.component.adapter(unicode, IHTTPRequest)
     ... def do_something_silly_to_unicode_results(val, request):
     ...     request.response.setHeader('X-Silly', 'Yes')
     ...     return (u'<html>\n<head>\n<title>raw</title>\n</head>\n<body>\n' +
-    ...             cgi.escape(val) + '\n</body>\n</html>')
+    ...             escape(val) + '\n</body>\n</html>')
     ...
     >>> zope.component.provideAdapter(do_something_silly_to_unicode_results)
 
@@ -93,7 +103,7 @@ iterable that is chunked, (2) encode, and (3) set content-length.
     'text/html;charset=utf-8'
     >>> res = tuple(request.response.consumeBodyIter())
     >>> res
-    ('<html>\n<head>\n<title>raw</title>\n</head>\n<body>\n&lt;h1&gt;Foo!&lt;/h1&gt;\n</body>\n</html>',)
+    (b'<html>\n<head>\n<title>raw</title>\n</head>\n<body>\n&lt;h1&gt;Foo!&lt;/h1&gt;\n</body>\n</html>',)
     >>> len(res[0]) == int(request.response.getHeader('content-length'))
     True
 

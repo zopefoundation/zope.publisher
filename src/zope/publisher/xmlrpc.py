@@ -18,21 +18,25 @@ This module contains the XMLRPCRequest and XMLRPCResponse
 __docformat__ = 'restructuredtext'
 
 import sys
-import xmlrpclib
 import datetime
-from StringIO import StringIO
+from io import BytesIO
 
 import zope.component
 import zope.interface
-from zope.interface import implements
+from zope.interface import implementer
 from zope.publisher.interfaces.xmlrpc import \
         IXMLRPCPublisher, IXMLRPCRequest, IXMLRPCPremarshaller, IXMLRPCView
 
 from zope.publisher.http import HTTPRequest, HTTPResponse, DirectResult
 from zope.security.proxy import isinstance
 
+if sys.version_info[0] == 2:
+    import xmlrpclib
+else:
+    import xmlrpc.client as xmlrpclib
+
+@implementer(IXMLRPCRequest)
 class XMLRPCRequest(HTTPRequest):
-    implements(IXMLRPCRequest)
 
     _args = ()
 
@@ -47,7 +51,7 @@ class XMLRPCRequest(HTTPRequest):
         # Using lines() does not work as Twisted's BufferedStream sends back
         # an empty stream here for read() (bug). Using readlines() does not
         # work with paster.httpserver. However, readline() works fine.
-        lines = ''
+        lines = b''
         while True:
             line = self._body_instream.readline()
             if not line:
@@ -78,7 +82,7 @@ class TestRequest(XMLRPCRequest):
         if kw:
             _testEnv.update(kw)
         if body_instream is None:
-            body_instream = StringIO('')
+            body_instream = BytesIO(b'')
 
         super(TestRequest, self).__init__(body_instream, _testEnv, response)
 
@@ -166,53 +170,54 @@ class XMLRPCResponse(HTTPResponse):
         self.setStatus(200)
 
 
+@implementer(IXMLRPCView)
 class XMLRPCView(object):
     """A base XML-RPC view that can be used as mix-in for XML-RPC views.""" 
-    implements(IXMLRPCView)
 
     def __init__(self, context, request):
         self.context = context
         self.request = request
 
 
+@implementer(IXMLRPCPremarshaller)
 class PreMarshallerBase(object):
     """Abstract base class for pre-marshallers."""
-    zope.interface.implements(IXMLRPCPremarshaller)
 
     def __init__(self, data):
         self.data = data
 
     def __call__(self):
-        raise Exception, "Not implemented"
+        raise Exception("Not implemented")
 
+@zope.component.adapter(dict)
 class DictPreMarshaller(PreMarshallerBase):
     """Pre-marshaller for dicts"""
-    zope.component.adapts(dict)
 
     def __call__(self):
         return dict([(premarshal(k), premarshal(v))
                      for (k, v) in self.data.items()])
 
+@zope.component.adapter(list)
 class ListPreMarshaller(PreMarshallerBase):
     """Pre-marshaller for list"""
-    zope.component.adapts(list)
 
     def __call__(self):
-        return map(premarshal, self.data)
+        return [premarshal(x) for x in self.data]
 
+@zope.component.adapter(tuple)
 class TuplePreMarshaller(ListPreMarshaller):
-    zope.component.adapts(tuple)
+    pass
 
+@zope.component.adapter(xmlrpclib.Binary)
 class BinaryPreMarshaller(PreMarshallerBase):
     """Pre-marshaller for xmlrpc.Binary"""
-    zope.component.adapts(xmlrpclib.Binary)
 
     def __call__(self):
         return xmlrpclib.Binary(self.data.data)
 
+@zope.component.adapter(xmlrpclib.Fault)
 class FaultPreMarshaller(PreMarshallerBase):
     """Pre-marshaller for xmlrpc.Fault"""
-    zope.component.adapts(xmlrpclib.Fault)
 
     def __call__(self):
         return xmlrpclib.Fault(
@@ -220,16 +225,16 @@ class FaultPreMarshaller(PreMarshallerBase):
             premarshal(self.data.faultString),
             )
 
+@zope.component.adapter(xmlrpclib.DateTime)
 class DateTimePreMarshaller(PreMarshallerBase):
     """Pre-marshaller for xmlrpc.DateTime"""
-    zope.component.adapts(xmlrpclib.DateTime)
 
     def __call__(self):
         return xmlrpclib.DateTime(self.data.value)
 
+@zope.component.adapter(datetime.datetime)
 class PythonDateTimePreMarshaller(PreMarshallerBase):
     """Pre-marshaller for datetime.datetime"""
-    zope.component.adapts(datetime.datetime)
 
     def __call__(self):
         return xmlrpclib.DateTime(self.data.isoformat())

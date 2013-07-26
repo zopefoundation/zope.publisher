@@ -53,4 +53,4 @@ class BaseTestIApplicationRequest(BaseTestIEnumerableMapping):
 
         # Now make sure that request.get can actually deal with return
         # self back to us correctly:
-        self.assert_(request.get('REQUEST') is request)
+        self.assertTrue(request.get('REQUEST') is request)

@@ -17,8 +17,7 @@
 import sys
 import tempfile
 import unittest
-from cStringIO import StringIO
-from Cookie import CookieError
+from io import BytesIO
 from doctest import DocFileSuite
 
 import zope.event
@@ -29,7 +28,7 @@ from zope.interface.verify import verifyObject
 from zope.security.checker import ProxyFactory
 from zope.security.proxy import removeSecurityProxy
 
-from zope.interface import implements
+from zope.interface import implementer
 from zope.publisher.interfaces.logginginfo import ILoggingInfo
 from zope.publisher.http import HTTPRequest, HTTPResponse
 from zope.publisher.http import HTTPInputStream, DirectResult, HTTPCharsets
@@ -47,11 +46,16 @@ from zope.publisher.tests.basetestipublisherrequest \
      import BaseTestIPublisherRequest
 from zope.publisher.tests.basetestiapplicationrequest \
      import BaseTestIApplicationRequest
+from zope.publisher.testing import output_checker
+
+if sys.version_info[0] > 2:
+    from http.cookies import CookieError
+else:
+    from Cookie import CookieError
 
 
-
+@implementer(ILoggingInfo)
 class UserStub(object):
-    implements(ILoggingInfo)
 
     def __init__(self, id):
         self._id = id
@@ -63,7 +67,7 @@ class UserStub(object):
         return self._id
 
 
-data = '''\
+data = b'''\
 line 1
 line 2
 line 3'''
@@ -86,8 +90,8 @@ class HTTPInputStreamTests(unittest.TestCase):
         return result
 
     def testRead(self):
-        stream = HTTPInputStream(StringIO(data), {})
-        output = ''
+        stream = HTTPInputStream(BytesIO(data), {})
+        output = b''
         self.assertEqual(output, self.getCacheStreamValue(stream))
         output += stream.read(5)
         self.assertEqual(output, self.getCacheStreamValue(stream))
@@ -96,7 +100,7 @@ class HTTPInputStreamTests(unittest.TestCase):
         self.assertEqual(data, self.getCacheStreamValue(stream))
 
     def testReadLine(self):
-        stream = HTTPInputStream(StringIO(data), {})
+        stream = HTTPInputStream(BytesIO(data), {})
         output = stream.readline()
         self.assertEqual(output, self.getCacheStreamValue(stream))
         output += stream.readline()
@@ -108,15 +112,15 @@ class HTTPInputStreamTests(unittest.TestCase):
         self.assertEqual(data, self.getCacheStreamValue(stream))
 
     def testReadLines(self):
-        stream = HTTPInputStream(StringIO(data), {})
-        output = ''.join(stream.readlines(4))
+        stream = HTTPInputStream(BytesIO(data), {})
+        output = b''.join(stream.readlines(4))
         self.assertEqual(output, self.getCacheStreamValue(stream))
-        output += ''.join(stream.readlines())
+        output += b''.join(stream.readlines())
         self.assertEqual(output, self.getCacheStreamValue(stream))
         self.assertEqual(data, self.getCacheStreamValue(stream))
 
     def testGetCacheStream(self):
-        stream = HTTPInputStream(StringIO(data), {})
+        stream = HTTPInputStream(BytesIO(data), {})
         stream.read(5)
         self.assertEqual(data, stream.getCacheStream().read())
 
@@ -127,24 +131,24 @@ class HTTPInputStreamTests(unittest.TestCase):
         # definitely over that).
 
         # HTTPInputStream understands both CONTENT_LENGTH...
-        stream = HTTPInputStream(StringIO(data), {'CONTENT_LENGTH': '100000'})
-        self.assert_(isinstance(stream.getCacheStream(), TempFileType))
+        stream1 = HTTPInputStream(BytesIO(data), {'CONTENT_LENGTH': '100000'})
+        self.assertTrue(isinstance(stream1.getCacheStream(), TempFileType))
 
         # ... and HTTP_CONTENT_LENGTH.
-        stream = HTTPInputStream(StringIO(data), {'HTTP_CONTENT_LENGTH':
+        stream2 = HTTPInputStream(BytesIO(data), {'HTTP_CONTENT_LENGTH':
                                                   '100000'})
-        self.assert_(isinstance(stream.getCacheStream(), TempFileType))
+        self.assertTrue(isinstance(stream2.getCacheStream(), TempFileType))
 
         # If CONTENT_LENGTH is absent or empty, it takes the value
         # given in HTTP_CONTENT_LENGTH:
-        stream = HTTPInputStream(StringIO(data),
+        stream3 = HTTPInputStream(BytesIO(data),
                                  {'CONTENT_LENGTH': '',
                                   'HTTP_CONTENT_LENGTH': '100000'})
-        self.assert_(isinstance(stream.getCacheStream(), TempFileType))
+        self.assertTrue(isinstance(stream3.getCacheStream(), TempFileType))
 
         # In fact, HTTPInputStream can be instantiated with both an
         # empty CONTENT_LENGTH and an empty HTTP_CONTENT_LENGTH:
-        stream = HTTPInputStream(StringIO(data),
+        stream4 = HTTPInputStream(BytesIO(data),
                                  {'CONTENT_LENGTH': '',
                                   'HTTP_CONTENT_LENGTH': ''})
 
@@ -162,10 +166,10 @@ class HTTPInputStreamTests(unittest.TestCase):
             def read(self, size=-1):
                 if size == -1:
                     raise ServerHung
-                return 'a'*size
+                return b'a'*size
 
         stream = HTTPInputStream(NonClosingStream(), {'CONTENT_LENGTH': '10'})
-        self.assertEquals(stream.getCacheStream().read(), 'aaaaaaaaaa')
+        self.assertEqual(stream.getCacheStream().read(), b'aaaaaaaaaa')
         stream = HTTPInputStream(NonClosingStream(), {})
         self.assertRaises(ServerHung, stream.getCacheStream)
 
@@ -194,26 +198,31 @@ class HTTPTests(unittest.TestCase):
         class Item(object):
             """Required docstring for the publisher."""
             def __call__(self, a, b):
-                return "%s, %s" % (`a`, `b`)
+                return ("%s, %s" % (repr(a), repr(b))).encode('latin1')
 
         self.app = AppRoot()
         self.app.folder = Folder()
         self.app.folder.item = Item()
         self.app.xxx = Item()
 
-    def _createRequest(self, extra_env={}, body=""):
+    def tearDown(self):
+        # unregister adapters registered in tests
+        from zope.component.testing import tearDown
+        tearDown()
+
+    def _createRequest(self, extra_env={}, body=b""):
         env = self._testEnv.copy()
         env.update(extra_env)
         if len(body):
             env['CONTENT_LENGTH'] = str(len(body))
 
         publication = DefaultPublication(self.app)
-        instream = StringIO(body)
+        instream = BytesIO(body)
         request = HTTPRequest(instream, env)
         request.setPublication(publication)
         return request
 
-    def _publisherResults(self, extra_env={}, body=""):
+    def _publisherResults(self, extra_env={}, body=b""):
         request = self._createRequest(extra_env, body)
         response = request.response
         publish(request, handle_errors=False)
@@ -224,7 +233,7 @@ class HTTPTests(unittest.TestCase):
             +
             "\r\n".join([("%s: %s" % h) for h in headers]) + "\r\n\r\n"
             +
-            ''.join(response.consumeBody())
+            response.consumeBody().decode('utf8')
             )
 
     def test_double_dots(self):
@@ -252,7 +261,7 @@ class HTTPTests(unittest.TestCase):
 
     def testTraversalToItem(self):
         res = self._publisherResults()
-        self.failUnlessEqual(
+        self.assertEqual(
             res,
             "Status: 200 Ok\r\n"
             "Content-Length: 6\r\n"
@@ -264,35 +273,35 @@ class HTTPTests(unittest.TestCase):
         # test HTTP/1.0
         env = {'SERVER_PROTOCOL':'HTTP/1.0'}
 
-        request = self._createRequest(env, '')
+        request = self._createRequest(env, b'')
         location = request.response.redirect('http://foobar.com/redirected')
-        self.assertEquals(location, 'http://foobar.com/redirected')
-        self.assertEquals(request.response.getStatus(), 302)
-        self.assertEquals(request.response.getHeader('location'), location)
+        self.assertEqual(location, 'http://foobar.com/redirected')
+        self.assertEqual(request.response.getStatus(), 302)
+        self.assertEqual(request.response.getHeader('location'), location)
 
         # test HTTP/1.1
         env = {'SERVER_PROTOCOL':'HTTP/1.1'}
 
-        request = self._createRequest(env, '')
+        request = self._createRequest(env, b'')
         location = request.response.redirect('http://foobar.com/redirected')
-        self.assertEquals(request.response.getStatus(), 303)
+        self.assertEqual(request.response.getStatus(), 303)
 
         # test explicit status
-        request = self._createRequest(env, '')
+        request = self._createRequest(env, b'')
         request.response.redirect('http://foobar.com/explicit', 304)
-        self.assertEquals(request.response.getStatus(), 304)
+        self.assertEqual(request.response.getStatus(), 304)
 
         # test non-string location, like URLGetter
-        request = self._createRequest(env, '')
+        request = self._createRequest(env, b'')
         request.response.redirect(request.URL)
-        self.assertEquals(request.response.getStatus(), 303)
-        self.assertEquals(request.response.getHeader('location'),
+        self.assertEqual(request.response.getStatus(), 303)
+        self.assertEqual(request.response.getHeader('location'),
                           str(request.URL))
 
     def testUntrustedRedirect(self):
         # Redirects are by default only allowed to target the same host as the
         # request was directed to. This is to counter fishing.
-        request = self._createRequest({}, '')
+        request = self._createRequest({}, b'')
         self.assertRaises(
             ValueError,
             request.response.redirect, 'http://phishing-inc.com')
@@ -301,81 +310,81 @@ class HTTPTests(unittest.TestCase):
         # host. They aren't really allowed per RFC but the response object
         # supports them and people are probably using them.
         location = request.response.redirect('/foo', trusted=False)
-        self.assertEquals('/foo', location)
+        self.assertEqual('/foo', location)
 
         # If we pass `trusted` for the redirect, we can redirect the browser
         # anywhere we want, though.
         location = request.response.redirect(
             'http://my-friends.com', trusted=True)
-        self.assertEquals('http://my-friends.com', location)
+        self.assertEqual('http://my-friends.com', location)
 
         # We can redirect to our own full server URL, with or without a port
         # being specified. Let's explicitly set a host name to test this is
         # this is how virtual hosting works:
         request.setApplicationServer('example.com')
         location = request.response.redirect('http://example.com')
-        self.assertEquals('http://example.com', location)
+        self.assertEqual('http://example.com', location)
 
         request.setApplicationServer('example.com', port=8080)
         location = request.response.redirect('http://example.com:8080')
-        self.assertEquals('http://example.com:8080', location)
+        self.assertEqual('http://example.com:8080', location)
 
         # The default port for HTTP and HTTPS may be omitted:
         request.setApplicationServer('example.com')
         location = request.response.redirect('http://example.com:80')
-        self.assertEquals('http://example.com:80', location)
+        self.assertEqual('http://example.com:80', location)
 
         request.setApplicationServer('example.com', port=80)
         location = request.response.redirect('http://example.com')
-        self.assertEquals('http://example.com', location)
+        self.assertEqual('http://example.com', location)
 
         request.setApplicationServer('example.com', 'https')
         location = request.response.redirect('https://example.com:443')
-        self.assertEquals('https://example.com:443', location)
+        self.assertEqual('https://example.com:443', location)
 
         request.setApplicationServer('example.com', 'https', 443)
         location = request.response.redirect('https://example.com')
-        self.assertEquals('https://example.com', location)
+        self.assertEqual('https://example.com', location)
 
     def testUnregisteredStatus(self):
         # verify we can set the status to an unregistered int value
-        request = self._createRequest({}, '')
+        request = self._createRequest({}, b'')
         request.response.setStatus(289)
-        self.assertEquals(request.response.getStatus(), 289)
+        self.assertEqual(request.response.getStatus(), 289)
 
     def testRequestEnvironment(self):
         req = self._createRequest()
         publish(req, handle_errors=0) # Force expansion of URL variables
 
-        self.assertEquals(str(req.URL), 'http://foobar.com/folder/item')
-        self.assertEquals(req.URL['-1'], 'http://foobar.com/folder')
-        self.assertEquals(req.URL['-2'], 'http://foobar.com')
+        self.assertEqual(str(req.URL), 'http://foobar.com/folder/item')
+        self.assertEqual(req.URL['-1'], 'http://foobar.com/folder')
+        self.assertEqual(req.URL['-2'], 'http://foobar.com')
         self.assertRaises(KeyError, req.URL.__getitem__, '-3')
 
-        self.assertEquals(req.URL['0'], 'http://foobar.com')
-        self.assertEquals(req.URL['1'], 'http://foobar.com/folder')
-        self.assertEquals(req.URL['2'], 'http://foobar.com/folder/item')
+        self.assertEqual(req.URL['0'], 'http://foobar.com')
+        self.assertEqual(req.URL['1'], 'http://foobar.com/folder')
+        self.assertEqual(req.URL['2'], 'http://foobar.com/folder/item')
         self.assertRaises(KeyError, req.URL.__getitem__, '3')
 
-        self.assertEquals(req.URL.get('0'), 'http://foobar.com')
-        self.assertEquals(req.URL.get('1'), 'http://foobar.com/folder')
-        self.assertEquals(req.URL.get('2'), 'http://foobar.com/folder/item')
-        self.assertEquals(req.URL.get('3', 'none'), 'none')
+        self.assertEqual(req.URL.get('0'), 'http://foobar.com')
+        self.assertEqual(req.URL.get('1'), 'http://foobar.com/folder')
+        self.assertEqual(req.URL.get('2'), 'http://foobar.com/folder/item')
+        self.assertEqual(req.URL.get('3', 'none'), 'none')
 
-        self.assertEquals(req['SERVER_URL'], 'http://foobar.com')
-        self.assertEquals(req['HTTP_HOST'], 'foobar.com')
-        self.assertEquals(req['PATH_INFO'], '/folder/item')
-        self.assertEquals(req['CONTENT_LENGTH'], '0')
+        self.assertEqual(req['SERVER_URL'], 'http://foobar.com')
+        self.assertEqual(req['HTTP_HOST'], 'foobar.com')
+        self.assertEqual(req['PATH_INFO'], '/folder/item')
+        self.assertEqual(req['CONTENT_LENGTH'], '0')
         self.assertRaises(KeyError, req.__getitem__, 'HTTP_AUTHORIZATION')
-        self.assertEquals(req['GATEWAY_INTERFACE'], 'TestFooInterface/1.0')
-        self.assertEquals(req['HTTP_OFF_THE_WALL'], "Spam 'n eggs")
+        self.assertEqual(req['GATEWAY_INTERFACE'], 'TestFooInterface/1.0')
+        self.assertEqual(req['HTTP_OFF_THE_WALL'], "Spam 'n eggs")
 
         self.assertRaises(KeyError, req.__getitem__,
                           'HTTP_WE_DID_NOT_PROVIDE_THIS')
 
     def testRequestLocale(self):
         eq = self.assertEqual
-        unless = self.failUnless
+        unless = self.assertTrue
 
         from zope.publisher.browser import BrowserLanguages
         from zope.publisher.interfaces.http import IHTTPRequest
@@ -438,9 +447,6 @@ class HTTPTests(unittest.TestCase):
         eq(locale.id.territory, None)
         eq(locale.id.variant, None)
 
-        from zope.component.testing import tearDown
-        tearDown()
-
     def testCookies(self):
         cookies = {
             'HTTP_COOKIE':
@@ -448,17 +454,17 @@ class HTTPTests(unittest.TestCase):
         }
         req = self._createRequest(extra_env=cookies)
 
-        self.assertEquals(req.cookies[u'foo'], u'bar')
-        self.assertEquals(req[u'foo'], u'bar')
+        self.assertEqual(req.cookies[u'foo'], u'bar')
+        self.assertEqual(req[u'foo'], u'bar')
 
-        self.assertEquals(req.cookies[u'spam'], u'eggs')
-        self.assertEquals(req[u'spam'], u'eggs')
+        self.assertEqual(req.cookies[u'spam'], u'eggs')
+        self.assertEqual(req[u'spam'], u'eggs')
 
-        self.assertEquals(req.cookies[u'this'], u'Should be fine')
-        self.assertEquals(req[u'this'], u'Should be fine')
+        self.assertEqual(req.cookies[u'this'], u'Should be fine')
+        self.assertEqual(req[u'this'], u'Should be fine')
 
         # Reserved key
-        self.failIf(req.cookies.has_key('path'))
+        self.assertFalse(req.cookies.has_key('path'))
 
         self.failIf(req.cookies.has_key('t'))
         self.failIf(req.cookies.has_key('$t'))
@@ -471,20 +477,23 @@ class HTTPTests(unittest.TestCase):
         }
         req = self._createRequest(extra_env=cookies)
 
-        self.assertEquals(req.cookies[u'foo'], u'bar')
-        self.assertEquals(req[u'foo'], u'bar')
+        self.assertEqual(req.cookies[u'foo'], u'bar')
+        self.assertEqual(req[u'foo'], u'bar')
 
-        self.assertEquals(req.cookies[u'spam'], u'eggs')
-        self.assertEquals(req[u'spam'], u'eggs')
+        self.assertEqual(req.cookies[u'spam'], u'eggs')
+        self.assertEqual(req[u'spam'], u'eggs')
 
         self.failIf(req.cookies.has_key('ldap/OU'))
         self.failIf(req.has_key('ldap/OU'))
+
+        # Reserved key
+        self.assertFalse(req.cookies.has_key('path'))
 
     def testCookiesUnicode(self):
         # Cookie values are assumed to be UTF-8 encoded
         cookies = {'HTTP_COOKIE': r'key="\342\230\243";'}
         req = self._createRequest(extra_env=cookies)
-        self.assertEquals(req.cookies[u'key'], u'\N{BIOHAZARD SIGN}')
+        self.assertEqual(req.cookies[u'key'], u'\N{BIOHAZARD SIGN}')
 
     def testHeaders(self):
         headers = {
@@ -492,33 +501,34 @@ class HTTPTests(unittest.TestCase):
             'Another-Test': 'another',
         }
         req = self._createRequest(extra_env=headers)
-        self.assertEquals(req.headers[u'TEST_HEADER'], u'test')
-        self.assertEquals(req.headers[u'TEST-HEADER'], u'test')
-        self.assertEquals(req.headers[u'test_header'], u'test')
-        self.assertEquals(req.getHeader('TEST_HEADER', literal=True), u'test')
-        self.assertEquals(req.getHeader('TEST-HEADER', literal=True), None)
-        self.assertEquals(req.getHeader('test_header', literal=True), None)
-        self.assertEquals(req.getHeader('Another-Test', literal=True),
+        self.assertEqual(req.headers[u'TEST_HEADER'], u'test')
+        self.assertEqual(req.headers[u'TEST-HEADER'], u'test')
+        self.assertEqual(req.headers[u'test_header'], u'test')
+        self.assertEqual(req.getHeader('TEST_HEADER', literal=True), u'test')
+        self.assertEqual(req.getHeader('TEST-HEADER', literal=True), None)
+        self.assertEqual(req.getHeader('test_header', literal=True), None)
+        self.assertEqual(req.getHeader('Another-Test', literal=True),
                           'another')
 
     def testBasicAuth(self):
         from zope.publisher.interfaces.http import IHTTPCredentials
+        import base64
         req = self._createRequest()
         verifyObject(IHTTPCredentials, req)
         lpq = req._authUserPW()
-        self.assertEquals(lpq, None)
+        self.assertEqual(lpq, None)
         env = {}
-        login, password = ("tim", "123:456")
-        s = ("%s:%s" % (login, password)).encode("base64").rstrip()
-        env['HTTP_AUTHORIZATION'] = "Basic %s" % s
+        login, password = (b"tim", b"123:456")
+        s = base64.b64encode(b':'.join((login, password)))
+        env['HTTP_AUTHORIZATION'] = "Basic %s" % s.decode('ascii')
         req = self._createRequest(env)
         lpw = req._authUserPW()
-        self.assertEquals(lpw, (login, password))
+        self.assertEqual(lpw, (login, password))
 
     def testSetPrincipal(self):
         req = self._createRequest()
         req.setPrincipal(UserStub("jim"))
-        self.assertEquals(req.response.authUser, 'jim')
+        self.assertEqual(req.response.authUser, 'jim')
 
     def test_method(self):
         r = self._createRequest(extra_env={'REQUEST_METHOD':'SPAM'})
@@ -531,25 +541,25 @@ class HTTPTests(unittest.TestCase):
         zope.event.subscribers.append(events.append)
         req = self._createRequest()
         req.setApplicationServer('foo')
-        self.assertEquals(req._app_server, 'http://foo')
+        self.assertEqual(req._app_server, 'http://foo')
         req.setApplicationServer('foo', proto='https')
-        self.assertEquals(req._app_server, 'https://foo')
+        self.assertEqual(req._app_server, 'https://foo')
         req.setApplicationServer('foo', proto='https', port=8080)
-        self.assertEquals(req._app_server, 'https://foo:8080')
+        self.assertEqual(req._app_server, 'https://foo:8080')
         req.setApplicationServer('foo', proto='http', port='9673')
-        self.assertEquals(req._app_server, 'http://foo:9673')
+        self.assertEqual(req._app_server, 'http://foo:9673')
         req.setApplicationServer('foo', proto='https', port=443)
-        self.assertEquals(req._app_server, 'https://foo')
+        self.assertEqual(req._app_server, 'https://foo')
         req.setApplicationServer('foo', proto='https', port='443')
-        self.assertEquals(req._app_server, 'https://foo')
+        self.assertEqual(req._app_server, 'https://foo')
         req.setApplicationServer('foo', port=80)
-        self.assertEquals(req._app_server, 'http://foo')
+        self.assertEqual(req._app_server, 'http://foo')
         req.setApplicationServer('foo', proto='telnet', port=80)
-        self.assertEquals(req._app_server, 'telnet://foo:80')
+        self.assertEqual(req._app_server, 'telnet://foo:80')
         zope.event.subscribers.pop()
-        self.assertEquals(len(events), 8)
+        self.assertEqual(len(events), 8)
         for event in events:
-            self.assertEquals(event.request, req)
+            self.assertEqual(event.request, req)
 
     def test_setApplicationNames(self):
         events = []
@@ -557,12 +567,12 @@ class HTTPTests(unittest.TestCase):
         req = self._createRequest()
         names = ['x', 'y', 'z']
         req.setVirtualHostRoot(names)
-        self.assertEquals(req._app_names, ['x', 'y', 'z'])
+        self.assertEqual(req._app_names, ['x', 'y', 'z'])
         names[0] = 'muahahahaha'
-        self.assertEquals(req._app_names, ['x', 'y', 'z'])
+        self.assertEqual(req._app_names, ['x', 'y', 'z'])
         zope.event.subscribers.pop()
-        self.assertEquals(len(events), 1)
-        self.assertEquals(events[0].request, req)
+        self.assertEqual(len(events), 1)
+        self.assertEqual(events[0].request, req)
 
     def test_setVirtualHostRoot(self):
         events = []
@@ -571,22 +581,22 @@ class HTTPTests(unittest.TestCase):
         req._traversed_names = ['x', 'y']
         req._last_obj_traversed = object()
         req.setVirtualHostRoot()
-        self.failIf(req._traversed_names)
-        self.assertEquals(req._vh_root, req._last_obj_traversed)
+        self.assertFalse(req._traversed_names)
+        self.assertEqual(req._vh_root, req._last_obj_traversed)
         zope.event.subscribers.pop()
-        self.assertEquals(len(events), 1)
-        self.assertEquals(events[0].request, req)
+        self.assertEqual(len(events), 1)
+        self.assertEqual(events[0].request, req)
 
     def test_getVirtualHostRoot(self):
         req = self._createRequest()
-        self.assertEquals(req.getVirtualHostRoot(), None)
+        self.assertEqual(req.getVirtualHostRoot(), None)
         req._vh_root = object()
-        self.assertEquals(req.getVirtualHostRoot(), req._vh_root)
+        self.assertEqual(req.getVirtualHostRoot(), req._vh_root)
 
     def test_traverse(self):
         req = self._createRequest()
         req.traverse(self.app)
-        self.assertEquals(req._traversed_names, ['folder', 'item'])
+        self.assertEqual(req._traversed_names, ['folder', 'item'])
 
         # setting it during traversal matters
         req = self._createRequest()
@@ -595,8 +605,8 @@ class HTTPTests(unittest.TestCase):
                 req.setVirtualHostRoot()
         req.publication.callTraversalHooks = hook
         req.traverse(self.app)
-        self.assertEquals(req._traversed_names, ['item'])
-        self.assertEquals(req._vh_root, self.app.folder)
+        self.assertEqual(req._traversed_names, ['item'])
+        self.assertEqual(req._vh_root, self.app.folder)
 
     def test_traverseDuplicateHooks(self):
         """
@@ -621,7 +631,7 @@ class HTTPTests(unittest.TestCase):
         req.setPublication(publication)
         req.setTraversalStack(req.getTraversalStack() + ["vh"])
         req.traverse(self.app)
-        self.assertEquals(len(hooks), 3)
+        self.assertEqual(len(hooks), 3)
 
     def testInterface(self):
         from zope.publisher.interfaces.http import IHTTPCredentials
@@ -635,21 +645,21 @@ class HTTPTests(unittest.TestCase):
         req = self._createRequest()
         deduceServerURL = req._HTTPRequest__deduceServerURL
         req._environ = {'HTTP_HOST': 'example.com:80'}
-        self.assertEquals(deduceServerURL(), 'http://example.com')
+        self.assertEqual(deduceServerURL(), 'http://example.com')
         req._environ = {'HTTP_HOST': 'example.com:8080'}
-        self.assertEquals(deduceServerURL(), 'http://example.com:8080')
+        self.assertEqual(deduceServerURL(), 'http://example.com:8080')
         req._environ = {'HTTP_HOST': 'example.com:443', 'HTTPS': 'on'}
-        self.assertEquals(deduceServerURL(), 'https://example.com')
+        self.assertEqual(deduceServerURL(), 'https://example.com')
         req._environ = {'HTTP_HOST': 'example.com:80', 'HTTPS': 'ON'}
-        self.assertEquals(deduceServerURL(), 'https://example.com:80')
+        self.assertEqual(deduceServerURL(), 'https://example.com:80')
         req._environ = {'HTTP_HOST': 'example.com:8080',
                         'SERVER_PORT_SECURE': '1'}
-        self.assertEquals(deduceServerURL(), 'https://example.com:8080')
+        self.assertEqual(deduceServerURL(), 'https://example.com:8080')
         req._environ = {'SERVER_NAME': 'example.com', 'SERVER_PORT':'8080',
                         'SERVER_PORT_SECURE': '0'}
-        self.assertEquals(deduceServerURL(), 'http://example.com:8080')
+        self.assertEqual(deduceServerURL(), 'http://example.com:8080')
         req._environ = {'SERVER_NAME': 'example.com'}
-        self.assertEquals(deduceServerURL(), 'http://example.com')
+        self.assertEqual(deduceServerURL(), 'http://example.com')
 
     def testUnicodeURLs(self):
         # The request expects PATH_INFO to be utf-8 encoded when it gets it.
@@ -683,11 +693,11 @@ class HTTPTests(unittest.TestCase):
         request.response.setResult(result)
 
         body = request.response.consumeBody()
-        self.assertEquals(request.response.getStatus(), 200)
-        self.assertEquals(request.response.getHeader('Content-Type'),
+        self.assertEqual(request.response.getStatus(), 200)
+        self.assertEqual(request.response.getHeader('Content-Type'),
                           'text/plain;charset=utf-8')
-        self.assertEquals(body,
-                          'Latin a with ogonek\xc4\x85 Cyrillic ya \xd1\x8f')
+        self.assertEqual(body,
+                          b'Latin a with ogonek\xc4\x85 Cyrillic ya \xd1\x8f')
 
 class ConcreteHTTPTests(HTTPTests):
     """Tests that we don't have to worry about subclasses inheriting and
@@ -705,13 +715,47 @@ class ConcreteHTTPTests(HTTPTests):
         r = self._createRequest(extra_env={"PATH_INFO": "/xxx"})
         publish(r, handle_errors=0)
         r.shiftNameToApplication()
-        self.assertEquals(r.getApplicationURL(), appurl+"/xxx")
+        self.assertEqual(r.getApplicationURL(), appurl+"/xxx")
 
         # Verify that we can only shift if we've traversed only a single name
         r = self._createRequest(extra_env={"PATH_INFO": "/folder/item"})
         publish(r, handle_errors=0)
         self.assertRaises(ValueError, r.shiftNameToApplication)
 
+    def test_non_existing_charset(self):
+        # regression test for breakage when getPreferredCharsets returns an
+        # unknown charset.  seen in the wild with utf-8q=0 as the charset.
+
+        # Mock charset adapter to inject fake charset
+        call_log = []
+        class MyCharsets(object):
+
+            def __init__(self, request):
+                self.request = request
+
+            def getPreferredCharsets(self):
+                call_log.append(None)
+                return ['utf-8q=0']
+
+        from zope.publisher.interfaces.http import IHTTPRequest
+        from zope.i18n.interfaces import IUserPreferredCharsets
+        provideAdapter(MyCharsets, [IHTTPRequest],
+                       IUserPreferredCharsets)
+
+        # set the response on a result
+        request = self._createRequest()
+        request.response.setHeader('Content-Type', 'text/plain')
+        result = u"Latin a with ogonek\u0105 Cyrillic ya \u044f"
+        request.response.setResult(result)
+
+        body = request.response.consumeBody()
+        self.assertEqual(request.response.getStatus(), 200)
+        self.assertEqual(request.response.getHeader('Content-Type'),
+                          'text/plain;charset=utf-8')
+        self.assertEqual(body,
+                          b'Latin a with ogonek\xc4\x85 Cyrillic ya \xd1\x8f')
+        # assert that our mock was used
+        self.assertEqual(len(call_log), 1)
 
 
 class TestHTTPResponse(unittest.TestCase):
@@ -727,13 +771,13 @@ class TestHTTPResponse(unittest.TestCase):
         return response
 
     def _parseResult(self, response):
-        return dict(response.getHeaders()), ''.join(response.consumeBody())
+        return dict(response.getHeaders()), response.consumeBody()
 
     def _getResultFromResponse(self, body, charset='utf-8', headers=None):
         response = self._createResponse()
         assert(charset == 'utf-8')
         if headers is not None:
-            for hdr, val in headers.iteritems():
+            for hdr, val in headers.items():
                 response.setHeader(hdr, val)
         response.setResult(body)
         return self._parseResult(response)
@@ -745,7 +789,7 @@ class TestHTTPResponse(unittest.TestCase):
         response.setHeader('Content-Type', 'text/plain;charset=us-ascii')
 
         # Output the data
-        data = 'a'*10
+        data = b'a'*10
         response.setResult(DirectResult(data))
 
         headers, body = self._parseResult(response)
@@ -756,43 +800,43 @@ class TestHTTPResponse(unittest.TestCase):
         self.assertEqual(body, data)
 
         # Make sure that no Content-Length header was added
-        self.assert_('Content-Length' not in headers)
+        self.assertTrue('Content-Length' not in headers)
 
     def testContentLength(self):
-        eq = self.failUnlessEqual
+        eq = self.assertEqual
 
         headers, body = self._getResultFromResponse("test", "utf-8",
             {"content-type": "text/plain"})
         eq("4", headers["Content-Length"])
-        eq("test", body)
+        eq(b"test", body)
 
         headers, body = self._getResultFromResponse(
             u'\u0442\u0435\u0441\u0442', "utf-8",
             {"content-type": "text/plain"})
         eq("8", headers["Content-Length"])
-        eq('\xd1\x82\xd0\xb5\xd1\x81\xd1\x82', body)
+        eq(b'\xd1\x82\xd0\xb5\xd1\x81\xd1\x82', body)
 
     def testContentType(self):
-        eq = self.failUnlessEqual
+        eq = self.assertEqual
 
-        headers, body = self._getResultFromResponse("test", "utf-8")
+        headers, body = self._getResultFromResponse(b"test", "utf-8")
         eq("", headers.get("Content-Type", ""))
-        eq("test", body)
+        eq(b"test", body)
 
         headers, body = self._getResultFromResponse(u"test",
             headers={"content-type": "text/plain"})
         eq("text/plain;charset=utf-8", headers["Content-Type"])
-        eq("test", body)
+        eq(b"test", body)
 
         headers, body = self._getResultFromResponse(u"test", "utf-8",
             {"content-type": "text/html"})
         eq("text/html;charset=utf-8", headers["Content-Type"])
-        eq("test", body)
+        eq(b"test", body)
 
         headers, body = self._getResultFromResponse(u"test", "utf-8",
             {"content-type": "text/plain;charset=cp1251"})
         eq("text/plain;charset=cp1251", headers["Content-Type"])
-        eq("test", body)
+        eq(b"test", body)
 
         # see https://bugs.launchpad.net/zope.publisher/+bug/98395
         # RFC 3023 types and */*+xml output as unicode
@@ -800,37 +844,42 @@ class TestHTTPResponse(unittest.TestCase):
         headers, body = self._getResultFromResponse(u"test", "utf-8",
             {"content-type": "text/xml"})
         eq("text/xml;charset=utf-8", headers["Content-Type"])
-        eq("test", body)
+        eq(b"test", body)
 
         headers, body = self._getResultFromResponse(u"test", "utf-8",
             {"content-type": "application/xml"})
         eq("application/xml;charset=utf-8", headers["Content-Type"])
-        eq("test", body)
+        eq(b"test", body)
 
         headers, body = self._getResultFromResponse(u"test", "utf-8",
             {"content-type": "text/xml-external-parsed-entity"})
         eq("text/xml-external-parsed-entity;charset=utf-8",
            headers["Content-Type"])
-        eq("test", body)
+        eq(b"test", body)
 
         headers, body = self._getResultFromResponse(u"test", "utf-8",
             {"content-type": "application/xml-external-parsed-entity"})
         eq("application/xml-external-parsed-entity;charset=utf-8",
            headers["Content-Type"])
-        eq("test", body)
+        eq(b"test", body)
 
         # Mozilla XUL
         headers, body = self._getResultFromResponse(u"test", "utf-8",
             {"content-type": "application/vnd+xml"})
         eq("application/vnd+xml;charset=utf-8", headers["Content-Type"])
-        eq("test", body)
+        eq(b"test", body)
 
         # end RFC 3023 / xml as unicode
 
-        headers, body = self._getResultFromResponse("test", "utf-8",
+        headers, body = self._getResultFromResponse(b"test", "utf-8",
             {"content-type": "image/gif"})
         eq("image/gif", headers["Content-Type"])
-        eq("test", body)
+        eq(b"test", body)
+
+        headers, body = self._getResultFromResponse(u"test", "utf-8",
+            {"content-type": "application/json"})
+        eq("application/json", headers["Content-Type"])
+        eq(b"test", body)
 
     def _getCookieFromResponse(self, cookies):
         # Shove the cookies through request, parse the Set-Cookie header
@@ -838,7 +887,7 @@ class TestHTTPResponse(unittest.TestCase):
         response = self._createResponse()
         for name, value, kw in cookies:
             response.setCookie(name, value, **kw)
-        response.setResult('test')
+        response.setResult(b'test')
         return [header[1]
                 for header in response.getHeaders()
                 if header[0] == "Set-Cookie"]
@@ -847,20 +896,20 @@ class TestHTTPResponse(unittest.TestCase):
         c = self._getCookieFromResponse([
                 ('foo', 'bar', {}),
                 ])
-        self.failUnless('foo=bar;' in c or 'foo=bar' in c,
+        self.assertTrue('foo=bar;' in c or 'foo=bar' in c,
                         'foo=bar; not in %r' % c)
 
         c = self._getCookieFromResponse([
                 ('foo', 'bar', {}),
                 ('alpha', 'beta', {}),
                 ])
-        self.failUnless('foo=bar;' in c or 'foo=bar' in c)
-        self.failUnless('alpha=beta;' in c or 'alpha=beta' in c)
+        self.assertTrue('foo=bar;' in c or 'foo=bar' in c)
+        self.assertTrue('alpha=beta;' in c or 'alpha=beta' in c)
 
         c = self._getCookieFromResponse([
                 ('sign', u'\N{BIOHAZARD SIGN}', {}),
                 ])
-        self.failUnless((r'sign="\342\230\243";' in c) or
+        self.assertTrue((r'sign="\342\230\243";' in c) or
                         (r'sign="\342\230\243"' in c))
 
         c = self._getCookieFromResponse([
@@ -873,17 +922,17 @@ class TestHTTPResponse(unittest.TestCase):
                     'seCure': True,
                     }),
                 ])[0]
-        self.failUnless('foo=bar;' in c or 'foo=bar' in c)
-        self.failUnless('expires=Sat, 12 Jul 2014 23:26:28 GMT;' in c, repr(c))
-        self.failUnless('Domain=example.com;' in c)
-        self.failUnless('Path=/froboz;' in c)
-        self.failUnless('Max-Age=3600;' in c)
-        self.failUnless('Comment=blah%3B%E2%98%A3?;' in c, repr(c))
-        self.failUnless('secure;' in c or 'secure' in c)
+        self.assertTrue('foo=bar;' in c or 'foo=bar' in c)
+        self.assertTrue('expires=Sat, 12 Jul 2014 23:26:28 GMT;' in c, repr(c))
+        self.assertTrue('Domain=example.com;' in c)
+        self.assertTrue('Path=/froboz;' in c)
+        self.assertTrue('Max-Age=3600;' in c)
+        self.assertTrue('Comment=blah%3B%E2%98%A3?;' in c, repr(c))
+        self.assertTrue('secure;' in c or 'secure' in c)
 
         c = self._getCookieFromResponse([('foo', 'bar', {'secure': False})])[0]
-        self.failUnless('foo=bar;' in c or 'foo=bar' in c)
-        self.failIf('secure' in c)
+        self.assertTrue('foo=bar;' in c or 'foo=bar' in c)
+        self.assertFalse('secure' in c)
 
     def test_handleException(self):
         response = HTTPResponse()
@@ -893,20 +942,20 @@ class TestHTTPResponse(unittest.TestCase):
             exc_info = sys.exc_info()
 
         response.handleException(exc_info)
-        self.assertEquals(response.getHeader("content-type"),
+        self.assertEqual(response.getHeader("content-type"),
             "text/html;charset=utf-8")
-        self.assertEquals(response.getStatus(), 500)
-        self.assert_(response.consumeBody() in
-            ["<html><head>"
-               "<title>&lt;type 'exceptions.ValueError'&gt;</title></head>\n"
-            "<body><h2>&lt;type 'exceptions.ValueError'&gt;</h2>\n"
-            "A server error occurred.\n"
-            "</body></html>\n",
-            "<html><head><title>ValueError</title></head>\n"
-            "<body><h2>ValueError</h2>\n"
-            "A server error occurred.\n"
-            "</body></html>\n"]
-            )
+        self.assertEqual(response.getStatus(), 500)
+        self.assertTrue(response.consumeBody() in
+             [b"<html><head>"
+              b"<title>&lt;type 'exceptions.ValueError'&gt;</title></head>\n"
+              b"<body><h2>&lt;type 'exceptions.ValueError'&gt;</h2>\n"
+              b"A server error occurred.\n"
+              b"</body></html>\n",
+              b"<html><head><title>ValueError</title></head>\n"
+              b"<body><h2>ValueError</h2>\n"
+              b"A server error occurred.\n"
+              b"</body></html>\n"]
+             )
 
 
 class APITests(BaseTestIPublicationRequest,
@@ -917,11 +966,11 @@ class APITests(BaseTestIPublicationRequest,
     def _Test__new(self, environ=None, **kw):
         if environ is None:
             environ = kw
-        return HTTPRequest(StringIO(''), environ)
+        return HTTPRequest(BytesIO(b''), environ)
 
     def test_IApplicationRequest_bodyStream(self):
-        request = HTTPRequest(StringIO('spam'), {})
-        self.assertEqual(request.bodyStream.read(), 'spam')
+        request = HTTPRequest(BytesIO(b'spam'), {})
+        self.assertEqual(request.bodyStream.read(), b'spam')
 
     # Needed by BaseTestIEnumerableMapping tests:
     def _IEnumerableMapping__stateDict(self):
@@ -968,7 +1017,8 @@ def test_suite():
     suite.addTest(unittest.makeSuite(TestHTTPResponse))
     suite.addTest(unittest.makeSuite(HTTPInputStreamTests))
     suite.addTest(DocFileSuite(
-        '../httpresults.txt', setUp=cleanUp, tearDown=cleanUp))
+        '../httpresults.txt', setUp=cleanUp, tearDown=cleanUp,
+        checker=output_checker))
     suite.addTest(unittest.makeSuite(APITests))
     return suite
 

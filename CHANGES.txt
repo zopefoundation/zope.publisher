@@ -1,11 +1,43 @@
 CHANGES
 =======
 
-3.13.1 (unreleased)
--------------------
+4.0.0a4 (2013-03-12)
+--------------------
 
-- Nothing changed yet.
+- Support UTF-8-encoding application/json responses returned as Unicode.
+- Added YAML for travis-ci.
 
+4.0.0a3 (2013-02-28)
+--------------------
+
+- PrincipalLogging.getLogMessage will return bytes instead of unicode.
+
+4.0.0a2 (2013-02-22)
+--------------------
+
+- Use BytesIO in zope.publisher.xmlrpc.TestRequest.
+
+4.0.0a1 (2013-02-21)
+--------------------
+
+- Replaced deprecated ``zope.component.adapts`` usage with equivalent
+  ``zope.component.adapter`` decorator.
+
+- Replaced deprecated ``zope.interface.implements`` usage with equivalent
+  ``zope.interface.implementer`` decorator.
+
+- Dropped support for Python 2.4, 2.5 and pypy.
+
+- Support for Python 3.3 added
+
+- Wrap ``with interaction()`` in try/finally.
+
+- Don't guess the content type with 304 responses which MUST NOT /
+  SHOULD NOT include it according to:
+  http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.5
+
+  Unfortunately, the content type will still be guessed if the result is
+  set before the status.
 
 3.13.0 (2011-11-17)
 -------------------

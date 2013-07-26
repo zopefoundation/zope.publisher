@@ -16,7 +16,7 @@
 
 import sys
 from unittest import TestCase, main, makeSuite
-from StringIO import StringIO
+from io import BytesIO
 from zope.interface.verify import verifyObject
 
 from zope.publisher.interfaces import IPublication
@@ -46,7 +46,7 @@ class Test(BaseIPublicationTest, TestCase):
 
     def _Test__request(self):
         from zope.publisher.base import BaseRequest
-        request = BaseRequest(StringIO(''), {})
+        request = BaseRequest(BytesIO(b''), {})
         request.setTraversalStack(['Engineering', 'ZopeCorp'])
         publication = self._Test__new()
         request.setPublication(publication)
