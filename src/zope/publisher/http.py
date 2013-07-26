@@ -168,8 +168,11 @@ init_status_codes()
 
 
 class LenientCookie(cookies.SimpleCookie):
-    """LenientCookie will not destroy all cookies
-       in a request when one invalid key is used
+    """Handler that drops individual cookies when invalid keys are used.
+
+    The reduces the number of cases for which a malformed Cookie: header
+    can cause all cookies to be lost.
+
     """
 
     def __setitem__(self, key, value):
