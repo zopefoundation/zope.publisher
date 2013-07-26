@@ -176,7 +176,7 @@ class LenientCookie(cookies.SimpleCookie):
         rval, cval = self.value_encode(value)
         try:
             self._BaseCookie__set(key, rval, cval)
-        except cookies.CookieError, e:
+        except cookies.CookieError as e:
             eventlog.warning(e)
 
     def _BaseCookie__ParseString(self, str, patt=cookies._CookiePattern):
@@ -211,8 +211,12 @@ class LenientCookie(cookies.SimpleCookie):
                 try:
                     self._BaseCookie__set(K, rval, cval)
                     M = self[K]
-                except cookies.CookieError, e:
+                except cookies.CookieError as e:
                     eventlog.warning(e)
+
+    def _BaseCookie__parse_string(self, str, patt=cookies._CookiePattern):
+        # Python 3.x support
+        self._BaseCookie__ParseString(str, patt)
 
 
 class URLGetter(object):
@@ -465,7 +469,7 @@ class HTTPRequest(BaseRequest):
         # ignore cookies on a CookieError
         try:
             c = LenientCookie(text)
-        except cookies.CookieError, e:
+        except cookies.CookieError as e:
             eventlog.warn(e)
             return result
 
@@ -974,8 +978,8 @@ class HTTPResponse(BaseResponse):
 
     def _cookie_list(self):
         try:
-            c = cookies.SimpleCookie()
-        except cookies.CookieError, e:
+            c = LenientCookie()
+        except cookies.CookieError as e:
             eventlog.warn(e)
             return []
         for name, attrs in self._cookies.items():
