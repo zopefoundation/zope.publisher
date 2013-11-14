@@ -957,6 +957,8 @@ class HTTPResponse(BaseResponse):
         # convertable to string, for example, an URLGetter instance
         location = str(location)
 
+        __traceback_info__ = location
+
         if not trusted:
             target_host = extract_host(location)
             if target_host:
