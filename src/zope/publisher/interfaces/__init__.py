@@ -111,14 +111,21 @@ class IRedirect(IPublishingException):
     def getLocation():
         'Returns the location.'
 
+    def getTrusted():
+        'Returns the trusted value.'
+
 @implementer(IRedirect)
 class Redirect(PublishingException):
 
-    def __init__(self, location):
+    def __init__(self, location, trusted=False):
         self.location = location
+        self.trusted = trusted
 
     def getLocation(self):
         return self.location
+
+    def getTrusted(self):
+        return self.trusted
 
     def __str__(self):
         return 'Location: %s' % self.location
@@ -478,7 +485,7 @@ class IStartRequestEvent(IRequestEvent):
 
 class RequestEvent(object):
     """Events for requests.
-    
+
     :ivar request: The request the event is for.
     """
 
@@ -506,7 +513,7 @@ class ISkinType(IInterface):
 
 class ISkinnable(Interface):
     """A skinnable (request) can provide a skin.
-    
+
     The implementation in BrowserRequest will apply a default skin/layer called
     ``IDefaultBrowserLayer`` if not default skin get registered.
     """

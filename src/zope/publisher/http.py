@@ -916,7 +916,7 @@ class HTTPResponse(BaseResponse):
         t, v = exc_info[:2]
         if isinstance(t, CLASS_TYPES):
             if issubclass(t, Redirect):
-                self.redirect(v.getLocation())
+                self.redirect(v.getLocation(), trusted=v.getTrusted())
                 return
             title = tname = t.__name__
         else:
