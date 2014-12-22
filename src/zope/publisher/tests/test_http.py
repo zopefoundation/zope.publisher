@@ -450,7 +450,7 @@ class HTTPTests(unittest.TestCase):
     def testCookies(self):
         cookies = {
             'HTTP_COOKIE':
-                'foo=bar; path=/; spam="eggs", this="Should be fine"; $t="f"'
+                'foo=bar; path=/; spam="eggs", this="Should be accepted"'
         }
         req = self._createRequest(extra_env=cookies)
 
@@ -460,28 +460,24 @@ class HTTPTests(unittest.TestCase):
         self.assertEqual(req.cookies[u'spam'], u'eggs')
         self.assertEqual(req[u'spam'], u'eggs')
 
-        self.assertEqual(req.cookies[u'this'], u'Should be fine')
-        self.assertEqual(req[u'this'], u'Should be fine')
+        self.assertEqual(req.cookies[u'this'], u'Should be accepted')
+        self.assertEqual(req[u'this'], u'Should be accepted')
 
         # Reserved key
         self.assertFalse(req.cookies.has_key('path'))
 
-        self.assertFalse(req.cookies.has_key('t'))
-        self.assertFalse(req.cookies.has_key('$t'))
-
     def testCookieErrorToLog(self):
-        # Cookies accompanying an invalid one shouldn't be trashed.
         cookies = {
             'HTTP_COOKIE':
                 'foo=bar; path=/; spam="eggs", ldap/OU="Williams"'
         }
         req = self._createRequest(extra_env=cookies)
 
-        self.assertEqual(req.cookies[u'foo'], u'bar')
-        self.assertEqual(req[u'foo'], u'bar')
+        self.assertFalse(req.cookies.has_key('foo'))
+        self.assertFalse(req.has_key('foo'))
 
-        self.assertEqual(req.cookies[u'spam'], u'eggs')
-        self.assertEqual(req[u'spam'], u'eggs')
+        self.assertFalse(req.cookies.has_key('spam'))
+        self.assertFalse(req.has_key('spam'))
 
         self.assertFalse(req.cookies.has_key('ldap/OU'))
         self.assertFalse(req.has_key('ldap/OU'))
@@ -911,6 +907,12 @@ class TestHTTPResponse(unittest.TestCase):
                 ])
         self.assertTrue((r'sign="\342\230\243";' in c) or
                         (r'sign="\342\230\243"' in c))
+
+        self.assertRaises(
+                CookieError,
+                self._getCookieFromResponse,
+                [('path', 'invalid key', {}),]
+                )
 
         c = self._getCookieFromResponse([
                 ('foo', 'bar', {
