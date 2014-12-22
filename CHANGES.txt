@@ -4,9 +4,6 @@ CHANGES
 4.0.0a5 (unreleased)
 --------------------
 
-- Added & used LenientCookie, which avoids dropping cookies simply
-  because one uses an invalid key.
-
 - Added ``trusted`` support for ``Redirect`` exception
 
 4.0.0a4 (2013-03-12)
