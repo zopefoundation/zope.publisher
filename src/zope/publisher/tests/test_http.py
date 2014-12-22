@@ -450,7 +450,7 @@ class HTTPTests(unittest.TestCase):
     def testCookies(self):
         cookies = {
             'HTTP_COOKIE':
-                'foo=bar; path=/; spam="eggs", this="Should be accepted"'
+                'foo=bar; path=/; spam="eggs"; this="Should be accepted"'
         }
         req = self._createRequest(extra_env=cookies)
 
@@ -469,7 +469,7 @@ class HTTPTests(unittest.TestCase):
     def testCookieErrorToLog(self):
         cookies = {
             'HTTP_COOKIE':
-                'foo=bar; path=/; spam="eggs", ldap/OU="Williams"'
+                'foo=bar; path=/; spam="eggs"; ldap/OU="Williams"'
         }
         req = self._createRequest(extra_env=cookies)
 
