@@ -1,10 +1,16 @@
 CHANGES
 =======
 
-4.0.0a5 (unreleased)
+4.0.0 (unreleased)
 --------------------
 
+- Enabled testing on Travis.
+
+- Added ``__traceback_info__`` to ``response.redirect()`` to ease debugging
+  untrusted redirects.
+
 - Added ``trusted`` support for ``Redirect`` exception
+
 
 4.0.0a4 (2013-03-12)
 --------------------
