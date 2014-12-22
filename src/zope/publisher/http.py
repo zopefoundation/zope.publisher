@@ -167,61 +167,6 @@ def init_status_codes():
 init_status_codes()
 
 
-class LenientCookie(cookies.SimpleCookie):
-    """Handler that drops individual cookies when invalid keys are used.
-
-    The reduces the number of cases for which a malformed Cookie: header
-    can cause all cookies to be lost.
-
-    """
-
-    def __setitem__(self, key, value):
-        rval, cval = self.value_encode(value)
-        try:
-            self._BaseCookie__set(key, rval, cval)
-        except cookies.CookieError as e:
-            eventlog.warning(e)
-
-    def _BaseCookie__ParseString(self, str, patt=cookies._CookiePattern):
-        i = 0            # Our starting point
-        n = len(str)     # Length of string
-        M = None         # current morsel
-
-        while 0 <= i < n:
-            # Start looking for a cookie
-            match = patt.search(str, i)
-            if not match: break          # No more cookies
-
-            K,V = match.group("key"), match.group("val")
-            i = match.end(0)
-
-            # Parse the key, value in case it's metainfo
-            if K[0] == "$":
-                # We ignore attributes which pertain to the cookie
-                # mechanism as a whole.  See RFC 2109.
-                # (Does anyone care?)
-                if M:
-                    try:
-                        M[ K[1:] ] = V
-                    except cookies.CookieError:
-                        # We don't care.
-                        pass
-            elif K.lower() in cookies.Morsel._reserved:
-                if M:
-                    M[ K ] = cookies._unquote(V)
-            else:
-                rval, cval = self.value_decode(V)
-                try:
-                    self._BaseCookie__set(K, rval, cval)
-                    M = self[K]
-                except cookies.CookieError as e:
-                    eventlog.warning(e)
-
-    def _BaseCookie__parse_string(self, str, patt=cookies._CookiePattern):
-        # Python 3.x support
-        self._BaseCookie__ParseString(str, patt)
-
-
 class URLGetter(object):
 
     __slots__ = "__request"
@@ -471,9 +416,9 @@ class HTTPRequest(BaseRequest):
 
         # ignore cookies on a CookieError
         try:
-            c = LenientCookie(text)
+            c = cookies.SimpleCookie(text)
         except cookies.CookieError as e:
-            eventlog.warn(e)
+            eventlog.warning(e)
             return result
 
         for k,v in c.items():
@@ -983,9 +928,9 @@ class HTTPResponse(BaseResponse):
 
     def _cookie_list(self):
         try:
-            c = LenientCookie()
+            c = cookies.SimpleCookie()
         except cookies.CookieError as e:
-            eventlog.warn(e)
+            eventlog.warning(e)
             return []
         for name, attrs in self._cookies.items():
             name = str(name)
