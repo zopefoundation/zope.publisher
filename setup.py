@@ -16,10 +16,10 @@
 # When developing and releasing this package, please follow the documented
 # Zope Toolkit policies as described by this documentation.
 ##############################################################################
+import os
 from setuptools import setup, find_packages
 
 def alltests():
-    import os
     import sys
     import unittest
     # use the zope.testrunner machinery to find all the
@@ -32,6 +32,10 @@ def alltests():
     options = zope.testrunner.options.get_options(args, defaults)
     suites = list(zope.testrunner.find.find_suites(options))
     return unittest.TestSuite(suites)
+
+def read(*rnames):
+    with open(os.path.join(os.path.dirname(__file__), *rnames)) as f:
+        return f.read()
 
 entry_points = '''
 [paste.app_factory]
@@ -48,9 +52,7 @@ setup(name='zope.publisher',
       author='Zope Foundation and Contributors',
       author_email='zope-dev@zope.org',
       description='The Zope publisher publishes Python objects on the web.',
-      long_description=(open('README.txt').read()
-                        + '\n\n'
-                        + open('CHANGES.txt').read()),
+      long_description=read('README.rst') + '\n\n' + read('CHANGES.rst'),
       classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
