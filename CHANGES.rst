@@ -1,8 +1,8 @@
 CHANGES
 =======
 
-4.0.0 (unreleased)
---------------------
+4.0.0 (2014-12-22)
+------------------
 
 - Enabled testing on Travis.
 
@@ -10,7 +10,6 @@ CHANGES
   untrusted redirects.
 
 - Added ``trusted`` support for ``Redirect`` exception
-
 
 4.0.0a4 (2013-03-12)
 --------------------
