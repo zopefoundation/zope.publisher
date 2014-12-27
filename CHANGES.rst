@@ -9,41 +9,42 @@ CHANGES
 4.0.0 (2014-12-22)
 ------------------
 
-- Enabled testing on Travis.
+- Enable testing on Travis.
 
-- Added ``__traceback_info__`` to ``response.redirect()`` to ease debugging
+- Add ``__traceback_info__`` to ``response.redirect()`` to ease debugging
   untrusted redirects.
 
-- Added ``trusted`` support for ``Redirect`` exception
+- Add ``trusted`` support for ``Redirect`` exception
 
 4.0.0a4 (2013-03-12)
 --------------------
 
 - Support UTF-8-encoding application/json responses returned as Unicode.
-- Added YAML for travis-ci.
+
+- Add YAML for travis-ci.
 
 4.0.0a3 (2013-02-28)
 --------------------
 
-- PrincipalLogging.getLogMessage will return bytes instead of unicode.
+- Return bytes from ``PrincipalLogging.getLogMessage`` instead of unicode.
 
 4.0.0a2 (2013-02-22)
 --------------------
 
-- Use BytesIO in zope.publisher.xmlrpc.TestRequest.
+- Use BytesIO in ``zope.publisher.xmlrpc.TestRequest``.
 
 4.0.0a1 (2013-02-21)
 --------------------
 
-- Replaced deprecated ``zope.component.adapts`` usage with equivalent
+- Replace deprecated ``zope.component.adapts`` usage with equivalent
   ``zope.component.adapter`` decorator.
 
-- Replaced deprecated ``zope.interface.implements`` usage with equivalent
+- Replace deprecated ``zope.interface.implements`` usage with equivalent
   ``zope.interface.implementer`` decorator.
 
-- Dropped support for Python 2.4, 2.5 and pypy.
+- Drop support for Python 2.4, 2.5 and pypy.
 
-- Support for Python 3.3 added
+- Add support for Python 3.3.
 
 - Wrap ``with interaction()`` in try/finally.
 
@@ -58,33 +59,37 @@ CHANGES
 -------------------
 
 - Fix error when no charset matches form data and HTTP_ACCEPT_CHARSET contains a ``*``.
+
 - Add test convenience helper ``create_interaction`` and ``with interaction()``.
 
 
 3.12.6 (2010-12-17)
 -------------------
 
-- Uploading a non-CRLF version to pypi.
+- Upload a non-CRLF version to pypi.
 
 
 3.12.5 (2010-12-14)
 -------------------
 
-- Renamed the ``tests`` extra to ``test``.
+- Rename the ``tests`` extra to ``test``.
 
-- Added a test for our own configure.zcml.
+- Add a test for our own configure.zcml.
 
-- As per W3C spec UTF-8 will be the charset if the browser does not set a header.
+- Use UTF-8 as the charset if the browser does not set a header,
+  per W3C spec.
 
 3.12.4 (2010-07-15)
 -------------------
 
 - LP #131460: Make principal logging unicode safe.
+
 - Remove use of string exceptions in tests, http://bugs.debian.org/585343
-- Add IStartRequestEvent and StartRequestEvent for using in
-  zope.app.publication (matching up with IEndRequestEvent and EndRequestEvent).
-  This included refactoring to produce one definition of 'event with a request'
-  - IRequestEvent.
+
+- Add ``IStartRequestEvent`` and ``StartRequestEvent`` for use in
+  ``zope.app.publication`` (matching up with ``IEndRequestEvent`` and
+  ``EndRequestEvent``).  Includes refactoring to produce one definition of
+  'event with a request' - IRequestEvent.
 
 3.12.3 (2010-04-30)
 -------------------
@@ -102,54 +107,53 @@ CHANGES
 3.12.2 (2010-04-16)
 -------------------
 
-- Removed use of 'zope.testing.doctestunit' in favor of stdlib's 'doctest'.
+- Remove use of ``zope.testing.doctestunit`` in favor of stdlib's ``doctest``.
 
-- Fixed bug where xml-rpc requests would hang when served using
-  paster.httpserver.
+- Fix bug where xml-rpc requests would hang when served using
+  ``paster.httpserver``.
 
 3.12.1 (2010-02-21)
 -------------------
 
-- BaseRequest.traverse should not call traversal hooks on elements
-  previously traversed but wrapped in a security Proxy.
+- Ensure that ``BaseRequest.traverse`` does not call traversal hooks on
+  elements previously traversed but wrapped in a security proxy.
 
 3.12.0 (2009-12-31)
 -------------------
 
-- Reverted change done in 3.6.2. The zope.authentication dependency has been
-  removed again. The BasicAuthAdapter and FTPAuth adapters are now found in
-  the new zope.login package.
+- Revert change done in 3.6.2, removing the ``zope.authentication`` 
+  dependency again. Move the ``BasicAuthAdapter`` and ``FTPAuth`` adapters
+  to the new ``zope.login`` package.
 
 3.11.0 (2009-12-15)
 -------------------
 
-- Moved EndRequestEvent and IEndRequestEvent from zope.app.publication into
-  this package.
+- Move ``EndRequestEvent`` and ``IEndRequestEvent`` here from
+  ``zope.app.publication``.
 
 3.10.1 (2009-11-28)
 -------------------
 
-- Version 3.10.0 needs at least version 3.5 of zope.contenttype but it
-  did not declare it.
+- Declare minimum dependency on ``zope.contenttype`` 3.5 (omitted in 3.10).
 
 3.10.0 (2009-10-22)
 -------------------
 
-- Moved the implementation of zope.publisher.contenttype to
-  zope.contenttype.parse, leaving BBB imports and moving tests along.
-  zope.contenttype is a new but light-weight dependency of this package.
+- Move the implementation of ``zope.publisher.contenttype`` to
+  ``zope.contenttype.parse``, leaving BBB imports and moving tests along.
+  ``zope.contenttype`` is a new but light-weight dependency of this package.
 
-- Supported Python 2.6 by keeping QUERY_STRING out of request.form if
+- Support Python 2.6 by keeping QUERY_STRING out of request.form if
   the method is a POST.  The original QUERY_STRING is still available if
   further processing is needed.
 
-- Better supported the zcml ``defaultSkin`` directive's behavior (registering
+- Better support the zcml ``defaultSkin`` directive's behavior (registering
   an interface as a default skin) in the ``setDefaultSkin`` function.
 
 3.9.3 (2009-10-08)
 ------------------
 
-- Fixed the check for untrusted redirects introduced in 3.9.0 so it works with
+- Fix the check for untrusted redirects introduced in 3.9.0 so it works with
   virtual hosting.
 
 3.9.2 (2009-10-07)
@@ -173,15 +177,15 @@ CHANGES
 3.9.0 (2009-08-27)
 ------------------
 
-- Some parts of zope.app.publisher packages was moved into this package
-  during zope.app.publisher refactoring:
+- Move some parts of ``zope.app.publisher`` into this package
+  during ``zope.app.publisher`` refactoring:
 
-   * IModifiableUserPreferredLanguages adapter for requests
-   * browser:defaultView and browser:defaultSkin ZCML directives
-   * IHTTPView, IXMLRPCView and like interfaces
-   * security ZCML declarations for some of zope.publisher classes
+   * ``IModifiableUserPreferredLanguages`` adapter for requests
+   * ``browser:defaultView`` and ``browser:defaultSkin`` ZCML directives
+   * ``IHTTPView``, ``IXMLRPCView`` and like interfaces
+   * security ZCML declarations for some of ``zope.publisher`` classes
 
-- Introduced ``IReRaiseException`` interface. If during publishing an
+- Introduce ``IReRaiseException`` interface. If during publishing an
   exception occurs and for this exception an adapter is available that
   returns ``False`` on being called, the exception won't be reraised
   by the publisher. This happens only if ``handle_errors`` parameter
@@ -194,23 +198,23 @@ CHANGES
   be raised in the case of redirecting to a different host. If this is
   intentional, the parameter `trusted` can be given.
 
-- Moved dependency on zope.testing from install_requires to tests_require.
+- Move dependency on ``zope.testing`` from ``install_requires`` to
+  ``tests_require``.
 
-- Removed behavior of doing a time.sleep in the supportsRetry http request.
+- Remove ``time.sleep`` in the ``supportsRetry`` http request.
 
-- Add a fix for Internet Explorer versions that upload files will full
+- Add a fix for Internet Explorer versions which upload files with full
   filesystem paths as filenames.
 
 3.8.0 (2009-05-23)
 ------------------
 
-- Moved IHTTPException, IMethodNotAllowed, and MethodNotAllowed from
-  zope.app.http to zope.publisher.interfaces.http, fixing dependency
-  cycles involving zope.app.http.
+- Move ``IHTTPException``, ``IMethodNotAllowed``, and ``MethodNotAllowed``
+  here from ``zope.app.http``, fixing dependency cycles involving
+  ``zope.app.http``.
 
-- Moved the DefaultViewName API from zope.app.publisher.browser to
-  zope.publisher.defaultview, making it accessible to other packages
-  that need it.
+- Move the ``DefaultViewName`` API here from ``zope.app.publisher.browser``,
+  making it accessible to other packages that need it.
 
 3.7.0 (2009-05-13)
 ------------------
@@ -221,7 +225,7 @@ CHANGES
 3.6.4 (2009-04-26)
 ------------------
 
-- Added some BBB code to setDefaultSkin to allow IBrowserRequest's to continue
+- Add some BBB code to setDefaultSkin to allow IBrowserRequest's to continue
   to work without configuring any special adapter for IDefaultSkin.
 
 - Move `getDefaultSkin` to the skinnable module next to the `setDefaultSkin`
@@ -278,75 +282,71 @@ CHANGES
   directive and register real adapters instead of using the interfaces as fake
   adapters where we expect adapter factories.
 
-- Feature: allow to use applySkin with different skin types using the optional
-  argument skinType which is by default set to IBrowserSkinType
+- Feature: allow use of ``applySkinof`` with different skin types using the
+  optional ``skinType`` argument, which is by default set to
+  ``IBrowserSkinType``.
 
-- Feature: implemented the default skin pattern within adapters. This allows
-  us to register default skins for other requests then only IBrowserRequest
-  using IDefaultSkin adapters.
+- Feature: implement the default skin pattern within adapters. This allows
+  us to register default skins for other requests then only
+  ``IBrowserRequest`` using ``IDefaultSkin`` adapters.
 
-  Note, ISkinnable and ISkinType and the skin implementation should be moved
-  out of the browser request modules. Packages like z3c.jsonrpc do not depend
-  on IBrowserRequest but they are skinnable.
+  Note, ``ISkinnable`` and ``ISkinType`` and the skin implementation should
+  be moved out of the browser request modules. Packages like ``z3c.jsonrpc``
+  do not depend on ``IBrowserRequest`` but they are skinnable.
 
-- Feature: added ISkinnable interface which allows us to implement the apply
-  skin pattern not only for IBrowserRequest
+- Feature: add ``ISkinnable`` interface which allows us to implement the apply
+  skin pattern not only for ``IBrowserRequest``.
 
 - Fix: Don't cause warnings on Python 2.6
 
-- Fix: Make IBrowserPage inherit IBrowserView.
+- Fix: Make ``IBrowserPage`` inherit ``IBrowserView``.
 
-- Move IView and IDefaultViewName from zope.component.interfaces to
-  zope.publisher.interfaces. Stop inheriting from deprecated (for years)
-  interfaces defined in zope.component.
+- Move ``IView`` and ``IDefaultViewName`` here from
+  ``zope.component.interfaces``. Stop inheriting from deprecated (for years)
+  interfaces defined in ``zope.component``.
 
 - Remove deprecated code.
 
-- Clean-up: Move "zope.testing" from extras to dependencies, per Zope
-  Framework policy.  Remove zope.app.testing as a dependency: tests run fine
-  without it.
+- Clean-up: Move ``zope.testing`` from extras to dependencies, per Zope
+  Framework policy.  Remove ``zope.app.testing`` as a dependency: tests run
+  fine without it.
 
 3.5.6 (2009-02-14)
 ------------------
 
-Bugs fixed:
-
-* An untested code path that incorrectly attempted to construct a NotFound was
-  fixed, with a test.
+- Fix an untested code path that incorrectly attempted to construct a
+  ``NotFound``, adding a test.
 
 
 3.5.5 (2009-02-04)
 ------------------
 
-* LP #322486: setStatus() now allows any int()-able status value.
+- LP #322486: ``setStatus()`` now allows any ``int()``-able status value.
 
 
 3.5.4 (2008-09-22)
 ------------------
 
-Bugs fixed:
 
-* LP #98440: interfaces lost on retried request
+- LP #98440: interfaces lost on retried request
 
-* LP #273296: dealing more nicely with malformed HTTP_ACCEPT_LANGUAGE headers
+- LP #273296: dealing more nicely with malformed HTTP_ACCEPT_LANGUAGE headers
   within getPreferredLanguages().
 
-* LP #253362: dealing more nicely with malformed HTTP_ACCEPT_CHARSET headers
+- LP #253362: dealing more nicely with malformed HTTP_ACCEPT_CHARSET headers
   within getPreferredCharsets().
 
-* LP #98284: Pass the ``size`` argument to readline, as the version of
+- LP #98284: Pass the ``size`` argument to readline, as the version of
   twisted used in zope.app.twisted supports it.
 
-* Fix the LP #98284 fix: do not pass ``size`` argument of None that causes
+- Fix the LP #98284 fix: do not pass ``size`` argument of None that causes
   cStringIO objects to barf with a TypeError.
 
 
 3.5.3 (2008-06-20)
 ------------------
 
-Bugs fixed:
-
-* It turns out that some Web servers (Paste for example) do not send the EOF
+- It turns out that some Web servers (Paste for example) do not send the EOF
   character after the data has been transmitted and the read() of the cached
   stream simply hangs if no expected content length has been specified.
 
@@ -354,9 +354,7 @@ Bugs fixed:
 3.5.2 (2008-04-06)
 ------------------
 
-Bugs fixed:
-
-* A previous fix to handle posting of non-form data broke handling of
+- A previous fix to handle posting of non-form data broke handling of
   form data with extra information in the content type, as in::
 
     application/x-www-form-urlencoded; charset=UTF-8
@@ -364,25 +362,21 @@ Bugs fixed:
 3.5.1 (2008-03-23)
 ------------------
 
-Bugs fixed:
-
-* When posting non-form (and non-multipart) data, the request body was
+- When posting non-form (and non-multipart) data, the request body was
   consumed and discarded. This makes it impossible to deal with other
   post types, like xml-rpc or json without resorting to overly complex
   "request factory" contortions.
 
-* https://bugs.launchpad.net/zope2/+bug/143873
+- https://bugs.launchpad.net/zope2/+bug/143873
 
-  The zope.publisher.http.HTTPCharsets was confused by the Zope 2
-  publisher, which gives missleading information about which headers
+  ``zope.publisher.http.HTTPCharsets`` was confused by the Zope 2
+  publisher, which gives misleading information about which headers
   it has.
 
 3.5.0 (2008-03-02)
 ------------------
 
-Features added:
-
-* Added a PasteDeploy app_factory implementation.  This should make
+- Added a PasteDeploy app_factory implementation.  This should make
   it easier to integrate Zope 3 applications with PasteDeploy.  It
   also makes it easier to control the publication used, giving far
   greater control over application policies (e.g. whether or not to
@@ -391,7 +385,7 @@ Features added:
 3.4.2 (2007-12-07)
 ------------------
 
-* Made segmentation of URLs not strip (trailing) whitespace from path segments
+- Made segmentation of URLs not strip (trailing) whitespace from path segments
   to allow URLs ending in %20 to be handled correctly. (#172742)
 
 3.4.1 (2007-09-29)
@@ -402,9 +396,9 @@ No changes since 3.4.1b2.
 3.4.1b2 (2007-08-02)
 --------------------
 
-* zope.publisher now works on Python 2.5.
+- Add support for Python 2.5.
 
-* Fix a problem with request.get() when the object that's to be
+- Fix a problem with ``request.get()`` when the object that's to be
   retrieved is the request itself.
 
 
@@ -417,8 +411,7 @@ No changes.
 3.4.0b2 (2007-07-05)
 --------------------
 
-* Fix https://bugs.launchpad.net/zope3/+bug/122054:
-  HTTPInputStream understands both the CONTENT_LENGTH and
+- LP #122054: ``HTTPInputStream`` understands both the CONTENT_LENGTH and
   HTTP_CONTENT_LENGTH environment variables. It is also now tolerant
   of empty strings and will treat those as if the variable were
   absent.
@@ -427,14 +420,13 @@ No changes.
 3.4.0b1 (2007-07-05)
 --------------------
 
-* Fix caching issue. The input stream never got cached in a temp file
+- Fix caching issue. The input stream never got cached in a temp file
   because of a wrong content-length header lookup. Added CONTENT_LENGTH
   header check in addition to the previous used HTTP_CONTENT_LENGTH. The
   ``HTTP_`` prefix is sometimes added by some CGI proxies, but CONTENT_LENGTH
   is the right header info for the size.
 
-* Fix https://bugs.launchpad.net/zope3/+bug/98413:
-  HTTPResponse.handleException should set the content type
+- LP #98413: ``HTTPResponse.handleException`` should set the content type
 
 
 3.4.0a1 (2007-04-22)
