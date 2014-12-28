@@ -21,7 +21,6 @@ from io import BytesIO
 from doctest import DocFileSuite
 
 import zope.event
-import zope.testing.cleanup
 from zope.component import provideAdapter
 from zope.i18n.interfaces.locales import ILocale
 from zope.interface.verify import verifyObject
@@ -132,19 +131,28 @@ class HTTPInputStreamTests(unittest.TestCase):
 
         # HTTPInputStream understands both CONTENT_LENGTH...
         stream1 = HTTPInputStream(BytesIO(data), {'CONTENT_LENGTH': '100000'})
-        self.assertTrue(isinstance(stream1.getCacheStream(), TempFileType))
+        try:
+            self.assertTrue(isinstance(stream1.getCacheStream(), TempFileType))
+        finally:
+            stream1.cacheStream.close()
 
         # ... and HTTP_CONTENT_LENGTH.
         stream2 = HTTPInputStream(BytesIO(data), {'HTTP_CONTENT_LENGTH':
                                                   '100000'})
-        self.assertTrue(isinstance(stream2.getCacheStream(), TempFileType))
+        try:
+            self.assertTrue(isinstance(stream2.getCacheStream(), TempFileType))
+        finally:
+            stream2.cacheStream.close()
 
         # If CONTENT_LENGTH is absent or empty, it takes the value
         # given in HTTP_CONTENT_LENGTH:
         stream3 = HTTPInputStream(BytesIO(data),
                                  {'CONTENT_LENGTH': '',
                                   'HTTP_CONTENT_LENGTH': '100000'})
-        self.assertTrue(isinstance(stream3.getCacheStream(), TempFileType))
+        try:
+            self.assertTrue(isinstance(stream3.getCacheStream(), TempFileType))
+        finally:
+            stream3.cacheStream.close()
 
         # In fact, HTTPInputStream can be instantiated with both an
         # empty CONTENT_LENGTH and an empty HTTP_CONTENT_LENGTH:
@@ -467,11 +475,20 @@ class HTTPTests(unittest.TestCase):
         self.assertFalse(req.cookies.has_key('path'))
 
     def testCookieErrorToLog(self):
+        from zope.testing.loggingsupport import InstalledHandler
         cookies = {
             'HTTP_COOKIE':
                 'foo=bar; path=/; spam="eggs"; ldap/OU="Williams"'
         }
-        req = self._createRequest(extra_env=cookies)
+        handler = InstalledHandler('eventlog')
+        try:
+            req = self._createRequest(extra_env=cookies)
+        finally:
+            handler.uninstall()
+
+        self.assertEqual(len(handler.records), 1)
+        self.assertEqual(handler.records[0].getMessage(),
+                         'Illegal key value: ldap/OU')
 
         self.assertFalse(req.cookies.has_key('foo'))
         self.assertFalse(req.has_key('foo'))
@@ -1010,20 +1027,18 @@ class APITests(BaseTestIPublicationRequest,
         self.assertEqual(request._last_obj_traversed, app.ZopeCorp.Engineering)
 
 def cleanUp(test):
-    zope.testing.cleanup.cleanUp()
+    from zope.testing import cleanup
+    cleanup.cleanUp()
 
 
 def test_suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(ConcreteHTTPTests))
-    suite.addTest(unittest.makeSuite(TestHTTPResponse))
-    suite.addTest(unittest.makeSuite(HTTPInputStreamTests))
-    suite.addTest(DocFileSuite(
-        '../httpresults.txt', setUp=cleanUp, tearDown=cleanUp,
-        checker=output_checker))
-    suite.addTest(unittest.makeSuite(APITests))
-    return suite
-
-
-if __name__ == '__main__':
-    unittest.main()
+    return unittest.TestSuite((
+        unittest.makeSuite(ConcreteHTTPTests),
+        unittest.makeSuite(TestHTTPResponse),
+        unittest.makeSuite(HTTPInputStreamTests),
+        DocFileSuite('../httpresults.txt',
+            setUp=cleanUp,
+            tearDown=cleanUp,
+            checker=output_checker),
+        unittest.makeSuite(APITests),
+    ))
