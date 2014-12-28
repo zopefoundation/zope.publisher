@@ -46,7 +46,7 @@ sample = zope.publisher.tests.test_paste:SamplePublication
 '''
 
 setup(name='zope.publisher',
-      version='4.0.1.dev0',
+      version='4.1.0.dev0',
       url='http://pypi.python.org/pypi/zope.publisher',
       license='ZPL 2.1',
       author='Zope Foundation and Contributors',
@@ -63,6 +63,7 @@ setup(name='zope.publisher',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: Implementation :: CPython',
         'Natural Language :: English',
         'Operating System :: OS Independent',
