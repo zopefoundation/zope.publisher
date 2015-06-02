@@ -45,8 +45,18 @@ def setUp(test):
                   Checker({'value':CheckerPublic}, {}))
 
 def test_suite():
-    return doctest.DocFileSuite( 
+    return doctest.DocFileSuite(
         "xmlrpc.txt", package="zope.publisher",
         setUp=setUp, tearDown=zope.component.testing.tearDown,
         optionflags=doctest.ELLIPSIS
         )
+
+# Proper zope.component/zope.interface support requires PyPy 2.5.1+.
+# Older versions fail to hash types correctly. This manifests itself here
+# as being unable to find the marshlers registered as adapters for types
+# like 'list' and 'dict'. As of Jun 1 2015, Travis CI is still using PyPy 2.5.0.
+# All we can do is skip the test.
+if hasattr(sys, 'pypy_version_info') and sys.pypy_version_info[:3] == (2,5,0):
+    import unittest
+    def test_suite():
+        return unittest.TestSuite(())
