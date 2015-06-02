@@ -4,7 +4,7 @@ Changes
 4.1.1 (unreleased)
 ------------------
 
-- TBD
+- Add support for PyPy.
 
 4.1.0 (2014-12-27)
 ------------------
@@ -126,7 +126,7 @@ Changes
 3.12.0 (2009-12-31)
 -------------------
 
-- Revert change done in 3.6.2, removing the ``zope.authentication`` 
+- Revert change done in 3.6.2, removing the ``zope.authentication``
   dependency again. Move the ``BasicAuthAdapter`` and ``FTPAuth`` adapters
   to the new ``zope.login`` package.
 

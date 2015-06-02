@@ -28,6 +28,9 @@ class Held:
     def release(self):
         self.released = True
 
+def getrefcount(o, default=0):
+    # PyPy/Jython do not have getrefcount
+     return sys.getrefcount(o) if hasattr(sys, 'getrefcount') else default
 
 class BaseTestIPublicationRequest(object):
     def testVerifyIPublicationRequest(self):
@@ -47,28 +50,28 @@ class BaseTestIPublicationRequest(object):
         request = self._Test__new()
 
         response = request.response
-        rcresponse = sys.getrefcount(response)
+        rcresponse = getrefcount(response)
 
         resource = object()
-        rcresource = sys.getrefcount(resource)
+        rcresource = getrefcount(resource)
 
         request.hold(resource)
 
         resource2 = Held()
-        rcresource2 = sys.getrefcount(resource2)
+        rcresource2 = getrefcount(resource2)
         request.hold(resource2)
 
-        self.assertTrue(sys.getrefcount(resource) > rcresource)
-        self.assertTrue(sys.getrefcount(resource2) > rcresource2)
+        self.assertTrue(getrefcount(resource, 1) > rcresource)
+        self.assertTrue(getrefcount(resource2, 1) > rcresource2)
         self.assertFalse(resource2.released)
 
         request.close()
 
         self.assertTrue(resource2.released)
         # Responses are not unreferenced during close()
-        self.assertTrue(sys.getrefcount(response) >= rcresponse)
-        self.assertEqual(sys.getrefcount(resource), rcresource)
-        self.assertEqual(sys.getrefcount(resource2), rcresource2)
+        self.assertTrue(getrefcount(response) >= rcresponse)
+        self.assertEqual(getrefcount(resource), rcresource)
+        self.assertEqual(getrefcount(resource2), rcresource2)
 
     def testSkinManagement(self):
         request = self._Test__new()
@@ -80,4 +83,3 @@ class BaseTestIPublicationRequest(object):
         self.assertEqual(IMoreFoo.providedBy(request), False)
         directlyProvides(request, IMoreFoo)
         self.assertEqual(IMoreFoo.providedBy(request), True)
-
