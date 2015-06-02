@@ -947,7 +947,7 @@ class TestHTTPResponse(unittest.TestCase):
         self.assertTrue('Path=/froboz;' in c)
         self.assertTrue('Max-Age=3600;' in c)
         self.assertTrue('Comment=blah%3B%E2%98%A3?;' in c, repr(c))
-        self.assertTrue('secure;' in c or 'secure' in c)
+        self.assertTrue('secure;' in c or 'secure' in c.lower())
 
         c = self._getCookieFromResponse([('foo', 'bar', {'secure': False})])[0]
         self.assertTrue('foo=bar;' in c or 'foo=bar' in c)
