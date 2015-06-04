@@ -22,6 +22,7 @@ from zope.publisher.interfaces import IDefaultViewName
 from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.publisher.interfaces.browser import IBrowserSkinType
 from zope.publisher.interfaces.browser import IDefaultSkin
+from ._compat import _u
 from zope.schema import TextLine
 
 
@@ -29,8 +30,8 @@ class IDefaultSkinDirective(Interface):
     """Sets the default browser skin"""
 
     name = TextLine(
-        title=u"Default skin name",
-        description=u"Default skin name",
+        title=_u("Default skin name"),
+        description=_u("Default skin name"),
         required=True
         )
 
@@ -45,26 +46,26 @@ class IDefaultViewDirective(Interface):
     """
 
     name = TextLine(
-        title=u"The name of the view that should be the default.",
-        description=u"""
+        title=_u("The name of the view that should be the default."),
+        description=_u("""
         This name refers to view that should be the view used by
-        default (if no view name is supplied explicitly).""",
+        default (if no view name is supplied explicitly)."""),
         required=True
         )
 
     for_ = GlobalObject(
-        title=u"The interface this view is the default for.",
-        description=u"""Specifies the interface for which the view is
+        title=_u("The interface this view is the default for."),
+        description=_u("""Specifies the interface for which the view is
         registered. All objects implementing this interface can make use of
         this view. If this attribute is not specified, the view is available
-        for all objects.""",
+        for all objects."""),
         required=False
         )
 
     layer = GlobalInterface(
-        title=u"The layer the default view is declared for",
-        description=u"The default layer for which the default view is "
-                    u"applicable. By default it is applied to all layers.",
+        title=_u("The layer the default view is declared for"),
+        description=_u("The default layer for which the default view is "
+                       "applicable. By default it is applied to all layers."),
         required=False
         )
 

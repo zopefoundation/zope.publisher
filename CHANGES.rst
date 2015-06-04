@@ -4,7 +4,7 @@ Changes
 4.2.1 (unreleased)
 ------------------
 
-- TBD
+- Add support for Python 3.2.
 
 4.2.0 (2015-06-02)
 ------------------
