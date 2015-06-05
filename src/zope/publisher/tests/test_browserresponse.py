@@ -22,6 +22,7 @@ from zope.interface.verify import verifyObject
 from zope.publisher.interfaces.http import IHTTPResponse
 from zope.publisher.interfaces.http import IHTTPApplicationResponse
 from zope.publisher.interfaces import IResponse
+from .._compat import _u
 
 
 # TODO: Waaa need more tests
@@ -88,7 +89,7 @@ class TestBrowserResponse(TestCase):
     def test_not_DWIM_for_304_response(self):
         # Don't guess the content type with 304 responses which MUST NOT /
         # SHOULD NOT include it.
-        # 
+        #
         # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.5
         #
         # NOTE: The content type is sill guessed if status us set after
@@ -111,7 +112,7 @@ class TestBrowserResponse(TestCase):
             insertBase(b'<html><head></head><body>Page</body></html>'))
 
         # Ensure that unicode bases work as well
-        response.setBase(u'http://localhost/folder/')
+        response.setBase(_u('http://localhost/folder/'))
         body = insertBase(b'<html><head></head><body>Page</body></html>')
         self.assertTrue(isinstance(body, bytes))
         self.assertTrue(b'<base href="http://localhost/folder/" />' in body)

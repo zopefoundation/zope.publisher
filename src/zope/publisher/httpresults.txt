@@ -86,7 +86,7 @@ python-3.x:
     ... @zope.component.adapter(unicode, IHTTPRequest)
     ... def do_something_silly_to_unicode_results(val, request):
     ...     request.response.setHeader('X-Silly', 'Yes')
-    ...     return (u'<html>\n<head>\n<title>raw</title>\n</head>\n<body>\n' +
+    ...     return (unicode('<html>\n<head>\n<title>raw</title>\n</head>\n<body>\n') +
     ...             escape(val) + '\n</body>\n</html>')
     ...
     >>> zope.component.provideAdapter(do_something_silly_to_unicode_results)
@@ -96,7 +96,7 @@ iterable that is chunked, (2) encode, and (3) set content-length.
 
     >>> request = TestRequest()
     >>> request.response.setHeader('content-type', 'text/html')
-    >>> request.response.setResult(u'<h1>Foo!</h1>')
+    >>> request.response.setResult(unicode('<h1>Foo!</h1>'))
     >>> request.response.getHeader('x-silly')
     'Yes'
     >>> request.response.getHeader('content-type')
@@ -145,4 +145,3 @@ simplest way to do this, but any other IResult should work.
     >>> request.response.setResult(DirectResult(('hi',)))
     >>> tuple(request.response.consumeBodyIter())
     ('hi',)
-

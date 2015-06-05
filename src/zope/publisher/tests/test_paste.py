@@ -11,11 +11,13 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-import re, unittest
+import unittest
 import doctest
-from zope.testing import renormalizing
 
-class SamplePublication:
+from .._compat import _u
+
+
+class SamplePublication(object):
 
     def __init__(self, global_config, **options):
         self.args = global_config, options
@@ -36,14 +38,14 @@ class SamplePublication:
         pass
 
     def callObject(self, request, ob):
-        return (u'<html><body>Thanks for your request:<br />\n'
-                u'<h1>%s</h1>\n<pre>\n%s\n</pre>\n'
-                u'<h1>Publication arguments:</h1>\n'
-                u'Globals: %r<br />\nOptions: %r\n</body></html>'
+        return (_u('<html><body>Thanks for your request:<br />\n'
+                   '<h1>%s</h1>\n<pre>\n%s\n</pre>\n'
+                   '<h1>Publication arguments:</h1>\n'
+                   'Globals: %r<br />\nOptions: %r\n</body></html>')
                 % (request.__class__.__name__, request,
                    self.args[0], self.args[1])
                 )
-       
+
     def afterCall(self, request, ob):
         pass
 
@@ -52,7 +54,7 @@ class SamplePublication:
 
     def endRequest(self, request, ob):
         pass
-   
+
     def getDefaultTraversal(self, request, ob):
         return self, ()
 
@@ -66,4 +68,3 @@ def test_suite():
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')
-

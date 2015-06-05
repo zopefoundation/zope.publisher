@@ -27,6 +27,7 @@ from zope.publisher.interfaces import IRequest
 from zope.publisher.interfaces import IResponse
 from zope.publisher.interfaces import IView
 
+from .._compat import _u
 
 class IVirtualHostRequest(Interface):
     """The support for virtual hosts in Zope is very important.
@@ -282,7 +283,7 @@ class IHeaderOutput(Interface):
 
 class IResult(Interface):
     """An iterable that provides the body data of the response.
-    
+
     For simplicity, an adapter to this interface may in fact return any
     iterable, without needing to strictly have the iterable provide
     IResult.
@@ -303,14 +304,14 @@ class IResult(Interface):
     per-character is wildly too small.  Because this is such a common
     case, if a string is used as an IResult then this is special-cased
     to simply convert to a tuple of one value, the string.
-    
+
     Adaptation to this interface provides the opportunity for efficient file
     delivery, pipelining hooks, and more.
     """
 
     def __iter__():
         """iterate over the values that should be returned as the result.
-        
+
         See IHTTPResponse.setResult.
         """
 
@@ -428,18 +429,18 @@ class IHTTPResponse(IResponse):
 
     def setResult(result):
         """Sets response result value based on input.
-        
+
         Input is usually a unicode string, a string, None, or an object
         that can be adapted to IResult with the request.  The end result
         is an iterable such as WSGI prefers, determined by following the
         process described below.
-        
+
         Try to adapt the given input, with the request, to IResult
         (found above in this file).  If this fails, and the original
         value was a string, use the string as the result; or if was
         None, use an empty string as the result; and if it was anything
         else, raise a TypeError.
-        
+
         If the result of the above (the adaptation or the default
         handling of string and None) is unicode, encode it (to the
         preferred encoding found by adapting the request to
@@ -449,14 +450,14 @@ class IHTTPResponse(IResponse):
         the Content-Type header, if present.  Otherwise (the end result
         was not unicode) application is responsible for setting
         Content-Type header encoding value as necessary.
-        
+
         If the result of the above is a string, set the Content-Length
         header, and make the string be the single member of an iterable
         such as a tuple (to send large chunks over the wire; see
         discussion in the IResult interface).  Otherwise (the end result
         was not a string) application is responsible for setting
         Content-Length header as necessary.
-        
+
         Set the result of all of the above as the response's result. If
         the status has not been set, set it to 200 (OK). """
 
@@ -473,15 +474,15 @@ class IHTTPResponse(IResponse):
         Note that this function can be only requested once, since it is
         constructed from the result.
         """
-        
+
 class IHTTPVirtualHostChangedEvent(Interface):
     """The host, port and/or the application path have changed.
-    
-    The request referred to in this event implements at least the 
+
+    The request referred to in this event implements at least the
     IHTTPAppliationRequest interface.
     """
-    request = Attribute(u'The application request whose virtual host info has '
-                        u'been altered')
+    request = Attribute(_u("The application request whose virtual host info has "
+                           "been altered"))
 
 class IHTTPException(Interface):
     """Marker interface for http exceptions views
@@ -507,4 +508,3 @@ class MethodNotAllowed(Exception):
 
     def __str__(self):
         return "%r, %r" % (self.object, self.request)
-
