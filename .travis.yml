@@ -14,7 +14,7 @@ install:
   - travis_retry pip install tox
 
 script:
-  - travis_retry tox
+  - tox
 
 notifications:
     email: false
