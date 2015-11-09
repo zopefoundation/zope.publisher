@@ -236,7 +236,6 @@ class HTTPTests(unittest.TestCase):
         response = request.response
         publish(request, handle_errors=False)
         headers = response.getHeaders()
-        headers.sort()
         return (
             "Status: %s\r\n" % response.getStatusString()
             +
@@ -273,8 +272,8 @@ class HTTPTests(unittest.TestCase):
         self.assertEqual(
             res,
             "Status: 200 Ok\r\n"
-            "Content-Length: 6\r\n"
             "X-Powered-By: Zope (www.zope.org), Python (www.python.org)\r\n"
+            "Content-Length: 6\r\n"
             "\r\n"
             "'5', 6")
 
