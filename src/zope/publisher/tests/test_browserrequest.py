@@ -152,10 +152,10 @@ class BrowserTests(HTTPTests):
         self.assertEqual(
             res,
             "Status: 200 Ok\r\n"
+            "X-Powered-By: Zope (www.zope.org), Python (www.python.org)\r\n"
             "Content-Length: 6\r\n"
             "Content-Type: text/plain;charset=utf-8\r\n"
             "X-Content-Type-Warning: guessed from content\r\n"
-            "X-Powered-By: Zope (www.zope.org), Python (www.python.org)\r\n"
             "\r\n"
             "'5', 6")
 

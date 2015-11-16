@@ -721,7 +721,7 @@ class HTTPResponse(BaseResponse):
         result.append(
             ("X-Powered-By", "Zope (www.zope.org), Python (www.python.org)"))
 
-        for key, values in headers.items():
+        for key, values in sorted(headers.items(), key=lambda x: x[0].lower()):
             if key.lower() == key:
                 # only change non-literal header names
                 key = '-'.join([k.capitalize() for k in key.split('-')])
