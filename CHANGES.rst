@@ -1,10 +1,10 @@
 Changes
 =======
 
-4.2.2 (unreleased)
+4.2.2 (2015-11-16)
 ------------------
 
-- TBD
+- Emit HTTP response headers in a deterministic order (GH #8).
 
 4.2.1 (2015-06-05)
 ------------------
