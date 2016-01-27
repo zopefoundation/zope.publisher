@@ -4,7 +4,9 @@ Changes
 4.3.1 (unreleased)
 ------------------
 
-- TBD
+- Use ``six`` to access the function object and function code in ``zope.publisher.publisher.unwrapMethod``.
+  This restores compatibility with Products.PythonScripts, where parameters were not extracted.
+  [maurits, thet]
 
 
 4.3.0 (2016-07-04)
