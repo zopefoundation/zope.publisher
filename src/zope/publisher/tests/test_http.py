@@ -487,8 +487,10 @@ class HTTPTests(unittest.TestCase):
             handler.uninstall()
 
         self.assertEqual(len(handler.records), 1)
-        self.assertEqual(handler.records[0].getMessage(),
-                         'Illegal key value: ldap/OU')
+
+        message = handler.records[0].getMessage()
+        self.assertTrue(message.startswith('Illegal key'))
+        self.assertTrue('ldap/OU' in message)
 
         self.assertFalse(req.cookies.has_key('foo'))
         self.assertFalse(req.has_key('foo'))
