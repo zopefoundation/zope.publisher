@@ -46,7 +46,7 @@ sample = zope.publisher.tests.test_paste:SamplePublication
 '''
 
 setup(name='zope.publisher',
-      version='4.3.0.dev0',
+      version='4.3.0',
       url='http://pypi.python.org/pypi/zope.publisher',
       license='ZPL 2.1',
       author='Zope Foundation and Contributors',
