@@ -217,6 +217,8 @@ class BrowserTests(HTTPTests):
         request.processInputs()
         self.assertEqual(request.form['upload'].filename, 'notepad.exe')
 
+        # Test that we can actually read the file data
+        self.assertEqual(request.form['upload'].read(), b'Some data')
 
     def testDefault2(self):
         extra = {'PATH_INFO': '/folder/item2/view'}
