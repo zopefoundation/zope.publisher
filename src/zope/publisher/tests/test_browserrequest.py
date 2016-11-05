@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ##############################################################################
 #
 # Copyright (c) 2001, 2002 Zope Foundation and Contributors.
@@ -236,6 +237,35 @@ class BrowserTests(HTTPTests):
         request  = self._createRequest(extra, body=LARGE_POSTED_VALUE)
         request.processInputs()
 
+    def test_multipart_form_decoding_in_UTF8(self):
+        street = u'NOT latin-1: 汉语/漢語'
+        body = u"""---123
+Content-Disposition: form-data; name="street"
+
+%s
+---123--
+""" % street
+
+        extra = {
+            'CONTENT_TYPE':     'multipart/form-data; boundary=-123',
+            "REQUEST_METHOD": "POST"
+            }
+        request = self._createRequest(extra, body=body.encode('utf-8'))
+        request.processInputs()
+        self.assertTrue(isinstance(request.form[_u("street")], unicode))
+        self.assertEqual(street, request.form['street'])
+
+    def test_urlencoded_form_in_utf8(self):
+        street = u'NOT latin-1: 汉语/漢語'
+        body = u'street=' + street
+        request = self._createRequest(
+            dict(REQUEST_METHOD='POST',
+                 CONTENT_TYPE='application/x-www-form-urlencoded',
+                 ),
+            body.encode('utf-8'))
+        request.processInputs()
+        self.assertEqual(dict(request.form), dict(street=street))
+
     def testDefault2(self):
         extra = {'PATH_INFO': '/folder/item2/view'}
         request = self._createRequest(extra)
@@ -283,18 +313,23 @@ class BrowserTests(HTTPTests):
                          {_u("a"):_u("5"), _u("b"):6})
 
     def testFormNoEncodingUsesUTF8(self):
-        encoded = 'K\xc3\xb6hlerstra\xc3\x9fe'
+        street = u'Non Latin-1: 汉语/漢語'
+        qs = u'a=5&b:int=6&street=' + street
+        qs = qs.encode('utf-8')
+        if not PYTHON2:
+            # as per PEP-3333
+            qs = qs.decode('latin-1')
         extra = {
             # if nothing else is specified, form data should be
             # interpreted as UTF-8, as this stub query string is
-            'QUERY_STRING': 'a=5&b:int=6&street=' + encoded
+            'QUERY_STRING': qs
             }
         request = self._createRequest(extra)
         # many mainstream browsers do not send HTTP_ACCEPT_CHARSET
         del request._environ['HTTP_ACCEPT_CHARSET']
         publish(request)
         self.assertTrue(isinstance(request.form[_u("street")], unicode))
-        self.assertEqual(_u("K\xf6hlerstra\xdfe"), request.form['street'])
+        self.assertEqual(street, request.form['street'])
 
     def testFormAcceptsStarButNotUTF8(self):
         extra = {
