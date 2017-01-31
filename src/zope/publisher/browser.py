@@ -302,6 +302,14 @@ class BrowserRequest(HTTPRequest):
         args = {'encoding': 'utf-8'} if not PYTHON2 else {}
         fs = ZopeFieldStorage(fp=fp, environ=env,
                               keep_blank_values=1, **args)
+        # On python 3.4 and up, FieldStorage explictly closes files
+        # when it is garbage collected
+        # see:
+        #   http://bugs.python.org/issue18394
+        #   https://hg.python.org/cpython/rev/c0e9ba7b26d5
+        # so we keep a reference to the FieldStorage till we are
+        # finished processing the request.
+        self.hold(fs)
 
         fslist = getattr(fs, 'list', None)
         if fslist is not None:

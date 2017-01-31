@@ -8,6 +8,14 @@ Changes
   This restores compatibility with Products.PythonScripts, where parameters were not extracted.
   [maurits, thet]
 
+- Fix file uploads on python 3.4 and up. cgi.FieldStorage explicitly
+  closes files when it is garbage collected. For details, see:
+
+  * http://bugs.python.org/issue18394
+  * https://hg.python.org/cpython/rev/c0e9ba7b26d5
+
+  We now keep a reference to the FieldStorage till we are finished
+  processing the request.
 
 4.3.0 (2016-07-04)
 ------------------
