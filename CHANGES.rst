@@ -4,9 +4,10 @@ Changes
 4.3.1 (unreleased)
 ------------------
 
-- Use ``six`` to access the function object and function code in ``zope.publisher.publisher.unwrapMethod``.
-  This restores compatibility with Products.PythonScripts, where parameters were not extracted.
-  [maurits, thet]
+- Accept both new and old locations for ``__code__`` in
+  ``zope.publisher.publisher.unwrapMethod``. This restores compatibility with
+  Products.PythonScripts, where parameters were not extracted.
+  [maurits, thet, MatthewWilkes]
 
 - Fix file uploads on python 3.4 and up. cgi.FieldStorage explicitly
   closes files when it is garbage collected. For details, see:
