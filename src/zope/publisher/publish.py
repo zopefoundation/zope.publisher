@@ -72,8 +72,12 @@ def mapply(obj, positional=(), request={}):
 
     unwrapped, wrapperCount = unwrapMethod(unwrapped)
 
-    code = unwrapped.__code__
-    defaults = unwrapped.__defaults__
+    code = getattr(unwrapped, '__code__', None)
+    if code is None:
+        code = unwrapped.func_code
+    defaults = getattr(unwrapped, '__defaults__', None)
+    if defaults is None:
+        defaults = getattr(unwrapped, 'func_defaults', None)
     names = code.co_varnames[wrapperCount:code.co_argcount]
 
     nargs = len(names)
