@@ -25,6 +25,7 @@ from zope.proxy import removeAllProxies
 
 _marker = object()  # Create a new marker object.
 
+
 def unwrapMethod(obj):
     """obj -> (unwrapped, wrapperCount)
 
@@ -42,13 +43,18 @@ def unwrapMethod(obj):
             raise TypeError("mapply() can not call class constructors")
 
         im_func = getattr(unwrapped, '__func__', None)
+        if im_func is None:
+            # Backwards compatibility with objects aimed at Python 2
+            im_func = getattr(unwrapped, 'im_func', None)
         if im_func is not None:
             unwrapped = im_func
             wrapperCount += 1
         elif getattr(unwrapped, '__code__', None) is not None:
             break
+        elif getattr(unwrapped, 'func_code', None) is not None:
+            break
         else:
-            unwrapped = getattr(unwrapped, '__call__' , None)
+            unwrapped = getattr(unwrapped, '__call__', None)
             if unwrapped is None:
                 raise TypeError("mapply() can not call %s" % repr(obj))
     else:
@@ -66,8 +72,12 @@ def mapply(obj, positional=(), request={}):
 
     unwrapped, wrapperCount = unwrapMethod(unwrapped)
 
-    code = unwrapped.__code__
-    defaults = unwrapped.__defaults__
+    code = getattr(unwrapped, '__code__', None)
+    if code is None:
+        code = unwrapped.func_code
+    defaults = getattr(unwrapped, '__defaults__', None)
+    if defaults is None:
+        defaults = getattr(unwrapped, 'func_defaults', None)
     names = code.co_varnames[wrapperCount:code.co_argcount]
 
     nargs = len(names)

@@ -4,6 +4,11 @@ Changes
 4.3.1 (unreleased)
 ------------------
 
+- Accept both new and old locations for ``__code__`` in
+  ``zope.publisher.publisher.unwrapMethod``. This restores compatibility with
+  Products.PythonScripts, where parameters were not extracted.
+  [maurits, thet, MatthewWilkes]
+
 - Fix file uploads on python 3.4 and up. cgi.FieldStorage explicitly
   closes files when it is garbage collected. For details, see:
 
@@ -12,7 +17,6 @@ Changes
 
   We now keep a reference to the FieldStorage till we are finished
   processing the request.
-
 
 4.3.0 (2016-07-04)
 ------------------
