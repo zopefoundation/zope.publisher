@@ -613,7 +613,11 @@ class BrowserRequest(HTTPRequest):
 class ZopeFieldStorage(FieldStorage):
 
     def make_file(self, binary=None):
-        return tempfile.NamedTemporaryFile('w+b')
+        if PYTHON2 or self._binary_file:
+            return tempfile.NamedTemporaryFile("w+b")
+        else:
+            return tempfile.NamedTemporaryFile("w+",
+                    encoding=self.encoding, newline='\n')
 
 
 class FileUpload(object):
