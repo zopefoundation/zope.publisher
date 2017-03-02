@@ -48,6 +48,13 @@ Here comes some text! """, (b'test'*1000), b"""
 -----------------------------1--
 """])
 
+LARGE_POSTED_VALUE = b''.join([b"""-----------------------------1
+Content-Disposition: form-data; name="upload"
+
+Here comes some text! """, (b'test'*1000), b"""
+-----------------------------1--
+"""])
+
 IE_FILE_BODY = b"""-----------------------------1
 Content-Disposition: form-data; name="upload"; filename="C:\\Windows\\notepad.exe"
 Content-Type: text/plain
@@ -219,6 +226,15 @@ class BrowserTests(HTTPTests):
 
         # Test that we can actually read the file data
         self.assertEqual(request.form['upload'].read(), b'Some data')
+
+    def testLargePostValue(self):
+        extra = {'REQUEST_METHOD':'POST',
+                 'PATH_INFO': _u("/"),
+                 'CONTENT_TYPE': 'multipart/form-data;\
+                 boundary=---------------------------1'}
+
+        request  = self._createRequest(extra, body=LARGE_POSTED_VALUE)
+        request.processInputs()
 
     def testDefault2(self):
         extra = {'PATH_INFO': '/folder/item2/view'}

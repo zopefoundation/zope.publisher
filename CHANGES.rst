@@ -18,6 +18,9 @@ Changes
   We now keep a reference to the FieldStorage till we are finished
   processing the request.
 
+- Fix POST with large values on Python 3. Related to cgi.FieldStorage
+  doing the decoding in Python 3.
+
 4.3.0 (2016-07-04)
 ------------------
 
