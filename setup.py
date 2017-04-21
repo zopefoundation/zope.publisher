@@ -45,6 +45,11 @@ main = zope.publisher.paste:Application
 sample = zope.publisher.tests.test_paste:SamplePublication
 '''
 
+tests_require = [
+    'zope.testing',
+    'zope.testrunner',
+]
+
 setup(name='zope.publisher',
       version='4.3.1.dev0',
       url='http://pypi.python.org/pypi/zope.publisher',
@@ -64,6 +69,7 @@ setup(name='zope.publisher',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
         'Natural Language :: English',
@@ -87,8 +93,10 @@ setup(name='zope.publisher',
                         'zope.proxy',
                         'zope.security>=4.0.0',
                        ],
-      extras_require={'test': ['zope.testing']},
-      tests_require = ['zope.testing', 'zope.testrunner'],
+      extras_require={
+          'test': tests_require
+      },
+      tests_require=tests_require,
       test_suite = '__main__.alltests',
       entry_points=entry_points,
       include_package_data=True,

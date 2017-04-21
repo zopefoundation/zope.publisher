@@ -5,11 +5,17 @@ python:
   - 3.3
   - 3.4
   - 3.5
-  - pypy
-  - pypy3
+  - 3.6
+  - pypy-5.4.1
 install:
-  - pip install tox-travis
+    - pip install -U pip setuptools
+    - pip install -U -e .[test]
 script:
-  - tox
+  - zope-testrunner --test-path=src  --auto-color --auto-progress
 notifications:
     email: false
+after_success:
+    - coveralls
+cache: pip
+before_cache:
+    - rm -f $HOME/.cache/pip/log/debug.log
