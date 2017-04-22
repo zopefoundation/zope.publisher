@@ -4,6 +4,8 @@ Changes
 4.3.1 (unreleased)
 ------------------
 
+- Add support for Python 3.6.
+
 - Accept both new and old locations for ``__code__`` in
   ``zope.publisher.publisher.unwrapMethod``. This restores compatibility with
   Products.PythonScripts, where parameters were not extracted.
@@ -14,12 +16,14 @@ Changes
 
   * http://bugs.python.org/issue18394
   * https://hg.python.org/cpython/rev/c0e9ba7b26d5
+  * https://github.com/zopefoundation/zope.publisher/pull/13
 
   We now keep a reference to the FieldStorage till we are finished
   processing the request.
 
 - Fix POST with large values on Python 3. Related to cgi.FieldStorage
-  doing the decoding in Python 3.
+  doing the decoding in Python 3. See `pull 16
+  <https://github.com/zopefoundation/zope.publisher/pull/16>`_.
 
 4.3.0 (2016-07-04)
 ------------------
