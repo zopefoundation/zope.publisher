@@ -40,6 +40,9 @@ class TestBaseRequest(BaseTestIPublicationRequest,
     def _Test__expectedViewType(self):
         return None # we don't expect
 
+    def test_bool_empty(self):
+        self.assertTrue(self._Test__new())
+
     def test_IApplicationRequest_bodyStream(self):
         from zope.publisher.base import BaseRequest
 

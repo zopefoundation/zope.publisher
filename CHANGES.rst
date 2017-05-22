@@ -4,7 +4,10 @@ Changes
 4.3.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fix instances of ``BaseRequest`` (including ``BrowserRequest``)
+  being unexpectedly ``False`` on Python 3 by defining ``__bool__``.
+  Such instances were always ``True`` on Python 2. See `issue 18
+  <https://github.com/zopefoundation/zope.publisher/issues/18>`_.
 
 
 4.3.1 (2017-04-24)
