@@ -353,9 +353,11 @@ class BaseRequest(object):
         # Should be overridden by subclasses
         return BaseResponse()
 
-    def __nonzero__(self):
+    def __bool__(self):
         # This is here to avoid calling __len__ for boolean tests
-        return 1
+        return True
+
+    __nonzero__ = __bool__ # Python 2
 
     def __str__(self):
         L1 = self.items()
