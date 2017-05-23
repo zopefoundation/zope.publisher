@@ -1,7 +1,7 @@
 Changes
 =======
 
-4.3.2 (unreleased)
+4.3.2 (2017-05-23)
 ------------------
 
 - Fix instances of ``BaseRequest`` (including ``BrowserRequest``)
