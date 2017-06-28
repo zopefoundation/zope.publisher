@@ -486,7 +486,7 @@ class IStartRequestEvent(IRequestEvent):
 class RequestEvent(object):
     """Events for requests.
 
-    :ivar request: The request the event is for.
+    :param request: The request the event is for.
     """
 
     def __init__(self, request):

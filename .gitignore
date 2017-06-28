@@ -5,3 +5,5 @@ develop-eggs
 *.egg-info/
 dist
 *.pyc
+.dir-locals.el
+docs/_build

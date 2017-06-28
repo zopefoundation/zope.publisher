@@ -48,14 +48,13 @@ an adapter.  The FileResult, however, does what needs to happen thanks
 to a special hook associated with the IResult interface, used by the
 http module in this package.
 
-IResult
--------
+:class:`zope.publisher.interfaces.http.IResult`
+-----------------------------------------------
 
-The interface for IResult, found in zope/publisher/interfaces/http.py,
-describes the interface thoroughly.  The IHTTPResponse.setHeader method
-that uses it also documents how it is used.  Reading the IResult
-interface and the IHTTPResponse.setHeader description (in the same
-interface file) is highly recommended.
+The interface for IResult describes the interface thoroughly. The
+IHTTPResponse.setHeader method that uses it also documents how it is
+used. Reading the IResult interface and the IHTTPResponse.setHeader
+description (in the same interface file) is highly recommended.
 
 In addition to supporting sending large amoounts of data, IResult
 supports postprocessing of output.  setResult tries to adapt everything

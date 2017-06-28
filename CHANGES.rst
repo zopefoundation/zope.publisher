@@ -1,14 +1,15 @@
-Changes
-=======
+=========
+ Changes
+=========
 
 4.3.3 (unreleased)
-------------------
+==================
 
 - Nothing changed yet.
 
 
 4.3.2 (2017-05-23)
-------------------
+==================
 
 - Fix instances of ``BaseRequest`` (including ``BrowserRequest``)
   being unexpectedly ``False`` on Python 3 by defining ``__bool__``.
@@ -17,7 +18,7 @@ Changes
 
 
 4.3.1 (2017-04-24)
-------------------
+==================
 
 - Add support for Python 3.6.
 
@@ -41,7 +42,7 @@ Changes
   <https://github.com/zopefoundation/zope.publisher/pull/16>`_.
 
 4.3.0 (2016-07-04)
-------------------
+==================
 
 - Add support for Python 3.5.
 
@@ -49,27 +50,27 @@ Changes
 
 
 4.2.2 (2015-11-16)
-------------------
+==================
 
 - Emit HTTP response headers in a deterministic order (GH #8).
 
 4.2.1 (2015-06-05)
-------------------
+==================
 
 - Add support for Python 3.2.
 
 4.2.0 (2015-06-02)
-------------------
+==================
 
 - Add support for PyPy and PyPy3.
 
 4.1.0 (2014-12-27)
-------------------
+==================
 
 - Add support for Python 3.4.
 
 4.0.0 (2014-12-22)
-------------------
+==================
 
 - Enable testing on Travis.
 
@@ -79,24 +80,24 @@ Changes
 - Add ``trusted`` support for ``Redirect`` exception
 
 4.0.0a4 (2013-03-12)
---------------------
+====================
 
 - Support UTF-8-encoding application/json responses returned as Unicode.
 
 - Add YAML for travis-ci.
 
 4.0.0a3 (2013-02-28)
---------------------
+====================
 
 - Return bytes from ``PrincipalLogging.getLogMessage`` instead of unicode.
 
 4.0.0a2 (2013-02-22)
---------------------
+====================
 
 - Use BytesIO in ``zope.publisher.xmlrpc.TestRequest``.
 
 4.0.0a1 (2013-02-21)
---------------------
+====================
 
 - Replace deprecated ``zope.component.adapts`` usage with equivalent
   ``zope.component.adapter`` decorator.
@@ -118,7 +119,7 @@ Changes
   set before the status.
 
 3.13.0 (2011-11-17)
--------------------
+===================
 
 - Fix error when no charset matches form data and HTTP_ACCEPT_CHARSET contains a ``*``.
 
@@ -126,13 +127,13 @@ Changes
 
 
 3.12.6 (2010-12-17)
--------------------
+===================
 
 - Upload a non-CRLF version to pypi.
 
 
 3.12.5 (2010-12-14)
--------------------
+===================
 
 - Rename the ``tests`` extra to ``test``.
 
@@ -142,7 +143,7 @@ Changes
   per W3C spec.
 
 3.12.4 (2010-07-15)
--------------------
+===================
 
 - LP #131460: Make principal logging unicode safe.
 
@@ -154,7 +155,7 @@ Changes
   'event with a request' - IRequestEvent.
 
 3.12.3 (2010-04-30)
--------------------
+===================
 
 - LP #209440: Don't obscure original exception when handling retries
   in ``publish.publish()`` with ``handleErrors == False``.   This change
@@ -167,7 +168,7 @@ Changes
   Justin Ryan for the patch.
 
 3.12.2 (2010-04-16)
--------------------
+===================
 
 - Remove use of ``zope.testing.doctestunit`` in favor of stdlib's ``doctest``.
 
@@ -175,31 +176,31 @@ Changes
   ``paster.httpserver``.
 
 3.12.1 (2010-02-21)
--------------------
+===================
 
 - Ensure that ``BaseRequest.traverse`` does not call traversal hooks on
   elements previously traversed but wrapped in a security proxy.
 
 3.12.0 (2009-12-31)
--------------------
+===================
 
 - Revert change done in 3.6.2, removing the ``zope.authentication``
   dependency again. Move the ``BasicAuthAdapter`` and ``FTPAuth`` adapters
   to the new ``zope.login`` package.
 
 3.11.0 (2009-12-15)
--------------------
+===================
 
 - Move ``EndRequestEvent`` and ``IEndRequestEvent`` here from
   ``zope.app.publication``.
 
 3.10.1 (2009-11-28)
--------------------
+===================
 
 - Declare minimum dependency on ``zope.contenttype`` 3.5 (omitted in 3.10).
 
 3.10.0 (2009-10-22)
--------------------
+===================
 
 - Move the implementation of ``zope.publisher.contenttype`` to
   ``zope.contenttype.parse``, leaving BBB imports and moving tests along.
@@ -213,13 +214,13 @@ Changes
   an interface as a default skin) in the ``setDefaultSkin`` function.
 
 3.9.3 (2009-10-08)
-------------------
+==================
 
 - Fix the check for untrusted redirects introduced in 3.9.0 so it works with
   virtual hosting.
 
 3.9.2 (2009-10-07)
-------------------
+==================
 
 - Make redirect validation works without HTTP_HOST variable.
 
@@ -229,7 +230,7 @@ Changes
   method is False.
 
 3.9.1 (2009-09-01)
-------------------
+==================
 
 - Convert a location, passed to a redirect method of HTTPRequest to
   string before checking for trusted host redirection, because a
@@ -237,7 +238,7 @@ Changes
   URLGetter.
 
 3.9.0 (2009-08-27)
-------------------
+==================
 
 - Move some parts of ``zope.app.publisher`` into this package
   during ``zope.app.publisher`` refactoring:
@@ -269,7 +270,7 @@ Changes
   filesystem paths as filenames.
 
 3.8.0 (2009-05-23)
-------------------
+==================
 
 - Move ``IHTTPException``, ``IMethodNotAllowed``, and ``MethodNotAllowed``
   here from ``zope.app.http``, fixing dependency cycles involving
@@ -279,13 +280,13 @@ Changes
   making it accessible to other packages that need it.
 
 3.7.0 (2009-05-13)
-------------------
+==================
 
 - Move ``IView`` and ``IBrowserView`` interfaces into
   ``zope.browser.interfaces``, leaving BBB imports.
 
 3.6.4 (2009-04-26)
-------------------
+==================
 
 - Add some BBB code to setDefaultSkin to allow IBrowserRequest's to continue
   to work without configuring any special adapter for IDefaultSkin.
@@ -295,7 +296,7 @@ Changes
   `IBrowserSkinType` in code instead of relying on the ZCML to be loaded.
 
 3.6.3 (2009-03-18)
-------------------
+==================
 
 - Mark HTTPRequest as IAttributeAnnotatable if ``zope.annotation`` is
   available, this was previously done by ``zope.app.i18n``.
@@ -304,7 +305,7 @@ Changes
   configuration. This was also previously done by ``zope.app.i18n``.
 
 3.6.2 (2009-03-14)
-------------------
+==================
 
 - Add an adapter from ``zope.security.interfaces.IPrincipal`` to
   ``zope.publisher.interfaces.logginginfo.ILoggingInfo``. It was moved
@@ -320,13 +321,13 @@ Changes
   reasoning.
 
 3.6.1 (2009-03-09)
-------------------
+==================
 
 - Fix: remove IBrowserRequest dependency in http implementation based on
   condition for setDefaultSkin. Use ISkinnable instead of IBrowserRequest.
 
 3.6.0 (2009-03-08)
-------------------
+==================
 
 - Clean-up: Move skin related code from zope.publisher.interfaces.browser and
   zope.publisher.browser to zope.publihser.interfaces and
@@ -374,20 +375,20 @@ Changes
   fine without it.
 
 3.5.6 (2009-02-14)
-------------------
+==================
 
 - Fix an untested code path that incorrectly attempted to construct a
   ``NotFound``, adding a test.
 
 
 3.5.5 (2009-02-04)
-------------------
+==================
 
 - LP #322486: ``setStatus()`` now allows any ``int()``-able status value.
 
 
 3.5.4 (2008-09-22)
-------------------
+==================
 
 
 - LP #98440: interfaces lost on retried request
@@ -406,7 +407,7 @@ Changes
 
 
 3.5.3 (2008-06-20)
-------------------
+==================
 
 - It turns out that some Web servers (Paste for example) do not send the EOF
   character after the data has been transmitted and the read() of the cached
@@ -414,7 +415,7 @@ Changes
 
 
 3.5.2 (2008-04-06)
-------------------
+==================
 
 - A previous fix to handle posting of non-form data broke handling of
   form data with extra information in the content type, as in::
@@ -422,7 +423,7 @@ Changes
     application/x-www-form-urlencoded; charset=UTF-8
 
 3.5.1 (2008-03-23)
-------------------
+==================
 
 - When posting non-form (and non-multipart) data, the request body was
   consumed and discarded. This makes it impossible to deal with other
@@ -436,7 +437,7 @@ Changes
   it has.
 
 3.5.0 (2008-03-02)
-------------------
+==================
 
 - Added a PasteDeploy app_factory implementation.  This should make
   it easier to integrate Zope 3 applications with PasteDeploy.  It
@@ -445,18 +446,18 @@ Changes
   use the ZODB).
 
 3.4.2 (2007-12-07)
-------------------
+==================
 
 - Made segmentation of URLs not strip (trailing) whitespace from path segments
   to allow URLs ending in %20 to be handled correctly. (#172742)
 
 3.4.1 (2007-09-29)
-------------------
+==================
 
 No changes since 3.4.1b2.
 
 3.4.1b2 (2007-08-02)
---------------------
+====================
 
 - Add support for Python 2.5.
 
@@ -465,13 +466,13 @@ No changes since 3.4.1b2.
 
 
 3.4.1b1 (2007-07-13)
---------------------
+====================
 
 No changes.
 
 
 3.4.0b2 (2007-07-05)
---------------------
+====================
 
 - LP #122054: ``HTTPInputStream`` understands both the CONTENT_LENGTH and
   HTTP_CONTENT_LENGTH environment variables. It is also now tolerant
@@ -480,7 +481,7 @@ No changes.
 
 
 3.4.0b1 (2007-07-05)
---------------------
+====================
 
 - Fix caching issue. The input stream never got cached in a temp file
   because of a wrong content-length header lookup. Added CONTENT_LENGTH
@@ -492,7 +493,7 @@ No changes.
 
 
 3.4.0a1 (2007-04-22)
---------------------
+====================
 
 Initial release as a separate project, corresponds to zope.publisher
 from Zope 3.4.0a1

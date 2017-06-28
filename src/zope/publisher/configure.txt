@@ -1,5 +1,6 @@
-Package configuration
-=====================
+=======================
+ Package configuration
+=======================
 
 The ``zope.publisher`` package provides a ZCML file that configures some
 adapters and security:
