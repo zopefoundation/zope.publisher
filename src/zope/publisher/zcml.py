@@ -55,8 +55,10 @@ class IDefaultViewDirective(Interface):
 
     for_ = GlobalObject(
         title=_u("The interface this view is the default for."),
-        description=_u("""Specifies the interface for which the view is
-        registered. All objects implementing this interface can make use of
+        description=_u("""
+        Specifies the interface for which the view is registered.
+
+        All objects implementing this interface can make use of
         this view. If this attribute is not specified, the view is available
         for all objects."""),
         required=False
@@ -90,7 +92,7 @@ def setDefaultSkin(name, info=''):
     """
     skin = component.getUtility(IBrowserSkinType, name)
     handler('registerAdapter',
-            skin, (IBrowserRequest,), IDefaultSkin, '', info),
+            skin, (IBrowserRequest,), IDefaultSkin, '', info)
 
 
 def defaultSkin(_context, name):

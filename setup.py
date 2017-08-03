@@ -52,7 +52,7 @@ tests_require = [
 
 setup(name='zope.publisher',
       version='4.3.3.dev0',
-      url='http://pypi.python.org/pypi/zope.publisher',
+      url='http://github.com/zopefoundation/zope.publisher',
       license='ZPL 2.1',
       author='Zope Foundation and Contributors',
       author_email='zope-dev@zope.org',

@@ -1,6 +1,6 @@
-=========
-Skinnable
-=========
+===========
+ Skinnable
+===========
 
 Requests can provide skins. But what exactly is a skin? At the code
 level, a skin is just an interface which a request provides. Why do we
@@ -54,7 +54,7 @@ it doesn't depend on IBrowserRequest. We'll use a JSON-RPC as sample like
 the z3c.jsonrpc package provides.
 
 Layers and Skins
-----------------
+================
 
 We also use the term "layer" if we talk about skins. A layer or skin
 layer is an interface registered as a ISkinType without a name. Zope
@@ -95,7 +95,7 @@ Now our request provides IJSONRequest because it implement that interface:
 
 
 setDefaultSkin
---------------
+==============
 
 The default skin is a marker interface that can be registered as an
 adapter that provides IDefaultSkin for the request type. A default skin
@@ -243,7 +243,7 @@ for our retry pattern which will ensure that we start with a clean request:
 
 
 applySkin
----------
+=========
 
 The applySkin method is able to apply any given skin. Let's define some custom
 skins:
@@ -282,7 +282,7 @@ And if we apply ISkinB, ISkinA get removed at the same time ISkinB get applied:
 
 
 setDefaultSkin and applySkin
-----------------------------
+============================
 
 If we set a default skin and later apply a custom skin, the default skin get
 removed at the time the applySkin get called within a new ISkinType:
@@ -317,7 +317,7 @@ ISkinA get applied:
 
 
 SkinChangedEvent
-----------------
+================
 
 We will use python-3 style print function, so we import it from the
 future:

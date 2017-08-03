@@ -25,6 +25,8 @@ from zope.security.interfaces import IPrincipal
 @adapter(IPrincipal)
 @implementer(ILoggingInfo)
 class PrincipalLogging(object):
+    """Adapts zope.security.interfaces.IPrincipal to
+    zope.publisher.interfaces.logginginfo.ILoggingInfo."""
 
     def __init__(self, principal):
         self.principal = principal

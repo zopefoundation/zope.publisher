@@ -11,12 +11,8 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""Browser-specific Publisher classes
+"""Browser-specific skin implementations.
 
-Here we define the specific 'BrowserRequest' and 'BrowserResponse' class. The
-big improvement of the 'BrowserRequest' to 'HTTPRequest' is that is can handle
-HTML form data and convert them into a Python-native format. Even file data is
-packaged into a nice, Python-friendly 'FileUpload' object.
 """
 __docformat__ = 'restructuredtext'
 
