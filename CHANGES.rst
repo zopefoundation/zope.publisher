@@ -5,7 +5,7 @@
 4.3.3 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Add support for PyPy3.
 
 
 4.3.2 (2017-05-23)
