@@ -19,6 +19,7 @@
 import os
 from setuptools import setup, find_packages
 
+
 def alltests():
     import sys
     import unittest
@@ -32,6 +33,7 @@ def alltests():
     options = zope.testrunner.options.get_options(args, defaults)
     suites = list(zope.testrunner.find.find_suites(options))
     return unittest.TestSuite(suites)
+
 
 def read(*rnames):
     with open(os.path.join(os.path.dirname(__file__), *rnames)) as f:
@@ -50,15 +52,16 @@ tests_require = [
     'zope.testrunner',
 ]
 
-setup(name='zope.publisher',
-      version='4.3.3.dev0',
-      url='http://github.com/zopefoundation/zope.publisher',
-      license='ZPL 2.1',
-      author='Zope Foundation and Contributors',
-      author_email='zope-dev@zope.org',
-      description='The Zope publisher publishes Python objects on the web.',
-      long_description=read('README.rst') + '\n\n' + read('CHANGES.rst'),
-      classifiers=[
+setup(
+    name='zope.publisher',
+    version='4.3.3.dev0',
+    url='http://github.com/zopefoundation/zope.publisher',
+    license='ZPL 2.1',
+    author='Zope Foundation and Contributors',
+    author_email='zope-dev@zope.org',
+    description='The Zope publisher publishes Python objects on the web.',
+    long_description=read('README.rst') + '\n\n' + read('CHANGES.rst'),
+    classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Zope Public License',
@@ -75,30 +78,31 @@ setup(name='zope.publisher',
         'Natural Language :: English',
         'Operating System :: OS Independent',
         'Topic :: Internet :: WWW/HTTP',
-        ],
-      packages=find_packages('src'),
-      package_dir={'': 'src'},
-      namespace_packages=['zope',],
-      install_requires=['setuptools',
-                        'six',
-                        'zope.browser',
-                        'zope.component',
-                        'zope.configuration',
-                        'zope.contenttype>=4.0.0',
-                        'zope.event',
-                        'zope.exceptions',
-                        'zope.i18n>=4.0.0',
-                        'zope.interface>=4.0.1',
-                        'zope.location',
-                        'zope.proxy',
-                        'zope.security>=4.0.0',
-                       ],
-      extras_require={
-          'test': tests_require
-      },
-      tests_require=tests_require,
-      test_suite = '__main__.alltests',
-      entry_points=entry_points,
-      include_package_data=True,
-      zip_safe=False,
-      )
+    ],
+    packages=find_packages('src'),
+    package_dir={'': 'src'},
+    namespace_packages=['zope'],
+    install_requires=[
+        'setuptools',
+        'six',
+        'zope.browser',
+        'zope.component',
+        'zope.configuration',
+        'zope.contenttype>=4.0.0',
+        'zope.event',
+        'zope.exceptions',
+        'zope.i18n>=4.0.0',
+        'zope.interface>=4.0.1',
+        'zope.location',
+        'zope.proxy',
+        'zope.security>=4.0.0',
+    ],
+    extras_require={
+        'test': tests_require
+    },
+    tests_require=tests_require,
+    test_suite='__main__.alltests',
+    entry_points=entry_points,
+    include_package_data=True,
+    zip_safe=False,
+)
