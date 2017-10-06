@@ -9,6 +9,8 @@
   It is not used inside this package and was never ported to Python 3.
   Fixes https://github.com/zopefoundation/zope.publisher/issues/4.
 
+- Add support for PyPy3.
+
 - Drop support for Python 3.3.
 
 
