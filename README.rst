@@ -2,7 +2,7 @@
  zope.publisher
 ================
 
-.. image:: https://travis-ci.org/zopefoundation/zope.publisher.png?branch=master
+.. image:: https://travis-ci.org/zopefoundation/zope.publisher.svg?branch=master
         :target: https://travis-ci.org/zopefoundation/zope.publisher
 
 .. image:: https://readthedocs.org/projects/zopepublisher/badge/?version=latest
