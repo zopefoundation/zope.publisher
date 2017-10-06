@@ -1,21 +1,20 @@
 language: python
 sudo: false
 python:
-  - 2.7
-  - 3.4
-  - 3.5
-  - 3.6
-  - pypy-5.4.1
-  - pypy3.5-5.8.0
+    - 2.7
+    - 3.4
+    - 3.5
+    - 3.6
+    - pypy
+    - pypy3
 install:
     - pip install -U pip setuptools
+    - pip install -U coverage coveralls
     - pip install -U -e .[test]
 script:
-  - zope-testrunner --test-path=src  --auto-color --auto-progress
-notifications:
-    email: false
+    - coverage run -m zope.testrunner --test-path=src
 after_success:
     - coveralls
+notifications:
+    email: false
 cache: pip
-before_cache:
-    - rm -f $HOME/.cache/pip/log/debug.log
