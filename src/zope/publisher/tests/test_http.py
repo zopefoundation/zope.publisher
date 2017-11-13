@@ -74,7 +74,8 @@ line 3'''
 
 # tempfiles have different types on different platforms, therefore use
 # this "canonical" way of finding out the type.
-TempFileType = tempfile.TemporaryFile().__class__
+with tempfile.TemporaryFile() as t:
+    TempFileType = t.__class__
 
 class HTTPInputStreamTests(unittest.TestCase):
 
