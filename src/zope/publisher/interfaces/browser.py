@@ -45,11 +45,9 @@ class IBrowserApplicationRequest(IHTTPApplicationRequest):
         - Environment variables
 
           These variables include input headers, server data, and other
-          request-related data.  The variable names are as <a
-          href="http://hoohoo.ncsa.uiuc.edu/cgi/env.html">specified</a>
-          in the <a
-          href="http://hoohoo.ncsa.uiuc.edu/cgi/interface.html">CGI
-          specification</a>
+          request-related data.  The variable names are as
+          specified
+          in the `CGI specification <https://tools.ietf.org/html/rfc3875>`_.
 
         - Cookies
 
@@ -89,6 +87,9 @@ class IBrowserRequest(IHTTPRequest, ISkinnable):
 
 
 class IBrowserPublisher(IPublishTraverse):
+    """
+    A type of `.IPublishTraverse` that also supports default objects.
+    """
 
     def browserDefault(request):
         """Provide the default object
@@ -99,7 +100,7 @@ class IBrowserPublisher(IPublishTraverse):
         Returns an object and a sequence of names.  If the sequence of
         names is not empty, then a traversal step is made for each name.
         After the publisher gets to the end of the sequence, it will
-        call browserDefault on the last traversed object.
+        call ``browserDefault`` on the last traversed object.
 
         Normal usage is to return self for object and a default view name.
 
