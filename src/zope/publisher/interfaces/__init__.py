@@ -27,20 +27,32 @@ from zope.security.interfaces import IParticipation
 from zope.security.interfaces import Unauthorized
 
 class IPublishingException(IException):
-    pass
+    """
+    An exception that occurs during publication.
+    """
 
 @implementer(IPublishingException)
 class PublishingException(Exception):
-    pass
+    """
+    Default implementation of `IPublishingException`.
+    """
 
 class ITraversalException(IPublishingException):
-    pass
+    """
+    An exception that occurs during publication traversal.
+    """
 
 @implementer(ITraversalException)
 class TraversalException(PublishingException):
-    pass
+    """
+    Default implementation of `ITraversalException`.
+    """
 
 class INotFound(ILookupError, ITraversalException):
+    """
+    The object we want to traverse to cannot be found.
+    """
+
     def getObject():
         'Returns the object that was being traversed.'
 
@@ -49,6 +61,9 @@ class INotFound(ILookupError, ITraversalException):
 
 @implementer(INotFound)
 class NotFound(LookupError, TraversalException):
+    """
+    Default implementation of `INotFound`.
+    """
 
     def __init__(self, ob, name, request=None):
         self.ob = ob
@@ -68,6 +83,9 @@ class NotFound(LookupError, TraversalException):
         return 'Object: %s, name: %s' % (ob, repr(self.name))
 
 class IDebugError(ITraversalException):
+    """
+    A debug error.
+    """
     def getObject():
         'Returns the object being traversed.'
 
@@ -76,6 +94,9 @@ class IDebugError(ITraversalException):
 
 @implementer(IDebugError)
 class DebugError(TraversalException):
+    """
+    Default implementation of `IDebugError`.
+    """
 
     message = None # override this not to cause warnings in python 2.6
 
@@ -93,11 +114,18 @@ class DebugError(TraversalException):
         return self.message
 
 class IBadRequest(IPublishingException):
+    """
+    The request is bad.
+    """
+
     def __str__():
         'Returns the error message.'
 
 @implementer(IBadRequest)
 class BadRequest(PublishingException):
+    """
+    Default implementation of `IBadRequest`.
+    """
 
     message = None # override this not to cause warnings in python 2.6
 
@@ -108,6 +136,10 @@ class BadRequest(PublishingException):
         return self.message
 
 class IRedirect(IPublishingException):
+    """
+    An exception that redirects the client.
+    """
+
     def getLocation():
         'Returns the location.'
 
@@ -116,6 +148,9 @@ class IRedirect(IPublishingException):
 
 @implementer(IRedirect)
 class Redirect(PublishingException):
+    """
+    Default implementation of `IRedirect`.
+    """
 
     def __init__(self, location, trusted=False):
         self.location = location
@@ -131,12 +166,17 @@ class Redirect(PublishingException):
         return 'Location: %s' % self.location
 
 class IRetry(IPublishingException):
+    """
+    An exception that indicates a request should be retried.
+    """
     def getOriginalException():
         'Returns the original exception object.'
 
 @implementer(IRetry)
 class Retry(PublishingException):
-    """Raise this to retry a request."""
+    """
+    Default implementation of `IRetry`.
+    """
 
     def __init__(self, orig_exc=None):
         """orig_exc must be a 3-tuple as returned from sys.exc_info() or None"""
@@ -167,6 +207,9 @@ class IExceptionSideEffects(Interface):
 
 
 class IPublishTraverse(Interface):
+    """
+    Traversal for the specific purpose of publishing.
+    """
 
     def publishTraverse(request, name):
         """Lookup a name
@@ -184,11 +227,14 @@ class IPublishTraverse(Interface):
 
 
 class IPublisher(Interface):
+    """
+    An object that can publish.
+    """
 
     def publish(request):
         """Publish a request
 
-        The request must be an IPublisherRequest.
+        The request must be an `IPublisherRequest`.
         """
 
 class IResponse(Interface):
@@ -295,7 +341,7 @@ class IPublication(Interface):
 
 
 class IPublicationRequest(IParticipation):
-    """Interface provided by requests to IPublication objects
+    """Interface provided by requests to `IPublication` objects
     """
 
     response = Attribute("""The request's response object

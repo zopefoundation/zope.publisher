@@ -97,7 +97,12 @@ setup(
         'zope.security>=4.0.0',
     ],
     extras_require={
-        'test': tests_require
+        'test': tests_require,
+        'docs': [
+            'Sphinx',
+            'repoze.sphinx.autointerface',
+            'sphinx_rtd_theme',
+        ],
     },
     tests_require=tests_require,
     test_suite='__main__.alltests',
