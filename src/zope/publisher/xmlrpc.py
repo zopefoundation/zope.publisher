@@ -121,6 +121,12 @@ class XMLRPCResponse(HTTPResponse):
                 self.handleException(sys.exc_info())
                 return
 
+        # HTTP response payloads are byte strings, and methods like
+        # consumeBody rely on that, but xmlrpc.client.dumps produces
+        # native strings, which is incorrect on Python 3.
+        if not isinstance(body, bytes):
+            body = body.encode('utf-8')
+
         headers = [('content-type', 'text/xml;charset=utf-8'),
                    ('content-length', str(len(body)))]
         self._headers.update(dict((k, [v]) for (k, v) in headers))
@@ -172,7 +178,7 @@ class XMLRPCResponse(HTTPResponse):
 
 @implementer(IXMLRPCView)
 class XMLRPCView(object):
-    """A base XML-RPC view that can be used as mix-in for XML-RPC views.""" 
+    """A base XML-RPC view that can be used as mix-in for XML-RPC views."""
 
     def __init__(self, context, request):
         self.context = context

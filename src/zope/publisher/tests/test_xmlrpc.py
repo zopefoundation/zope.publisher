@@ -13,18 +13,30 @@
 ##############################################################################
 """Testing the XML-RPC Publisher code.
 """
-import sys
 import doctest
+import unittest
+
 import zope.component.testing
 from zope.publisher import xmlrpc
 from zope.security.checker import defineChecker, Checker, CheckerPublic
 
-if sys.version_info[0] == 2:
+try:
     import xmlrpclib
-else:
+except ImportError:
     import xmlrpc.client as xmlrpclib
 
-def setUp(test):
+class TestXMLRPCResponse(unittest.TestCase):
+
+    def testConsumeBody(self):
+        response = xmlrpc.XMLRPCResponse()
+        response.setResult(['hi'])
+
+        body = response.consumeBody()
+        self.assertIsInstance(body, bytes)
+        self.assertIn(b'<methodResponse>', body)
+
+
+def doctest_setUp(test):
     zope.component.testing.setUp(test)
     zope.component.provideAdapter(xmlrpc.ListPreMarshaller)
     zope.component.provideAdapter(xmlrpc.TuplePreMarshaller)
@@ -45,18 +57,13 @@ def setUp(test):
                   Checker({'value':CheckerPublic}, {}))
 
 def test_suite():
-    return doctest.DocFileSuite(
-        "xmlrpc.txt", package="zope.publisher",
-        setUp=setUp, tearDown=zope.component.testing.tearDown,
-        optionflags=doctest.ELLIPSIS
-        )
-
-# Proper zope.component/zope.interface support requires PyPy 2.5.1+.
-# Older versions fail to hash types correctly. This manifests itself here
-# as being unable to find the marshlers registered as adapters for types
-# like 'list' and 'dict'. As of Jun 1 2015, Travis CI is still using PyPy 2.5.0.
-# All we can do is skip the test.
-if hasattr(sys, 'pypy_version_info') and sys.pypy_version_info[:3] == (2,5,0):
-    import unittest
-    def test_suite():
-        return unittest.TestSuite(())
+    return unittest.TestSuite((
+        unittest.defaultTestLoader.loadTestsFromName(__name__),
+        doctest.DocFileSuite(
+            "xmlrpc.txt",
+            package="zope.publisher",
+            setUp=doctest_setUp,
+            tearDown=zope.component.testing.tearDown,
+            optionflags=doctest.ELLIPSIS
+        ),
+    ))
