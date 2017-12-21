@@ -7,3 +7,5 @@ dist
 *.pyc
 .dir-locals.el
 docs/_build
+.coverage
+htmlcov/

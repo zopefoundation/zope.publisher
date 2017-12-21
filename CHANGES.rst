@@ -13,6 +13,10 @@
 
 - Drop support for Python 3.3.
 
+- Fix ``XMLRPCResponse`` having a str body (instead of a bytes body)
+  which could lead to ``TypeError`` on Python 3. See `issue 26
+  <https://github.com/zopefoundation/zope.publisher/issues/26>`_.
+
 
 4.3.2 (2017-05-23)
 ==================
