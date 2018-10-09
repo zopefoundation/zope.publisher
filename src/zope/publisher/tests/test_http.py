@@ -949,7 +949,10 @@ class TestHTTPResponse(unittest.TestCase):
         self.assertTrue('Domain=example.com;' in c)
         self.assertTrue('Path=/froboz;' in c)
         self.assertTrue('Max-Age=3600;' in c)
-        self.assertTrue('Comment=blah%3B%E2%98%A3?;' in c, repr(c))
+        # The first variant is the more modern one,
+        # see https://bugs.python.org/issue991266:
+        self.assertTrue('Comment="blah%3B%E2%98%A3?";' in c
+                        or 'Comment=blah%3B%E2%98%A3?;' in c, repr(c))
         self.assertTrue('secure;' in c or 'secure' in c.lower())
 
         c = self._getCookieFromResponse([('foo', 'bar', {'secure': False})])[0]
