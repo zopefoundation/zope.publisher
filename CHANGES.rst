@@ -2,7 +2,7 @@
  Changes
 =========
 
-5.0 (unreleased)
+5.0 (2018-10-10)
 ================
 
 - Backwards incompatible change: Remove ``zope.publisher.tests.httprequest``.
