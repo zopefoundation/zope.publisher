@@ -9,7 +9,7 @@
   It is not used inside this package and was never ported to Python 3.
   Fixes https://github.com/zopefoundation/zope.publisher/issues/4.
 
-- Add support for PyPy3.
+- Add support for Python 3.7 and PyPy3.
 
 - Drop support for Python 3.3.
 
