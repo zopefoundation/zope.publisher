@@ -2,7 +2,7 @@
  Changes
 =========
 
-5.0.1 (unreleased)
+5.0.1 (2018-10-19)
 ==================
 
 - Fix a ``DeprecationWarning``.

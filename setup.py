@@ -54,7 +54,7 @@ tests_require = [
 
 setup(
     name='zope.publisher',
-    version='5.0.1.dev0',
+    version='5.0.1',
     url='https://github.com/zopefoundation/zope.publisher',
     license='ZPL 2.1',
     author='Zope Foundation and Contributors',
