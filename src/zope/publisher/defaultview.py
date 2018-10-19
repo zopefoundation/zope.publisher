@@ -13,7 +13,7 @@
 ##############################################################################
 """Default view name API
 """
-from zope.component.interfaces import ComponentLookupError
+from zope.interface.interfaces import ComponentLookupError
 from zope.component import getSiteManager
 
 import zope.interface
