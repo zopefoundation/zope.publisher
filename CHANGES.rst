@@ -2,10 +2,10 @@
  Changes
 =========
 
-5.0.2 (unreleased)
+5.1.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Drop support for Python 3.4.
 
 
 5.0.1 (2018-10-19)
