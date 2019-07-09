@@ -14,8 +14,6 @@
 import unittest
 import doctest
 
-from .._compat import _u
-
 
 class SamplePublication(object):
 
@@ -38,13 +36,12 @@ class SamplePublication(object):
         pass
 
     def callObject(self, request, ob):
-        return (_u('<html><body>Thanks for your request:<br />\n'
-                   '<h1>%s</h1>\n<pre>\n%s\n</pre>\n'
-                   '<h1>Publication arguments:</h1>\n'
-                   'Globals: %r<br />\nOptions: %r\n</body></html>')
-                % (request.__class__.__name__, request,
-                   self.args[0], self.args[1])
-                )
+        return (
+            u'<html><body>Thanks for your request:<br />\n'
+            u'<h1>%s</h1>\n<pre>\n%s\n</pre>\n'
+            u'<h1>Publication arguments:</h1>\n'
+            u'Globals: %r<br />\nOptions: %r\n</body></html>'
+        ) % (request.__class__.__name__, request, self.args[0], self.args[1])
 
     def afterCall(self, request, ob):
         pass

@@ -38,7 +38,6 @@ from zope.publisher.interfaces.http import IHTTPRequest, IHTTPResponse
 from zope.publisher.interfaces.http import IHTTPApplicationResponse
 from zope.publisher.interfaces import IResponse
 from zope.publisher.tests.publication import TestPublication
-from .._compat import _u
 
 from zope.publisher.tests.basetestipublicationrequest \
      import BaseTestIPublicationRequest
@@ -463,14 +462,14 @@ class HTTPTests(unittest.TestCase):
         }
         req = self._createRequest(extra_env=cookies)
 
-        self.assertEqual(req.cookies[_u('foo')], _u('bar'))
-        self.assertEqual(req[_u('foo')], _u('bar'))
+        self.assertEqual(req.cookies[u'foo'], u'bar')
+        self.assertEqual(req[u'foo'], u'bar')
 
-        self.assertEqual(req.cookies[_u('spam')], _u('eggs'))
-        self.assertEqual(req[_u('spam')], _u('eggs'))
+        self.assertEqual(req.cookies[u'spam'], u'eggs')
+        self.assertEqual(req[u'spam'], u'eggs')
 
-        self.assertEqual(req.cookies[_u('this')], _u('Should be accepted'))
-        self.assertEqual(req[_u('this')], _u('Should be accepted'))
+        self.assertEqual(req.cookies[u'this'], u'Should be accepted')
+        self.assertEqual(req[u'this'], u'Should be accepted')
 
         # Reserved key
         self.assertFalse(req.cookies.has_key('path'))
@@ -509,7 +508,7 @@ class HTTPTests(unittest.TestCase):
         # Cookie values are assumed to be UTF-8 encoded
         cookies = {'HTTP_COOKIE': r'key="\342\230\243";'}
         req = self._createRequest(extra_env=cookies)
-        self.assertEqual(req.cookies[_u('key')], _u('\N{BIOHAZARD SIGN}'))
+        self.assertEqual(req.cookies[u'key'], u'\N{BIOHAZARD SIGN}')
 
     def testHeaders(self):
         headers = {
@@ -517,10 +516,10 @@ class HTTPTests(unittest.TestCase):
             'Another-Test': 'another',
         }
         req = self._createRequest(extra_env=headers)
-        self.assertEqual(req.headers[_u('TEST_HEADER')], _u('test'))
-        self.assertEqual(req.headers[_u('TEST-HEADER')], _u('test'))
-        self.assertEqual(req.headers[_u('test_header')], _u('test'))
-        self.assertEqual(req.getHeader('TEST_HEADER', literal=True), _u('test'))
+        self.assertEqual(req.headers[u'TEST_HEADER'], u'test')
+        self.assertEqual(req.headers[u'TEST-HEADER'], u'test')
+        self.assertEqual(req.headers[u'test_header'], u'test')
+        self.assertEqual(req.getHeader('TEST_HEADER', literal=True), u'test')
         self.assertEqual(req.getHeader('TEST-HEADER', literal=True), None)
         self.assertEqual(req.getHeader('test_header', literal=True), None)
         self.assertEqual(req.getHeader('Another-Test', literal=True),
@@ -682,10 +681,10 @@ class HTTPTests(unittest.TestCase):
         req = self._createRequest(
             {'PATH_INFO': '/\xc3\xa4\xc3\xb6/\xc3\xbc\xc3\x9f/foo/bar.html'})
         self.assertEqual(req._traversal_stack,
-            [_u('bar.html'), _u('foo'), _u('\u00fc\u00df'), _u('\u00e4\u00f6')])
+            [u'bar.html', u'foo', u'\u00fc\u00df', u'\u00e4\u00f6'])
         # the request should have converted PATH_INFO to unicode
         self.assertEqual(req['PATH_INFO'],
-            _u('/\u00e4\u00f6/\u00fc\u00df/foo/bar.html'))
+            u'/\u00e4\u00f6/\u00fc\u00df/foo/bar.html')
 
     def testResponseWriteFaile(self):
         self.assertRaises(TypeError,
@@ -700,7 +699,7 @@ class HTTPTests(unittest.TestCase):
     def test_unacceptable_charset(self):
         # Regression test for https://bugs.launchpad.net/zope3/+bug/98337
         request = self._createRequest({'HTTP_ACCEPT_CHARSET': 'ISO-8859-1'})
-        result = _u("Latin a with ogonek\u0105 Cyrillic ya \u044f")
+        result = u"Latin a with ogonek\u0105 Cyrillic ya \u044f"
         provideAdapter(HTTPCharsets)
         request.response.setHeader('Content-Type', 'text/plain')
 
@@ -761,7 +760,7 @@ class ConcreteHTTPTests(HTTPTests):
         # set the response on a result
         request = self._createRequest()
         request.response.setHeader('Content-Type', 'text/plain')
-        result = _u("Latin a with ogonek\u0105 Cyrillic ya \u044f")
+        result = u"Latin a with ogonek\u0105 Cyrillic ya \u044f"
         request.response.setResult(result)
 
         body = request.response.consumeBody()
@@ -827,7 +826,7 @@ class TestHTTPResponse(unittest.TestCase):
         eq(b"test", body)
 
         headers, body = self._getResultFromResponse(
-            _u('\u0442\u0435\u0441\u0442'), "utf-8",
+            u'\u0442\u0435\u0441\u0442', "utf-8",
             {"content-type": "text/plain"})
         eq("8", headers["Content-Length"])
         eq(b'\xd1\x82\xd0\xb5\xd1\x81\xd1\x82', body)
@@ -839,17 +838,17 @@ class TestHTTPResponse(unittest.TestCase):
         eq("", headers.get("Content-Type", ""))
         eq(b"test", body)
 
-        headers, body = self._getResultFromResponse(_u("test"),
+        headers, body = self._getResultFromResponse(u"test",
             headers={"content-type": "text/plain"})
         eq("text/plain;charset=utf-8", headers["Content-Type"])
         eq(b"test", body)
 
-        headers, body = self._getResultFromResponse(_u("test"), "utf-8",
+        headers, body = self._getResultFromResponse(u"test", "utf-8",
             {"content-type": "text/html"})
         eq("text/html;charset=utf-8", headers["Content-Type"])
         eq(b"test", body)
 
-        headers, body = self._getResultFromResponse(_u("test"), "utf-8",
+        headers, body = self._getResultFromResponse(u"test", "utf-8",
             {"content-type": "text/plain;charset=cp1251"})
         eq("text/plain;charset=cp1251", headers["Content-Type"])
         eq(b"test", body)
@@ -857,30 +856,30 @@ class TestHTTPResponse(unittest.TestCase):
         # see https://bugs.launchpad.net/zope.publisher/+bug/98395
         # RFC 3023 types and */*+xml output as unicode
 
-        headers, body = self._getResultFromResponse(_u("test"), "utf-8",
+        headers, body = self._getResultFromResponse(u"test", "utf-8",
             {"content-type": "text/xml"})
         eq("text/xml;charset=utf-8", headers["Content-Type"])
         eq(b"test", body)
 
-        headers, body = self._getResultFromResponse(_u("test"), "utf-8",
+        headers, body = self._getResultFromResponse(u"test", "utf-8",
             {"content-type": "application/xml"})
         eq("application/xml;charset=utf-8", headers["Content-Type"])
         eq(b"test", body)
 
-        headers, body = self._getResultFromResponse(_u("test"), "utf-8",
+        headers, body = self._getResultFromResponse(u"test", "utf-8",
             {"content-type": "text/xml-external-parsed-entity"})
         eq("text/xml-external-parsed-entity;charset=utf-8",
            headers["Content-Type"])
         eq(b"test", body)
 
-        headers, body = self._getResultFromResponse(_u("test"), "utf-8",
+        headers, body = self._getResultFromResponse(u"test", "utf-8",
             {"content-type": "application/xml-external-parsed-entity"})
         eq("application/xml-external-parsed-entity;charset=utf-8",
            headers["Content-Type"])
         eq(b"test", body)
 
         # Mozilla XUL
-        headers, body = self._getResultFromResponse(_u("test"), "utf-8",
+        headers, body = self._getResultFromResponse(u"test", "utf-8",
             {"content-type": "application/vnd+xml"})
         eq("application/vnd+xml;charset=utf-8", headers["Content-Type"])
         eq(b"test", body)
@@ -892,7 +891,7 @@ class TestHTTPResponse(unittest.TestCase):
         eq("image/gif", headers["Content-Type"])
         eq(b"test", body)
 
-        headers, body = self._getResultFromResponse(_u("test"), "utf-8",
+        headers, body = self._getResultFromResponse(u"test", "utf-8",
             {"content-type": "application/json"})
         eq("application/json", headers["Content-Type"])
         eq(b"test", body)
@@ -923,7 +922,7 @@ class TestHTTPResponse(unittest.TestCase):
         self.assertTrue('alpha=beta;' in c or 'alpha=beta' in c)
 
         c = self._getCookieFromResponse([
-                ('sign', _u('\N{BIOHAZARD SIGN}'), {}),
+                ('sign', u'\N{BIOHAZARD SIGN}', {}),
                 ])
         self.assertTrue((r'sign="\342\230\243";' in c) or
                         (r'sign="\342\230\243"' in c))
@@ -940,7 +939,7 @@ class TestHTTPResponse(unittest.TestCase):
                     'domain': 'example.com',
                     'pAth': '/froboz',
                     'max_age': 3600,
-                    'comment': _u('blah;\N{BIOHAZARD SIGN}?'),
+                    'comment': u'blah;\N{BIOHAZARD SIGN}?',
                     'seCure': True,
                     }),
                 ])[0]

@@ -29,7 +29,7 @@ from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.publisher.interfaces.browser import IBrowserPublication
 from zope.publisher.base import DefaultPublication
 
-from zope.publisher._compat import PYTHON2, _u
+from zope.publisher._compat import PYTHON2
 from zope.publisher.tests.test_http import HTTPTests
 from zope.publisher.tests.publication import TestPublication
 
@@ -112,12 +112,12 @@ class BrowserTests(HTTPTests):
         class Item(object):
             """Required docstring for the publisher."""
             def __call__(self, a, b):
-                return _u("%s, %s") % (repr(a).lstrip('u'), repr(b).lstrip('u'))
+                return u"%s, %s" % (repr(a).lstrip('u'), repr(b).lstrip('u'))
 
         class Item3(object):
             """Required docstring for the publisher."""
             def __call__(self, *args):
-                return _u("...")
+                return u"..."
 
         class View(object):
             """Required docstring for the publisher."""
@@ -126,7 +126,7 @@ class BrowserTests(HTTPTests):
 
             def index(self, a, b):
                 """Required docstring for the publisher."""
-                return _u("%s, %s") % (repr(a).lstrip('u'), repr(b).lstrip('u'))
+                return u"%s, %s" % (repr(a).lstrip('u'), repr(b).lstrip('u'))
 
         class Item2(object):
             """Required docstring for the publisher."""
@@ -193,8 +193,8 @@ class BrowserTests(HTTPTests):
         """Produce a Fieldstorage with a name wich is None, this
         should be catched"""
 
-        extra = {'REQUEST_METHOD':'POST',
-                 'PATH_INFO': _u("/"),
+        extra = {'REQUEST_METHOD': 'POST',
+                 'PATH_INFO': u"/",
                  'CONTENT_TYPE': 'multipart/form-data;\
                  boundary=---------------------------1'}
 
@@ -211,8 +211,8 @@ class BrowserTests(HTTPTests):
         """Produce a Fieldstorage with a file handle that exposes
         its filename."""
 
-        extra = {'REQUEST_METHOD':'POST',
-                 'PATH_INFO': _u("/"),
+        extra = {'REQUEST_METHOD': 'POST',
+                 'PATH_INFO': u"/",
                  'CONTENT_TYPE': 'multipart/form-data;\
                  boundary=---------------------------1'}
 
@@ -229,7 +229,7 @@ class BrowserTests(HTTPTests):
 
     def testLargePostValue(self):
         extra = {'REQUEST_METHOD':'POST',
-                 'PATH_INFO': _u("/"),
+                 'PATH_INFO': u"/",
                  'CONTENT_TYPE': 'multipart/form-data;\
                  boundary=---------------------------1'}
 
@@ -280,7 +280,7 @@ class BrowserTests(HTTPTests):
         request = self._createRequest()
         publish(request)
         self.assertEqual(request.form,
-                         {_u("a"):_u("5"), _u("b"):6})
+                         {u"a": u"5", u"b": 6})
 
     def testFormNoEncodingUsesUTF8(self):
         encoded = 'K\xc3\xb6hlerstra\xc3\x9fe'
@@ -293,8 +293,8 @@ class BrowserTests(HTTPTests):
         # many mainstream browsers do not send HTTP_ACCEPT_CHARSET
         del request._environ['HTTP_ACCEPT_CHARSET']
         publish(request)
-        self.assertTrue(isinstance(request.form[_u("street")], unicode))
-        self.assertEqual(_u("K\xf6hlerstra\xdfe"), request.form['street'])
+        self.assertTrue(isinstance(request.form[u"street"], unicode))
+        self.assertEqual(u"K\xf6hlerstra\xdfe", request.form['street'])
 
     def testFormAcceptsStarButNotUTF8(self):
         extra = {
@@ -306,204 +306,204 @@ class BrowserTests(HTTPTests):
         publish(request)
 
     def testFormListTypes(self):
-        extra = {'QUERY_STRING':'a:list=5&a:list=6&b=1'}
+        extra = {'QUERY_STRING': 'a:list=5&a:list=6&b=1'}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {_u("a"):[_u("5"),_u("6")], _u("b"):_u("1")})
+        self.assertEqual(request.form, {u"a": [u"5",u"6"], u"b": u"1"})
 
     def testQueryStringIgnoredForPOST(self):
         request = self._createRequest(
             {"REQUEST_METHOD": "POST",
              'PATH_INFO': '/folder/item3'}, body=b'c=5&d:int=6')
         publish(request)
-        self.assertEqual(request.form, {_u("c"): _u("5"), _u("d"): 6})
+        self.assertEqual(request.form, {u"c": u"5", u"d": 6})
         self.assertEqual(request.get('QUERY_STRING'), 'a=5&b:int=6')
 
     def testFormTupleTypes(self):
-        extra = {'QUERY_STRING':'a:tuple=5&a:tuple=6&b=1'}
+        extra = {'QUERY_STRING': 'a:tuple=5&a:tuple=6&b=1'}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {_u("a"):(_u("5"),_u("6")), _u("b"):_u("1")})
+        self.assertEqual(request.form, {u"a": (u"5", u"6"), u"b": u"1"})
 
     def testFormTupleRecordTypes(self):
-        extra = {'QUERY_STRING':'a.x:tuple:record=5&a.x:tuple:record=6&b=1'}
+        extra = {'QUERY_STRING': 'a.x:tuple:record=5&a.x:tuple:record=6&b=1'}
         request = self._createRequest(extra)
         publish(request)
         keys = sorted(request.form.keys())
-        self.assertEqual(keys, [_u("a"),_u("b")])
-        self.assertEqual(request.form[_u("b")], _u("1"))
-        self.assertEqual(list(request.form[_u("a")].keys()), [_u("x")])
-        self.assertEqual(request.form[_u("a")][_u("x")], (_u("5"),_u("6")))
-        self.assertEqual(request.form[_u("a")].x, (_u("5"),_u("6")))
-        self.assertEqual(str(request.form[_u("a")]).replace("u'", "'"),
+        self.assertEqual(keys, [u"a", u"b"])
+        self.assertEqual(request.form[u"b"], u"1")
+        self.assertEqual(list(request.form[u"a"].keys()), [u"x"])
+        self.assertEqual(request.form[u"a"][u"x"], (u"5", u"6"))
+        self.assertEqual(request.form[u"a"].x, (u"5", u"6"))
+        self.assertEqual(str(request.form[u"a"]).replace("u'", "'"),
                          "{x: ('5', '6')}")
-        self.assertEqual(repr(request.form[_u("a")]).replace("u'", "'"),
+        self.assertEqual(repr(request.form[u"a"]).replace("u'", "'"),
                          "{x: ('5', '6')}")
 
     def testFormRecordsTypes(self):
-        extra = {'QUERY_STRING':'a.x:records=5&a.x:records=6&b=1'}
+        extra = {'QUERY_STRING': 'a.x:records=5&a.x:records=6&b=1'}
         request = self._createRequest(extra)
         publish(request)
         keys = sorted(request.form.keys())
-        self.assertEqual(keys, [_u("a"),_u("b")])
-        self.assertEqual(request.form[_u("b")], _u("1"))
-        self.assertEqual(len(request.form[_u("a")]), 2)
-        self.assertEqual(request.form[_u("a")][0][_u("x")], _u("5"))
-        self.assertEqual(request.form[_u("a")][0].x, _u("5"))
-        self.assertEqual(request.form[_u("a")][1][_u("x")], _u("6"))
-        self.assertEqual(request.form[_u("a")][1].x, _u("6"))
-        self.assertEqual(str(request.form[_u("a")]).replace("u'", "'"),
+        self.assertEqual(keys, [u"a", u"b"])
+        self.assertEqual(request.form[u"b"], u"1")
+        self.assertEqual(len(request.form[u"a"]), 2)
+        self.assertEqual(request.form[u"a"][0][u"x"], u"5")
+        self.assertEqual(request.form[u"a"][0].x, u"5")
+        self.assertEqual(request.form[u"a"][1][u"x"], u"6")
+        self.assertEqual(request.form[u"a"][1].x, u"6")
+        self.assertEqual(str(request.form[u"a"]).replace("u'", "'"),
                          "[{x: '5'}, {x: '6'}]")
-        self.assertEqual(repr(request.form[_u("a")]).replace("u'", "'"),
+        self.assertEqual(repr(request.form[u"a"]).replace("u'", "'"),
                          "[{x: '5'}, {x: '6'}]")
 
     def testFormMultipleRecordsTypes(self):
-        extra = {'QUERY_STRING':'a.x:records:int=5&a.y:records:int=51'
+        extra = {'QUERY_STRING': 'a.x:records:int=5&a.y:records:int=51'
             '&a.x:records:int=6&a.y:records:int=61&b=1'}
         request = self._createRequest(extra)
         publish(request)
         keys = sorted(request.form.keys())
-        self.assertEqual(keys, [_u("a"),_u("b")])
-        self.assertEqual(request.form[_u("b")], _u("1"))
-        self.assertEqual(len(request.form[_u("a")]), 2)
-        self.assertEqual(request.form[_u("a")][0][_u("x")], 5)
-        self.assertEqual(request.form[_u("a")][0].x, 5)
-        self.assertEqual(request.form[_u("a")][0][_u("y")], 51)
-        self.assertEqual(request.form[_u("a")][0].y, 51)
-        self.assertEqual(request.form[_u("a")][1][_u("x")], 6)
-        self.assertEqual(request.form[_u("a")][1].x, 6)
-        self.assertEqual(request.form[_u("a")][1][_u("y")], 61)
-        self.assertEqual(request.form[_u("a")][1].y, 61)
-        self.assertEqual(str(request.form[_u("a")]),
+        self.assertEqual(keys, [u"a", u"b"])
+        self.assertEqual(request.form[u"b"], u"1")
+        self.assertEqual(len(request.form[u"a"]), 2)
+        self.assertEqual(request.form[u"a"][0][u"x"], 5)
+        self.assertEqual(request.form[u"a"][0].x, 5)
+        self.assertEqual(request.form[u"a"][0][u"y"], 51)
+        self.assertEqual(request.form[u"a"][0].y, 51)
+        self.assertEqual(request.form[u"a"][1][u"x"], 6)
+        self.assertEqual(request.form[u"a"][1].x, 6)
+        self.assertEqual(request.form[u"a"][1][u"y"], 61)
+        self.assertEqual(request.form[u"a"][1].y, 61)
+        self.assertEqual(str(request.form[u"a"]),
             "[{x: 5, y: 51}, {x: 6, y: 61}]")
-        self.assertEqual(repr(request.form[_u("a")]),
+        self.assertEqual(repr(request.form[u"a"]),
             "[{x: 5, y: 51}, {x: 6, y: 61}]")
 
     def testFormListRecordTypes(self):
-        extra = {'QUERY_STRING':'a.x:list:record=5&a.x:list:record=6&b=1'}
+        extra = {'QUERY_STRING': 'a.x:list:record=5&a.x:list:record=6&b=1'}
         request = self._createRequest(extra)
         publish(request)
         keys = sorted(request.form.keys())
-        self.assertEqual(keys, [_u("a"),_u("b")])
-        self.assertEqual(request.form[_u("b")], _u("1"))
-        self.assertEqual(list(request.form[_u("a")].keys()), [_u("x")])
-        self.assertEqual(request.form[_u("a")][_u("x")], [_u("5"),_u("6")])
-        self.assertEqual(request.form[_u("a")].x, [_u("5"),_u("6")])
-        self.assertEqual(str(request.form[_u("a")]).replace("u'", "'"),
+        self.assertEqual(keys, [u"a", u"b"])
+        self.assertEqual(request.form[u"b"], u"1")
+        self.assertEqual(list(request.form[u"a"].keys()), [u"x"])
+        self.assertEqual(request.form[u"a"][u"x"], [u"5", u"6"])
+        self.assertEqual(request.form[u"a"].x, [u"5", u"6"])
+        self.assertEqual(str(request.form[u"a"]).replace("u'", "'"),
                          "{x: ['5', '6']}")
-        self.assertEqual(repr(request.form[_u("a")]).replace("u'", "'"),
+        self.assertEqual(repr(request.form[u"a"]).replace("u'", "'"),
                          "{x: ['5', '6']}")
 
     def testFormListTypes2(self):
-        extra = {'QUERY_STRING':'a=5&a=6&b=1'}
+        extra = {'QUERY_STRING': 'a=5&a=6&b=1'}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {_u("a"):[_u("5"),_u("6")], _u("b"):_u("1")})
+        self.assertEqual(request.form, {u"a": [u"5", u"6"], u"b": u"1"})
 
     def testFormIntTypes(self):
-        extra = {'QUERY_STRING':'a:int=5&b:int=-5&c:int=0&d:int=-0'}
+        extra = {'QUERY_STRING': 'a:int=5&b:int=-5&c:int=0&d:int=-0'}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {_u("a"): 5, _u("b"): -5, _u("c"): 0, _u("d"): 0})
+        self.assertEqual(request.form, {u"a": 5, u"b": -5, u"c": 0, u"d": 0})
 
-        extra = {'QUERY_STRING':'a:int='}
+        extra = {'QUERY_STRING': 'a:int='}
         request = self._createRequest(extra)
         self.assertRaises(ValueError, publish, request)
 
-        extra = {'QUERY_STRING':'a:int=abc'}
+        extra = {'QUERY_STRING': 'a:int=abc'}
         request = self._createRequest(extra)
         self.assertRaises(ValueError, publish, request)
 
     def testFormFloatTypes(self):
-        extra = {'QUERY_STRING':'a:float=5&b:float=-5.01&c:float=0'}
+        extra = {'QUERY_STRING': 'a:float=5&b:float=-5.01&c:float=0'}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {_u("a"): 5.0, _u("b"): -5.01, _u("c"): 0.0})
+        self.assertEqual(request.form, {u"a": 5.0, u"b": -5.01, u"c": 0.0})
 
-        extra = {'QUERY_STRING':'a:float='}
+        extra = {'QUERY_STRING': 'a:float='}
         request = self._createRequest(extra)
         self.assertRaises(ValueError, publish, request)
 
-        extra = {'QUERY_STRING':'a:float=abc'}
+        extra = {'QUERY_STRING': 'a:float=abc'}
         request = self._createRequest(extra)
         self.assertRaises(ValueError, publish, request)
 
     def testFormLongTypes(self):
-        extra = {'QUERY_STRING':'a:long=99999999999999&b:long=0L'}
+        extra = {'QUERY_STRING': 'a:long=99999999999999&b:long=0L'}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {_u("a"): 99999999999999, _u("b"): 0})
+        self.assertEqual(request.form, {u"a": 99999999999999, u"b": 0})
 
-        extra = {'QUERY_STRING':'a:long='}
+        extra = {'QUERY_STRING': 'a:long='}
         request = self._createRequest(extra)
         self.assertRaises(ValueError, publish, request)
 
-        extra = {'QUERY_STRING':'a:long=abc'}
+        extra = {'QUERY_STRING': 'a:long=abc'}
         request = self._createRequest(extra)
         self.assertRaises(ValueError, publish, request)
 
     def testFormTokensTypes(self):
-        extra = {'QUERY_STRING':'a:tokens=a%20b%20c%20d&b:tokens='}
+        extra = {'QUERY_STRING': 'a:tokens=a%20b%20c%20d&b:tokens='}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {_u("a"): [_u("a"), _u("b"), _u("c"), _u("d")],
-                         _u("b"): []})
+        self.assertEqual(request.form, {u"a": [u"a", u"b", u"c", u"d"],
+                         u"b": []})
 
     def testFormStringTypes(self):
-        extra = {'QUERY_STRING':'a:string=test&b:string='}
+        extra = {'QUERY_STRING': 'a:string=test&b:string='}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {_u("a"): _u("test"), _u("b"): _u("")})
+        self.assertEqual(request.form, {u"a": u"test", u"b": u""})
 
     def testFormLinesTypes(self):
-        extra = {'QUERY_STRING':'a:lines=a%0ab%0ac%0ad&b:lines='}
+        extra = {'QUERY_STRING': 'a:lines=a%0ab%0ac%0ad&b:lines='}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {_u("a"): [_u("a"), _u("b"), _u("c"), _u("d")],
-                         _u("b"): []})
+        self.assertEqual(request.form, {u"a": [u"a", u"b", u"c", u"d"],
+                         u"b": []})
 
     def testFormTextTypes(self):
-        extra = {'QUERY_STRING':'a:text=a%0a%0db%0d%0ac%0dd%0ae&b:text='}
+        extra = {'QUERY_STRING': 'a:text=a%0a%0db%0d%0ac%0dd%0ae&b:text='}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {_u("a"): _u("a\nb\nc\nd\ne"), _u("b"): _u("")})
+        self.assertEqual(request.form, {u"a": u"a\nb\nc\nd\ne", u"b": u""})
 
     def testFormRequiredTypes(self):
-        extra = {'QUERY_STRING':'a:required=%20'}
+        extra = {'QUERY_STRING': 'a:required=%20'}
         request = self._createRequest(extra)
         self.assertRaises(ValueError, publish, request)
 
     def testFormBooleanTypes(self):
-        extra = {'QUERY_STRING':'a:boolean=&b:boolean=1&c:boolean=%20'}
+        extra = {'QUERY_STRING': 'a:boolean=&b:boolean=1&c:boolean=%20'}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {_u("a"): False, _u("b"): True, _u("c"): True})
+        self.assertEqual(request.form, {u"a": False, u"b": True, u"c": True})
 
     def testFormDefaults(self):
-        extra = {'QUERY_STRING':'a:default=10&a=6&b=1'}
+        extra = {'QUERY_STRING': 'a:default=10&a=6&b=1'}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {_u("a"):_u("6"), _u("b"):_u("1")})
+        self.assertEqual(request.form, {u"a": u"6", u"b": u"1"})
 
     def testFormDefaults2(self):
-        extra = {'QUERY_STRING':'a:default=10&b=1'}
+        extra = {'QUERY_STRING': 'a:default=10&b=1'}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {_u("a"):_u("10"), _u("b"):_u("1")})
+        self.assertEqual(request.form, {u"a": u"10", u"b": u"1"})
 
     def testFormFieldName(self):
-        extra = {'QUERY_STRING':'c+%2B%2F%3D%26c%3Aint=6',
+        extra = {'QUERY_STRING': 'c+%2B%2F%3D%26c%3Aint=6',
                  'PATH_INFO': '/folder/item3/'}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {_u("c +/=&c"): 6})
+        self.assertEqual(request.form, {u"c +/=&c": 6})
 
     def testFormFieldValue(self):
-        extra = {'QUERY_STRING':'a=b+%2B%2F%3D%26b%3Aint',
+        extra = {'QUERY_STRING': 'a=b+%2B%2F%3D%26b%3Aint',
                  'PATH_INFO': '/folder/item3/'}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {_u("a"):_u("b +/=&b:int")})
+        self.assertEqual(request.form, {u"a": u"b +/=&b:int"})
 
     def testInterface(self):
         request = self._createRequest()
@@ -525,12 +525,12 @@ class BrowserTests(HTTPTests):
 
     def testIssue559(self):
         extra = {'QUERY_STRING': 'HTTP_REFERER=peter',
-                 'HTTP_REFERER':'http://localhost/',
+                 'HTTP_REFERER': 'http://localhost/',
                  'PATH_INFO': '/folder/item3/'}
         request = self._createRequest(extra)
         publish(request)
         self.assertEqual(request.headers.get('HTTP_REFERER'), 'http://localhost/')
-        self.assertEqual(request.form, {_u("HTTP_REFERER"): _u("peter")})
+        self.assertEqual(request.form, {u"HTTP_REFERER": u"peter"})
 
 
     def test_post_body_not_consumed_unnecessarily(self):
