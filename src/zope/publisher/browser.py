@@ -247,22 +247,21 @@ class BrowserRequest(HTTPRequest):
 
     def _decode(self, text):
         """Try to decode the text using one of the available charsets."""
-        # According to PEP-3333, in python-3, QUERY_STRING is a string,
-        # representing 'latin-1' encoded byte array. So, if we are in python-3
-        # context, encode text as 'latin-1' first, to try to decode
-        # resulting byte array using user-supplied charset.
-        if not isinstance(text, bytes):
-            text = text.encode('latin-1')
+        # All text comes from cgi.FieldStorage.  On Python 2 it's all bytes
+        # and we must decode.  On Python 3 it's already been decoded into
+        # Unicode, using the default charset (UTF-8) and error handling mode
+        # (replace).
         if self.charsets is None:
             envadapter = IUserPreferredCharsets(self)
             self.charsets = envadapter.getPreferredCharsets() or ['utf-8']
             self.charsets = [c for c in self.charsets if c != '*']
-        for charset in self.charsets:
-            try:
-                text = text.decode(charset)
-                break
-            except UnicodeError:
-                pass
+        if isinstance(text, bytes):
+            for charset in self.charsets:
+                try:
+                    text = text.decode(charset)
+                    break
+                except UnicodeError:
+                    pass
         return text
 
     def processInputs(self):
