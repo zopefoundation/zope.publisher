@@ -27,7 +27,6 @@ from zope.publisher.interfaces import IRequest
 from zope.publisher.interfaces import IResponse
 from zope.publisher.interfaces import IView
 
-from .._compat import _u
 
 class IVirtualHostRequest(Interface):
     """The support for virtual hosts in Zope is very important.
@@ -481,8 +480,8 @@ class IHTTPVirtualHostChangedEvent(Interface):
     The request referred to in this event implements at least the
     IHTTPAppliationRequest interface.
     """
-    request = Attribute(_u("The application request whose virtual host info has "
-                           "been altered"))
+    request = Attribute("The application request whose virtual host info has "
+                        "been altered")
 
 class IHTTPException(Interface):
     """Marker interface for http exceptions views

@@ -22,7 +22,6 @@ from zope.interface.verify import verifyObject
 from zope.publisher.interfaces.http import IHTTPResponse
 from zope.publisher.interfaces.http import IHTTPApplicationResponse
 from zope.publisher.interfaces import IResponse
-from .._compat import _u
 
 
 # TODO: Waaa need more tests
@@ -112,7 +111,7 @@ class TestBrowserResponse(TestCase):
             insertBase(b'<html><head></head><body>Page</body></html>'))
 
         # Ensure that unicode bases work as well
-        response.setBase(_u('http://localhost/folder/'))
+        response.setBase(u'http://localhost/folder/')
         body = insertBase(b'<html><head></head><body>Page</body></html>')
         self.assertTrue(isinstance(body, bytes))
         self.assertTrue(b'<base href="http://localhost/folder/" />' in body)

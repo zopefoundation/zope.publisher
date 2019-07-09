@@ -15,11 +15,11 @@
 """
 import unittest
 from zope.interface.verify import verifyObject
-from .._compat import _u
+
 
 class PrincipalStub(object):
 
-    id = _u('\xfc principal')
+    id = u'\xfc principal'
 
 
 class TestPrincipalLogging(unittest.TestCase):

@@ -877,17 +877,16 @@ class HTTPResponse(BaseResponse):
 
     def internalError(self):
         'See IPublisherResponse'
-        self.setStatus(500, _u("The engines can't take any more, Jim!"))
+        self.setStatus(500, u"The engines can't take any more, Jim!")
 
     def _html(self, title, content):
         t = escape(title)
         return (
-            _u("<html><head><title>%s</title></head>\n"
-               "<body><h2>%s</h2>\n"
-               "%s\n"
-               "</body></html>\n") %
-            (t, t, content)
-            )
+            u"<html><head><title>%s</title></head>\n"
+            u"<body><h2>%s</h2>\n"
+            u"%s\n"
+            u"</body></html>\n"
+        ) % (t, t, content)
 
     def retry(self):
         """
