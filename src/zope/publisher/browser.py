@@ -51,7 +51,7 @@ from zope.publisher.skinnable import setDefaultSkin #BBB import
 from zope.publisher.skinnable import applySkin #BBB import
 from zope.publisher.skinnable import SkinChangedEvent #BBB import
 
-from zope.publisher._compat import PYTHON2, _u
+from zope.publisher._compat import PYTHON2
 
 
 __ArrayTypes = (list, tuple)
@@ -259,7 +259,7 @@ class BrowserRequest(HTTPRequest):
             self.charsets = [c for c in self.charsets if c != '*']
         for charset in self.charsets:
             try:
-                text = _u(text, charset)
+                text = text.decode(charset)
                 break
             except UnicodeError:
                 pass
@@ -651,7 +651,7 @@ class FileUpload(object):
         self.headers = aFieldStorage.headers
         filename = aFieldStorage.filename
         if isinstance(aFieldStorage.filename, bytes):
-            filename = _u(aFieldStorage.filename, 'UTF-8')
+            filename = aFieldStorage.filename.decode('UTF-8')
         # fix for IE full paths
         filename = filename[filename.rfind('\\')+1:].strip()
         self.filename = filename
