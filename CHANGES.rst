@@ -7,6 +7,9 @@
 
 - Drop support for Python 3.4.
 
+- ``FileUpload`` objects now support the ``seekable()`` method on Python 3.
+  Fixes `issue 44 <https://github.com/zopefoundation/zope.publisher/issue/44>`_.
+
 
 5.0.1 (2018-10-19)
 ==================

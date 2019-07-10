@@ -641,7 +641,7 @@ class FileUpload(object):
             methods = ['close', 'fileno', 'flush', 'isatty',
                 'read', 'readline', 'readlines', 'seek',
                 'tell', 'truncate', 'write', 'writelines',
-                'name']
+                'name', 'seekable']
 
         d = self.__dict__
         for m in methods:
