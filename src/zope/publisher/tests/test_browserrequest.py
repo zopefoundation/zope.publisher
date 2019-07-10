@@ -324,6 +324,30 @@ class BrowserTests(HTTPTests):
         self.assertTrue(isinstance(request.form[u"street"], unicode))
         self.assertEqual(u"汉语/漢語", request.form['street'])
 
+    def testFormURLEncodedLatin1(self):
+        extra = {
+            'REQUEST_METHOD': 'POST',
+            'CONTENT_TYPE': 'application/x-www-form-urlencoded',
+            'HTTP_ACCEPT_CHARSET': 'ISO-8859-1',
+        }
+        body = b'a=5&b:int=6&street=K\xf6hlerstra\xdfe'
+        request = self._createRequest(extra, body)
+        publish(request)
+        self.assertTrue(isinstance(request.form[u"street"], unicode))
+        self.assertEqual(u"K\xf6hlerstra\xdfe", request.form['street'])
+
+    def testFormURLEncodedLatin7(self):
+        extra = {
+            'REQUEST_METHOD': 'POST',
+            'CONTENT_TYPE': 'application/x-www-form-urlencoded',
+            'HTTP_ACCEPT_CHARSET': 'ISO-8859-13',
+        }
+        body = u'a=5&b:int=6&street=Ąžuolyno'.encode('iso-8859-13')
+        request = self._createRequest(extra, body)
+        publish(request)
+        self.assertTrue(isinstance(request.form[u"street"], unicode))
+        self.assertEqual(u"Ąžuolyno", request.form['street'])
+
     def testFormNoEncodingUsesUTF8(self):
         encoded = 'K\xc3\xb6hlerstra\xc3\x9fe'
         extra = {

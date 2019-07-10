@@ -250,20 +250,20 @@ class BrowserRequest(HTTPRequest):
         """Try to decode the text using one of the available charsets."""
         # All text comes from cgi.FieldStorage.  On Python 2 it's all bytes
         # and we must decode.  On Python 3 it's already been decoded into
-        # Unicode, using the default charset (UTF-8) and error handling mode
-        # (replace).
+        # Unicode, using the charset we specified when instantiating the
+        # FieldStorage instance (Latin-1).
         if self.charsets is None:
             envadapter = IUserPreferredCharsets(self)
             self.charsets = envadapter.getPreferredCharsets() or ['utf-8']
             self.charsets = [c for c in self.charsets if c != '*']
         if not PYTHON2:
-            if self.charsets and self.charsets[0] == 'utf-8':
+            if self.charsets and self.charsets[0] == 'iso-8859-1':
                 # optimization: we are trying to decode something
                 # cgi.FieldStorage already decoded for us, let's just return it
                 # rather than waste time decoding...
                 return text
             # undo what cgi.FieldStorage did and maintain backwards compat
-            text = text.encode('utf-8')
+            text = text.encode('latin-1')
         for charset in self.charsets:
             try:
                 text = text.decode(charset)
@@ -316,7 +316,7 @@ class BrowserRequest(HTTPRequest):
             qs = env['QUERY_STRING'].encode('latin-1')
             env['QUERY_STRING'] = qs.decode(locale.getpreferredencoding(), 'surrogateescape')
 
-        args = {'encoding': 'utf-8'} if not PYTHON2 else {}
+        args = {'encoding': 'latin-1'} if not PYTHON2 else {}
         fs = ZopeFieldStorage(fp=fp, environ=env,
                               keep_blank_values=1, **args)
         # On python 3.4 and up, FieldStorage explictly closes files
