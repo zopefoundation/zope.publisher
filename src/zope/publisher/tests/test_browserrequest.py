@@ -341,6 +341,15 @@ class BrowserTests(HTTPTests):
         self.assertTrue(isinstance(request.form[u"street"], unicode))
         self.assertEqual(u"汉语/漢語", request.form['street'])
 
+    def testFormQueryStringUTF8(self):
+        extra = {
+            'QUERY_STRING': 'a=5&b:int=6&street=\xe6\xb1\x89\xe8\xaf\xad/\xe6\xbc\xa2\xe8\xaa\x9e'
+        }
+        request = self._createRequest(extra)
+        publish(request)
+        self.assertTrue(isinstance(request.form[u"street"], unicode))
+        self.assertEqual(u"汉语/漢語", request.form['street'])
+
     def testFormURLEncodedLatin1(self):
         extra = {
             'REQUEST_METHOD': 'POST',
