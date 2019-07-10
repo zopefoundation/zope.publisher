@@ -256,7 +256,7 @@ class BrowserRequest(HTTPRequest):
             envadapter = IUserPreferredCharsets(self)
             self.charsets = envadapter.getPreferredCharsets() or ['utf-8']
             self.charsets = [c for c in self.charsets if c != '*']
-        if not PYTHON2:
+        if not PYTHON2 and not isinstance(text, bytes):
             if self.charsets and self.charsets[0] == 'iso-8859-1':
                 # optimization: we are trying to decode something
                 # cgi.FieldStorage already decoded for us, let's just return it

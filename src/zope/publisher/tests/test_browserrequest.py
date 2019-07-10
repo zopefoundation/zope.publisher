@@ -41,6 +41,14 @@ from zope.publisher.tests.basetestipublisherrequest \
 from zope.publisher.tests.basetestiapplicationrequest \
      import BaseTestIApplicationRequest
 
+
+EMPTY_FILE_BODY = b"""-----------------------------1
+Content-Disposition: form-data; name="upload"; filename=""
+Content-Type: application/octet-stream
+
+-----------------------------1--
+"""
+
 LARGE_FILE_BODY = b''.join([b"""-----------------------------1
 Content-Disposition: form-data; name="upload"; filename="test"
 Content-Type: text/plain
@@ -231,6 +239,15 @@ class BrowserTests(HTTPTests):
         if not PYTHON2:
             # File objects on Python 3 have a seekable() method
             self.assertTrue(request.form['upload'].seekable())
+
+    def testEmptyFilePost(self):
+        extra = {'REQUEST_METHOD':'POST',
+                 'PATH_INFO': u"/",
+                 'CONTENT_TYPE': 'multipart/form-data;\
+                 boundary=---------------------------1'}
+
+        request  = self._createRequest(extra, body=EMPTY_FILE_BODY)
+        request.processInputs()
 
     def testLargePostValue(self):
         extra = {'REQUEST_METHOD':'POST',
