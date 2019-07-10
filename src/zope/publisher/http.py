@@ -41,7 +41,7 @@ import zope.contenttype.parse
 import zope.event
 import zope.interface
 
-from zope.publisher._compat import PYTHON2, CLASS_TYPES, _u
+from zope.publisher._compat import PYTHON2, CLASS_TYPES, to_unicode
 
 if PYTHON2:
     import Cookie as cookies
@@ -421,12 +421,15 @@ class HTTPRequest(BaseRequest):
             eventlog.warning(e)
             return result
 
-        for k,v in c.items():
+        for k, v in c.items():
             # recode cookie value to ENCODING (UTF-8)
-            rk = _u(k if type(k) == bytes
-                    else k.encode('latin1'), ENCODING)
-            rv = _u(v.value if type(v.value) == bytes
-                    else v.value.encode('latin1'), ENCODING)
+            if not isinstance(k, bytes):
+                k = k.encode('latin1')
+            rk = k.decode(ENCODING)
+            v = v.value
+            if not isinstance(v, bytes):
+                v = v.encode('latin1')
+            rv = v.decode(ENCODING)
             result[rk] = rv
 
         return result
@@ -865,7 +868,7 @@ class HTTPResponse(BaseResponse):
                 return
             title = tname = t.__name__
         else:
-            title = tname = _u(t)
+            title = tname = to_unicode(t)
 
         # Throwing non-protocol-specific exceptions is a good way
         # for apps to control the status code.

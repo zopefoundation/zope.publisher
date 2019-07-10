@@ -23,15 +23,13 @@ PYTHON2 = sys.version_info[0] == 2
 PYTHON3 = sys.version_info[0] == 3
 
 if PYTHON2:
-    def _u(s, encoding='unicode_escape'):
-        return unicode(s, encoding)
+    def to_unicode(s):
+        return unicode(s, 'unicode_escape')
     from xmlrpclib import *
     import types
     CLASS_TYPES = (type, types.ClassType)
 else:
-    def _u(s, encoding=None):
-        if encoding is None:
-            return s
-        return str(s, encoding)
+    def to_unicode(s):
+        return s
     CLASS_TYPES = (type,)
     from xmlrpc.client import *
