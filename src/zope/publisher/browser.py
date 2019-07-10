@@ -256,13 +256,20 @@ class BrowserRequest(HTTPRequest):
             envadapter = IUserPreferredCharsets(self)
             self.charsets = envadapter.getPreferredCharsets() or ['utf-8']
             self.charsets = [c for c in self.charsets if c != '*']
-        if isinstance(text, bytes):
-            for charset in self.charsets:
-                try:
-                    text = text.decode(charset)
-                    break
-                except UnicodeError:
-                    pass
+        if not PYTHON2:
+            if self.charsets and self.charsets[0] == 'utf-8':
+                # optimization: we are trying to decode something
+                # cgi.FieldStorage already decoded for us, let's just return it
+                # rather than waste time decoding...
+                return text
+            # undo what cgi.FieldStorage did and maintain backwards compat
+            text = text.encode('utf-8')
+        for charset in self.charsets:
+            try:
+                text = text.decode(charset)
+                break
+            except UnicodeError:
+                pass
         return text
 
     def processInputs(self):
