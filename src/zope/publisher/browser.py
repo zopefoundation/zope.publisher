@@ -270,6 +270,8 @@ class BrowserRequest(HTTPRequest):
                 break
             except UnicodeError:
                 pass
+        # XXX so when none of the provided charsets works we just return bytes
+        # and let the application crash???
         return text
 
     def processInputs(self):
