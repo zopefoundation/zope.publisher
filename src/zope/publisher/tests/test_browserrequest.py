@@ -227,6 +227,10 @@ class BrowserTests(HTTPTests):
         # Test that we can actually read the file data
         self.assertEqual(request.form['upload'].read(), b'Some data')
 
+        if not PYTHON2:
+            # File objects on Python 3 have a seekable() method
+            self.assertTrue(request.form['upload'].seekable())
+
     def testLargePostValue(self):
         extra = {'REQUEST_METHOD':'POST',
                  'PATH_INFO': u"/",
