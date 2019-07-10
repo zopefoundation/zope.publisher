@@ -20,9 +20,10 @@ packaged into a nice, Python-friendly 'FileUpload' object.
 """
 __docformat__ = 'restructuredtext'
 
+import locale
 import re
-from cgi import FieldStorage
 import tempfile
+from cgi import FieldStorage
 
 import zope.component
 import zope.interface
@@ -297,6 +298,16 @@ class BrowserRequest(HTTPRequest):
             env = env.copy()
             del env['QUERY_STRING']
 
+        if not PYTHON2 and 'QUERY_STRING' in env:
+            # According to PEP-3333, in python-3, QUERY_STRING is a string,
+            # representing 'latin-1' encoded byte array. So, if we are in python-3
+            # context, encode text as 'latin-1' first, to try to decode
+            # resulting byte array using user-supplied charset.
+            #
+            # We also need to re-encode it in locale.getpreferredencoding() so that cgi.py
+            # FieldStorage can later decode it.
+            qs = env['QUERY_STRING'].encode('latin-1')
+            env['QUERY_STRING'] = qs.decode(locale.getpreferredencoding(), 'surrogateescape')
 
         args = {'encoding': 'utf-8'} if not PYTHON2 else {}
         fs = ZopeFieldStorage(fp=fp, environ=env,
