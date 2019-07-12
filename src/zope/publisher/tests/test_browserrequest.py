@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ##############################################################################
 #
 # Copyright (c) 2001, 2002 Zope Foundation and Contributors.
@@ -39,6 +40,14 @@ from zope.publisher.tests.basetestipublisherrequest \
      import BaseTestIPublisherRequest
 from zope.publisher.tests.basetestiapplicationrequest \
      import BaseTestIApplicationRequest
+
+
+EMPTY_FILE_BODY = b"""-----------------------------1
+Content-Disposition: form-data; name="upload"; filename=""
+Content-Type: application/octet-stream
+
+-----------------------------1--
+"""
 
 LARGE_FILE_BODY = b''.join([b"""-----------------------------1
 Content-Disposition: form-data; name="upload"; filename="test"
@@ -231,6 +240,15 @@ class BrowserTests(HTTPTests):
             # File objects on Python 3 have a seekable() method
             self.assertTrue(request.form['upload'].seekable())
 
+    def testEmptyFilePost(self):
+        extra = {'REQUEST_METHOD':'POST',
+                 'PATH_INFO': u"/",
+                 'CONTENT_TYPE': 'multipart/form-data;\
+                 boundary=---------------------------1'}
+
+        request  = self._createRequest(extra, body=EMPTY_FILE_BODY)
+        request.processInputs()
+
     def testLargePostValue(self):
         extra = {'REQUEST_METHOD':'POST',
                  'PATH_INFO': u"/",
@@ -285,6 +303,76 @@ class BrowserTests(HTTPTests):
         publish(request)
         self.assertEqual(request.form,
                          {u"a": u"5", u"b": 6})
+
+    def testFormMultipartUTF8(self):
+        extra = {
+            'REQUEST_METHOD': 'POST',
+            'CONTENT_TYPE': 'multipart/form_data; boundary=-123',
+        }
+        body = b'\n'.join([
+            b'---123',
+            b'Content-Disposition: form-data; name="a"',
+            b'',
+            b'5',
+            b'---123',
+            b'Content-Disposition: form-data; name="b:int"',
+            b'',
+            b'6',
+            b'---123',
+            b'Content-Disposition: form-data; name="street"',
+            b'',
+            b'\xe6\xb1\x89\xe8\xaf\xad/\xe6\xbc\xa2\xe8\xaa\x9e',
+            b'---123--',
+            b'',
+        ])
+        request = self._createRequest(extra, body)
+        publish(request)
+        self.assertTrue(isinstance(request.form[u"street"], unicode))
+        self.assertEqual(u"汉语/漢語", request.form['street'])
+
+    def testFormURLEncodedUTF8(self):
+        extra = {
+            'REQUEST_METHOD': 'POST',
+            'CONTENT_TYPE': 'application/x-www-form-urlencoded',
+        }
+        body = b'a=5&b:int=6&street=\xe6\xb1\x89\xe8\xaf\xad/\xe6\xbc\xa2\xe8\xaa\x9e'
+        request = self._createRequest(extra, body)
+        publish(request)
+        self.assertTrue(isinstance(request.form[u"street"], unicode))
+        self.assertEqual(u"汉语/漢語", request.form['street'])
+
+    def testFormQueryStringUTF8(self):
+        extra = {
+            'QUERY_STRING': 'a=5&b:int=6&street=\xe6\xb1\x89\xe8\xaf\xad/\xe6\xbc\xa2\xe8\xaa\x9e'
+        }
+        request = self._createRequest(extra)
+        publish(request)
+        self.assertTrue(isinstance(request.form[u"street"], unicode))
+        self.assertEqual(u"汉语/漢語", request.form['street'])
+
+    def testFormURLEncodedLatin1(self):
+        extra = {
+            'REQUEST_METHOD': 'POST',
+            'CONTENT_TYPE': 'application/x-www-form-urlencoded',
+            'HTTP_ACCEPT_CHARSET': 'ISO-8859-1',
+        }
+        body = b'a=5&b:int=6&street=K\xf6hlerstra\xdfe'
+        request = self._createRequest(extra, body)
+        publish(request)
+        self.assertTrue(isinstance(request.form[u"street"], unicode))
+        self.assertEqual(u"K\xf6hlerstra\xdfe", request.form['street'])
+
+    def testFormURLEncodedLatin7(self):
+        extra = {
+            'REQUEST_METHOD': 'POST',
+            'CONTENT_TYPE': 'application/x-www-form-urlencoded',
+            'HTTP_ACCEPT_CHARSET': 'ISO-8859-13',
+        }
+        body = u'a=5&b:int=6&street=Ąžuolyno'.encode('iso-8859-13')
+        request = self._createRequest(extra, body)
+        publish(request)
+        self.assertTrue(isinstance(request.form[u"street"], unicode))
+        self.assertEqual(u"Ąžuolyno", request.form['street'])
 
     def testFormNoEncodingUsesUTF8(self):
         encoded = 'K\xc3\xb6hlerstra\xc3\x9fe'

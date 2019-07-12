@@ -20,9 +20,10 @@ packaged into a nice, Python-friendly 'FileUpload' object.
 """
 __docformat__ = 'restructuredtext'
 
+import locale
 import re
-from cgi import FieldStorage
 import tempfile
+from cgi import FieldStorage
 
 import zope.component
 import zope.interface
@@ -247,22 +248,30 @@ class BrowserRequest(HTTPRequest):
 
     def _decode(self, text):
         """Try to decode the text using one of the available charsets."""
-        # According to PEP-3333, in python-3, QUERY_STRING is a string,
-        # representing 'latin-1' encoded byte array. So, if we are in python-3
-        # context, encode text as 'latin-1' first, to try to decode
-        # resulting byte array using user-supplied charset.
-        if not isinstance(text, bytes):
-            text = text.encode('latin-1')
+        # All text comes from cgi.FieldStorage.  On Python 2 it's all bytes
+        # and we must decode.  On Python 3 it's already been decoded into
+        # Unicode, using the charset we specified when instantiating the
+        # FieldStorage instance (Latin-1).
         if self.charsets is None:
             envadapter = IUserPreferredCharsets(self)
             self.charsets = envadapter.getPreferredCharsets() or ['utf-8']
             self.charsets = [c for c in self.charsets if c != '*']
+        if not PYTHON2 and not isinstance(text, bytes):
+            if self.charsets and self.charsets[0] == 'iso-8859-1':
+                # optimization: we are trying to decode something
+                # cgi.FieldStorage already decoded for us, let's just return it
+                # rather than waste time decoding...
+                return text
+            # undo what cgi.FieldStorage did and maintain backwards compat
+            text = text.encode('latin-1')
         for charset in self.charsets:
             try:
                 text = text.decode(charset)
                 break
             except UnicodeError:
                 pass
+        # XXX so when none of the provided charsets works we just return bytes
+        # and let the application crash???
         return text
 
     def processInputs(self):
@@ -298,8 +307,18 @@ class BrowserRequest(HTTPRequest):
             env = env.copy()
             del env['QUERY_STRING']
 
+        if not PYTHON2 and 'QUERY_STRING' in env:
+            # According to PEP-3333, in python-3, QUERY_STRING is a string,
+            # representing 'latin-1' encoded byte array. So, if we are in python-3
+            # context, encode text as 'latin-1' first, to try to decode
+            # resulting byte array using user-supplied charset.
+            #
+            # We also need to re-encode it in locale.getpreferredencoding() so that cgi.py
+            # FieldStorage can later decode it.
+            qs = env['QUERY_STRING'].encode('latin-1')
+            env['QUERY_STRING'] = qs.decode(locale.getpreferredencoding(), 'surrogateescape')
 
-        args = {'encoding': 'utf-8'} if not PYTHON2 else {}
+        args = {'encoding': 'latin-1'} if not PYTHON2 else {}
         fs = ZopeFieldStorage(fp=fp, environ=env,
                               keep_blank_values=1, **args)
         # On python 3.4 and up, FieldStorage explictly closes files
