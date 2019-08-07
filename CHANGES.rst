@@ -5,7 +5,8 @@
 5.1.1 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Avoid using ``urllib.parse.splitport()`` which was deprecated in Python 3.8.
+  See `issue 38 <https://github.com/zopefoundation/zope.publisher/issue/38>`_
 
 
 5.1.0 (2019-07-12)
