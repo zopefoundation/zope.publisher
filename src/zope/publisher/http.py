@@ -45,12 +45,12 @@ from zope.publisher._compat import PYTHON2, CLASS_TYPES, to_unicode
 
 if PYTHON2:
     import Cookie as cookies
-    from urllib import splitport, quote
+    from urllib import quote
     from urlparse import urlsplit
     from cgi import escape
 else:
     import http.cookies as cookies
-    from urllib.parse import splitport, quote, urlsplit
+    from urllib.parse import quote, urlsplit
     from html import escape
     unicode = str
     basestring = (str, bytes)
@@ -70,6 +70,37 @@ class CookieMapper(RequestDataMapper):
 
 class HeaderGetter(RequestDataGetter):
     _gettrname = 'getHeader'
+
+
+host_port_re = re.compile(
+    r"^(.*):([0-9]*)$", re.DOTALL)
+
+def splitport(host):
+    """Split port number off the hostname.
+
+        >>> splitport('example.com:80')
+        ('example.com', '80')
+
+        >>> splitport('localhost')
+        ('localhost', None)
+
+        >>> splitport('[::1]')
+        ('[::1]', None)
+
+        >>> splitport('[::1]:443')
+        ('[::1]', '443')
+
+        >>> splitport('localhost:')
+        ('localhost', None)
+
+    """
+    match = host_port_re.match(host)
+    if match:
+        host, port = match.groups()
+    else:
+        port = None
+    return host, port or None
+
 
 def sane_environment(env):
     # return an environment mapping which has been cleaned of
