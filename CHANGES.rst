@@ -2,7 +2,7 @@
  Changes
 =========
 
-5.1.1 (unreleased)
+5.1.1 (2019-08-08)
 ==================
 
 - Avoid using ``urllib.parse.splitport()`` which was deprecated in Python 3.8.
