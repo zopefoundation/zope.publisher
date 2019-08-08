@@ -18,7 +18,7 @@ import sys
 import tempfile
 import unittest
 from io import BytesIO
-from doctest import DocFileSuite
+from doctest import DocFileSuite, DocTestSuite
 
 import zope.event
 from zope.component import provideAdapter
@@ -1041,6 +1041,7 @@ def test_suite():
         unittest.makeSuite(ConcreteHTTPTests),
         unittest.makeSuite(TestHTTPResponse),
         unittest.makeSuite(HTTPInputStreamTests),
+        DocTestSuite('zope.publisher.http'),
         DocFileSuite('../httpresults.txt',
             setUp=cleanUp,
             tearDown=cleanUp,
