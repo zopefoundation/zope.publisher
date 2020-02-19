@@ -69,7 +69,7 @@ setup(
     namespace_packages=['zope'],
     install_requires=[
         'setuptools',
-        'six',
+        'six>=1.13.0',
         'zope.browser',
         'zope.component',
         'zope.configuration',

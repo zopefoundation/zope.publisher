@@ -5,7 +5,10 @@
 5.2.2 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Vendor ``cgi.FieldStorage``, partly to defend against its possible removal
+  from the standard library and partly to ensure consistent behaviour across
+  all Python versions.  See `issue 39
+  <https://github.com/zopefoundation/zope.publisher/issues/39>`_.
 
 
 5.2.1 (2020-06-15)

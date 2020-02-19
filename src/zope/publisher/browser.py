@@ -20,10 +20,10 @@ packaged into a nice, Python-friendly 'FileUpload' object.
 """
 __docformat__ = 'restructuredtext'
 
+from io import TextIOWrapper
 import locale
 import re
 import tempfile
-from cgi import FieldStorage
 
 import six
 import zope.component
@@ -34,6 +34,7 @@ from zope.i18n.interfaces import IUserPreferredCharsets
 from zope.i18n.interfaces import IModifiableUserPreferredLanguages
 from zope.location import Location
 
+from zope.publisher._fieldstorage import _FileIOWrapper, FieldStorage
 from zope.publisher.interfaces import NotFound
 from zope.publisher.interfaces import IDefaultSkin
 from zope.publisher.interfaces.browser import IBrowserRequest
@@ -295,16 +296,14 @@ class BrowserRequest(HTTPRequest):
         else:
             fp = None
 
-        # If 'QUERY_STRING' is not present in self._environ
-        # FieldStorage will try to get it from sys.argv[1]
-        # which is not what we need.
-        if 'QUERY_STRING' not in self._environ:
-            self._environ['QUERY_STRING'] = ''
+        # We could simply not parse QUERY_STRING if it's absent, but this
+        # provides slightly better doctest-compatibility.
+        self._environ.setdefault('QUERY_STRING', '')
 
         # The Python 2.6 cgi module mixes the query string and POST values
         # together.  We do not want this.
         env = self._environ
-        if self.method == 'POST' and self._environ['QUERY_STRING']:
+        if self.method == 'POST' and 'QUERY_STRING' in self._environ:
             env = env.copy()
             del env['QUERY_STRING']
 
@@ -320,15 +319,10 @@ class BrowserRequest(HTTPRequest):
             env['QUERY_STRING'] = qs.decode(locale.getpreferredencoding(), 'surrogateescape')
 
         args = {'encoding': 'latin-1'} if not PYTHON2 else {}
-        fs = ZopeFieldStorage(fp=fp, environ=env,
-                              keep_blank_values=1, **args)
-        # On python 3.4 and up, FieldStorage explictly closes files
-        # when it is garbage collected
-        # see:
-        #   http://bugs.python.org/issue18394
-        #   https://hg.python.org/cpython/rev/c0e9ba7b26d5
-        # so we keep a reference to the FieldStorage till we are
-        # finished processing the request.
+        fs = ZopeFieldStorage(fp=fp, environ=env, **args)
+        # FieldStorage explictly closes files when it is garbage collected,
+        # so we keep a reference to the FieldStorage till we are finished
+        # processing the request.
         self.hold(fs)
 
         fslist = getattr(fs, 'list', None)
@@ -360,16 +354,14 @@ class BrowserRequest(HTTPRequest):
         # passed in and no data was uploaded. Therefore we can only
         # tell by the empty filename that no upload was made.
         key = item.name
-        if (hasattr(item, 'file') and hasattr(item, 'filename')
-            and hasattr(item,'headers')):
-            if (item.file and
-                (item.filename is not None and item.filename != ''
-                 # RFC 1867 says that all fields get a content-type.
-                 # or 'content-type' in map(lower, item.headers.keys())
-                 )):
-                item = FileUpload(item)
-            else:
-                item = item.value
+        if (item.file and
+            (item.filename is not None and item.filename != ''
+             # RFC 1867 says that all fields get a content-type.
+             # or 'content-type' in map(lower, item.headers.keys())
+             )):
+            item = FileUpload(item)
+        else:
+            item = item.value
 
         flags = 0
         converter = None
@@ -633,11 +625,12 @@ class BrowserRequest(HTTPRequest):
 class ZopeFieldStorage(FieldStorage):
 
     def make_file(self, binary=None):
-        if PYTHON2 or self._binary_file:
-            return tempfile.NamedTemporaryFile("w+b")
-        else:
-            return tempfile.NamedTemporaryFile("w+",
-                    encoding=self.encoding, newline='\n')
+        f = tempfile.NamedTemporaryFile("w+b")
+        if not self._binary_file:
+            if PYTHON2:
+                f = _FileIOWrapper(f)
+            f = TextIOWrapper(f, encoding=self.encoding, newline='\n')
+        return f
 
 
 class FileUpload(object):
