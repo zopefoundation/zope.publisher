@@ -2,10 +2,11 @@
  Changes
 =========
 
-5.2.2 (unreleased)
+5.3.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Port form data parsing to ``multipart``, which is a new dependency.  See
+  `issue 39 <https://github.com/zopefoundation/zope.publisher/issues/39>`_.
 
 
 5.2.1 (2020-06-15)

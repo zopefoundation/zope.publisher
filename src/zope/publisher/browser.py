@@ -20,12 +20,13 @@ packaged into a nice, Python-friendly 'FileUpload' object.
 """
 __docformat__ = 'restructuredtext'
 
-import locale
+from email.message import Message
 import re
 import tempfile
-from cgi import FieldStorage
 
+import multipart
 import six
+from six.moves.urllib.parse import parse_qsl
 import zope.component
 import zope.interface
 from zope.interface import implementer, directlyProvides
@@ -34,8 +35,7 @@ from zope.i18n.interfaces import IUserPreferredCharsets
 from zope.i18n.interfaces import IModifiableUserPreferredLanguages
 from zope.location import Location
 
-from zope.publisher.interfaces import NotFound
-from zope.publisher.interfaces import IDefaultSkin
+from zope.publisher.interfaces import IDefaultSkin, IHeld, NotFound
 from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.publisher.interfaces.browser import IDefaultBrowserLayer
 from zope.publisher.interfaces.browser import IBrowserApplicationRequest
@@ -249,21 +249,21 @@ class BrowserRequest(HTTPRequest):
 
     def _decode(self, text):
         """Try to decode the text using one of the available charsets."""
-        # All text comes from cgi.FieldStorage.  On Python 2 it's all bytes
-        # and we must decode.  On Python 3 it's already been decoded into
-        # Unicode, using the charset we specified when instantiating the
-        # FieldStorage instance (Latin-1).
+        # All text comes from parse_qsl or multipart.parse_form_data, and
+        # has already been decoded into Unicode using WSGI's privileged
+        # encoding (ISO-8859-1).
         if self.charsets is None:
             envadapter = IUserPreferredCharsets(self)
             self.charsets = envadapter.getPreferredCharsets() or ['utf-8']
             self.charsets = [c for c in self.charsets if c != '*']
-        if not PYTHON2 and not isinstance(text, bytes):
+        if not isinstance(text, bytes):
             if self.charsets and self.charsets[0] == 'iso-8859-1':
-                # optimization: we are trying to decode something
-                # cgi.FieldStorage already decoded for us, let's just return it
-                # rather than waste time decoding...
+                # optimization: we are trying to decode something already
+                # decoded for us, let's just return it rather than waste
+                # time decoding...
                 return text
-            # undo what cgi.FieldStorage did and maintain backwards compat
+            # undo what parse_qsl/multipart.parse_form_data did and maintain
+            # backwards compat
             text = text.encode('latin-1')
         for charset in self.charsets:
             try:
@@ -277,69 +277,83 @@ class BrowserRequest(HTTPRequest):
 
     def processInputs(self):
         'See IPublisherRequest'
+        items = []
 
-        if self.method not in _get_or_head:
-            # Process self.form if not a GET request.
-            fp = self._body_instream
-            if self.method == 'POST':
-                content_type = self._environ.get('CONTENT_TYPE')
-                if content_type and not (
-                    content_type.startswith('application/x-www-form-urlencoded')
-                    or
-                    content_type.startswith('multipart/')
-                    ):
-                    # for non-multi and non-form content types, FieldStorage
-                    # consumes the body and we have no good place to put it.
-                    # So we just won't call FieldStorage. :)
-                    return
-        else:
-            fp = None
+        # We could simply not parse QUERY_STRING if it's absent, but this
+        # provides slightly better doctest-compatibility with the old code
+        # based on cgi.FieldStorage.
+        self._environ.setdefault('QUERY_STRING', '')
 
-        # If 'QUERY_STRING' is not present in self._environ
-        # FieldStorage will try to get it from sys.argv[1]
-        # which is not what we need.
-        if 'QUERY_STRING' not in self._environ:
-            self._environ['QUERY_STRING'] = ''
+        if self.method in _get_or_head:
+            # PEP-3333 specifies that strings must only contain codepoints
+            # representable in ISO-8859-1.
+            kwargs = {}
+            if not PYTHON2:
+                kwargs['encoding'] = 'ISO-8859-1'
+                kwargs['errors'] = 'replace'
+            items.extend(parse_qsl(
+                self._environ['QUERY_STRING'], keep_blank_values=True,
+                **kwargs))
+        elif self.method not in _get_or_head:
+            env = self._environ.copy()
+            env['wsgi.input'] = self._body_instream
+            # cgi.FieldStorage set the default Content-Type for POST
+            # requests to a "traditional" value.
+            if env.get('REQUEST_METHOD') == 'POST':
+                env.setdefault(
+                    'CONTENT_TYPE', 'application/x-www-form-urlencoded')
+            ctype = env.get('CONTENT_TYPE')
+            # Of course this isn't email, but email.message.Message has
+            # a handy Content-Type parser.
+            msg = Message()
+            msg['Content-Type'] = ctype
+            # cgi.FieldStorage treated any multipart/* Content-Type as
+            # multipart/form-data.  This seems a bit dodgy, but for
+            # compatibility we emulate it for now.
+            if ctype is not None and msg.get_content_maintype() == 'multipart':
+                msg.set_type('multipart/form-data')
+                env['CONTENT_TYPE'] = msg['Content-Type']
+            # cgi.FieldStorage allowed any HTTP method, while
+            # multipart.parse_form_data only allows POST or PUT.  However,
+            # it's helpful to support methods such as PATCH too, and
+            # multipart doesn't actually care beyond an initial check, so
+            # just pretend everything is POST from here on.
+            env['REQUEST_METHOD'] = 'POST'
+            # Monkey-patch multipart's idea of TemporaryFile to make sure
+            # all the temporary files have a name.
+            # XXX cjwatson 2020-08-04: See discussion in
+            # https://github.com/defnull/multipart/pull/22; this probably
+            # doesn't work on Windows.  Removing it would be a (small) API
+            # break, as demonstrated by BrowserTests.testFileUploadPost.
+            _orig_temporary_file = getattr(multipart, 'TemporaryFile')
+            if _orig_temporary_file is not None:
+                multipart.TemporaryFile = tempfile.NamedTemporaryFile
+            try:
+                forms, files = multipart.parse_form_data(
+                    env, charset='ISO-8859-1', memfile_limit=0)
+            finally:
+                if _orig_temporary_file is not None:
+                    multipart.TemporaryFile = _orig_temporary_file
+            items.extend(six.iteritems(forms))
+            for key, item in six.iteritems(files):
+                # multipart puts fields in 'files' even if no upload was
+                # made.  We only consider fields to be file uploads if a
+                # filename was passed in and data was uploaded.
+                if item.file and item.filename:
+                    item = FileUpload(item)
+                else:
+                    item = item.value
+                self.hold(item)
+                items.append((key, item))
 
-        # The Python 2.6 cgi module mixes the query string and POST values
-        # together.  We do not want this.
-        env = self._environ
-        if self.method == 'POST' and self._environ['QUERY_STRING']:
-            env = env.copy()
-            del env['QUERY_STRING']
-
-        if not PYTHON2 and 'QUERY_STRING' in env:
-            # According to PEP-3333, in python-3, QUERY_STRING is a string,
-            # representing 'latin-1' encoded byte array. So, if we are in python-3
-            # context, encode text as 'latin-1' first, to try to decode
-            # resulting byte array using user-supplied charset.
-            #
-            # We also need to re-encode it in locale.getpreferredencoding() so that cgi.py
-            # FieldStorage can later decode it.
-            qs = env['QUERY_STRING'].encode('latin-1')
-            env['QUERY_STRING'] = qs.decode(locale.getpreferredencoding(), 'surrogateescape')
-
-        args = {'encoding': 'latin-1'} if not PYTHON2 else {}
-        fs = ZopeFieldStorage(fp=fp, environ=env,
-                              keep_blank_values=1, **args)
-        # On python 3.4 and up, FieldStorage explictly closes files
-        # when it is garbage collected
-        # see:
-        #   http://bugs.python.org/issue18394
-        #   https://hg.python.org/cpython/rev/c0e9ba7b26d5
-        # so we keep a reference to the FieldStorage till we are
-        # finished processing the request.
-        self.hold(fs)
-
-        fslist = getattr(fs, 'list', None)
-        if fslist is not None:
+        if items:
             self.__meth = None
             self.__tuple_items = {}
             self.__defaults = {}
 
             # process all entries in the field storage (form)
-            for item in fslist:
-                self.__processItem(item)
+            for key, item in items:
+                self.__processItem(key, item)
 
             if self.__defaults:
                 self.__insertDefaults()
@@ -352,25 +366,8 @@ class BrowserRequest(HTTPRequest):
 
     _typeFormat = re.compile('([a-zA-Z][a-zA-Z0-9_]+|\\.[xy])$')
 
-    def __processItem(self, item):
+    def __processItem(self, key, item):
         """Process item in the field storage."""
-
-        # Check whether this field is a file upload object
-        # Note: A field exists for files, even if no filename was
-        # passed in and no data was uploaded. Therefore we can only
-        # tell by the empty filename that no upload was made.
-        key = item.name
-        if (hasattr(item, 'file') and hasattr(item, 'filename')
-            and hasattr(item,'headers')):
-            if (item.file and
-                (item.filename is not None and item.filename != ''
-                 # RFC 1867 says that all fields get a content-type.
-                 # or 'content-type' in map(lower, item.headers.keys())
-                 )):
-                item = FileUpload(item)
-            else:
-                item = item.value
-
         flags = 0
         converter = None
 
@@ -428,7 +425,7 @@ class BrowserRequest(HTTPRequest):
         if key is not None:
             key = self._decode(key)
 
-        if isinstance(item, (str, bytes)):
+        if isinstance(item, (six.text_type, bytes)):
             item = self._decode(item)
 
         if flags:
@@ -630,16 +627,8 @@ class BrowserRequest(HTTPRequest):
 
         return super(BrowserRequest, self).get(key, default)
 
-class ZopeFieldStorage(FieldStorage):
 
-    def make_file(self, binary=None):
-        if PYTHON2 or self._binary_file:
-            return tempfile.NamedTemporaryFile("w+b")
-        else:
-            return tempfile.NamedTemporaryFile("w+",
-                    encoding=self.encoding, newline='\n')
-
-
+@implementer(IHeld)
 class FileUpload(object):
     '''File upload objects
 
@@ -670,11 +659,15 @@ class FileUpload(object):
 
         self.headers = aFieldStorage.headers
         filename = aFieldStorage.filename
-        if isinstance(aFieldStorage.filename, bytes):
-            filename = aFieldStorage.filename.decode('UTF-8')
-        # fix for IE full paths
-        filename = filename[filename.rfind('\\')+1:].strip()
+        if filename is not None:
+            if isinstance(filename, bytes):
+                filename = filename.decode('UTF-8')
+            # fix for IE full paths
+            filename = filename[filename.rfind('\\')+1:].strip()
         self.filename = filename
+
+    def release(self):
+        self.close()
 
 class RedirectingBrowserRequest(BrowserRequest):
     """Browser requests that redirect when the actual and effective URLs differ

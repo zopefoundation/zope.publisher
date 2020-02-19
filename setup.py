@@ -68,6 +68,8 @@ setup(
     package_dir={'': 'src'},
     namespace_packages=['zope'],
     install_requires=[
+        'multipart<0.2; python_version < "3"',
+        'multipart; python_version >= "3"',
         'setuptools',
         'six',
         'zope.browser',
