@@ -2,11 +2,16 @@
  Changes
 =========
 
-5.1.2 (unreleased)
+5.2.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Add support for Python 3.8.
 
+- Ensure all objects have a consistent interface resolution order. See
+  `issue 49
+  <https://github.com/zopefoundation/zope.publisher/issues/49>`_.
+
+- Drop support for the deprecated ``python setup.py test`` command.
 
 5.1.1 (2019-08-08)
 ==================
