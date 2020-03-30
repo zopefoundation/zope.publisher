@@ -889,7 +889,7 @@ class NotCompatibleAdapterError(Exception):
 
 BROWSER_LANGUAGES_KEY = "zope.publisher.browser.IUserPreferredLanguages"
 
-@implementer(IUserPreferredLanguages)
+
 class CacheableBrowserLanguages(BrowserLanguages):
 
     def getPreferredLanguages(self):
