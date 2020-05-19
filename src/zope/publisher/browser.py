@@ -25,6 +25,7 @@ import re
 import tempfile
 from cgi import FieldStorage
 
+import six
 import zope.component
 import zope.interface
 from zope.interface import implementer, directlyProvides
@@ -813,6 +814,8 @@ class BrowserResponse(HTTPResponse):
 
 def isHTML(str):
      """Try to determine whether str is HTML or not."""
+     if isinstance(str, six.binary_type):
+         str = str.decode()
      s = str.lstrip().lower()
      if s.startswith('<!doctype html'):
          return True
