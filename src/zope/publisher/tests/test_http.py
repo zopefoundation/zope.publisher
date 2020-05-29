@@ -896,6 +896,13 @@ class TestHTTPResponse(unittest.TestCase):
         eq("application/json", headers["Content-Type"])
         eq(b"test", body)
 
+        # zope.app.exception.browser.unauthorized in combination with
+        # zope.pluggableauth.plugins.session.SessionCredentialsPlugin (which
+        # redirects to login form on 401/403) produces a None body
+        response = HTTPResponse()
+        response.setResult(None)
+        eq(b"", response.consumeBody())
+
     def _getCookieFromResponse(self, cookies):
         # Shove the cookies through request, parse the Set-Cookie header
         # and spit out a list of headers for examination

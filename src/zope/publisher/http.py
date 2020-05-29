@@ -821,7 +821,7 @@ class HTTPResponse(BaseResponse):
                 if isinstance(result, basestring):
                     r = result
                 elif result is None:
-                    r = ''
+                    r = b''
                 else:
                     raise TypeError(
                         'The result should be None, a string, or adaptable to '
