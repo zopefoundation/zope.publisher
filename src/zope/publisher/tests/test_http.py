@@ -903,6 +903,18 @@ class TestHTTPResponse(unittest.TestCase):
         response.setResult(None)
         eq(b"", response.consumeBody())
 
+        response = HTTPResponse()
+        response.setResult(b'')
+        eq(b"", response.consumeBody())
+
+        response = HTTPResponse()
+        self.assertRaises(ValueError, response.setResult, u'')
+
+        response = HTTPResponse()
+        response.setHeader('Content-Type', 'text/plain')
+        response.setResult(u'')
+        eq(b"", response.consumeBody())
+
     def _getCookieFromResponse(self, cookies):
         # Shove the cookies through request, parse the Set-Cookie header
         # and spit out a list of headers for examination
