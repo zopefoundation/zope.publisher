@@ -213,6 +213,11 @@ class IHTTPRequest(IRequest):
         """
 
 
+class IJSONRequest(IHTTPRequest):
+    """Marker interface for JSON requests.
+    """
+
+
 class IHTTPView(IView):
     "HTTP View"
 

@@ -5,7 +5,7 @@
 5.2.1 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Provide new interface ``IJSONRequest`` used to mark requests with an ``Accept: application/json`` header.
 
 
 5.2.0 (2020-03-30)
