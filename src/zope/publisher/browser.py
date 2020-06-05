@@ -815,7 +815,10 @@ class BrowserResponse(HTTPResponse):
 def isHTML(str):
      """Try to determine whether str is HTML or not."""
      if isinstance(str, six.binary_type):
-         str = str.decode()
+         try:
+             str = str.decode()
+         except UnicodeDecodeError:
+             return False
      s = str.lstrip().lower()
      if s.startswith('<!doctype html'):
          return True
