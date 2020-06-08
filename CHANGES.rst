@@ -5,7 +5,7 @@
 5.2.1 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Fix text/bytes handling on Python 3 for some response edge cases.
 
 
 5.2.0 (2020-03-30)
