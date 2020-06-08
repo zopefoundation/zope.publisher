@@ -821,7 +821,9 @@ class HTTPResponse(BaseResponse):
                 if isinstance(result, basestring):
                     r = result
                 elif result is None:
-                    r = ''
+                    # Default to bytes because unicode results require a
+                    # corresponding Content-Type header.
+                    r = b''
                 else:
                     raise TypeError(
                         'The result should be None, a string, or adaptable to '
@@ -848,7 +850,7 @@ class HTTPResponse(BaseResponse):
 
     def _implicitResult(self, body):
         encoding = getCharsetUsingRequest(self._request) or 'utf-8'
-        content_type = self.getHeader('content-type')
+        content_type = self.getHeader('content-type') or ''
 
         if isinstance(body, unicode):
             ct = content_type

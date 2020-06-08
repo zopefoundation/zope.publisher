@@ -85,6 +85,22 @@ class TestBrowserResponse(TestCase):
             response.getHeader('content-type').startswith("text/plain")
             )
 
+        response = BrowserResponse()
+        response.setResult(
+            b"""Hello world
+            """)
+        self.assertTrue(
+            response.getHeader('content-type').startswith("text/plain")
+            )
+
+        response = BrowserResponse()
+        response.setResult(
+            b"""\xff
+            """)
+        self.assertTrue(
+            response.getHeader('content-type').startswith("text/plain")
+            )
+
     def test_not_DWIM_for_304_response(self):
         # Don't guess the content type with 304 responses which MUST NOT /
         # SHOULD NOT include it.
