@@ -5,7 +5,9 @@
 5.2.1 (unreleased)
 ==================
 
-- Fix text/bytes handling on Python 3 for some response edge cases.
+- Fix text/bytes handling on Python 3 for some response edge cases. See
+  `pull request 51
+  <https://github.com/zopefoundation/zope.publisher/pull/51>`_.
 
 
 5.2.0 (2020-03-30)
