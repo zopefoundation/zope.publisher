@@ -2,7 +2,7 @@
  Changes
 =========
 
-5.2.1 (unreleased)
+5.2.1 (2020-06-15)
 ==================
 
 - Fix text/bytes handling on Python 3 for some response edge cases. See
