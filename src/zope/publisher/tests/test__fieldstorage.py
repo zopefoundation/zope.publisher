@@ -83,22 +83,22 @@ class TestFieldStorage(unittest.TestCase):
             environ={"REQUEST_METHOD": "PUT"})
         self.assertRaises(TypeError, FieldStorage, "foo", "bar")
 
-    def test_fieldstorage_readline(self):
-        # FieldStorage uses readline, which has the capacity to read all
-        # contents of the input file into memory; we use readline's size
-        # argument to prevent that for files that do not contain any
-        # newlines in non-GET/HEAD requests
-        class TestReadlineFile:
+    def test_fieldstorage_read(self):
+        # FieldStorage uses read, which has the capacity to read all contents
+        # of the input file into memory; we use read's size argument to
+        # prevent that for files that do not contain any newlines in
+        # non-GET/HEAD requests
+        class TestReadFile:
             def __init__(self, file):
                 self.file = file
                 self.numcalls = 0
 
-            def readline(self, size=None):
+            def read(self, size=None):
                 self.numcalls += 1
                 if size:
-                    return self.file.readline(size)
+                    return self.file.read(size)
                 else:
-                    return self.file.readline()
+                    return self.file.read()
 
             def __getattr__(self, name):
                 file = self.__dict__['file']
@@ -107,14 +107,14 @@ class TestFieldStorage(unittest.TestCase):
                     setattr(self, name, a)
                 return a
 
-        f = TestReadlineFile(tempfile.TemporaryFile("wb+"))
+        f = TestReadFile(tempfile.TemporaryFile("wb+"))
         self.addCleanup(f.close)
         f.write(b'x' * 256 * 1024)
         f.seek(0)
         env = {'REQUEST_METHOD': 'PUT'}
         fs = FieldStorage(fp=f, environ=env)
         self.addCleanup(fs.file.close)
-        # if we're not chunking properly, readline is only called twice
+        # if we're not chunking properly, read is only called twice
         # (by read_binary); if we are chunking properly, it will be called 5
         # times as long as the chunksize is 1 << 16.
         self.assertGreater(f.numcalls, 2)
@@ -257,6 +257,18 @@ Larry
         self.assertEqual(len(fs.list), 1)
         self.assertEqual(fs.list[0].name, 'submit-name')
         self.assertEqual(fs.list[0].value, 'Larry')
+
+    def test_content_length_no_content_disposition(self):
+        body = b'{"test":123}'
+        env = {
+            'CONTENT_LENGTH': len(body),
+            'REQUEST_METHOD': 'POST',
+            'CONTENT_TYPE': 'application/json',
+            'wsgi.input': BytesIO(body),
+        }
+
+        form = FieldStorage(fp=env['wsgi.input'], environ=env)
+        self.assertEqual(form.file.read(), body.decode(form.encoding))
 
     def test_field_storage_multipart_no_content_length(self):
         fp = BytesIO(b"""--MyBoundary

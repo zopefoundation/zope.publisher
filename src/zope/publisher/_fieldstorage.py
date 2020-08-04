@@ -435,7 +435,7 @@ class FieldStorage(object):
     def read_single(self):
         """Internal: read an atomic part."""
         if self.length >= 0:
-            self.read_binary()
+            self.read_content()
             self.skip_lines()
         else:
             self.read_lines()
@@ -443,33 +443,31 @@ class FieldStorage(object):
 
     bufsize = 8*1024            # I/O buffering size for copy to file
 
-    def read_binary(self):
-        """Internal: read binary data."""
-        self.file = self.make_file()
+    def read_content(self):
+        """Internal: read data up until content-length len."""
+        if self.length > 1000:
+            self.file = self.make_file()
+        else:
+            self.file = self.io_object()
+        self.__file = self.file
         todo = self.length
         if todo >= 0:
             while todo > 0:
                 data = self.fp.read(min(todo, self.bufsize))  # bytes
-                if not isinstance(data, bytes):
-                    raise ValueError("%s should return bytes, got %s"
-                                     % (self.fp, type(data).__name__))
                 self.bytes_read += len(data)
                 if not data:
                     self.done = -1
                     break
-                self.file.write(data)
+                self.__write(data)
                 todo = todo - len(data)
 
     def read_lines(self):
         """Internal: read lines until EOF or outerboundary."""
-        if self._binary_file:
-            # store data as bytes for files
-            self.file = self.__file = BytesIO()
-        else:
-            # as strings for other fields
-            self.file = self.__file = StringIO()
+        self.file = self.__file = self.io_object()
         if self.outerboundary:
             self.read_lines_to_outerboundary()
+        elif self.length >= 0:
+            self.read_content()
         else:
             self.read_lines_to_eof()
 
@@ -491,7 +489,7 @@ class FieldStorage(object):
     def read_lines_to_eof(self):
         """Internal: read lines until EOF."""
         while 1:
-            line = self.fp.readline(1 << 16)  # bytes
+            line = self.fp.read(1 << 16)  # bytes
             self.bytes_read += len(line)
             if not line:
                 self.done = -1
@@ -599,3 +597,9 @@ class FieldStorage(object):
                 f = _FileIOWrapper(f)
             f = TextIOWrapper(f, encoding=self.encoding, newline='\n')
         return f
+
+    def io_object(self):
+        if self._binary_file:
+            return BytesIO() # store data as bytes for files
+        else:
+            return StringIO() # as strings for other fields

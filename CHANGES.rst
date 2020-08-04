@@ -10,6 +10,10 @@
   all Python versions.  See `issue 39
   <https://github.com/zopefoundation/zope.publisher/issues/39>`_.
 
+- Apply https://github.com/python/cpython/pull/21457 to vendored
+  ``FieldStorage``, fixing parsing of simple request bodies with
+  Content-Length and no Content-Disposition on Python 3.
+
 
 5.2.1 (2020-06-15)
 ==================
