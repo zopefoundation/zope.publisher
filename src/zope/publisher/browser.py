@@ -46,6 +46,10 @@ from zope.publisher.interfaces.http import IHTTPRequest
 from zope.publisher.http import HTTPRequest, HTTPResponse, getCharsetUsingRequest
 
 # BBB imports, this compoennts get moved from this module
+try:
+    from cgi import FieldStorage as ZopeFieldStorage # BBB import
+except ImportError:
+    pass
 from zope.publisher.interfaces import ISkinType #BBB import
 from zope.publisher.interfaces import ISkinChangedEvent #BBB import
 from zope.publisher.skinnable import getDefaultSkin #BBB import
