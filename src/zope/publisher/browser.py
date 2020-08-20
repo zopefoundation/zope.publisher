@@ -297,8 +297,9 @@ class BrowserRequest(HTTPRequest):
         elif self.method not in _get_or_head:
             env = self._environ.copy()
             env['wsgi.input'] = self._body_instream
-            # cgi.FieldStorage set the default Content-Type for POST
-            # requests to a "traditional" value.
+            # cgi.FieldStorage used to set the default Content-Type for POST
+            # requests to a "traditional" value.  Do that here for
+            # compatibility.
             if env.get('REQUEST_METHOD') == 'POST':
                 env.setdefault(
                     'CONTENT_TYPE', 'application/x-www-form-urlencoded')
