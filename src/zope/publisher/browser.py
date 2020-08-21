@@ -22,7 +22,6 @@ __docformat__ = 'restructuredtext'
 
 from email.message import Message
 import re
-import tempfile
 
 import multipart
 import six
@@ -320,21 +319,8 @@ class BrowserRequest(HTTPRequest):
             # multipart doesn't actually care beyond an initial check, so
             # just pretend everything is POST from here on.
             env['REQUEST_METHOD'] = 'POST'
-            # Monkey-patch multipart's idea of TemporaryFile to make sure
-            # all the temporary files have a name.
-            # XXX cjwatson 2020-08-04: See discussion in
-            # https://github.com/defnull/multipart/pull/22; this probably
-            # doesn't work on Windows.  Removing it would be a (small) API
-            # break, as demonstrated by BrowserTests.testFileUploadPost.
-            _orig_temporary_file = getattr(multipart, 'TemporaryFile')
-            if _orig_temporary_file is not None:
-                multipart.TemporaryFile = tempfile.NamedTemporaryFile
-            try:
-                forms, files = multipart.parse_form_data(
-                    env, charset='ISO-8859-1', memfile_limit=0)
-            finally:
-                if _orig_temporary_file is not None:
-                    multipart.TemporaryFile = _orig_temporary_file
+            forms, files = multipart.parse_form_data(
+                env, charset='ISO-8859-1', memfile_limit=0)
             items.extend(six.iteritems(forms))
             for key, item in six.iteritems(files):
                 # multipart puts fields in 'files' even if no upload was
@@ -651,7 +637,7 @@ class FileUpload(object):
             methods = ['close', 'fileno', 'flush', 'isatty',
                 'read', 'readline', 'readlines', 'seek',
                 'tell', 'truncate', 'write', 'writelines',
-                'name', 'seekable']
+                'seekable']
 
         d = self.__dict__
         for m in methods:

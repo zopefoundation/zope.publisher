@@ -7,6 +7,9 @@
 
 - Port form data parsing to ``multipart``, which is a new dependency.  See
   `issue 39 <https://github.com/zopefoundation/zope.publisher/issues/39>`_.
+  Note that as a result ``FileUpload`` objects no longer have a ``name``
+  attribute: the ``name`` attribute couldn't be used in portable code in any
+  case, and the usual methods on open files should be used instead.
 
 
 5.2.1 (2020-06-15)

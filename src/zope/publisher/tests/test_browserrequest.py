@@ -225,15 +225,16 @@ class BrowserTests(HTTPTests):
                  'CONTENT_TYPE': 'multipart/form-data;\
                  boundary=---------------------------1'}
 
-        request  = self._createRequest(extra, body=LARGE_FILE_BODY)
+        request = self._createRequest(extra, body=LARGE_FILE_BODY)
         request.processInputs()
-        self.assertTrue(request.form['upload'].name)
+        self.assertEqual(request.form['upload'].filename, 'test')
+        self.assertEqual(
+            request.form['upload'].read(),
+            b'Here comes some text! ' + b'test' * 1000)
 
-        request  = self._createRequest(extra, body=IE_FILE_BODY)
+        request = self._createRequest(extra, body=IE_FILE_BODY)
         request.processInputs()
         self.assertEqual(request.form['upload'].filename, 'notepad.exe')
-
-        # Test that we can actually read the file data
         self.assertEqual(request.form['upload'].read(), b'Some data')
 
         if not PYTHON2:
