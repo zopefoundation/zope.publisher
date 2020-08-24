@@ -2,7 +2,7 @@
  Changes
 =========
 
-5.3.0 (unreleased)
+6.0.0 (unreleased)
 ==================
 
 - Port form data parsing to ``multipart``, which is a new dependency.  See
