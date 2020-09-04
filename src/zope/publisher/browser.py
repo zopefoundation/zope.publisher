@@ -326,8 +326,13 @@ class BrowserRequest(HTTPRequest):
                 # multipart puts fields in 'files' even if no upload was
                 # made.  We only consider fields to be file uploads if a
                 # filename was passed in and data was uploaded.
-                if item.file and item.filename:
-                    item = FileUpload(item)
+                if item.file:
+                    if item.filename:
+                        item = FileUpload(item)
+                    else:
+                        value = item.value
+                        item.file.close()
+                        item = value
                 else:
                     item = item.value
                 self.hold(item)

@@ -226,6 +226,7 @@ class BrowserTests(HTTPTests):
                  boundary=---------------------------1'}
 
         request = self._createRequest(extra, body=LARGE_FILE_BODY)
+        self.addCleanup(request.close)
         request.processInputs()
         self.assertEqual(request.form['upload'].filename, 'test')
         self.assertEqual(
@@ -233,6 +234,7 @@ class BrowserTests(HTTPTests):
             b'Here comes some text! ' + b'test' * 1000)
 
         request = self._createRequest(extra, body=IE_FILE_BODY)
+        self.addCleanup(request.close)
         request.processInputs()
         self.assertEqual(request.form['upload'].filename, 'notepad.exe')
         self.assertEqual(request.form['upload'].read(), b'Some data')
@@ -257,6 +259,7 @@ class BrowserTests(HTTPTests):
                  boundary=---------------------------1'}
 
         request  = self._createRequest(extra, body=LARGE_POSTED_VALUE)
+        self.addCleanup(request.close)
         request.processInputs()
 
     def testDefault2(self):
