@@ -328,6 +328,16 @@ class BrowserRequest(HTTPRequest):
                 # filename was passed in and data was uploaded.
                 if item.file:
                     if item.filename:
+                        # RFC 7578 section 4.2 says:
+                        #   Some commonly deployed systems use
+                        #   multipart/form-data with file names directly
+                        #   encoded including octets outside the US-ASCII
+                        #   range.  The encoding used for the file names is
+                        #   typically UTF-8, although HTML forms will use
+                        #   the charset associated with the form.
+                        # So we must decode the filename according to our
+                        # usual rules.
+                        item.filename = self._decode(item.filename)
                         item = FileUpload(item)
                     else:
                         value = item.value

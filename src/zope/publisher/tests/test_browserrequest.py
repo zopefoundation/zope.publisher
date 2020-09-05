@@ -334,6 +334,49 @@ class BrowserTests(HTTPTests):
         self.assertTrue(isinstance(request.form[u"street"], unicode))
         self.assertEqual(u"汉语/漢語", request.form['street'])
 
+    def testFormMultipartFilenameUTF8(self):
+        extra = {
+            'REQUEST_METHOD': 'POST',
+            'CONTENT_TYPE': 'multipart/form_data; boundary=-123',
+        }
+        body = b'\n'.join([
+            b'---123',
+            b'Content-Disposition: form-data; name="upload";'
+            b' filename="\xe2\x98\x83"',
+            b'Content-Type: application/octet-stream',
+            b'',
+            b'Some data',
+            b'---123--',
+            b'',
+        ])
+        request = self._createRequest(extra, body)
+        self.addCleanup(request.close)
+        request.processInputs()
+        self.assertEqual(request.form['upload'].filename, u'☃')
+        self.assertEqual(request.form['upload'].read(), b'Some data')
+
+    def testFormMultipartFilenameLatin7(self):
+        extra = {
+            'REQUEST_METHOD': 'POST',
+            'CONTENT_TYPE': 'multipart/form_data; boundary=-123',
+            'HTTP_ACCEPT_CHARSET': 'ISO-8859-13',
+        }
+        body = b'\n'.join([
+            b'---123',
+            b'Content-Disposition: form-data; name="upload";'
+            b' filename="\xc0\xfeuolyno"',
+            b'Content-Type: application/octet-stream',
+            b'',
+            b'Some data',
+            b'---123--',
+            b'',
+        ])
+        request = self._createRequest(extra, body)
+        self.addCleanup(request.close)
+        request.processInputs()
+        self.assertEqual(request.form['upload'].filename, u'Ąžuolyno')
+        self.assertEqual(request.form['upload'].read(), b'Some data')
+
     def testFormURLEncodedUTF8(self):
         extra = {
             'REQUEST_METHOD': 'POST',
