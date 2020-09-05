@@ -601,6 +601,27 @@ class BrowserTests(HTTPTests):
         publish(request)
         self.assertEqual(request.form, {u"a": u"b +/=&b:int"})
 
+    def testFormMultipartDuplicateFieldNames(self):
+        extra = {
+            'REQUEST_METHOD': 'POST',
+            'CONTENT_TYPE': 'multipart/form_data; boundary=-123',
+        }
+        body = b'\n'.join([
+            b'---123',
+            b'Content-Disposition: form-data; name="a"',
+            b'',
+            b'first',
+            b'---123',
+            b'Content-Disposition: form-data; name="a"',
+            b'',
+            b'second',
+            b'---123--',
+            b'',
+        ])
+        request = self._createRequest(extra, body)
+        request.processInputs()
+        self.assertEqual(['first', 'second'], request.form['a'])
+
     def testInterface(self):
         request = self._createRequest()
         verifyObject(IBrowserRequest, request)

@@ -321,8 +321,8 @@ class BrowserRequest(HTTPRequest):
             env['REQUEST_METHOD'] = 'POST'
             forms, files = multipart.parse_form_data(
                 env, charset='ISO-8859-1', memfile_limit=0)
-            items.extend(six.iteritems(forms))
-            for key, item in six.iteritems(files):
+            items.extend(forms.iterallitems())
+            for key, item in files.iterallitems():
                 # multipart puts fields in 'files' even if no upload was
                 # made.  We only consider fields to be file uploads if a
                 # filename was passed in and data was uploaded.
