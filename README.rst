@@ -2,8 +2,8 @@
  zope.publisher
 ================
 
-.. image:: https://travis-ci.org/zopefoundation/zope.publisher.svg?branch=master
-        :target: https://travis-ci.org/zopefoundation/zope.publisher
+.. image:: https://travis-ci.com/zopefoundation/zope.publisher.svg?branch=master
+        :target: https://travis-ci.com/zopefoundation/zope.publisher
 
 .. image:: https://readthedocs.org/projects/zopepublisher/badge/?version=latest
          :target: http://zopepublisher.readthedocs.io/en/latest/?badge=latest
