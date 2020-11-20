@@ -39,7 +39,7 @@ tests_require = [
 
 setup(
     name='zope.publisher',
-    version='5.2.2.dev0',
+    version='6.0.0.dev0',
     url='https://github.com/zopefoundation/zope.publisher',
     license='ZPL 2.1',
     author='Zope Foundation and Contributors',
@@ -68,6 +68,8 @@ setup(
     package_dir={'': 'src'},
     namespace_packages=['zope'],
     install_requires=[
+        'multipart<0.2; python_version < "3"',
+        'multipart; python_version >= "3"',
         'setuptools',
         'six',
         'zope.browser',

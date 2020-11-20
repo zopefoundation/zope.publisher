@@ -225,15 +225,18 @@ class BrowserTests(HTTPTests):
                  'CONTENT_TYPE': 'multipart/form-data;\
                  boundary=---------------------------1'}
 
-        request  = self._createRequest(extra, body=LARGE_FILE_BODY)
+        request = self._createRequest(extra, body=LARGE_FILE_BODY)
+        self.addCleanup(request.close)
         request.processInputs()
-        self.assertTrue(request.form['upload'].name)
+        self.assertEqual(request.form['upload'].filename, 'test')
+        self.assertEqual(
+            request.form['upload'].read(),
+            b'Here comes some text! ' + b'test' * 1000)
 
-        request  = self._createRequest(extra, body=IE_FILE_BODY)
+        request = self._createRequest(extra, body=IE_FILE_BODY)
+        self.addCleanup(request.close)
         request.processInputs()
         self.assertEqual(request.form['upload'].filename, 'notepad.exe')
-
-        # Test that we can actually read the file data
         self.assertEqual(request.form['upload'].read(), b'Some data')
 
         if not PYTHON2:
@@ -256,6 +259,7 @@ class BrowserTests(HTTPTests):
                  boundary=---------------------------1'}
 
         request  = self._createRequest(extra, body=LARGE_POSTED_VALUE)
+        self.addCleanup(request.close)
         request.processInputs()
 
     def testDefault2(self):
@@ -329,6 +333,49 @@ class BrowserTests(HTTPTests):
         publish(request)
         self.assertTrue(isinstance(request.form[u"street"], unicode))
         self.assertEqual(u"汉语/漢語", request.form['street'])
+
+    def testFormMultipartFilenameUTF8(self):
+        extra = {
+            'REQUEST_METHOD': 'POST',
+            'CONTENT_TYPE': 'multipart/form_data; boundary=-123',
+        }
+        body = b'\n'.join([
+            b'---123',
+            b'Content-Disposition: form-data; name="upload";'
+            b' filename="\xe2\x98\x83"',
+            b'Content-Type: application/octet-stream',
+            b'',
+            b'Some data',
+            b'---123--',
+            b'',
+        ])
+        request = self._createRequest(extra, body)
+        self.addCleanup(request.close)
+        request.processInputs()
+        self.assertEqual(request.form['upload'].filename, u'☃')
+        self.assertEqual(request.form['upload'].read(), b'Some data')
+
+    def testFormMultipartFilenameLatin7(self):
+        extra = {
+            'REQUEST_METHOD': 'POST',
+            'CONTENT_TYPE': 'multipart/form_data; boundary=-123',
+            'HTTP_ACCEPT_CHARSET': 'ISO-8859-13',
+        }
+        body = b'\n'.join([
+            b'---123',
+            b'Content-Disposition: form-data; name="upload";'
+            b' filename="\xc0\xfeuolyno"',
+            b'Content-Type: application/octet-stream',
+            b'',
+            b'Some data',
+            b'---123--',
+            b'',
+        ])
+        request = self._createRequest(extra, body)
+        self.addCleanup(request.close)
+        request.processInputs()
+        self.assertEqual(request.form['upload'].filename, u'Ąžuolyno')
+        self.assertEqual(request.form['upload'].read(), b'Some data')
 
     def testFormURLEncodedUTF8(self):
         extra = {
@@ -596,6 +643,27 @@ class BrowserTests(HTTPTests):
         request = self._createRequest(extra)
         publish(request)
         self.assertEqual(request.form, {u"a": u"b +/=&b:int"})
+
+    def testFormMultipartDuplicateFieldNames(self):
+        extra = {
+            'REQUEST_METHOD': 'POST',
+            'CONTENT_TYPE': 'multipart/form_data; boundary=-123',
+        }
+        body = b'\n'.join([
+            b'---123',
+            b'Content-Disposition: form-data; name="a"',
+            b'',
+            b'first',
+            b'---123',
+            b'Content-Disposition: form-data; name="a"',
+            b'',
+            b'second',
+            b'---123--',
+            b'',
+        ])
+        request = self._createRequest(extra, body)
+        request.processInputs()
+        self.assertEqual(['first', 'second'], request.form['a'])
 
     def testInterface(self):
         request = self._createRequest()
