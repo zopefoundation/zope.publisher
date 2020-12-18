@@ -19,6 +19,7 @@ from zope.publisher.base import BaseResponse
 from zope.publisher.interfaces import IResponse
 from zope.interface.verify import verifyObject
 
+
 class TestBaseResponse(TestCase):
 
     def test_interface(self):
@@ -28,7 +29,8 @@ class TestBaseResponse(TestCase):
 def test_suite():
     return TestSuite((
         makeSuite(TestBaseResponse),
-        ))
+    ))
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     main(defaultTest='test_suite')

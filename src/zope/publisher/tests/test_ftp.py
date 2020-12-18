@@ -18,6 +18,7 @@ from io import BytesIO
 from unittest import TestCase, TestSuite, main, makeSuite
 import zope.publisher.ftp
 
+
 class Test(TestCase):
 
     def setUp(self):
@@ -35,13 +36,13 @@ class Test(TestCase):
 
         try:
             raise ValueError('spam')
-        except:
+        except:  # noqa: E722 do not use bare 'except'
             info = sys.exc_info()
             response.handleException(info)
 
         try:
             response.getResult()
-        except:
+        except:  # noqa: E722 do not use bare 'except'
             self.assertEqual(sys.exc_info()[:2], info[:2])
 
     def test_request(self):
@@ -51,11 +52,11 @@ class Test(TestCase):
                          ('bob', '123'))
 
 
-
 def test_suite():
     return TestSuite((
         makeSuite(Test),
-        ))
+    ))
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     main(defaultTest='test_suite')

@@ -20,6 +20,7 @@ from zope.publisher.base import DefaultPublication
 from zope.publisher.http import HTTPCharsets
 from zope.publisher.xmlrpc import XMLRPCRequest
 
+
 class Publication(DefaultPublication):
 
     require_docstrings = 0
@@ -56,7 +57,7 @@ class XMLRPCTests(unittest.TestCase):
        is no need to redo all the HTTP tests again.
     """
 
-    _testEnv =  {
+    _testEnv = {
         'PATH_INFO':          '/folder/item2/view/',
         'QUERY_STRING':       '',
         'SERVER_URL':         'http://foobar.com',
@@ -89,18 +90,16 @@ class XMLRPCTests(unittest.TestCase):
         class View(object):
 
             def action(self, a):
-                return "Parameter[type: %s; value: %s" %(
+                return "Parameter[type: %s; value: %s" % (
                     type(a).__name__, repr(a))
 
         class Item2(object):
             view = View()
 
-
         self.app = AppRoot()
         self.app.folder = Folder()
         self.app.folder.item = Item()
         self.app.folder.item2 = Item2()
-
 
     def _createRequest(self, extra_env={}, body=""):
         env = self._testEnv.copy()
@@ -114,25 +113,24 @@ class XMLRPCTests(unittest.TestCase):
         request.setPublication(publication)
         return request
 
-
     def testProcessInput(self):
         req = self._createRequest({}, xmlrpc_call)
         req.processInputs()
         self.assertEqual(req.getPositionalArguments(), (1,))
         self.assertEqual(tuple(req._path_suffix), ('action',))
 
-
     def testTraversal(self):
         req = self._createRequest({}, xmlrpc_call)
         req.processInputs()
         action = req.traverse(self.app)
         self.assertEqual(action(*req.getPositionalArguments()),
-                             "Parameter[type: int; value: 1")
+                         "Parameter[type: int; value: 1")
 
 
 def test_suite():
     loader = unittest.TestLoader()
     return loader.loadTestsFromTestCase(XMLRPCTests)
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     unittest.TextTestRunner().run(test_suite())

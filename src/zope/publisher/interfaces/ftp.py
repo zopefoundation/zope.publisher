@@ -22,12 +22,15 @@ from zope.publisher.interfaces import IPublishTraverse
 from zope.publisher.interfaces import IRequest
 from zope.publisher.interfaces import IView
 
+
 class IFTPRequest(IRequest):
     """FTP Request
     """
 
+
 class IFTPView(IView):
     """FTP View"""
+
 
 class IFTPCredentials(Interface):
 

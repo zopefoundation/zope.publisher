@@ -14,17 +14,26 @@
 """Test objects and interfaces.
 """
 
-from zope.interface import Interface, implements
+from zope.interface import Interface
 from zope.publisher.browser import BrowserView
 
-class IC(Interface): pass
 
-class V1(BrowserView): pass
+class IC(Interface):
+    pass
 
-class VZMI(V1): pass
+
+class V1(BrowserView):
+    pass
+
+
+class VZMI(V1):
+    pass
+
 
 class R1(object):
-    def __init__(self, request): self.request = request
+    def __init__(self, request):
+        self.request = request
+
 
 class RZMI(R1):
     pass

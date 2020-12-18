@@ -13,7 +13,7 @@
 ##############################################################################
 """HTTP Publisher
 """
-import sys
+import re
 import base64
 from io import BytesIO
 from zope.i18n.interfaces import IUserPreferredCharsets
@@ -35,7 +35,6 @@ from zope.publisher.interfaces.logginginfo import ILoggingInfo
 from zope.publisher.skinnable import setDefaultSkin
 import logging
 import tempfile
-import types
 import zope.component
 import zope.contenttype.parse
 import zope.event
@@ -59,14 +58,15 @@ else:
 ENCODING = 'UTF-8'
 
 # not just text/* but RFC 3023 and */*+xml
-import re
 unicode_mimetypes_re = re.compile(
     r"^text\/.*$|^.*\/xml.*$|^.*\+xml$|^application/json$")
 
 eventlog = logging.getLogger('eventlog')
 
+
 class CookieMapper(RequestDataMapper):
     _mapname = '_cookies'
+
 
 class HeaderGetter(RequestDataGetter):
     _gettrname = 'getHeader'
@@ -74,6 +74,7 @@ class HeaderGetter(RequestDataGetter):
 
 host_port_re = re.compile(
     r"^(.*):([0-9]*)$", re.DOTALL)
+
 
 def splitport(host):
     """Split port number off the hostname.
@@ -121,6 +122,7 @@ def sane_environment(env):
         dict['PATH_INFO'] = pi.decode(ENCODING)
     return dict
 
+
 @zope.interface.implementer(IHTTPVirtualHostChangedEvent)
 class HTTPVirtualHostChangedEvent(object):
 
@@ -129,57 +131,59 @@ class HTTPVirtualHostChangedEvent(object):
     def __init__(self, request):
         self.request = request
 
+
 # Possible HTTP status responses
 status_reasons = {
-100: 'Continue',
-101: 'Switching Protocols',
-102: 'Processing',
-200: 'Ok',
-201: 'Created',
-202: 'Accepted',
-203: 'Non-Authoritative Information',
-204: 'No Content',
-205: 'Reset Content',
-206: 'Partial Content',
-207: 'Multi-Status',
-300: 'Multiple Choices',
-301: 'Moved Permanently',
-302: 'Moved Temporarily',
-303: 'See Other',
-304: 'Not Modified',
-305: 'Use Proxy',
-307: 'Temporary Redirect',
-400: 'Bad Request',
-401: 'Unauthorized',
-402: 'Payment Required',
-403: 'Forbidden',
-404: 'Not Found',
-405: 'Method Not Allowed',
-406: 'Not Acceptable',
-407: 'Proxy Authentication Required',
-408: 'Request Time-out',
-409: 'Conflict',
-410: 'Gone',
-411: 'Length Required',
-412: 'Precondition Failed',
-413: 'Request Entity Too Large',
-414: 'Request-URI Too Large',
-415: 'Unsupported Media Type',
-416: 'Requested range not satisfiable',
-417: 'Expectation Failed',
-422: 'Unprocessable Entity',
-423: 'Locked',
-424: 'Failed Dependency',
-500: 'Internal Server Error',
-501: 'Not Implemented',
-502: 'Bad Gateway',
-503: 'Service Unavailable',
-504: 'Gateway Time-out',
-505: 'HTTP Version not supported',
-507: 'Insufficient Storage',
+    100: 'Continue',
+    101: 'Switching Protocols',
+    102: 'Processing',
+    200: 'Ok',
+    201: 'Created',
+    202: 'Accepted',
+    203: 'Non-Authoritative Information',
+    204: 'No Content',
+    205: 'Reset Content',
+    206: 'Partial Content',
+    207: 'Multi-Status',
+    300: 'Multiple Choices',
+    301: 'Moved Permanently',
+    302: 'Moved Temporarily',
+    303: 'See Other',
+    304: 'Not Modified',
+    305: 'Use Proxy',
+    307: 'Temporary Redirect',
+    400: 'Bad Request',
+    401: 'Unauthorized',
+    402: 'Payment Required',
+    403: 'Forbidden',
+    404: 'Not Found',
+    405: 'Method Not Allowed',
+    406: 'Not Acceptable',
+    407: 'Proxy Authentication Required',
+    408: 'Request Time-out',
+    409: 'Conflict',
+    410: 'Gone',
+    411: 'Length Required',
+    412: 'Precondition Failed',
+    413: 'Request Entity Too Large',
+    414: 'Request-URI Too Large',
+    415: 'Unsupported Media Type',
+    416: 'Requested range not satisfiable',
+    417: 'Expectation Failed',
+    422: 'Unprocessable Entity',
+    423: 'Locked',
+    424: 'Failed Dependency',
+    500: 'Internal Server Error',
+    501: 'Not Implemented',
+    502: 'Bad Gateway',
+    503: 'Service Unavailable',
+    504: 'Gateway Time-out',
+    505: 'HTTP Version not supported',
+    507: 'Insufficient Storage',
 }
 
-status_codes={}
+status_codes = {}
+
 
 def init_status_codes():
     # Add mappings for builtin exceptions and
@@ -194,6 +198,7 @@ def init_status_codes():
 
     for name in en:
         status_codes[name] = 500
+
 
 init_status_codes()
 
@@ -226,6 +231,7 @@ class URLGetter(object):
             if v.args[0] == i:
                 return default
             raise
+
 
 class HTTPInputStream(object):
     """Special stream that supports caching the read data.
@@ -276,6 +282,7 @@ class HTTPInputStream(object):
 
 
 DEFAULT_PORTS = {'http': '80', 'https': '443'}
+
 
 @zope.interface.implementer(IHTTPCredentials,
                             IHTTPRequest,
@@ -335,11 +342,11 @@ class HTTPRequest(BaseRequest):
         '_app_names',     # The application path as a sequence
         '_app_server',    # The server path of the application url
         '_orig_env',      # The original environment
-        '_endswithslash', # Does the given path end with /
+        '_endswithslash',  # Does the given path end with /
         'method',         # The upper-cased request method (REQUEST_METHOD)
         '_locale',        # The locale for the request
         '_vh_root',       # Object at the root of the virtual host
-        )
+    )
 
     retry_max_count = 3    # How many times we're willing to retry
 
@@ -420,7 +427,7 @@ class HTTPRequest(BaseRequest):
         environ = self._environ
 
         if (environ.get('HTTPS', '').lower() == "on" or
-            environ.get('SERVER_PORT_SECURE') == "1"):
+                environ.get('SERVER_PORT_SECURE') == "1"):
             protocol = 'https'
         else:
             protocol = 'http'
@@ -495,7 +502,7 @@ class HTTPRequest(BaseRequest):
             body_instream=self._body_instream.getCacheStream(),
             environ=self._orig_env,
             response=self.response.retry(),
-            )
+        )
         # restore the default skin
         if ISkinnable.providedBy(self):
             # only ISkinnable requests have skins
@@ -524,7 +531,7 @@ class HTTPRequest(BaseRequest):
         if val is not None:
             return val
         if not name.startswith('HTTP_'):
-            name='HTTP_%s' % name
+            name = 'HTTP_%s' % name
         return environ.get(name, default)
 
     headers = RequestDataProperty(HeaderGetter)
@@ -547,7 +554,8 @@ class HTTPRequest(BaseRequest):
             encoded = self._auth.split(None, 1)[-1]
             decoded = base64.b64decode(encoded.encode('iso-8859-1'))
             name, password = bytes.split(decoded, b':', 1)
-            #name, password = base64.b64decode(encoded.encode('ascii')).split(':', 1)
+            # name, password = base64.b64decode(
+            #     encoded.encode('ascii')).split(':', 1)
             return name, password
 
     def unauthorized(self, challenge):
@@ -568,7 +576,6 @@ class HTTPRequest(BaseRequest):
     def _createResponse(self):
         # Should be overridden by subclasses
         return HTTPResponse()
-
 
     def getURL(self, level=0, path_only=False):
         names = self._app_names + self._traversed_names
@@ -661,7 +668,6 @@ class HTTPRequest(BaseRequest):
         return d.keys()
 
 
-
 @zope.interface.implementer(IHTTPResponse, IHTTPApplicationResponse)
 class HTTPResponse(BaseResponse):
 
@@ -673,13 +679,11 @@ class HTTPResponse(BaseResponse):
         '_reason',              # The reason that goes with the status
         '_status_set',          # Boolean: status explicitly set
         '_charset',             # String: character set for the output
-        )
-
+    )
 
     def __init__(self):
         super(HTTPResponse, self).__init__()
         self.reset()
-
 
     def reset(self):
         'See IResponse'
@@ -730,12 +734,10 @@ class HTTPResponse(BaseResponse):
 
         self._headers[name] = [value]
 
-
     def addHeader(self, name, value):
         'See IHTTPResponse'
         values = self._headers.setdefault(name, [])
         values.append(value)
-
 
     def getHeader(self, name, default=None, literal=False):
         'See IHTTPResponse'
@@ -745,7 +747,6 @@ class HTTPResponse(BaseResponse):
         if result:
             return result[0]
         return default
-
 
     def getHeaders(self):
         'See IHTTPResponse'
@@ -766,7 +767,6 @@ class HTTPResponse(BaseResponse):
 
         return result
 
-
     def appendToCookie(self, name, value):
         'See IHTTPResponse'
         cookies = self._cookies
@@ -779,10 +779,9 @@ class HTTPResponse(BaseResponse):
         else:
             cookie['value'] = value
 
-
     def expireCookie(self, name, **kw):
         'See IHTTPResponse'
-        dict = {'max_age':0, 'expires':'Wed, 31-Dec-97 23:59:59 GMT'}
+        dict = {'max_age': 0, 'expires': 'Wed, 31-Dec-97 23:59:59 GMT'}
         for k, v in kw.items():
             if v is not None:
                 dict[k] = v
@@ -791,7 +790,6 @@ class HTTPResponse(BaseResponse):
             # Cancel previous setCookie().
             del cookies[name]
         self.setCookie(name, 'deleted', **dict)
-
 
     def setCookie(self, name, value, **kw):
         'See IHTTPResponse'
@@ -804,11 +802,9 @@ class HTTPResponse(BaseResponse):
 
         cookie['value'] = value
 
-
     def getCookie(self, name, default=None):
         'See IHTTPResponse'
         return self._cookies.get(name, default)
-
 
     def setResult(self, result):
         'See IHTTPResponse'
@@ -831,22 +827,19 @@ class HTTPResponse(BaseResponse):
             if isinstance(r, basestring):
                 r, headers = self._implicitResult(r)
                 self._headers.update(dict((k, [v]) for (k, v) in headers))
-                r = (r,) # chunking should be much larger than per character
+                r = (r,)  # chunking should be much larger than per character
 
         self._result = r
         if not self._status_set:
             self.setStatus(200)
 
-
     def consumeBody(self):
         'See IHTTPResponse'
         return b''.join(self._result)
 
-
     def consumeBodyIter(self):
         'See IHTTPResponse'
         return self._result
-
 
     def _implicitResult(self, body):
         encoding = getCharsetUsingRequest(self._request) or 'utf-8'
@@ -907,7 +900,7 @@ class HTTPResponse(BaseResponse):
         # for apps to control the status code.
         self.setStatus(tname)
 
-        body = self._html(title, "A server error occurred." )
+        body = self._html(title, "A server error occurred.")
         self.setHeader("Content-Type", "text/html")
         self.setResult(body)
 
@@ -950,11 +943,11 @@ class HTTPResponse(BaseResponse):
 
         if status is None:
             # parse the HTTP version and set default accordingly
-            if (self._request.get("SERVER_PROTOCOL","HTTP/1.0") <
-                "HTTP/1.1"):
-                status=302
+            if (self._request.get("SERVER_PROTOCOL", "HTTP/1.0") <
+                    "HTTP/1.1"):
+                status = 302
             else:
-                status=303
+                status = 303
 
         self.setStatus(status)
         self.setHeader('Location', location)
@@ -979,7 +972,7 @@ class HTTPResponse(BaseResponse):
             else:
                 c[name] = cookieval.decode('latin-1')
 
-            for k,v in attrs.items():
+            for k, v in attrs.items():
                 if k == 'value':
                     continue
                 if k == 'secure':
@@ -999,7 +992,8 @@ class HTTPResponse(BaseResponse):
             "The HTTP response write method is no longer supported. "
             "See the file httpresults.txt in the zope.publisher package "
             "for more information."
-            )
+        )
+
 
 def sort_charsets(charset):
     # Make utf-8 to be the last element of the sorted list
@@ -1007,6 +1001,7 @@ def sort_charsets(charset):
         return (1, charset)
     # Otherwise, sort by charset
     return (0, charset)
+
 
 def extract_host(url):
     scheme, host, path, query, fragment = urlsplit(url)
@@ -1110,8 +1105,7 @@ class DirectResult(object):
         return iter(self.body)
 
 
-# BBB
 try:
-    from zope.login.http import BasicAuthAdapter
+    from zope.login.http import BasicAuthAdapter  # noqa: F401 import unused
 except ImportError:
     pass

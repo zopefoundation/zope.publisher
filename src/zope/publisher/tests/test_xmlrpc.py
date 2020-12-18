@@ -25,6 +25,7 @@ try:
 except ImportError:
     import xmlrpc.client as xmlrpclib
 
+
 class TestXMLRPCResponse(unittest.TestCase):
 
     def testConsumeBody(self):
@@ -47,14 +48,15 @@ def doctest_setUp(test):
     zope.component.provideAdapter(xmlrpc.DictPreMarshaller)
 
     defineChecker(xmlrpclib.Binary,
-                  Checker({'data':CheckerPublic,
-                           'decode':CheckerPublic,
+                  Checker({'data': CheckerPublic,
+                           'decode': CheckerPublic,
                            'encode': CheckerPublic}, {}))
     defineChecker(xmlrpclib.Fault,
-                  Checker({'faultCode':CheckerPublic,
+                  Checker({'faultCode': CheckerPublic,
                            'faultString': CheckerPublic}, {}))
     defineChecker(xmlrpclib.DateTime,
-                  Checker({'value':CheckerPublic}, {}))
+                  Checker({'value': CheckerPublic}, {}))
+
 
 def test_suite():
     return unittest.TestSuite((

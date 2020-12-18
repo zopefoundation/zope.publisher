@@ -17,7 +17,7 @@ import sys
 import unittest
 from io import BytesIO
 
-from zope.interface import implementer, directlyProvides, Interface
+from zope.interface import implementer
 from zope.interface.verify import verifyObject
 
 from zope.publisher.publish import publish as publish_
@@ -35,11 +35,11 @@ from zope.publisher.tests.test_http import HTTPTests
 from zope.publisher.tests.publication import TestPublication
 
 from zope.publisher.tests.basetestipublicationrequest \
-     import BaseTestIPublicationRequest
+    import BaseTestIPublicationRequest
 from zope.publisher.tests.basetestipublisherrequest \
-     import BaseTestIPublisherRequest
+    import BaseTestIPublisherRequest
 from zope.publisher.tests.basetestiapplicationrequest \
-     import BaseTestIApplicationRequest
+    import BaseTestIApplicationRequest
 
 
 EMPTY_FILE_BODY = b"""-----------------------------1
@@ -53,14 +53,14 @@ LARGE_FILE_BODY = b''.join([b"""-----------------------------1
 Content-Disposition: form-data; name="upload"; filename="test"
 Content-Type: text/plain
 
-Here comes some text! """, (b'test'*1000), b"""
+Here comes some text! """, (b'test' * 1000), b"""
 -----------------------------1--
 """])
 
 LARGE_POSTED_VALUE = b''.join([b"""-----------------------------1
 Content-Disposition: form-data; name="upload"
 
-Here comes some text! """, (b'test'*1000), b"""
+Here comes some text! """, (b'test' * 1000), b"""
 -----------------------------1--
 """])
 
@@ -70,7 +70,7 @@ Content-Type: text/plain
 
 Some data
 -----------------------------1--
-"""
+"""  # noqa: E501 line too long
 
 if not PYTHON2:
     unicode = str
@@ -79,12 +79,14 @@ if not PYTHON2:
 def publish(request):
     publish_(request, handle_errors=0)
 
+
 class Publication(DefaultPublication):
 
     def getDefaultTraversal(self, request, ob):
         if hasattr(ob, 'browserDefault'):
             return ob.browserDefault(request)
         return ob, ()
+
 
 class TestBrowserRequest(BrowserRequest, HTTPCharsets):
     """Make sure that our request also implements IHTTPCharsets, so that we do
@@ -97,7 +99,7 @@ class TestBrowserRequest(BrowserRequest, HTTPCharsets):
 
 class BrowserTests(HTTPTests):
 
-    _testEnv =  {
+    _testEnv = {
         'PATH_INFO':           '/folder/item',
         'QUERY_STRING':        'a=5&b:int=6',
         'SERVER_URL':          'http://foobar.com',
@@ -120,16 +122,19 @@ class BrowserTests(HTTPTests):
 
         class Item(object):
             """Required docstring for the publisher."""
+
             def __call__(self, a, b):
                 return u"%s, %s" % (repr(a).lstrip('u'), repr(b).lstrip('u'))
 
         class Item3(object):
             """Required docstring for the publisher."""
+
             def __call__(self, *args):
                 return u"..."
 
         class View(object):
             """Required docstring for the publisher."""
+
             def browserDefault(self, request):
                 return self, ['index']
 
@@ -139,11 +144,11 @@ class BrowserTests(HTTPTests):
 
         class Item2(object):
             """Required docstring for the publisher."""
+
             view = View()
 
             def browserDefault(self, request):
                 return self, ['view']
-
 
         self.app = AppRoot()
         self.app.folder = Folder()
@@ -198,7 +203,6 @@ class BrowserTests(HTTPTests):
                          'http://foobar.com/folder/item2/view/index')
 
     def testNoneFieldNamePost(self):
-
         """Produce a Fieldstorage with a name wich is None, this
         should be catched"""
 
@@ -213,7 +217,7 @@ class BrowserTests(HTTPTests):
         application/octet-stream
         -----------------------------1--
         """
-        request  = self._createRequest(extra,body=body)
+        request = self._createRequest(extra, body=body)
         request.processInputs()
 
     def testFileUploadPost(self):
@@ -244,21 +248,21 @@ class BrowserTests(HTTPTests):
             self.assertTrue(request.form['upload'].seekable())
 
     def testEmptyFilePost(self):
-        extra = {'REQUEST_METHOD':'POST',
+        extra = {'REQUEST_METHOD': 'POST',
                  'PATH_INFO': u"/",
                  'CONTENT_TYPE': 'multipart/form-data;\
                  boundary=---------------------------1'}
 
-        request  = self._createRequest(extra, body=EMPTY_FILE_BODY)
+        request = self._createRequest(extra, body=EMPTY_FILE_BODY)
         request.processInputs()
 
     def testLargePostValue(self):
-        extra = {'REQUEST_METHOD':'POST',
+        extra = {'REQUEST_METHOD': 'POST',
                  'PATH_INFO': u"/",
                  'CONTENT_TYPE': 'multipart/form-data;\
                  boundary=---------------------------1'}
 
-        request  = self._createRequest(extra, body=LARGE_POSTED_VALUE)
+        request = self._createRequest(extra, body=LARGE_POSTED_VALUE)
         self.addCleanup(request.close)
         request.processInputs()
 
@@ -382,16 +386,19 @@ class BrowserTests(HTTPTests):
             'REQUEST_METHOD': 'POST',
             'CONTENT_TYPE': 'application/x-www-form-urlencoded',
         }
-        body = b'a=5&b:int=6&street=\xe6\xb1\x89\xe8\xaf\xad/\xe6\xbc\xa2\xe8\xaa\x9e'
+        body = (
+            b'a=5&b:int=6'
+            b'&street=\xe6\xb1\x89\xe8\xaf\xad/\xe6\xbc\xa2\xe8\xaa\x9e')
         request = self._createRequest(extra, body)
         publish(request)
         self.assertTrue(isinstance(request.form[u"street"], unicode))
         self.assertEqual(u"汉语/漢語", request.form['street'])
 
     def testFormQueryStringUTF8(self):
-        extra = {
-            'QUERY_STRING': 'a=5&b:int=6&street=\xe6\xb1\x89\xe8\xaf\xad/\xe6\xbc\xa2\xe8\xaa\x9e'
-        }
+        query_string = (
+            'a=5&b:int=6'
+            '&street=\xe6\xb1\x89\xe8\xaf\xad/\xe6\xbc\xa2\xe8\xaa\x9e')
+        extra = {'QUERY_STRING': query_string}
         request = self._createRequest(extra)
         publish(request)
         self.assertTrue(isinstance(request.form[u"street"], unicode))
@@ -427,7 +434,7 @@ class BrowserTests(HTTPTests):
             # if nothing else is specified, form data should be
             # interpreted as UTF-8, as this stub query string is
             'QUERY_STRING': 'a=5&b:int=6&street=' + encoded
-            }
+        }
         request = self._createRequest(extra)
         # many mainstream browsers do not send HTTP_ACCEPT_CHARSET
         del request._environ['HTTP_ACCEPT_CHARSET']
@@ -437,9 +444,9 @@ class BrowserTests(HTTPTests):
 
     def testFormAcceptsStarButNotUTF8(self):
         extra = {
-            'QUERY_STRING': 'a=5&b:int=6&latin_1=\xf6', # latin-1
+            'QUERY_STRING': 'a=5&b:int=6&latin_1=\xf6',  # latin-1
             'HTTP_ACCEPT_CHARSET': 'utf-8;q=0.7, *;q=0.7',
-            }
+        }
         request = self._createRequest(extra)
         # don't error when * is in ACCEPT_CHARSET and data is not UTF-8
         publish(request)
@@ -448,7 +455,7 @@ class BrowserTests(HTTPTests):
         extra = {'QUERY_STRING': 'a:list=5&a:list=6&b=1'}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {u"a": [u"5",u"6"], u"b": u"1"})
+        self.assertEqual(request.form, {u"a": [u"5", u"6"], u"b": u"1"})
 
     def testQueryStringIgnoredForPOST(self):
         request = self._createRequest(
@@ -498,7 +505,7 @@ class BrowserTests(HTTPTests):
 
     def testFormMultipleRecordsTypes(self):
         extra = {'QUERY_STRING': 'a.x:records:int=5&a.y:records:int=51'
-            '&a.x:records:int=6&a.y:records:int=61&b=1'}
+                 '&a.x:records:int=6&a.y:records:int=61&b=1'}
         request = self._createRequest(extra)
         publish(request)
         keys = sorted(request.form.keys())
@@ -514,9 +521,9 @@ class BrowserTests(HTTPTests):
         self.assertEqual(request.form[u"a"][1][u"y"], 61)
         self.assertEqual(request.form[u"a"][1].y, 61)
         self.assertEqual(str(request.form[u"a"]),
-            "[{x: 5, y: 51}, {x: 6, y: 61}]")
+                         "[{x: 5, y: 51}, {x: 6, y: 61}]")
         self.assertEqual(repr(request.form[u"a"]),
-            "[{x: 5, y: 51}, {x: 6, y: 61}]")
+                         "[{x: 5, y: 51}, {x: 6, y: 61}]")
 
     def testFormListRecordTypes(self):
         extra = {'QUERY_STRING': 'a.x:list:record=5&a.x:list:record=6&b=1'}
@@ -586,7 +593,7 @@ class BrowserTests(HTTPTests):
         request = self._createRequest(extra)
         publish(request)
         self.assertEqual(request.form, {u"a": [u"a", u"b", u"c", u"d"],
-                         u"b": []})
+                                        u"b": []})
 
     def testFormStringTypes(self):
         extra = {'QUERY_STRING': 'a:string=test&b:string='}
@@ -599,7 +606,7 @@ class BrowserTests(HTTPTests):
         request = self._createRequest(extra)
         publish(request)
         self.assertEqual(request.form, {u"a": [u"a", u"b", u"c", u"d"],
-                         u"b": []})
+                                        u"b": []})
 
     def testFormTextTypes(self):
         extra = {'QUERY_STRING': 'a:text=a%0a%0db%0d%0ac%0dd%0ae&b:text='}
@@ -689,9 +696,9 @@ class BrowserTests(HTTPTests):
                  'PATH_INFO': '/folder/item3/'}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.headers.get('HTTP_REFERER'), 'http://localhost/')
+        self.assertEqual(request.headers.get(
+            'HTTP_REFERER'), 'http://localhost/')
         self.assertEqual(request.form, {u"HTTP_REFERER": u"peter"})
-
 
     def test_post_body_not_consumed_unnecessarily(self):
         request = self._createRequest(
@@ -724,11 +731,13 @@ class BrowserTests(HTTPTests):
         self.assertEqual(request.bodyStream.read(), b'')
         self.assertEqual(dict(request.form), dict(x='1', y='2'))
 
+
 @implementer(IBrowserPublication)
 class TestBrowserPublication(TestPublication):
 
     def getDefaultTraversal(self, request, ob):
         return ob, ()
+
 
 class APITests(BaseTestIPublicationRequest,
                BaseTestIApplicationRequest,
@@ -794,7 +803,3 @@ def test_suite():
     suite.addTest(unittest.makeSuite(BrowserTests))
     suite.addTest(unittest.makeSuite(APITests))
     return suite
-
-
-if __name__ == '__main__':
-    unittest.TextTestRunner().run(test_suite())

@@ -27,10 +27,12 @@ data = [
     ('da, en, pt', ['da', 'en', 'pt']),
     ('da, en;q=.9, en-gb;q=1.0, en-us', ['da', 'en-gb', 'en-us', 'en']),
     ('pt_BR; q=0.6, pt_PT; q = .7, en-gb', ['en-gb', 'pt-pt', 'pt-br']),
-    ('en-us, en_GB;q=0.9, en, pt_BR; q=1.0', ['en-us', 'en', 'pt-br', 'en-gb']),
+    ('en-us, en_GB;q=0.9, en, pt_BR; q=1.0',
+     ['en-us', 'en', 'pt-br', 'en-gb']),
     ('ro,en-us;q=0.8,es;q=0.5,fr;q=0.3', ['ro', 'en-us', 'es', 'fr']),
     ('ro,en-us;q=0,es;q=0.5,fr;q=0,ru;q=1,it', ['ro', 'ru', 'it', 'es'])
-    ]
+]
+
 
 class TestRequest(dict):
 
@@ -41,6 +43,7 @@ class TestRequest(dict):
 
     def setupLocale(self):
         self.localized = True
+
 
 class BrowserLanguagesTest(unittest.TestCase):
 
@@ -54,6 +57,7 @@ class BrowserLanguagesTest(unittest.TestCase):
             self.assertEqual(list(browser_languages.getPreferredLanguages()),
                              expected)
 
+
 class CacheableBrowserLanguagesTests(BrowserLanguagesTest):
 
     def factory(self, request):
@@ -66,6 +70,7 @@ class CacheableBrowserLanguagesTests(BrowserLanguagesTest):
         eq(list(browser_languages.getPreferredLanguages()), ["da", "en", "pt"])
         request["HTTP_ACCEPT_LANGUAGE"] = "ru, en"
         eq(list(browser_languages.getPreferredLanguages()), ["da", "en", "pt"])
+
 
 class ModifiableBrowserLanguagesTests(CacheableBrowserLanguagesTests):
 
@@ -83,9 +88,10 @@ class ModifiableBrowserLanguagesTests(CacheableBrowserLanguagesTests):
 
     def test_conflicting_adapters(self):
         request = TestRequest("da, en, pt")
-        not_compatible_browser_languages = BrowserLanguages(request)
+        BrowserLanguages(request)
         browser_languages = self.factory(request)
-        self.assertRaises(NotCompatibleAdapterError,
+        self.assertRaises(
+            NotCompatibleAdapterError,
             browser_languages.setPreferredLanguages, ["ru", "en"])
 
 

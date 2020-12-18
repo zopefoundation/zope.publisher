@@ -11,6 +11,8 @@
   attribute: the ``name`` attribute couldn't be used in portable code in any
   case, and the usual methods on open files should be used instead.
 
+- Add support for Python 3.9.
+
 
 5.2.1 (2020-06-15)
 ==================

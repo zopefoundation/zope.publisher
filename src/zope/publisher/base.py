@@ -32,6 +32,7 @@ from zope.publisher._compat import PYTHON2
 
 _marker = object()
 
+
 @implementer(IResponse)
 class BaseResponse(object):
     """Base Response Class
@@ -40,8 +41,7 @@ class BaseResponse(object):
     __slots__ = (
         '_result',    # The result of the application call
         '_request',   # The associated request (if any)
-        )
-
+    )
 
     def __init__(self):
         self._request = None
@@ -71,6 +71,7 @@ class BaseResponse(object):
         'See IPublisherResponse'
         return self.__class__()
 
+
 @implementer(IReadMapping)
 class RequestDataGetter(object):
 
@@ -88,6 +89,7 @@ class RequestDataGetter(object):
         return lookup is not self
 
     has_key = __contains__
+
 
 @implementer(IEnumerableMapping)
 class RequestDataMapper(object):
@@ -121,6 +123,7 @@ class RequestDataMapper(object):
 
     def __len__(self):
         return len(self.__map)
+
 
 class RequestDataProperty(object):
 
@@ -165,7 +168,7 @@ class BaseRequest(object):
         '__provides__',      # Allow request to directly provide interfaces
         '_held',             # Objects held until the request is closed
         '_traversed_names',  # The names that have been traversed
-        '_last_obj_traversed', # Object that was traversed last
+        '_last_obj_traversed',  # Object that was traversed last
         '_traversal_stack',  # Names to be traversed, in reverse order
         '_environ',          # The request environment variables
         '_response',         # The response
@@ -177,7 +180,7 @@ class BaseRequest(object):
         'interaction',       # interaction, set by interaction
         'debug',             # debug flags
         'annotations',       # per-package annotations
-        )
+    )
 
     environment = RequestDataProperty(RequestEnvironment)
 
@@ -210,30 +213,29 @@ class BaseRequest(object):
     principal = property(lambda self: self._principal)
 
     def _getPublication(self):
-        'See IPublisherRequest'
+        """See IPublisherRequest."""
         return getattr(self, '_publication', None)
 
     publication = property(_getPublication)
 
     def processInputs(self):
-        'See IPublisherRequest'
+        """See IPublisherRequest."""
         # Nothing to do here
 
     def retry(self):
-        'See IPublisherRequest'
+        """See IPublisherRequest."""
         raise TypeError('Retry is not supported')
 
     def setPublication(self, pub):
-        'See IPublisherRequest'
+        """See IPublisherRequest."""
         self._publication = pub
 
     def supportsRetry(self):
-        'See IPublisherRequest'
+        """See IPublisherRequest."""
         return 0
 
     def traverse(self, obj):
-        'See IPublisherRequest'
-
+        """See IPublisherRequest."""
         publication = self.publication
 
         traversal_stack = self._traversal_stack
@@ -244,7 +246,8 @@ class BaseRequest(object):
 
             self._last_obj_traversed = obj
 
-            if removeSecurityProxy(obj) is not removeSecurityProxy(prev_object):
+            if (removeSecurityProxy(obj)
+                    is not removeSecurityProxy(prev_object)):
                 # Invoke hooks (but not more than once).
                 publication.callTraversalHooks(self, obj)
 
@@ -262,8 +265,7 @@ class BaseRequest(object):
         return obj
 
     def close(self):
-        'See IPublicationRequest'
-
+        """See IPublicationRequest."""
         for held in self._held:
             if IHeld.providedBy(held):
                 held.release()
@@ -273,7 +275,7 @@ class BaseRequest(object):
         self._publication = None
 
     def getPositionalArguments(self):
-        'See IPublicationRequest'
+        """See IPublicationRequest."""
         return self._args
 
     def _getResponse(self):
@@ -282,29 +284,29 @@ class BaseRequest(object):
     response = property(_getResponse)
 
     def getTraversalStack(self):
-        'See IPublicationRequest'
-        return list(self._traversal_stack) # Return a copy
+        """See IPublicationRequest."""
+        return list(self._traversal_stack)  # Return a copy
 
     def hold(self, object):
-        'See IPublicationRequest'
+        """See IPublicationRequest."""
         self._held = self._held + (object,)
 
     def setTraversalStack(self, stack):
-        'See IPublicationRequest'
+        """See IPublicationRequest."""
         self._traversal_stack[:] = list(stack)
 
     def _getBodyStream(self):
-        'See zope.publisher.interfaces.IApplicationRequest'
+        """See zope.publisher.interfaces.IApplicationRequest."""
         return self._body_instream
 
     bodyStream = property(_getBodyStream)
 
     def __len__(self):
-        'See Interface.Common.Mapping.IEnumerableMapping'
+        """See Interface.Common.Mapping.IEnumerableMapping."""
         return len(self.keys())
 
     def items(self):
-        'See Interface.Common.Mapping.IEnumerableMapping'
+        """See Interface.Common.Mapping.IEnumerableMapping."""
         result = []
         get = self.get
         for k in self.keys():
@@ -312,14 +314,14 @@ class BaseRequest(object):
         return result
 
     def keys(self):
-        'See Interface.Common.Mapping.IEnumerableMapping'
+        """See Interface.Common.Mapping.IEnumerableMapping."""
         return self._environ.keys()
 
     def __iter__(self):
         return iter(self.keys())
 
     def values(self):
-        'See Interface.Common.Mapping.IEnumerableMapping'
+        """See Interface.Common.Mapping.IEnumerableMapping."""
         result = []
         get = self.get
         for k in self.keys():
@@ -327,7 +329,7 @@ class BaseRequest(object):
         return result
 
     def __getitem__(self, key):
-        'See Interface.Common.Mapping.IReadMapping'
+        """See Interface.Common.Mapping.IReadMapping."""
         result = self.get(key, _marker)
         if result is _marker:
             raise KeyError(key)
@@ -335,7 +337,7 @@ class BaseRequest(object):
             return result
 
     def get(self, key, default=None):
-        'See Interface.Common.Mapping.IReadMapping'
+        """See Interface.Common.Mapping.IReadMapping."""
         result = self._environ.get(key, _marker)
         if result is not _marker:
             return result
@@ -343,7 +345,7 @@ class BaseRequest(object):
         return default
 
     def __contains__(self, key):
-        'See Interface.Common.Mapping.IReadMapping'
+        """See Interface.Common.Mapping.IReadMapping."""
         lookup = self.get(key, self)
         return lookup is not self
 
@@ -357,7 +359,7 @@ class BaseRequest(object):
         # This is here to avoid calling __len__ for boolean tests
         return True
 
-    __nonzero__ = __bool__ # Python 2
+    __nonzero__ = __bool__  # Python 2
 
     def __str__(self):
         L1 = self.items()
@@ -393,6 +395,7 @@ class BaseRequest(object):
 
         self._path_suffix = None
 
+
 class TestRequest(BaseRequest):
 
     __slots__ = ('_presentation_type', )
@@ -407,6 +410,7 @@ class TestRequest(BaseRequest):
             body_instream = BytesIO(b'')
 
         super(TestRequest, self).__init__(body_instream, environ)
+
 
 @implementer(IPublication)
 class DefaultPublication(object):
@@ -426,9 +430,9 @@ class DefaultPublication(object):
         # Lop off leading and trailing empty names
         stack = request.getTraversalStack()
         while stack and not stack[-1]:
-            stack.pop() # toss a trailing empty name
+            stack.pop()  # toss a trailing empty name
         while stack and not stack[0]:
-            stack.pop(0) # toss a leading empty name
+            stack.pop(0)  # toss a leading empty name
         request.setTraversalStack(stack)
 
     def getApplication(self, request):

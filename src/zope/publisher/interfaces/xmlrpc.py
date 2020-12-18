@@ -37,12 +37,15 @@ class IXMLRPCPublication(IPublication):
         Returns (ob, steps_reversed).
         """
 
+
 class IXMLRPCRequest(IHTTPRequest):
     """XML-RPC Request
     """
 
+
 class IXMLRPCView(IView):
     """XMLRPC View"""
+
 
 class IXMLRPCPremarshaller(Interface):
     """Pre-Marshaller to remove proxies for xmlrpclib"""

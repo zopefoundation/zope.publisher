@@ -34,7 +34,7 @@ def test_suite():
 
     return unittest.TestSuite(
         doctest.DocFileSuite('../skinnable.txt',
-            setUp=cleanUp, tearDown=cleanUp, checker=checker))
+                             setUp=cleanUp, tearDown=cleanUp, checker=checker))
 
 
 if __name__ == '__main__':

@@ -32,7 +32,7 @@ class IDefaultSkinDirective(Interface):
         title=u"Default skin name",
         description=u"Default skin name",
         required=True
-        )
+    )
 
 
 class IDefaultViewDirective(Interface):
@@ -50,7 +50,7 @@ class IDefaultViewDirective(Interface):
         This name refers to view that should be the view used by
         default (if no view name is supplied explicitly).""",
         required=True
-        )
+    )
 
     for_ = GlobalObject(
         title=u"The interface this view is the default for.",
@@ -61,14 +61,14 @@ class IDefaultViewDirective(Interface):
         this view. If this attribute is not specified, the view is available
         for all objects.""",
         required=False
-        )
+    )
 
     layer = GlobalInterface(
         title=u"The layer the default view is declared for",
         description=u"The default layer for which the default view is "
                     u"applicable. By default it is applied to all layers.",
         required=False
-        )
+    )
 
 
 def setDefaultSkin(name, info=''):
@@ -84,7 +84,7 @@ def setDefaultSkin(name, info=''):
     >>> setDefaultSkin('Skin1')
     >>> adapters = component.getSiteManager().adapters
 
-	Lookup the default skin for a request that has the
+        Lookup the default skin for a request that has the
 
     >>> adapters.lookup((IBrowserRequest,), IDefaultSkin, '') is Skin1
     True
@@ -97,24 +97,24 @@ def setDefaultSkin(name, info=''):
 def defaultSkin(_context, name):
 
     _context.action(
-        discriminator = 'defaultSkin',
-        callable = setDefaultSkin,
-        args = (name, _context.info)
-        )
+        discriminator='defaultSkin',
+        callable=setDefaultSkin,
+        args=(name, _context.info)
+    )
 
 
 def defaultView(_context, name, for_=None, layer=IBrowserRequest):
 
     _context.action(
-        discriminator = ('defaultViewName', for_, layer, name),
-        callable = handler,
-        args = ('registerAdapter',
-                name, (for_, layer), IDefaultViewName, '', _context.info)
-        )
+        discriminator=('defaultViewName', for_, layer, name),
+        callable=handler,
+        args=('registerAdapter',
+              name, (for_, layer), IDefaultViewName, '', _context.info)
+    )
 
     if for_ is not None:
         _context.action(
-            discriminator = None,
-            callable = provideInterface,
-            args = ('', for_)
-            )
+            discriminator=None,
+            callable=provideInterface,
+            args=('', for_)
+        )

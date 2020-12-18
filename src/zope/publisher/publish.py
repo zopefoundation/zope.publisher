@@ -120,12 +120,14 @@ def mapply(obj, positional=(), request={}):
 
     return obj(*args)
 
+
 def debug_call(obj, args):
     # The presence of this function allows us to set a pdb breakpoint
     return obj(*args)
 
+
 def publish(request, handle_errors=True):
-    try: # finally to clean up to_raise and close request
+    try:  # finally to clean up to_raise and close request
         to_raise = None
         while True:
             publication = request.publication
@@ -148,7 +150,7 @@ def publish(request, handle_errors=True):
 
                             publication.afterCall(request, obj)
 
-                        except:
+                        except:  # noqa: E722 do not use bare 'except'
                             exc_info = sys.exc_info()
                             publication.handleException(
                                 obj, request, exc_info, True)
@@ -164,7 +166,7 @@ def publish(request, handle_errors=True):
                     finally:
                         publication.endRequest(request, obj)
 
-                    break # Successful.
+                    break  # Successful.
 
                 except Retry as retryException:
                     if request.supportsRetry():
@@ -187,7 +189,7 @@ def publish(request, handle_errors=True):
                             raise
                         break
 
-            except:
+            except:  # noqa: E722 do not use bare 'except'
                 # Bad exception handler or retry method.
                 # Re-raise after outputting the response.
                 if handle_errors:
@@ -213,8 +215,7 @@ def publish(request, handle_errors=True):
 @implementer(IReRaiseException)
 class DoNotReRaiseException(object):
     """Marker adapter for exceptions that should not be re-raised"""
-    
-    
+
     def __init__(self, exc):
         pass
 

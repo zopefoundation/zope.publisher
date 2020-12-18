@@ -16,17 +16,18 @@
 from unittest import TestCase, main, makeSuite
 
 from zope.publisher.tests.basetestipublicationrequest \
-     import BaseTestIPublicationRequest
+    import BaseTestIPublicationRequest
 
 from zope.publisher.tests.basetestipublisherrequest \
-     import BaseTestIPublisherRequest
+    import BaseTestIPublisherRequest
 
 from zope.publisher.tests.basetestiapplicationrequest \
-     import BaseTestIApplicationRequest
+    import BaseTestIApplicationRequest
 
 from io import BytesIO
-from zope.interface import Interface, providedBy, alsoProvides
+from zope.interface import Interface, alsoProvides
 from zope.component import provideAdapter
+
 
 class TestBaseRequest(BaseTestIPublicationRequest,
                       BaseTestIApplicationRequest,
@@ -38,7 +39,7 @@ class TestBaseRequest(BaseTestIPublicationRequest,
         return BaseRequest(BytesIO(), kw)
 
     def _Test__expectedViewType(self):
-        return None # we don't expect
+        return None  # we don't expect
 
     def test_bool_empty(self):
         self.assertTrue(self._Test__new())
@@ -103,6 +104,7 @@ class TestBaseRequest(BaseTestIPublicationRequest,
         request = TestRequest()
         self.assertTrue(request.supportsRetry())
         # create a skin and register it as the default skin
+
         class ISomeSkin(Interface):
             pass
         alsoProvides(ISomeSkin, IBrowserSkinType)
@@ -123,5 +125,6 @@ class TestBaseRequest(BaseTestIPublicationRequest,
 def test_suite():
     return makeSuite(TestBaseRequest)
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     main(defaultTest='test_suite')

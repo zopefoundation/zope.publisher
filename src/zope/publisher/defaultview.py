@@ -41,12 +41,14 @@ class IDefaultViewNameAPI(zope.interface.Interface):
         a context.
         """
 
+
 def getDefaultViewName(object, request, context=None):
     name = queryDefaultViewName(object, request, context=context)
     if name is not None:
         return name
     raise ComponentLookupError("Couldn't find default view name",
                                context, request)
+
 
 def queryDefaultViewName(object, request, default=None, context=None):
     """

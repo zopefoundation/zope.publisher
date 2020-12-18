@@ -17,12 +17,15 @@ import unittest
 from doctest import DocTestSuite
 from zope.testing.cleanup import cleanUp
 
+
 def cleanUpDoc(args):
     cleanUp()
 
+
 def test_suite():
     return DocTestSuite('zope.publisher.defaultview',
-            setUp=cleanUpDoc, tearDown=cleanUpDoc)
+                        setUp=cleanUpDoc, tearDown=cleanUpDoc)
+
 
 if __name__ == '__main__':
     unittest.main(defaultTest='test_suite')

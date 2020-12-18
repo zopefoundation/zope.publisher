@@ -17,7 +17,6 @@ This supports parsing RFC 1341 Content-Type values, including
 quoted-string values as defined in RFC 822.
 
 """
-__docformat__ = "reStructuredText"
-
-# BBB
-from zope.contenttype.parse import parse, parseOrdered, join
+from zope.contenttype.parse import parse  # noqa: F401 import unused
+from zope.contenttype.parse import parseOrdered  # noqa: F401 import unused
+from zope.contenttype.parse import join  # noqa: F401 import unused

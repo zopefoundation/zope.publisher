@@ -16,15 +16,23 @@
 from unittest import TestCase, main, makeSuite
 
 from zope.interface.common.tests.basemapping \
-     import testIEnumerableMapping, testIReadMapping
+    import testIEnumerableMapping, testIReadMapping
 
 from zope.publisher.base \
-     import RequestDataProperty, RequestDataGetter, RequestDataMapper
+    import RequestDataProperty, RequestDataGetter, RequestDataMapper
 
-class TestDataGettr(RequestDataGetter): _gettrname = 'getSomething'
-class TestDataMapper(RequestDataMapper): _mapname = '_data'
+
+class TestDataGettr(RequestDataGetter):
+    _gettrname = 'getSomething'
+
+
+class TestDataMapper(RequestDataMapper):
+    _mapname = '_data'
+
 
 _marker = object()
+
+
 class Data(object):
 
     def getSomething(self, name, default=_marker):
@@ -38,6 +46,7 @@ class Data(object):
 
     something = RequestDataProperty(TestDataGettr)
     somedata = RequestDataProperty(TestDataMapper)
+
 
 class Test(TestCase):
 
@@ -69,8 +78,10 @@ class Test(TestCase):
         else:
             raise AssertionError("Shouldn't be able to assign")
 
+
 def test_suite():
     return makeSuite(Test)
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     main(defaultTest='test_suite')
