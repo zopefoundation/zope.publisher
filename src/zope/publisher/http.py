@@ -448,7 +448,6 @@ class HTTPRequest(BaseRequest):
 
     def _parseCookies(self, text, result=None):
         """Parse 'text' and return found cookies as 'result' dictionary."""
-
         if result is None:
             result = {}
 
@@ -487,13 +486,13 @@ class HTTPRequest(BaseRequest):
         self._setupPath_helper("PATH_INFO")
 
     def supportsRetry(self):
-        'See IPublisherRequest'
+        """See IPublisherRequest"""
         count = getattr(self, '_retry_count', 0)
         if count < self.retry_max_count:
             return True
 
     def retry(self):
-        'See IPublisherRequest'
+        """See IPublisherRequest"""
         count = getattr(self, '_retry_count', 0)
         self._retry_count = count + 1
 
@@ -513,8 +512,7 @@ class HTTPRequest(BaseRequest):
         return request
 
     def traverse(self, obj):
-        'See IPublisherRequest'
-
+        """See IPublisherRequest"""
         ob = super(HTTPRequest, self).traverse(obj)
         if self._path_suffix:
             self._traversal_stack = self._path_suffix
@@ -523,7 +521,7 @@ class HTTPRequest(BaseRequest):
         return ob
 
     def getHeader(self, name, default=None, literal=False):
-        'See IHTTPRequest'
+        """See IHTTPRequest"""
         environ = self._environ
         if not literal:
             name = name.replace('-', '_').upper()
@@ -537,34 +535,32 @@ class HTTPRequest(BaseRequest):
     headers = RequestDataProperty(HeaderGetter)
 
     def getCookies(self):
-        'See IHTTPApplicationRequest'
+        """See IHTTPApplicationRequest"""
         return self._cookies
 
     cookies = RequestDataProperty(CookieMapper)
 
     def setPathSuffix(self, steps):
-        'See IHTTPRequest'
+        """See IHTTPRequest"""
         steps = list(steps)
         steps.reverse()
         self._path_suffix = steps
 
     def _authUserPW(self):
-        'See IHTTPCredentials'
+        """See IHTTPCredentials"""
         if self._auth and self._auth.lower().startswith('basic '):
             encoded = self._auth.split(None, 1)[-1]
             decoded = base64.b64decode(encoded.encode('iso-8859-1'))
             name, password = bytes.split(decoded, b':', 1)
-            # name, password = base64.b64decode(
-            #     encoded.encode('ascii')).split(':', 1)
             return name, password
 
     def unauthorized(self, challenge):
-        'See IHTTPCredentials'
+        """See IHTTPCredentials"""
         self._response.setHeader("WWW-Authenticate", challenge, True)
         self._response.setStatus(401)
 
     def setPrincipal(self, principal):
-        'See IPublicationRequest'
+        """See IPublicationRequest"""
         super(HTTPRequest, self).setPrincipal(principal)
         logging_info = ILoggingInfo(principal, None)
         if logging_info is None:
@@ -652,7 +648,7 @@ class HTTPRequest(BaseRequest):
             self.__class__.__module__, self.__class__.__name__, str(self.URL))
 
     def get(self, key, default=None):
-        'See Interface.Common.Mapping.IReadMapping'
+        """See Interface.Common.Mapping.IReadMapping"""
         marker = object()
         result = self._cookies.get(key, marker)
         if result is not marker:
@@ -661,7 +657,7 @@ class HTTPRequest(BaseRequest):
         return super(HTTPRequest, self).get(key, default)
 
     def keys(self):
-        'See Interface.Common.Mapping.IEnumerableMapping'
+        """See Interface.Common.Mapping.IEnumerableMapping"""
         d = {}
         d.update(self._environ)
         d.update(self._cookies)
@@ -686,7 +682,7 @@ class HTTPResponse(BaseResponse):
         self.reset()
 
     def reset(self):
-        'See IResponse'
+        """See IResponse"""
         super(HTTPResponse, self).reset()
         self._headers = {}
         self._cookies = {}
@@ -717,15 +713,15 @@ class HTTPResponse(BaseResponse):
         self._status_set = True
 
     def getStatus(self):
-        'See IHTTPResponse'
+        """See IHTTPResponse"""
         return self._status
 
     def getStatusString(self):
-        'See IHTTPResponse'
+        """See IHTTPResponse"""
         return '%i %s' % (self._status, self._reason)
 
     def setHeader(self, name, value, literal=False):
-        'See IHTTPResponse'
+        """See IHTTPResponse"""
         name = str(name)
         value = str(value)
 
@@ -735,12 +731,12 @@ class HTTPResponse(BaseResponse):
         self._headers[name] = [value]
 
     def addHeader(self, name, value):
-        'See IHTTPResponse'
+        """See IHTTPResponse"""
         values = self._headers.setdefault(name, [])
         values.append(value)
 
     def getHeader(self, name, default=None, literal=False):
-        'See IHTTPResponse'
+        """See IHTTPResponse"""
         key = name.lower()
         name = literal and name or key
         result = self._headers.get(name)
@@ -749,7 +745,7 @@ class HTTPResponse(BaseResponse):
         return default
 
     def getHeaders(self):
-        'See IHTTPResponse'
+        """See IHTTPResponse"""
         result = []
         headers = self._headers
 
@@ -768,7 +764,7 @@ class HTTPResponse(BaseResponse):
         return result
 
     def appendToCookie(self, name, value):
-        'See IHTTPResponse'
+        """See IHTTPResponse"""
         cookies = self._cookies
         if name in cookies:
             cookie = cookies[name]
@@ -780,7 +776,7 @@ class HTTPResponse(BaseResponse):
             cookie['value'] = value
 
     def expireCookie(self, name, **kw):
-        'See IHTTPResponse'
+        """See IHTTPResponse"""
         dict = {'max_age': 0, 'expires': 'Wed, 31-Dec-97 23:59:59 GMT'}
         for k, v in kw.items():
             if v is not None:
@@ -792,7 +788,7 @@ class HTTPResponse(BaseResponse):
         self.setCookie(name, 'deleted', **dict)
 
     def setCookie(self, name, value, **kw):
-        'See IHTTPResponse'
+        """See IHTTPResponse"""
         cookies = self._cookies
         cookie = cookies.setdefault(name, {})
 
@@ -803,11 +799,11 @@ class HTTPResponse(BaseResponse):
         cookie['value'] = value
 
     def getCookie(self, name, default=None):
-        'See IHTTPResponse'
+        """See IHTTPResponse"""
         return self._cookies.get(name, default)
 
     def setResult(self, result):
-        'See IHTTPResponse'
+        """See IHTTPResponse"""
         if IResult.providedBy(result):
             r = result
         else:
@@ -834,11 +830,11 @@ class HTTPResponse(BaseResponse):
             self.setStatus(200)
 
     def consumeBody(self):
-        'See IHTTPResponse'
+        """See IHTTPResponse"""
         return b''.join(self._result)
 
     def consumeBodyIter(self):
-        'See IHTTPResponse'
+        """See IHTTPResponse"""
         return self._result
 
     def _implicitResult(self, body):
@@ -1105,6 +1101,7 @@ class DirectResult(object):
         return iter(self.body)
 
 
+# BBB
 try:
     from zope.login.http import BasicAuthAdapter  # noqa: F401 import unused
 except ImportError:

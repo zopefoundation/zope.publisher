@@ -180,32 +180,33 @@ def registerTypeConverter(field_type, converter, replace=False):
 
 def isCGI_NAME(key):
     return key in {
-    # These fields are placed in request.environ instead of request.form.
-    'SERVER_SOFTWARE': 1,
-    'SERVER_NAME': 1,
-    'GATEWAY_INTERFACE': 1,
-    'SERVER_PROTOCOL': 1,
-    'SERVER_PORT': 1,
-    'REQUEST_METHOD': 1,
-    'PATH_INFO': 1,
-    'PATH_TRANSLATED': 1,
-    'SCRIPT_NAME': 1,
-    'QUERY_STRING': 1,
-    'REMOTE_HOST': 1,
-    'REMOTE_ADDR': 1,
-    'AUTH_TYPE': 1,
-    'REMOTE_USER': 1,
-    'REMOTE_IDENT': 1,
-    'CONTENT_TYPE': 1,
-    'CONTENT_LENGTH': 1,
-    'SERVER_URL': 1,
-}
+        # These fields are placed in request.environ instead of request.form.
+        'SERVER_SOFTWARE',
+        'SERVER_NAME',
+        'GATEWAY_INTERFACE',
+        'SERVER_PROTOCOL',
+        'SERVER_PORT',
+        'REQUEST_METHOD',
+        'PATH_INFO',
+        'PATH_TRANSLATED',
+        'SCRIPT_NAME',
+        'QUERY_STRING',
+        'REMOTE_HOST',
+        'REMOTE_ADDR',
+        'AUTH_TYPE',
+        'REMOTE_USER',
+        'REMOTE_IDENT',
+        'CONTENT_TYPE',
+        'CONTENT_LENGTH',
+        'SERVER_URL',
+    }
 
 
-def hide_key(key): return key in {
-    'HTTP_AUTHORIZATION': 1,
-    'HTTP_CGI_AUTHORIZATION': 1,
-}
+def hide_key(key):
+    return key in {
+        'HTTP_AUTHORIZATION',
+        'HTTP_CGI_AUTHORIZATION',
+    }
 
 
 class Record(object):
