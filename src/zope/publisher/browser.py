@@ -782,8 +782,6 @@ class BrowserResponse(HTTPResponse):
                             encoding = getCharsetUsingRequest(
                                 self._request) or 'utf-8'
                             base = self.getBase().encode(encoding)
-                        # body = (b'%s\n<base href="%s" />\n%s' %
-                        #        (body[:index], base, body[index:]))
                         body = b''.join([body[:index],
                                          b'\n<base href="',
                                          base,
