@@ -15,7 +15,7 @@
 """
 import sys
 from io import BytesIO
-from unittest import TestCase, TestSuite, main, makeSuite
+from unittest import TestCase, TestSuite, makeSuite
 import zope.publisher.ftp
 
 
@@ -56,7 +56,3 @@ def test_suite():
     return TestSuite((
         makeSuite(Test),
     ))
-
-
-if __name__ == '__main__':
-    main(defaultTest='test_suite')

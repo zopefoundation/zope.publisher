@@ -122,22 +122,22 @@ class TestBrowserResponse(TestCase):
 
         # Make sure that bases are inserted
         response.setBase('http://localhost/folder/')
-        self.assertTrue(
-            b'<base href="http://localhost/folder/" />' in
+        self.assertIn(
+            b'<base href="http://localhost/folder/" />',
             insertBase(b'<html><head></head><body>Page</body></html>'))
 
         # Ensure that unicode bases work as well
         response.setBase(u'http://localhost/folder/')
         body = insertBase(b'<html><head></head><body>Page</body></html>')
-        self.assertTrue(isinstance(body, bytes))
-        self.assertTrue(b'<base href="http://localhost/folder/" />' in body)
+        self.assertIsInstance(body, bytes)
+        self.assertIn(b'<base href="http://localhost/folder/" />', body)
 
         # Ensure that encoded bodies work, when a base is inserted.
         response.setBase('http://localhost/folder')
         result = insertBase(
             b'<html><head></head><body>\xc3\x9bung</body></html>')
-        self.assertTrue(isinstance(body, bytes))
-        self.assertTrue(b'<base href="http://localhost/folder" />' in result)
+        self.assertIsInstance(body, bytes)
+        self.assertIn(b'<base href="http://localhost/folder" />', result)
 
     def testInsertBaseInSetResultUpdatesContentLength(self):
         # Make sure that the Content-Length header is updated to account
@@ -174,8 +174,8 @@ class TestBrowserResponse(TestCase):
         self.assertEqual(response.getHeader("content-type"),
                          "text/html;charset=utf-8")
         self.assertEqual(response.getStatus(), 500)
-        self.assertTrue(
-            response.consumeBody() in
+        self.assertIn(
+            response.consumeBody(),
             [b"<html><head>"
              b"<title>&lt;type 'exceptions.ValueError'&gt;</title></head>\n"
              b"<body><h2>&lt;type 'exceptions.ValueError'&gt;</h2>\n"

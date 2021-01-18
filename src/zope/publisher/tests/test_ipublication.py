@@ -15,7 +15,7 @@
 """
 
 import sys
-from unittest import TestCase, main, makeSuite
+from unittest import TestCase, makeSuite
 from io import BytesIO
 from zope.interface.verify import verifyObject
 
@@ -104,7 +104,3 @@ class Test(BaseIPublicationTest, TestCase):
 
 def test_suite():
     return makeSuite(Test)
-
-
-if __name__ == '__main__':
-    main(defaultTest='test_suite')

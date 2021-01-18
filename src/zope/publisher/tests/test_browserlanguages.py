@@ -88,7 +88,6 @@ class ModifiableBrowserLanguagesTests(CacheableBrowserLanguagesTests):
 
     def test_conflicting_adapters(self):
         request = TestRequest("da, en, pt")
-        BrowserLanguages(request)
         browser_languages = self.factory(request)
         self.assertRaises(
             NotCompatibleAdapterError,

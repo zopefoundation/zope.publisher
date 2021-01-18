@@ -174,7 +174,3 @@ class PublisherTests(unittest.TestCase):
 def test_suite():
     loader = unittest.TestLoader()
     return loader.loadTestsFromTestCase(PublisherTests)
-
-
-if __name__ == '__main__':
-    unittest.TextTestRunner().run(test_suite())

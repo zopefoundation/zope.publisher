@@ -67,6 +67,7 @@ class FTPRequest(BaseRequest):
         'See IFTPCredentials'
 
 
+# BBB
 try:
     from zope.login.ftp import FTPAuth  # noqa: F401 import unused
 except ImportError:

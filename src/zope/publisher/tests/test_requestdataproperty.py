@@ -13,7 +13,7 @@
 ##############################################################################
 """Request Data-Property Tests
 """
-from unittest import TestCase, main, makeSuite
+from unittest import TestCase, makeSuite
 
 from zope.interface.common.tests.basemapping \
     import testIEnumerableMapping, testIReadMapping
@@ -81,7 +81,3 @@ class Test(TestCase):
 
 def test_suite():
     return makeSuite(Test)
-
-
-if __name__ == '__main__':
-    main(defaultTest='test_suite')

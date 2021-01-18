@@ -13,7 +13,7 @@
 ##############################################################################
 """baserequest tests
 """
-from unittest import TestCase, main, makeSuite
+from unittest import TestCase, makeSuite
 
 from zope.publisher.tests.basetestipublicationrequest \
     import BaseTestIPublicationRequest
@@ -124,7 +124,3 @@ class TestBaseRequest(BaseTestIPublicationRequest,
 
 def test_suite():
     return makeSuite(TestBaseRequest)
-
-
-if __name__ == '__main__':
-    main(defaultTest='test_suite')

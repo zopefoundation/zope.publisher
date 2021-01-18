@@ -24,7 +24,7 @@ from zope.publisher.interfaces import ISkinnable
 from zope.publisher.interfaces.http import IHTTPApplicationRequest
 from zope.publisher.interfaces.http import IHTTPRequest
 
-# BBB moved to zope.publisher.interfaces since not only browser reuquest
+# BBB moved to zope.publisher.interfaces since not only browser request
 # can use the skin pattern
 from zope.publisher.interfaces import IDefaultSkin   # noqa: F401 import unused
 from zope.publisher.interfaces import ISkinChangedEvent   # noqa: F401

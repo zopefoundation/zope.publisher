@@ -13,6 +13,7 @@
 ##############################################################################
 """Interfaces for the publisher.
 """
+# BBB
 from zope.browser.interfaces import IView   # noqa: F401 import unused
 from zope.interface import Interface
 from zope.interface import Attribute
@@ -22,6 +23,7 @@ from zope.interface.common.mapping import IEnumerableMapping
 from zope.interface.common.interfaces import IException
 from zope.interface.common.interfaces import ILookupError
 from zope.security.interfaces import IParticipation
+# BBB:
 from zope.security.interfaces import Unauthorized  # noqa: F401 import unused
 
 
