@@ -178,7 +178,8 @@ def registerTypeConverter(field_type, converter, replace=False):
     type_converters[field_type] = converter
 
 
-def isCGI_NAME(key): return key in {
+def isCGI_NAME(key):
+    return key in {
     # These fields are placed in request.environ instead of request.form.
     'SERVER_SOFTWARE': 1,
     'SERVER_NAME': 1,
