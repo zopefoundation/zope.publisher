@@ -84,7 +84,7 @@ def setDefaultSkin(name, info=''):
     >>> setDefaultSkin('Skin1')
     >>> adapters = component.getSiteManager().adapters
 
-        Lookup the default skin for a request that has the
+    Look up the default skin for a request that has the
 
     >>> adapters.lookup((IBrowserRequest,), IDefaultSkin, '') is Skin1
     True
