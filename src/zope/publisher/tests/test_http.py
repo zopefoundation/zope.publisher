@@ -998,8 +998,8 @@ class TestHTTPResponse(unittest.TestCase):
         self.assertEqual(response.getHeader("content-type"),
                          "text/html;charset=utf-8")
         self.assertEqual(response.getStatus(), 500)
-        self.assertTrue(
-            response.consumeBody() in
+        self.assertIn(
+            response.consumeBody(),
             [b"<html><head>"
              b"<title>&lt;type 'exceptions.ValueError'&gt;</title></head>\n"
              b"<body><h2>&lt;type 'exceptions.ValueError'&gt;</h2>\n"
