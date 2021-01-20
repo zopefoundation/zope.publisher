@@ -2,7 +2,7 @@
  Changes
 =========
 
-6.0.0 (unreleased)
+6.0.0 (2021-01-20)
 ==================
 
 - Port form data parsing to ``multipart``, which is a new dependency.  See
