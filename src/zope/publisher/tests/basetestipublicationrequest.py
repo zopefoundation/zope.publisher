@@ -20,6 +20,7 @@ from zope.interface.verify import verifyObject
 from zope.publisher.interfaces import IPublicationRequest, IHeld
 from zope.publisher.interfaces.browser import IBrowserSkinType
 
+
 @implementer(IHeld)
 class Held:
 
@@ -28,9 +29,11 @@ class Held:
     def release(self):
         self.released = True
 
+
 def getrefcount(o, default=0):
     # PyPy/Jython do not have getrefcount
-     return sys.getrefcount(o) if hasattr(sys, 'getrefcount') else default
+    return sys.getrefcount(o) if hasattr(sys, 'getrefcount') else default
+
 
 class BaseTestIPublicationRequest(object):
     def testVerifyIPublicationRequest(self):

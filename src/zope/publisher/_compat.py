@@ -24,12 +24,12 @@ PYTHON3 = sys.version_info[0] == 3
 
 if PYTHON2:
     def to_unicode(s):
-        return unicode(s, 'unicode_escape')
-    from xmlrpclib import *
+        return unicode(s, 'unicode_escape')  # noqa: F405 may be undefined
+    from xmlrpclib import *  # noqa: F403 unable to detect undefined names
     import types
     CLASS_TYPES = (type, types.ClassType)
 else:
     def to_unicode(s):
         return s
     CLASS_TYPES = (type,)
-    from xmlrpc.client import *
+    from xmlrpc.client import *  # noqa: F403 unable to detect undefined names

@@ -15,7 +15,7 @@
 """
 
 import sys
-from unittest import TestCase, TestSuite, main, makeSuite
+from unittest import TestCase, TestSuite, makeSuite
 from zope.publisher.browser import BrowserResponse
 from zope.interface.verify import verifyObject
 
@@ -35,8 +35,8 @@ class TestBrowserResponse(TestCase):
             <blah>
             </html>
             """)
-        self.assertTrue(response.getHeader('content-type').startswith("text/html")
-                     )
+        self.assertTrue(
+            response.getHeader('content-type').startswith("text/html"))
 
         response = BrowserResponse()
         response.setResult(
@@ -45,8 +45,8 @@ class TestBrowserResponse(TestCase):
             <blah>
             </html>
             """)
-        self.assertTrue(response.getHeader('content-type').startswith("text/html")
-                     )
+        self.assertTrue(
+            response.getHeader('content-type').startswith("text/html"))
 
         response = BrowserResponse()
         response.setResult(
@@ -55,8 +55,8 @@ class TestBrowserResponse(TestCase):
             <blah>
             </html>
             """)
-        self.assertTrue(response.getHeader('content-type').startswith("text/html")
-                     )
+        self.assertTrue(
+            response.getHeader('content-type').startswith("text/html"))
 
         response = BrowserResponse()
         response.setResult(
@@ -66,8 +66,8 @@ class TestBrowserResponse(TestCase):
             <blah>
             </html>
             """)
-        self.assertTrue(response.getHeader('content-type').startswith("text/html")
-                     )
+        self.assertTrue(
+            response.getHeader('content-type').startswith("text/html"))
 
         response = BrowserResponse()
         response.setResult(
@@ -75,7 +75,7 @@ class TestBrowserResponse(TestCase):
             """)
         self.assertTrue(response.getHeader('content-type').startswith(
             "text/plain")
-                     )
+        )
 
         response = BrowserResponse()
         response.setResult(
@@ -83,7 +83,7 @@ class TestBrowserResponse(TestCase):
             """)
         self.assertTrue(
             response.getHeader('content-type').startswith("text/plain")
-            )
+        )
 
         response = BrowserResponse()
         response.setResult(
@@ -91,7 +91,7 @@ class TestBrowserResponse(TestCase):
             """)
         self.assertTrue(
             response.getHeader('content-type').startswith("text/plain")
-            )
+        )
 
         response = BrowserResponse()
         response.setResult(
@@ -99,7 +99,7 @@ class TestBrowserResponse(TestCase):
             """)
         self.assertTrue(
             response.getHeader('content-type').startswith("text/plain")
-            )
+        )
 
     def test_not_DWIM_for_304_response(self):
         # Don't guess the content type with 304 responses which MUST NOT /
@@ -122,22 +122,22 @@ class TestBrowserResponse(TestCase):
 
         # Make sure that bases are inserted
         response.setBase('http://localhost/folder/')
-        self.assertTrue(
-            b'<base href="http://localhost/folder/" />' in
+        self.assertIn(
+            b'<base href="http://localhost/folder/" />',
             insertBase(b'<html><head></head><body>Page</body></html>'))
 
         # Ensure that unicode bases work as well
         response.setBase(u'http://localhost/folder/')
         body = insertBase(b'<html><head></head><body>Page</body></html>')
-        self.assertTrue(isinstance(body, bytes))
-        self.assertTrue(b'<base href="http://localhost/folder/" />' in body)
+        self.assertIsInstance(body, bytes)
+        self.assertIn(b'<base href="http://localhost/folder/" />', body)
 
         # Ensure that encoded bodies work, when a base is inserted.
         response.setBase('http://localhost/folder')
         result = insertBase(
             b'<html><head></head><body>\xc3\x9bung</body></html>')
-        self.assertTrue(isinstance(body, bytes))
-        self.assertTrue(b'<base href="http://localhost/folder" />' in result)
+        self.assertIsInstance(body, bytes)
+        self.assertIn(b'<base href="http://localhost/folder" />', result)
 
     def testInsertBaseInSetResultUpdatesContentLength(self):
         # Make sure that the Content-Length header is updated to account
@@ -167,15 +167,17 @@ class TestBrowserResponse(TestCase):
         response = BrowserResponse()
         try:
             raise ValueError(1)
-        except:
+        except:  # noqa: E722 do not use bare 'except'
             exc_info = sys.exc_info()
 
         response.handleException(exc_info)
         self.assertEqual(response.getHeader("content-type"),
-            "text/html;charset=utf-8")
+                         "text/html;charset=utf-8")
         self.assertEqual(response.getStatus(), 500)
-        self.assertTrue(response.consumeBody() in
-            [b"<html><head><title>&lt;type 'exceptions.ValueError'&gt;</title></head>\n"
+        self.assertIn(
+            response.consumeBody(),
+            [b"<html><head>"
+             b"<title>&lt;type 'exceptions.ValueError'&gt;</title></head>\n"
              b"<body><h2>&lt;type 'exceptions.ValueError'&gt;</h2>\n"
              b"A server error occurred.\n"
              b"</body></html>\n",
@@ -183,14 +185,10 @@ class TestBrowserResponse(TestCase):
              b"<body><h2>ValueError</h2>\n"
              b"A server error occurred.\n"
              b"</body></html>\n"]
-                     )
+        )
 
 
 def test_suite():
     return TestSuite((
         makeSuite(TestBrowserResponse),
-        ))
-
-
-if __name__=='__main__':
-    main(defaultTest='test_suite')
+    ))

@@ -40,11 +40,11 @@ from zope.publisher.interfaces import IResponse
 from zope.publisher.tests.publication import TestPublication
 
 from zope.publisher.tests.basetestipublicationrequest \
-     import BaseTestIPublicationRequest
+    import BaseTestIPublicationRequest
 from zope.publisher.tests.basetestipublisherrequest \
-     import BaseTestIPublisherRequest
+    import BaseTestIPublisherRequest
 from zope.publisher.tests.basetestiapplicationrequest \
-     import BaseTestIApplicationRequest
+    import BaseTestIApplicationRequest
 from zope.publisher.testing import output_checker
 
 if sys.version_info[0] > 2:
@@ -75,6 +75,7 @@ line 3'''
 # this "canonical" way of finding out the type.
 with tempfile.TemporaryFile() as t:
     TempFileType = t.__class__
+
 
 class HTTPInputStreamTests(unittest.TestCase):
 
@@ -148,8 +149,8 @@ class HTTPInputStreamTests(unittest.TestCase):
         # If CONTENT_LENGTH is absent or empty, it takes the value
         # given in HTTP_CONTENT_LENGTH:
         stream3 = HTTPInputStream(BytesIO(data),
-                                 {'CONTENT_LENGTH': '',
-                                  'HTTP_CONTENT_LENGTH': '100000'})
+                                  {'CONTENT_LENGTH': '',
+                                   'HTTP_CONTENT_LENGTH': '100000'})
         try:
             self.assertTrue(isinstance(stream3.getCacheStream(), TempFileType))
         finally:
@@ -157,9 +158,9 @@ class HTTPInputStreamTests(unittest.TestCase):
 
         # In fact, HTTPInputStream can be instantiated with both an
         # empty CONTENT_LENGTH and an empty HTTP_CONTENT_LENGTH:
-        stream4 = HTTPInputStream(BytesIO(data),
-                                 {'CONTENT_LENGTH': '',
-                                  'HTTP_CONTENT_LENGTH': ''})
+        HTTPInputStream(BytesIO(data),
+                        {'CONTENT_LENGTH': '',
+                         'HTTP_CONTENT_LENGTH': ''})
 
     def testWorkingWithNonClosingStreams(self):
         # It turns out that some Web servers (Paste for example) do not send
@@ -182,18 +183,19 @@ class HTTPInputStreamTests(unittest.TestCase):
         stream = HTTPInputStream(NonClosingStream(), {})
         self.assertRaises(ServerHung, stream.getCacheStream)
 
+
 class HTTPTests(unittest.TestCase):
 
-    _testEnv =  {
-        'PATH_INFO':          '/folder/item',
-        'a':                  '5',
-        'b':                  6,
-        'SERVER_URL':         'http://foobar.com',
-        'HTTP_HOST':          'foobar.com',
-        'CONTENT_LENGTH':     '0',
-        'HTTP_AUTHORIZATION': 'Should be in accessible',
-        'GATEWAY_INTERFACE':  'TestFooInterface/1.0',
-        'HTTP_OFF_THE_WALL':  "Spam 'n eggs",
+    _testEnv = {
+        'PATH_INFO':           '/folder/item',
+        'a':                   '5',
+        'b':                   6,
+        'SERVER_URL':          'http://foobar.com',
+        'HTTP_HOST':           'foobar.com',
+        'CONTENT_LENGTH':      '0',
+        'HTTP_AUTHORIZATION':  'Should be in accessible',
+        'GATEWAY_INTERFACE':   'TestFooInterface/1.0',
+        'HTTP_OFF_THE_WALL':   "Spam 'n eggs",
         'HTTP_ACCEPT_CHARSET': 'ISO-8859-1, UTF-8;q=0.66, UTF-16;q=0.33',
     }
 
@@ -206,6 +208,7 @@ class HTTPTests(unittest.TestCase):
 
         class Item(object):
             """Required docstring for the publisher."""
+
             def __call__(self, a, b):
                 return ("%s, %s" % (repr(a), repr(b))).encode('latin1')
 
@@ -242,7 +245,7 @@ class HTTPTests(unittest.TestCase):
             "\r\n".join([("%s: %s" % h) for h in headers]) + "\r\n\r\n"
             +
             response.consumeBody().decode('utf8')
-            )
+        )
 
     def test_double_dots(self):
         # the code that parses PATH_INFO once tried to raise NotFound if the
@@ -279,7 +282,7 @@ class HTTPTests(unittest.TestCase):
 
     def testRedirect(self):
         # test HTTP/1.0
-        env = {'SERVER_PROTOCOL':'HTTP/1.0'}
+        env = {'SERVER_PROTOCOL': 'HTTP/1.0'}
 
         request = self._createRequest(env, b'')
         location = request.response.redirect('http://foobar.com/redirected')
@@ -288,7 +291,7 @@ class HTTPTests(unittest.TestCase):
         self.assertEqual(request.response.getHeader('location'), location)
 
         # test HTTP/1.1
-        env = {'SERVER_PROTOCOL':'HTTP/1.1'}
+        env = {'SERVER_PROTOCOL': 'HTTP/1.1'}
 
         request = self._createRequest(env, b'')
         location = request.response.redirect('http://foobar.com/redirected')
@@ -304,7 +307,7 @@ class HTTPTests(unittest.TestCase):
         request.response.redirect(request.URL)
         self.assertEqual(request.response.getStatus(), 303)
         self.assertEqual(request.response.getHeader('location'),
-                          str(request.URL))
+                         str(request.URL))
 
     def testUntrustedRedirect(self):
         # Redirects are by default only allowed to target the same host as the
@@ -362,7 +365,7 @@ class HTTPTests(unittest.TestCase):
 
     def testRequestEnvironment(self):
         req = self._createRequest()
-        publish(req, handle_errors=0) # Force expansion of URL variables
+        publish(req, handle_errors=0)  # Force expansion of URL variables
 
         self.assertEqual(str(req.URL), 'http://foobar.com/folder/item')
         self.assertEqual(req.URL['-1'], 'http://foobar.com/folder')
@@ -472,7 +475,7 @@ class HTTPTests(unittest.TestCase):
         self.assertEqual(req[u'this'], u'Should be accepted')
 
         # Reserved key
-        self.assertFalse(req.cookies.has_key('path'))
+        self.assertNotIn('path', req.cookies)
 
     def testCookieErrorToLog(self):
         from zope.testing.loggingsupport import InstalledHandler
@@ -490,19 +493,19 @@ class HTTPTests(unittest.TestCase):
 
         message = handler.records[0].getMessage()
         self.assertTrue(message.startswith('Illegal key'))
-        self.assertTrue('ldap/OU' in message)
+        self.assertIn('ldap/OU', message)
 
-        self.assertFalse(req.cookies.has_key('foo'))
-        self.assertFalse(req.has_key('foo'))
+        self.assertNotIn('foo', req.cookies)
+        self.assertNotIn('foo', req)
 
-        self.assertFalse(req.cookies.has_key('spam'))
-        self.assertFalse(req.has_key('spam'))
+        self.assertNotIn('spam', req.cookies)
+        self.assertNotIn('spam', req)
 
-        self.assertFalse(req.cookies.has_key('ldap/OU'))
-        self.assertFalse(req.has_key('ldap/OU'))
+        self.assertNotIn('ldap/OU', req.cookies)
+        self.assertNotIn('ldap/OU', req)
 
         # Reserved key
-        self.assertFalse(req.cookies.has_key('path'))
+        self.assertNotIn('path', req.cookies)
 
     def testCookiesUnicode(self):
         # Cookie values are assumed to be UTF-8 encoded
@@ -523,7 +526,7 @@ class HTTPTests(unittest.TestCase):
         self.assertEqual(req.getHeader('TEST-HEADER', literal=True), None)
         self.assertEqual(req.getHeader('test_header', literal=True), None)
         self.assertEqual(req.getHeader('Another-Test', literal=True),
-                          'another')
+                         'another')
 
     def testBasicAuth(self):
         from zope.publisher.interfaces.http import IHTTPCredentials
@@ -546,9 +549,9 @@ class HTTPTests(unittest.TestCase):
         self.assertEqual(req.response.authUser, 'jim')
 
     def test_method(self):
-        r = self._createRequest(extra_env={'REQUEST_METHOD':'SPAM'})
+        r = self._createRequest(extra_env={'REQUEST_METHOD': 'SPAM'})
         self.assertEqual(r.method, 'SPAM')
-        r = self._createRequest(extra_env={'REQUEST_METHOD':'eggs'})
+        r = self._createRequest(extra_env={'REQUEST_METHOD': 'eggs'})
         self.assertEqual(r.method, 'EGGS')
 
     def test_setApplicationServer(self):
@@ -615,6 +618,7 @@ class HTTPTests(unittest.TestCase):
 
         # setting it during traversal matters
         req = self._createRequest()
+
         def hook(self, object, req=req, app=self.app):
             if object is app.folder:
                 req.setVirtualHostRoot()
@@ -629,6 +633,7 @@ class HTTPTests(unittest.TestCase):
         previously traversed but wrapped in a security Proxy.
         """
         hooks = []
+
         class HookPublication(DefaultPublication):
 
             def callTraversalHooks(self, request, object):
@@ -670,7 +675,7 @@ class HTTPTests(unittest.TestCase):
         req._environ = {'HTTP_HOST': 'example.com:8080',
                         'SERVER_PORT_SECURE': '1'}
         self.assertEqual(deduceServerURL(), 'https://example.com:8080')
-        req._environ = {'SERVER_NAME': 'example.com', 'SERVER_PORT':'8080',
+        req._environ = {'SERVER_NAME': 'example.com', 'SERVER_PORT': '8080',
                         'SERVER_PORT_SECURE': '0'}
         self.assertEqual(deduceServerURL(), 'http://example.com:8080')
         req._environ = {'SERVER_NAME': 'example.com'}
@@ -680,11 +685,12 @@ class HTTPTests(unittest.TestCase):
         # The request expects PATH_INFO to be utf-8 encoded when it gets it.
         req = self._createRequest(
             {'PATH_INFO': '/\xc3\xa4\xc3\xb6/\xc3\xbc\xc3\x9f/foo/bar.html'})
-        self.assertEqual(req._traversal_stack,
+        self.assertEqual(
+            req._traversal_stack,
             [u'bar.html', u'foo', u'\u00fc\u00df', u'\u00e4\u00f6'])
         # the request should have converted PATH_INFO to unicode
         self.assertEqual(req['PATH_INFO'],
-            u'/\u00e4\u00f6/\u00fc\u00df/foo/bar.html')
+                         u'/\u00e4\u00f6/\u00fc\u00df/foo/bar.html')
 
     def testResponseWriteFaile(self):
         self.assertRaises(TypeError,
@@ -710,9 +716,10 @@ class HTTPTests(unittest.TestCase):
         body = request.response.consumeBody()
         self.assertEqual(request.response.getStatus(), 200)
         self.assertEqual(request.response.getHeader('Content-Type'),
-                          'text/plain;charset=utf-8')
+                         'text/plain;charset=utf-8')
         self.assertEqual(body,
-                          b'Latin a with ogonek\xc4\x85 Cyrillic ya \xd1\x8f')
+                         b'Latin a with ogonek\xc4\x85 Cyrillic ya \xd1\x8f')
+
 
 class ConcreteHTTPTests(HTTPTests):
     """Tests that we don't have to worry about subclasses inheriting and
@@ -743,6 +750,7 @@ class ConcreteHTTPTests(HTTPTests):
 
         # Mock charset adapter to inject fake charset
         call_log = []
+
         class MyCharsets(object):
 
             def __init__(self, request):
@@ -766,9 +774,9 @@ class ConcreteHTTPTests(HTTPTests):
         body = request.response.consumeBody()
         self.assertEqual(request.response.getStatus(), 200)
         self.assertEqual(request.response.getHeader('Content-Type'),
-                          'text/plain;charset=utf-8')
+                         'text/plain;charset=utf-8')
         self.assertEqual(body,
-                          b'Latin a with ogonek\xc4\x85 Cyrillic ya \xd1\x8f')
+                         b'Latin a with ogonek\xc4\x85 Cyrillic ya \xd1\x8f')
         # assert that our mock was used
         self.assertEqual(len(call_log), 1)
 
@@ -820,8 +828,8 @@ class TestHTTPResponse(unittest.TestCase):
     def testContentLength(self):
         eq = self.assertEqual
 
-        headers, body = self._getResultFromResponse("test", "utf-8",
-            {"content-type": "text/plain"})
+        headers, body = self._getResultFromResponse(
+            "test", "utf-8", {"content-type": "text/plain"})
         eq("4", headers["Content-Length"])
         eq(b"test", body)
 
@@ -838,61 +846,63 @@ class TestHTTPResponse(unittest.TestCase):
         eq("", headers.get("Content-Type", ""))
         eq(b"test", body)
 
-        headers, body = self._getResultFromResponse(u"test",
-            headers={"content-type": "text/plain"})
+        headers, body = self._getResultFromResponse(
+            u"test", headers={"content-type": "text/plain"})
         eq("text/plain;charset=utf-8", headers["Content-Type"])
         eq(b"test", body)
 
-        headers, body = self._getResultFromResponse(u"test", "utf-8",
-            {"content-type": "text/html"})
+        headers, body = self._getResultFromResponse(
+            u"test", "utf-8", {"content-type": "text/html"})
         eq("text/html;charset=utf-8", headers["Content-Type"])
         eq(b"test", body)
 
-        headers, body = self._getResultFromResponse(u"test", "utf-8",
-            {"content-type": "text/plain;charset=cp1251"})
+        headers, body = self._getResultFromResponse(
+            u"test", "utf-8", {"content-type": "text/plain;charset=cp1251"})
         eq("text/plain;charset=cp1251", headers["Content-Type"])
         eq(b"test", body)
 
         # see https://bugs.launchpad.net/zope.publisher/+bug/98395
         # RFC 3023 types and */*+xml output as unicode
 
-        headers, body = self._getResultFromResponse(u"test", "utf-8",
-            {"content-type": "text/xml"})
+        headers, body = self._getResultFromResponse(
+            u"test", "utf-8", {"content-type": "text/xml"})
         eq("text/xml;charset=utf-8", headers["Content-Type"])
         eq(b"test", body)
 
-        headers, body = self._getResultFromResponse(u"test", "utf-8",
-            {"content-type": "application/xml"})
+        headers, body = self._getResultFromResponse(
+            u"test", "utf-8", {"content-type": "application/xml"})
         eq("application/xml;charset=utf-8", headers["Content-Type"])
         eq(b"test", body)
 
-        headers, body = self._getResultFromResponse(u"test", "utf-8",
+        headers, body = self._getResultFromResponse(
+            u"test", "utf-8",
             {"content-type": "text/xml-external-parsed-entity"})
         eq("text/xml-external-parsed-entity;charset=utf-8",
            headers["Content-Type"])
         eq(b"test", body)
 
-        headers, body = self._getResultFromResponse(u"test", "utf-8",
+        headers, body = self._getResultFromResponse(
+            u"test", "utf-8",
             {"content-type": "application/xml-external-parsed-entity"})
         eq("application/xml-external-parsed-entity;charset=utf-8",
            headers["Content-Type"])
         eq(b"test", body)
 
         # Mozilla XUL
-        headers, body = self._getResultFromResponse(u"test", "utf-8",
-            {"content-type": "application/vnd+xml"})
+        headers, body = self._getResultFromResponse(
+            u"test", "utf-8", {"content-type": "application/vnd+xml"})
         eq("application/vnd+xml;charset=utf-8", headers["Content-Type"])
         eq(b"test", body)
 
         # end RFC 3023 / xml as unicode
 
-        headers, body = self._getResultFromResponse(b"test", "utf-8",
-            {"content-type": "image/gif"})
+        headers, body = self._getResultFromResponse(
+            b"test", "utf-8", {"content-type": "image/gif"})
         eq("image/gif", headers["Content-Type"])
         eq(b"test", body)
 
-        headers, body = self._getResultFromResponse(u"test", "utf-8",
-            {"content-type": "application/json"})
+        headers, body = self._getResultFromResponse(
+            u"test", "utf-8", {"content-type": "application/json"})
         eq("application/json", headers["Content-Type"])
         eq(b"test", body)
 
@@ -928,40 +938,40 @@ class TestHTTPResponse(unittest.TestCase):
 
     def testSetCookie(self):
         c = self._getCookieFromResponse([
-                ('foo', 'bar', {}),
-                ])
+            ('foo', 'bar', {}),
+        ])
         self.assertTrue('foo=bar;' in c or 'foo=bar' in c,
                         'foo=bar; not in %r' % c)
 
         c = self._getCookieFromResponse([
-                ('foo', 'bar', {}),
-                ('alpha', 'beta', {}),
-                ])
+            ('foo', 'bar', {}),
+            ('alpha', 'beta', {}),
+        ])
         self.assertTrue('foo=bar;' in c or 'foo=bar' in c)
         self.assertTrue('alpha=beta;' in c or 'alpha=beta' in c)
 
         c = self._getCookieFromResponse([
-                ('sign', u'\N{BIOHAZARD SIGN}', {}),
-                ])
+            ('sign', u'\N{BIOHAZARD SIGN}', {}),
+        ])
         self.assertTrue((r'sign="\342\230\243";' in c) or
                         (r'sign="\342\230\243"' in c))
 
         self.assertRaises(
-                CookieError,
-                self._getCookieFromResponse,
-                [('path', 'invalid key', {}),]
-                )
+            CookieError,
+            self._getCookieFromResponse,
+            [('path', 'invalid key', {}), ]
+        )
 
         c = self._getCookieFromResponse([
-                ('foo', 'bar', {
+            ('foo', 'bar', {
                     'Expires': 'Sat, 12 Jul 2014 23:26:28 GMT',
                     'domain': 'example.com',
                     'pAth': '/froboz',
                     'max_age': 3600,
                     'comment': u'blah;\N{BIOHAZARD SIGN}?',
                     'seCure': True,
-                    }),
-                ])[0]
+            }),
+        ])[0]
         self.assertTrue('foo=bar;' in c or 'foo=bar' in c)
         self.assertTrue('expires=Sat, 12 Jul 2014 23:26:28 GMT;' in c, repr(c))
         self.assertTrue('Domain=example.com;' in c)
@@ -981,24 +991,25 @@ class TestHTTPResponse(unittest.TestCase):
         response = HTTPResponse()
         try:
             raise ValueError(1)
-        except:
+        except:  # noqa: E722 do not use bare 'except'
             exc_info = sys.exc_info()
 
         response.handleException(exc_info)
         self.assertEqual(response.getHeader("content-type"),
-            "text/html;charset=utf-8")
+                         "text/html;charset=utf-8")
         self.assertEqual(response.getStatus(), 500)
-        self.assertTrue(response.consumeBody() in
-             [b"<html><head>"
-              b"<title>&lt;type 'exceptions.ValueError'&gt;</title></head>\n"
-              b"<body><h2>&lt;type 'exceptions.ValueError'&gt;</h2>\n"
-              b"A server error occurred.\n"
-              b"</body></html>\n",
-              b"<html><head><title>ValueError</title></head>\n"
-              b"<body><h2>ValueError</h2>\n"
-              b"A server error occurred.\n"
-              b"</body></html>\n"]
-             )
+        self.assertIn(
+            response.consumeBody(),
+            [b"<html><head>"
+             b"<title>&lt;type 'exceptions.ValueError'&gt;</title></head>\n"
+             b"<body><h2>&lt;type 'exceptions.ValueError'&gt;</h2>\n"
+             b"A server error occurred.\n"
+             b"</body></html>\n",
+             b"<html><head><title>ValueError</title></head>\n"
+             b"<body><h2>ValueError</h2>\n"
+             b"A server error occurred.\n"
+             b"</body></html>\n"]
+        )
 
 
 class APITests(BaseTestIPublicationRequest,
@@ -1050,6 +1061,7 @@ class APITests(BaseTestIPublicationRequest,
         self.assertEqual(request.traverse(app).name, 'Engineering')
         self.assertEqual(request._last_obj_traversed, app.ZopeCorp.Engineering)
 
+
 def cleanUp(test):
     from zope.testing import cleanup
     cleanup.cleanUp()
@@ -1062,8 +1074,8 @@ def test_suite():
         unittest.makeSuite(HTTPInputStreamTests),
         DocTestSuite('zope.publisher.http'),
         DocFileSuite('../httpresults.txt',
-            setUp=cleanUp,
-            tearDown=cleanUp,
-            checker=output_checker),
+                     setUp=cleanUp,
+                     tearDown=cleanUp,
+                     checker=output_checker),
         unittest.makeSuite(APITests),
     ))

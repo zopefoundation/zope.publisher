@@ -13,12 +13,9 @@
 ##############################################################################
 """Browser Interfaces
 """
-
-__docformat__ = "reStructuredText"
-
 from zope.interface import Attribute
 from zope.interface import alsoProvides
-from zope.browser.interfaces import IBrowserView # BBB import
+from zope.browser.interfaces import IBrowserView  # BBB import
 
 from zope.publisher.interfaces import IPublication
 from zope.publisher.interfaces import IPublishTraverse
@@ -27,10 +24,10 @@ from zope.publisher.interfaces import ISkinnable
 from zope.publisher.interfaces.http import IHTTPApplicationRequest
 from zope.publisher.interfaces.http import IHTTPRequest
 
-# BBB moved to zope.publisher.interfaces since not only browser reuquest
+# BBB moved to zope.publisher.interfaces since not only browser request
 # can use the skin pattern
-from zope.publisher.interfaces import IDefaultSkin # BBB import
-from zope.publisher.interfaces import ISkinChangedEvent # BBB import
+from zope.publisher.interfaces import IDefaultSkin   # noqa: F401 import unused
+from zope.publisher.interfaces import ISkinChangedEvent   # noqa: F401
 
 
 class IBrowserApplicationRequest(IHTTPApplicationRequest):
@@ -113,6 +110,7 @@ class IBrowserPublisher(IPublishTraverse):
         the base href.
         """
 
+
 class IBrowserPage(IBrowserView, IBrowserPublisher):
     """Browser page"""
 
@@ -126,5 +124,6 @@ class IBrowserSkinType(ISkinType):
 
 class IDefaultBrowserLayer(IBrowserRequest):
     """The default layer."""
+
 
 alsoProvides(IDefaultBrowserLayer, IBrowserSkinType)

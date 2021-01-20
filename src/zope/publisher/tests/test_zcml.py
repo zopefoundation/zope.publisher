@@ -29,21 +29,27 @@ from zope.interface import Interface, implementer, providedBy, directlyProvides
 
 import zope.publisher
 
+
 class IOb(Interface):
     pass
+
 
 @implementer(IOb)
 class Ob(object):
     pass
 
+
 class ITestLayer(IBrowserRequest):
     """Test Layer."""
+
 
 class ITestSkin(ITestLayer):
     """Test Skin."""
 
+
 class V1(BrowserView):
     pass
+
 
 class V2(BrowserView):
     pass
@@ -59,9 +65,11 @@ template = """<configure
    %s
    </configure>"""
 
+
 def templated(contents):
     body = template % contents
     return BytesIO(body.encode('latin-1'))
+
 
 class Test(cleanup.CleanUp, unittest.TestCase):
 
@@ -70,15 +78,15 @@ class Test(cleanup.CleanUp, unittest.TestCase):
         XMLConfig('meta.zcml', zope.publisher)()
 
     def testDefaultView(self):
-        self.assertTrue(
-            component.queryMultiAdapter((ob, request), IDefaultViewName) is None)
+        self.assertIsNone(
+            component.queryMultiAdapter((ob, request), IDefaultViewName))
         xmlconfig(templated(
             '''
             <browser:defaultView
                 name="test"
                 for="zope.publisher.tests.test_zcml.IOb" />
             '''
-            ))
+        ))
 
         self.assertEqual(getDefaultViewName(ob, request), 'test')
 
@@ -104,7 +112,7 @@ class Test(cleanup.CleanUp, unittest.TestCase):
                 name="test2"
                 />
             '''
-            ))
+        ))
 
         self.assertEqual(
             zope.publisher.defaultview.getDefaultViewName(ob, request2),
@@ -125,7 +133,7 @@ class Test(cleanup.CleanUp, unittest.TestCase):
                 name="test"
                 />
             '''
-            ))
+        ))
 
         self.assertEqual(
             zope.publisher.defaultview.getDefaultViewName(ob, request),
@@ -160,7 +168,7 @@ class Test(cleanup.CleanUp, unittest.TestCase):
                 factory="zope.publisher.tests.test_zcml.V2"
                 />
             '''
-            ))
+        ))
 
         # Simulate Zope Publication behavior in beforeTraversal()
         adapters = component.getSiteManager().adapters
@@ -170,8 +178,9 @@ class Test(cleanup.CleanUp, unittest.TestCase):
         v = component.queryMultiAdapter((ob, request), name='test')
         self.assertTrue(isinstance(v, V2))
 
+
 def test_suite():
     return unittest.TestSuite((
-            unittest.makeSuite(Test),
-            doctest.DocFileSuite('../configure.txt'),
-            ))
+        unittest.makeSuite(Test),
+        doctest.DocFileSuite('../configure.txt'),
+    ))

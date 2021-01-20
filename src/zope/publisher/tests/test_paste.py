@@ -55,13 +55,11 @@ class SamplePublication(object):
     def getDefaultTraversal(self, request, ob):
         return self, ()
 
+
 def test_suite():
     return unittest.TestSuite((
         doctest.DocFileSuite(
             '../paste.txt',
             optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE,
-            ),
-        ))
-
-if __name__ == '__main__':
-    unittest.main(defaultTest='test_suite')
+        ),
+    ))

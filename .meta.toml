@@ -1,0 +1,26 @@
+# Generated from:
+# https://github.com/zopefoundation/meta/tree/master/config/pure-python
+[meta]
+template = "pure-python"
+commit-id = "13207dce4ea1a51f579fedbf1b41b30fb60d4216"
+
+[python]
+with-pypy = true
+with-legacy-python = true
+with-docs = true
+with-sphinx-doctests = false
+with-appveyor = false
+
+[coverage]
+fail-under = 90
+
+[tox]
+additional-testenv = [
+    "setenv =",
+    "    ZOPE_INTERFACE_STRICT_IRO=1",
+    ]
+
+[manifest]
+additional-rules = [
+    "recursive-include src *.clb",
+    ]

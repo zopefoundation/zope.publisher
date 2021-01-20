@@ -85,17 +85,14 @@ class HTTPCharsetTest(unittest.TestCase):
                          ['utf-8'])
 
     def testMalformedHTTP_ACCEPT_CHARSET(self):
-        """ Test for Launchpad #253362 """
-        request = {'HTTP_ACCEPT_CHARSET': 'utf-8;q=0.7,iso-8859-1;q=0.2*;q=0.1'}
+        """Test for Launchpad #253362."""
+        request = {
+            'HTTP_ACCEPT_CHARSET': 'utf-8;q=0.7,iso-8859-1;q=0.2*;q=0.1'}
         browser_charsets = HTTPCharsets(request)
         self.assertEqual(list(browser_charsets.getPreferredCharsets()),
                          ['utf-8', 'iso-8859-1'])
 
 
-
 def test_suite():
-    loader=unittest.TestLoader()
+    loader = unittest.TestLoader()
     return loader.loadTestsFromTestCase(HTTPCharsetTest)
-
-if __name__=='__main__':
-    unittest.TextTestRunner().run(test_suite())

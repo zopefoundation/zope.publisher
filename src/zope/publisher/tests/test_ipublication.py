@@ -15,11 +15,12 @@
 """
 
 import sys
-from unittest import TestCase, main, makeSuite
+from unittest import TestCase, makeSuite
 from io import BytesIO
 from zope.interface.verify import verifyObject
 
 from zope.publisher.interfaces import IPublication
+
 
 class BaseIPublicationTest(object):
 
@@ -88,7 +89,7 @@ class Test(BaseIPublicationTest, TestCase):
     def test_handleException(self):
         try:
             raise ValueError(1)
-        except:
+        except:  # noqa: E722 do not use bare 'except'
             exc_info = sys.exc_info()
 
         try:
@@ -100,8 +101,6 @@ class Test(BaseIPublicationTest, TestCase):
         self._publication.callTraversalHooks(self._request, None)
         self.assertEqual(self._publication._callTraversalHooks, 1)
 
+
 def test_suite():
     return makeSuite(Test)
-
-if __name__=='__main__':
-    main(defaultTest='test_suite')

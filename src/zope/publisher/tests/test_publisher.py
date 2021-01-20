@@ -21,15 +21,17 @@ from zope.publisher.base import TestRequest
 from zope.publisher.base import DefaultPublication
 from zope.publisher.interfaces import Unauthorized, NotFound, DebugError
 from zope.publisher.interfaces import IPublication, IReRaiseException, \
-                                      Retry
+    Retry
 
 from zope.interface.verify import verifyClass
 from zope.interface import implementedBy
 
 from io import BytesIO
 
+
 class ErrorToRetry(Exception):
     """A sample exception that should be retried."""
+
 
 class PublisherTests(unittest.TestCase):
     def setUp(self):
@@ -41,6 +43,7 @@ class PublisherTests(unittest.TestCase):
 
         class Item(object):
             """Required docstring for the publisher."""
+
             def __call__(self):
                 return "item"
 
@@ -50,6 +53,7 @@ class PublisherTests(unittest.TestCase):
 
         class RetryItem:
             """An item that the publication will attempt to retry."""
+
             def __call__(self):
                 raise ErrorToRetry()
 
@@ -87,7 +91,7 @@ class PublisherTests(unittest.TestCase):
 
     def testImplementsIPublication(self):
         self.assertTrue(IPublication.providedBy(
-                            DefaultPublication(self.app)))
+            DefaultPublication(self.app)))
 
     def testInterfacesVerify(self):
         for interface in implementedBy(DefaultPublication):
@@ -118,7 +122,7 @@ class PublisherTests(unittest.TestCase):
         except Unauthorized:
             self._unregisterExcAdapter(DoNotReRaiseException)
             self.fail('Unauthorized raised though this should '
-                            'not happen')
+                      'not happen')
         self._unregisterExcAdapter(DoNotReRaiseException)
 
         def doReRaiseAdapter(context):
@@ -131,13 +135,14 @@ class PublisherTests(unittest.TestCase):
         try:
             self._publisherResults('/_item')
             raised = False
-        except:
+        except:  # noqa: E722 do not use bare 'except'
             pass
         self._unregisterExcAdapter(doReRaiseAdapter)
         self.assertEqual(raised, True)
 
     def testRetryErrorIsUnwrapped(self):
         test = self
+
         class RetryPublication(DefaultPublication):
             def handleException(self, object, request, exc_info,
                                 retry_allowed=True):
@@ -151,6 +156,7 @@ class PublisherTests(unittest.TestCase):
 
     def testBareRetryErrorPassedThrough(self):
         test = self
+
         class RetryPublication(DefaultPublication):
             def handleException(self, object, request, exc_info,
                                 retry_allowed=True):
@@ -168,6 +174,3 @@ class PublisherTests(unittest.TestCase):
 def test_suite():
     loader = unittest.TestLoader()
     return loader.loadTestsFromTestCase(PublisherTests)
-
-if __name__=='__main__':
-    unittest.TextTestRunner().run(test_suite())

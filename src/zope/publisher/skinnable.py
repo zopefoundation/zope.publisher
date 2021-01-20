@@ -27,7 +27,6 @@ from zope.publisher import interfaces
 class SkinChangedEvent(object):
     """Skin changed event."""
 
-
     def __init__(self, request):
         self.request = request
 
@@ -41,11 +40,11 @@ def setDefaultSkin(request):
     """Sets the default skin for a given request."""
     adapters = zope.component.getSiteManager().adapters
     skin = adapters.lookup((zope.interface.providedBy(request),),
-        interfaces.IDefaultSkin, '')
+                           interfaces.IDefaultSkin, '')
     if skin is None:
         # Find a named ``default`` adapter providing IDefaultSkin as fallback.
         skin = adapters.lookup((zope.interface.providedBy(request),),
-            interfaces.IDefaultSkin, 'default')
+                               interfaces.IDefaultSkin, 'default')
         if skin is None:
             # Let's be nice and continue to work for IBrowserRequest's
             # without relying on adapter registrations.
@@ -65,7 +64,7 @@ def setDefaultSkin(request):
             zope.interface.directlyProvides(request, skin)
         else:
             raise TypeError("Skin interface %s doesn't provide ISkinType" %
-                skin)
+                            skin)
 
 
 def applySkin(request, skin):

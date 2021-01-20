@@ -14,10 +14,11 @@
 """Tests for BaseResponse
 """
 
-from unittest import TestCase, TestSuite, main, makeSuite
+from unittest import TestCase, TestSuite, makeSuite
 from zope.publisher.base import BaseResponse
 from zope.publisher.interfaces import IResponse
 from zope.interface.verify import verifyObject
+
 
 class TestBaseResponse(TestCase):
 
@@ -28,7 +29,4 @@ class TestBaseResponse(TestCase):
 def test_suite():
     return TestSuite((
         makeSuite(TestBaseResponse),
-        ))
-
-if __name__=='__main__':
-    main(defaultTest='test_suite')
+    ))

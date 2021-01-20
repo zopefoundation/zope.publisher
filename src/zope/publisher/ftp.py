@@ -20,7 +20,7 @@ from zope.publisher.base import BaseResponse, BaseRequest
 
 
 class FTPResponse(BaseResponse):
-    __slots__ = '_exc', # Saved exception
+    __slots__ = '_exc',  # Saved exception
 
     def outputBody(self):
         # Nothing to do
@@ -55,7 +55,6 @@ class FTPRequest(BaseRequest):
             path.reverse()
             self.setTraversalStack(path)
 
-
     def _createResponse(self):
         """Create a specific FTP response object."""
         return FTPResponse()
@@ -70,6 +69,6 @@ class FTPRequest(BaseRequest):
 
 # BBB
 try:
-    from zope.login.ftp import FTPAuth
+    from zope.login.ftp import FTPAuth  # noqa: F401 import unused
 except ImportError:
     pass

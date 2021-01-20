@@ -61,9 +61,9 @@ class AncientMethod(object):
 
 class MapplyTests(unittest.TestCase):
     def testMethod(self):
-        def compute(a,b,c=4):
+        def compute(a, b, c=4):
             return '%d%d%d' % (a, b, c)
-        values = {'a':2, 'b':3, 'c':5}
+        values = {'a': 2, 'b': 3, 'c': 5}
         v = mapply(compute, (), values)
         self.assertEqual(v, '235')
 
@@ -71,9 +71,11 @@ class MapplyTests(unittest.TestCase):
         self.assertEqual(v, '735')
 
     def testClass(self):
-        values = {'a':2, 'b':3, 'c':5}
+        values = {'a': 2, 'b': 3, 'c': 5}
+
         class c(object):
             a = 3
+
             def __call__(self, b, c=4):
                 return '%d%d%d' % (self.a, b, c)
             compute = __call__
@@ -90,9 +92,11 @@ class MapplyTests(unittest.TestCase):
             # Classic classes are only available in py3
             return
 
-        values = {'a':2, 'b':3}
+        values = {'a': 2, 'b': 3}
+
         class c(object):
             a = 3
+
             def __call__(self, b, c=4):
                 return '%d%d%d' % (self.a, b, c)
             compute = __call__
@@ -123,6 +127,3 @@ class MapplyTests(unittest.TestCase):
 def test_suite():
     loader = unittest.TestLoader()
     return loader.loadTestsFromTestCase(MapplyTests)
-
-if __name__=='__main__':
-    unittest.TextTestRunner().run(test_suite())

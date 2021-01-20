@@ -13,9 +13,8 @@
 ##############################################################################
 """Interfaces for the publisher.
 """
-__docformat__ = "reStructuredText"
-
-from zope.browser.interfaces import IView # BBB import
+# BBB
+from zope.browser.interfaces import IView   # noqa: F401 import unused
 from zope.interface import Interface
 from zope.interface import Attribute
 from zope.interface import implementer
@@ -24,12 +23,15 @@ from zope.interface.common.mapping import IEnumerableMapping
 from zope.interface.common.interfaces import IException
 from zope.interface.common.interfaces import ILookupError
 from zope.security.interfaces import IParticipation
-from zope.security.interfaces import Unauthorized
+# BBB:
+from zope.security.interfaces import Unauthorized  # noqa: F401 import unused
+
 
 class IPublishingException(IException):
     """
     An exception that occurs during publication.
     """
+
 
 @implementer(IPublishingException)
 class PublishingException(Exception):
@@ -37,16 +39,19 @@ class PublishingException(Exception):
     Default implementation of `IPublishingException`.
     """
 
+
 class ITraversalException(IPublishingException):
     """
     An exception that occurs during publication traversal.
     """
+
 
 @implementer(ITraversalException)
 class TraversalException(PublishingException):
     """
     Default implementation of `ITraversalException`.
     """
+
 
 class INotFound(ILookupError, ITraversalException):
     """
@@ -58,6 +63,7 @@ class INotFound(ILookupError, ITraversalException):
 
     def getName():
         'Returns the name that was being traversed.'
+
 
 @implementer(INotFound)
 class NotFound(LookupError, TraversalException):
@@ -78,9 +84,10 @@ class NotFound(LookupError, TraversalException):
     def __str__(self):
         try:
             ob = repr(self.ob)
-        except:
+        except:   # noqa: E722 do not use bare 'except'
             ob = 'unprintable object'
         return 'Object: %s, name: %s' % (ob, repr(self.name))
+
 
 class IDebugError(ITraversalException):
     """
@@ -92,13 +99,14 @@ class IDebugError(ITraversalException):
     def getMessage():
         'Returns the debug message.'
 
+
 @implementer(IDebugError)
 class DebugError(TraversalException):
     """
     Default implementation of `IDebugError`.
     """
 
-    message = None # override this not to cause warnings in python 2.6
+    message = None  # override this not to cause warnings in python 2.6
 
     def __init__(self, ob, message):
         self.ob = ob
@@ -113,6 +121,7 @@ class DebugError(TraversalException):
     def __str__(self):
         return self.message
 
+
 class IBadRequest(IPublishingException):
     """
     The request is bad.
@@ -121,19 +130,21 @@ class IBadRequest(IPublishingException):
     def __str__():
         'Returns the error message.'
 
+
 @implementer(IBadRequest)
 class BadRequest(PublishingException):
     """
     Default implementation of `IBadRequest`.
     """
 
-    message = None # override this not to cause warnings in python 2.6
+    message = None  # override this not to cause warnings in python 2.6
 
     def __init__(self, message):
         self.message = message
 
     def __str__(self):
         return self.message
+
 
 class IRedirect(IPublishingException):
     """
@@ -145,6 +156,7 @@ class IRedirect(IPublishingException):
 
     def getTrusted():
         'Returns the trusted value.'
+
 
 @implementer(IRedirect)
 class Redirect(PublishingException):
@@ -165,12 +177,14 @@ class Redirect(PublishingException):
     def __str__(self):
         return 'Location: %s' % self.location
 
+
 class IRetry(IPublishingException):
     """
     An exception that indicates a request should be retried.
     """
     def getOriginalException():
         'Returns the original exception object.'
+
 
 @implementer(IRetry)
 class Retry(PublishingException):
@@ -179,7 +193,10 @@ class Retry(PublishingException):
     """
 
     def __init__(self, orig_exc=None):
-        """orig_exc must be a 3-tuple as returned from sys.exc_info() or None"""
+        """orig_exc must be a 3-tuple as returned from sys.exc_info() ...
+
+        or None.
+        """
         self.orig_exc = orig_exc
 
     def getOriginalException(self):
@@ -236,6 +253,7 @@ class IPublisher(Interface):
 
         The request must be an `IPublisherRequest`.
         """
+
 
 class IResponse(Interface):
     """Interface used by the publsher"""
@@ -383,6 +401,7 @@ class IPublicationRequest(IParticipation):
         It should be IPrincipal wrapped in its AuthenticationService's context.
         """
 
+
 class IHeld(Interface):
     """Object to be held and explicitly released by a request
     """
@@ -394,6 +413,7 @@ class IHeld(Interface):
         request is closed
 
         """
+
 
 class IPublisherRequest(IPublicationRequest):
     """Request interface use by the publisher
@@ -577,13 +597,13 @@ class ISkinChangedEvent(IRequestEvent):
     """Event that gets triggered when the skin of a request is changed."""
 
 
-
 class IDefaultViewName(Interface):
     """A string that contains the default view name
 
     A default view name is used to select a view when a user hasn't
     specified one.
     """
+
 
 class IReRaiseException(Interface):
     """An exception that should be reraised, when handled in publisher.

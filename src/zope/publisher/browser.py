@@ -18,8 +18,6 @@ big improvement of the 'BrowserRequest' to 'HTTPRequest' is that is can handle
 HTML form data and convert them into a Python-native format. Even file data is
 packaged into a nice, Python-friendly 'FileUpload' object.
 """
-__docformat__ = 'restructuredtext'
-
 from email.message import Message
 import re
 
@@ -34,36 +32,39 @@ from zope.i18n.interfaces import IUserPreferredCharsets
 from zope.i18n.interfaces import IModifiableUserPreferredLanguages
 from zope.location import Location
 
-from zope.publisher.interfaces import IDefaultSkin, IHeld, NotFound
+from zope.publisher.interfaces import IHeld, NotFound
 from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.publisher.interfaces.browser import IDefaultBrowserLayer
 from zope.publisher.interfaces.browser import IBrowserApplicationRequest
 from zope.publisher.interfaces.browser import IBrowserView
 from zope.publisher.interfaces.browser import IBrowserPage
-from zope.publisher.interfaces.browser import IBrowserSkinType
 from zope.publisher.interfaces.http import IHTTPRequest
-from zope.publisher.http import HTTPRequest, HTTPResponse, getCharsetUsingRequest
+from zope.publisher.http import HTTPRequest
+from zope.publisher.http import HTTPResponse
+from zope.publisher.http import getCharsetUsingRequest
 
-# BBB imports, this compoennts get moved from this module
-from zope.publisher.interfaces import ISkinType #BBB import
-from zope.publisher.interfaces import ISkinChangedEvent #BBB import
-from zope.publisher.skinnable import getDefaultSkin #BBB import
-from zope.publisher.skinnable import setDefaultSkin #BBB import
-from zope.publisher.skinnable import applySkin #BBB import
-from zope.publisher.skinnable import SkinChangedEvent #BBB import
+# BBB imports, these components got moved from this module
+from zope.publisher.interfaces import ISkinType  # noqa: F401 import unused
+from zope.publisher.interfaces import ISkinChangedEvent  # noqa: F401
+from zope.publisher.skinnable import getDefaultSkin  # noqa: F401
+from zope.publisher.skinnable import setDefaultSkin  # noqa: F401
+from zope.publisher.skinnable import applySkin  # noqa: F401
+from zope.publisher.skinnable import SkinChangedEvent  # noqa: F401
 
 from zope.publisher._compat import PYTHON2
 
 
 __ArrayTypes = (list, tuple)
 
-start_of_header_search=re.compile(b'(<head[^>]*>)', re.I).search
-base_re_search=re.compile(b'(<base.*?>)',re.I).search
+start_of_header_search = re.compile(b'(<head[^>]*>)', re.I).search
+base_re_search = re.compile(b'(<base.*?>)', re.I).search
 isRelative = re.compile("[-_.!~*a-zA-z0-9'()@&=+$,]+(/|$)").match
 newlines = re.compile('\r\n|\n\r|\r')
 
+
 def is_text_html(content_type):
     return content_type.startswith('text/html')
+
 
 # Flag Constants
 SEQUENCE = 1
@@ -80,14 +81,17 @@ def field2string(v):
         return v.read()
     return str(v)
 
+
 def field2text(v, nl=newlines):
     return nl.sub("\n", field2string(v))
+
 
 def field2required(v):
     v = field2string(v)
     if not v.strip():
         raise ValueError('No input for required field<p>')
     return v
+
 
 def field2int(v):
     if isinstance(v, __ArrayTypes):
@@ -100,6 +104,7 @@ def field2int(v):
     except ValueError:
         raise ValueError("An integer was expected in the value '%s'" % v)
 
+
 def field2float(v):
     if isinstance(v, __ArrayTypes):
         return list(map(field2float, v))
@@ -111,7 +116,8 @@ def field2float(v):
         return float(v)
     except ValueError:
         raise ValueError(
-                "A floating-point number was expected in the value '%s'" % v)
+            "A floating-point number was expected in the value '%s'" % v)
+
 
 def field2long(v):
     if isinstance(v, __ArrayTypes):
@@ -128,16 +134,20 @@ def field2long(v):
     except ValueError:
         raise ValueError("A long integer was expected in the value '%s'" % v)
 
+
 def field2tokens(v):
     return field2string(v).split()
+
 
 def field2lines(v):
     if isinstance(v, __ArrayTypes):
         return [str(item) for item in v]
     return field2text(v).splitlines()
 
+
 def field2boolean(v):
     return bool(v)
+
 
 type_converters = {
     'float':    field2float,
@@ -149,9 +159,10 @@ type_converters = {
     'lines':    field2lines,
     'text':     field2text,
     'boolean':  field2boolean,
-    }
+}
 
 get_converter = type_converters.get
+
 
 def registerTypeConverter(field_type, converter, replace=False):
     """Add a custom type converter to the registry.
@@ -167,37 +178,41 @@ def registerTypeConverter(field_type, converter, replace=False):
     type_converters[field_type] = converter
 
 
-isCGI_NAME = lambda key: key in {
-    # These fields are placed in request.environ instead of request.form.
-    'SERVER_SOFTWARE' : 1,
-    'SERVER_NAME' : 1,
-    'GATEWAY_INTERFACE' : 1,
-    'SERVER_PROTOCOL' : 1,
-    'SERVER_PORT' : 1,
-    'REQUEST_METHOD' : 1,
-    'PATH_INFO' : 1,
-    'PATH_TRANSLATED' : 1,
-    'SCRIPT_NAME' : 1,
-    'QUERY_STRING' : 1,
-    'REMOTE_HOST' : 1,
-    'REMOTE_ADDR' : 1,
-    'AUTH_TYPE' : 1,
-    'REMOTE_USER' : 1,
-    'REMOTE_IDENT' : 1,
-    'CONTENT_TYPE' : 1,
-    'CONTENT_LENGTH' : 1,
-    'SERVER_URL': 1,
+def isCGI_NAME(key):
+    return key in {
+        # These fields are placed in request.environ instead of request.form.
+        'SERVER_SOFTWARE',
+        'SERVER_NAME',
+        'GATEWAY_INTERFACE',
+        'SERVER_PROTOCOL',
+        'SERVER_PORT',
+        'REQUEST_METHOD',
+        'PATH_INFO',
+        'PATH_TRANSLATED',
+        'SCRIPT_NAME',
+        'QUERY_STRING',
+        'REMOTE_HOST',
+        'REMOTE_ADDR',
+        'AUTH_TYPE',
+        'REMOTE_USER',
+        'REMOTE_IDENT',
+        'CONTENT_TYPE',
+        'CONTENT_LENGTH',
+        'SERVER_URL',
     }
 
-hide_key=lambda key: key in {
-    'HTTP_AUTHORIZATION':1,
-    'HTTP_CGI_AUTHORIZATION': 1,
-     }
+
+def hide_key(key):
+    return key in {
+        'HTTP_AUTHORIZATION',
+        'HTTP_CGI_AUTHORIZATION',
+    }
+
 
 class Record(object):
 
     _attrs = frozenset(('get', 'keys', 'items', 'values', 'copy',
-                       'has_key', '__contains__'))
+                        'has_key', '__contains__'))
 
     def __getattr__(self, key, default=None):
         if key in self._attrs:
@@ -216,22 +231,25 @@ class Record(object):
         items = list(self.__dict__.items())
         items.sort()
         return ("{"
-            + ", ".join(["%s: %s" % (key, repr(value))
-            for key, value in items]) + "}")
+                + ", ".join(["%s: %s" % (key, repr(value))
+                             for key, value in items]) + "}")
+
 
 _get_or_head = 'GET', 'HEAD'
+
+
 @implementer(IBrowserRequest, IBrowserApplicationRequest)
 class BrowserRequest(HTTPRequest):
 
     __slots__ = (
-        '__provides__', # Allow request to directly provide interfaces
-        'form', # Form data
-        'charsets', # helper attribute
+        '__provides__',  # Allow request to directly provide interfaces
+        'form',  # Form data
+        'charsets',  # helper attribute
         '__meth',
         '__tuple_items',
         '__defaults',
         '__annotations__',
-        )
+    )
 
     # Set this to True in a subclass to redirect GET requests when the
     # effective and actual URLs differ.
@@ -241,7 +259,6 @@ class BrowserRequest(HTTPRequest):
         self.form = {}
         self.charsets = None
         super(BrowserRequest, self).__init__(body_instream, environ, response)
-
 
     def _createResponse(self):
         return BrowserResponse()
@@ -449,7 +466,7 @@ class BrowserRequest(HTTPRequest):
 
     def __setItemWithType(self, key, item, flags, converter):
         """Set item value with explicit type."""
-        #Split the key and its attribute
+        # Split the key and its attribute
         if flags & REC:
             key, attr = self.__splitKey(key)
 
@@ -457,7 +474,7 @@ class BrowserRequest(HTTPRequest):
         if flags & CONVERTED:
             try:
                 item = converter(item)
-            except:
+            except:  # noqa: E722 do not use bare 'except'
                 if item or flags & DEFAULT or key not in self.__defaults:
                     raise
                 item = self.__defaults[key]
@@ -551,7 +568,7 @@ class BrowserRequest(HTTPRequest):
         form = self.form
 
         for keys, values in self.__defaults.items():
-            if not keys in form:
+            if keys not in form:
                 form[keys] = values
             else:
                 item = form[keys]
@@ -566,12 +583,11 @@ class BrowserRequest(HTTPRequest):
                                 for r in item:
                                     if not hasattr(r, k):
                                         setattr(r, k, v)
-                        elif not val in item:
+                        elif val not in item:
                             item.append(val)
 
     def traverse(self, obj):
-        'See IPublisherRequest'
-
+        """See IPublisherRequest."""
         ob = super(BrowserRequest, self).traverse(obj)
         method = self.method
 
@@ -599,7 +615,6 @@ class BrowserRequest(HTTPRequest):
                 base_needed = 1
                 redirect = self.use_redirect and method == 'GET'
 
-
         if base_needed:
             url = self.getURL()
             response = self.response
@@ -618,7 +633,6 @@ class BrowserRequest(HTTPRequest):
         d.update(self._cookies)
         d.update(self.form)
         return list(d.keys())
-
 
     def get(self, key, default=None):
         'See Interface.Common.Mapping.IReadMapping'
@@ -650,14 +664,14 @@ class FileUpload(object):
             methods = file.__methods__
         else:
             methods = ['close', 'fileno', 'flush', 'isatty',
-                'read', 'readline', 'readlines', 'seek',
-                'tell', 'truncate', 'write', 'writelines',
-                'seekable']
+                       'read', 'readline', 'readlines', 'seek',
+                       'tell', 'truncate', 'write', 'writelines',
+                       'seekable']
 
         d = self.__dict__
         for m in methods:
-            if hasattr(file,m):
-                d[m] = getattr(file,m)
+            if hasattr(file, m):
+                d[m] = getattr(file, m)
 
         self.headers = aFieldStorage.headers
         filename = aFieldStorage.filename
@@ -671,11 +685,13 @@ class FileUpload(object):
     def release(self):
         self.close()
 
+
 class RedirectingBrowserRequest(BrowserRequest):
     """Browser requests that redirect when the actual and effective URLs differ
     """
 
     use_redirect = True
+
 
 class TestRequest(BrowserRequest):
     """Browser request with a constructor convenient for testing
@@ -684,12 +700,12 @@ class TestRequest(BrowserRequest):
     def __init__(self, body_instream=None, environ=None, form=None,
                  skin=None, **kw):
 
-        _testEnv =  {
+        _testEnv = {
             'SERVER_URL':         'http://127.0.0.1',
             'HTTP_HOST':          '127.0.0.1',
             'CONTENT_LENGTH':     '0',
             'GATEWAY_INTERFACE':  'TestFooInterface/1.0',
-            }
+        }
 
         if environ is not None:
             _testEnv.update(environ)
@@ -719,14 +735,13 @@ class TestRequest(BrowserRequest):
             directlyProvides(self, IDefaultBrowserLayer)
 
 
-
 class BrowserResponse(HTTPResponse):
     """Browser response
     """
 
     __slots__ = (
-        '_base', # The base href
-        )
+        '_base',  # The base href
+    )
 
     def _implicitResult(self, body):
         content_type = self.getHeader('content-type')
@@ -745,10 +760,9 @@ class BrowserResponse(HTTPResponse):
         headers = [
             (name, value) for name, value in headers
             if name != 'content-length'
-            ]
+        ]
         headers.append(('content-length', str(len(body))))
         return body, headers
-
 
     def __insertBase(self, body):
         # Only insert a base tag if content appears to be html.
@@ -766,10 +780,9 @@ class BrowserResponse(HTTPResponse):
                         # Make sure the base URL is not a unicode string.
                         base = self.getBase()
                         if not isinstance(base, bytes):
-                            encoding = getCharsetUsingRequest(self._request) or 'utf-8'
+                            encoding = getCharsetUsingRequest(
+                                self._request) or 'utf-8'
                             base = self.getBase().encode(encoding)
-                        #body = (b'%s\n<base href="%s" />\n%s' %
-                        #        (body[:index], base, body[index:]))
                         body = b''.join([body[:index],
                                          b'\n<base href="',
                                          base,
@@ -786,17 +799,18 @@ class BrowserResponse(HTTPResponse):
     def redirect(self, location, status=None, trusted=False):
         base = getattr(self, '_base', '')
         if base and isRelative(str(location)):
-            l = base.rfind('/')
-            if l >= 0:
-                base = base[:l+1]
+            pos = base.rfind('/')
+            if pos >= 0:
+                base = base[:pos + 1]
             else:
                 base += '/'
             location = base + location
 
         # TODO: HTTP redirects must provide an absolute location, see
         #       http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.30
-        #       So, what if location is relative and base is unknown?  Uncomment
-        #       the following and you'll see that it actually happens.
+        #       So, what if location is relative and base is unknown?
+        #       Uncomment the following and you'll see that it actually
+        #       happens.
         #
         # if isRelative(str(location)):
         #     raise AssertionError('Cannot determine absolute location')
@@ -807,29 +821,32 @@ class BrowserResponse(HTTPResponse):
         super(BrowserResponse, self).reset()
         self._base = ''
 
+
 def isHTML(str):
-     """Try to determine whether str is HTML or not."""
-     if isinstance(str, six.binary_type):
-         try:
-             str = str.decode()
-         except UnicodeDecodeError:
-             return False
-     s = str.lstrip().lower()
-     if s.startswith('<!doctype html'):
-         return True
-     if s.startswith('<html') and (s[5:6] in ' >'):
-         return True
-     if s.startswith('<!--'):
-         idx = s.find('<html')
-         return idx > 0 and (s[idx+5:idx+6] in ' >')
-     else:
-         return False
+    """Try to determine whether str is HTML or not."""
+    if isinstance(str, six.binary_type):
+        try:
+            str = str.decode()
+        except UnicodeDecodeError:
+            return False
+    s = str.lstrip().lower()
+    if s.startswith('<!doctype html'):
+        return True
+    if s.startswith('<html') and (s[5:6] in ' >'):
+        return True
+    if s.startswith('<!--'):
+        idx = s.find('<html')
+        return idx > 0 and (s[idx+5:idx+6] in ' >')
+    else:
+        return False
+
 
 def normalize_lang(lang):
     lang = lang.strip().lower()
     lang = lang.replace('_', '-')
     lang = lang.replace(' ', '')
     return lang
+
 
 @zope.component.adapter(IHTTPRequest)
 @implementer(IUserPreferredLanguages)
@@ -843,19 +860,19 @@ class BrowserLanguages(object):
         accept_langs = self.request.get('HTTP_ACCEPT_LANGUAGE', '').split(',')
 
         # Normalize lang strings
-        accept_langs = [normalize_lang(l) for l in accept_langs]
+        accept_langs = [normalize_lang(lang) for lang in accept_langs]
         # Then filter out empty ones
-        accept_langs = [l for l in accept_langs if l]
+        accept_langs = [lang for lang in accept_langs if lang]
 
         accepts = []
         for index, lang in enumerate(accept_langs):
-            l = lang.split(';', 2)
+            lang = lang.split(';', 2)
 
             # If not supplied, quality defaults to 1...
             quality = 1.0
 
-            if len(l) == 2:
-                q = l[1]
+            if len(lang) == 2:
+                q = lang[1]
                 if q.startswith('q='):
                     q = q.split('=', 2)[1]
                     try:
@@ -871,7 +888,7 @@ class BrowserLanguages(object):
                 # defined, and items with quality defined as 1.
                 quality = 1.9 - (0.001 * index)
 
-            accepts.append((quality, l[0]))
+            accepts.append((quality, lang[0]))
 
         # Filter langs with q=0, which means
         # unwanted lang according to the spec
@@ -883,10 +900,12 @@ class BrowserLanguages(object):
 
         return [lang for quality, lang in accepts]
 
+
 class NotCompatibleAdapterError(Exception):
     """Adapter not compatible with
        zope.i18n.interfaces.IModifiableBrowserLanguages has been used.
     """
+
 
 BROWSER_LANGUAGES_KEY = "zope.publisher.browser.IUserPreferredLanguages"
 
@@ -909,6 +928,7 @@ class CacheableBrowserLanguages(BrowserLanguages):
             annotations[BROWSER_LANGUAGES_KEY] = languages_data = {}
         return languages_data
 
+
 @implementer(IModifiableUserPreferredLanguages)
 class ModifiableBrowserLanguages(CacheableBrowserLanguages):
 
@@ -918,11 +938,13 @@ class ModifiableBrowserLanguages(CacheableBrowserLanguages):
             # Better way to create a compatible with
             # IModifiableUserPreferredLanguages adapter is to use
             # CacheableBrowserLanguages as base class or as example.
-            raise NotCompatibleAdapterError("Adapter not compatible with "
-                "zope.i18n.interfaces.IModifiableBrowserLanguages "
-                "has been used.")
+            raise NotCompatibleAdapterError(
+                "Adapter not compatible with"
+                " zope.i18n.interfaces.IModifiableBrowserLanguages"
+                " has been used.")
         languages_data["overridden"] = languages
         self.request.setupLocale()
+
 
 @implementer(IBrowserView)
 class BrowserView(Location):
@@ -952,6 +974,7 @@ class BrowserView(Location):
         self._parent = parent
 
     __parent__ = property(__getParent, __setParent)
+
 
 @implementer(IBrowserPage)
 class BrowserPage(BrowserView):
@@ -1004,7 +1027,7 @@ class BrowserPage(BrowserView):
 
     It is the subclass' responsibility to do that.
 
-    """
+    """  # noqa: E501 line too long
 
     def browserDefault(self, request):
         return self, ()

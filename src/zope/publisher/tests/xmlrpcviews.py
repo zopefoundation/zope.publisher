@@ -16,7 +16,10 @@
 from zope.interface import Interface, implementer
 from zope.publisher.interfaces.xmlrpc import IXMLRPCPublisher
 
-class IC(Interface): pass
+
+class IC(Interface):
+    pass
+
 
 @implementer(IXMLRPCPublisher)
 class V1(object):
@@ -25,8 +28,10 @@ class V1(object):
         self.context = context
         self.request = request
 
+
 class VZMI(V1):
     pass
+
 
 @implementer(IXMLRPCPublisher)
 class R1(object):

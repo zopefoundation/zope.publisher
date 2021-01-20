@@ -17,6 +17,7 @@
 from zope.publisher.interfaces import IPublication
 from zope.interface import implementer
 
+
 @implementer(IPublication)
 class TestPublication(object):
 
@@ -55,7 +56,6 @@ class TestPublication(object):
         finally:
             exc_info = 0
 
-
     def callTraversalHooks(self, request, ob):
         '''See interface IPublication'''
         self._callTraversalHooks = getattr(self, '_callTraversalHooks', 0) + 1
@@ -68,6 +68,7 @@ class App(object):
 
     def index_html(self, request):
         return self
+
 
 app = App('')
 app.ZopeCorp = App('ZopeCorp')

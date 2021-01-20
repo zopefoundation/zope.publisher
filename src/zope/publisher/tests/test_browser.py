@@ -21,6 +21,7 @@ from zope.testing.renormalizing import RENormalizing
 
 __docformat__ = "reStructuredText"
 
+
 def test_suite():
 
     checker = RENormalizing([
@@ -30,7 +31,4 @@ def test_suite():
 
     return unittest.TestSuite((
         DocTestSuite('zope.publisher.browser', checker=checker),
-        ))
-
-if __name__ == '__main__':
-    unittest.main(defaultTest='test_suite')
+    ))

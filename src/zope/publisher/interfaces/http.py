@@ -13,9 +13,6 @@
 ##############################################################################
 """HTTP-related publisher interfaces.
 """
-
-__docformat__ = "reStructuredText"
-
 from zope.interface import Interface
 from zope.interface import Attribute
 from zope.interface import implementer
@@ -131,7 +128,6 @@ class IHTTPApplicationRequest(IApplicationRequest, IVirtualHostRequest):
 
         Data are returned as a mapping object, mapping cookie name to value.
         """
-        return IMapping(str, str)
 
     cookies = Attribute(
         """Request cookie data
@@ -174,7 +170,6 @@ class IHTTPApplicationRequest(IApplicationRequest, IVirtualHostRequest):
         'request["URL2"]'. The notion is that this would be used in
         path expressions, like 'request/URL/-2'.
         """)
-
 
     def getURL(level=0, path_only=False):
         """Return the published URL with level names removed from the end.
@@ -242,6 +237,7 @@ class IHTTPApplicationResponse(Interface):
         URL.
 
         """
+
 
 class IHeaderOutput(Interface):
     """Interface for setting HTTP response headers.
@@ -474,6 +470,7 @@ class IHTTPResponse(IResponse):
         constructed from the result.
         """
 
+
 class IHTTPVirtualHostChangedEvent(Interface):
     """The host, port and/or the application path have changed.
 
@@ -483,10 +480,12 @@ class IHTTPVirtualHostChangedEvent(Interface):
     request = Attribute("The application request whose virtual host info has "
                         "been altered")
 
+
 class IHTTPException(Interface):
     """Marker interface for http exceptions views
     """
     pass
+
 
 class IMethodNotAllowed(IException):
     """An exception that signals the 405 Method Not Allowed HTTP error"""
@@ -499,7 +498,6 @@ class IMethodNotAllowed(IException):
 @implementer(IMethodNotAllowed)
 class MethodNotAllowed(Exception):
     """An exception that signals the 405 Method Not Allowed HTTP error"""
-
 
     def __init__(self, object, request):
         self.object = object

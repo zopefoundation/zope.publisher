@@ -15,8 +15,6 @@
 
 This module contains the XMLRPCRequest and XMLRPCResponse
 """
-__docformat__ = 'restructuredtext'
-
 import sys
 import datetime
 from io import BytesIO
@@ -25,7 +23,7 @@ import zope.component
 import zope.interface
 from zope.interface import implementer
 from zope.publisher.interfaces.xmlrpc import \
-        IXMLRPCPublisher, IXMLRPCRequest, IXMLRPCPremarshaller, IXMLRPCView
+    IXMLRPCRequest, IXMLRPCPremarshaller, IXMLRPCView
 
 from zope.publisher.http import HTTPRequest, HTTPResponse, DirectResult
 from zope.security.proxy import isinstance
@@ -34,6 +32,7 @@ if sys.version_info[0] == 2:
     import xmlrpclib
 else:
     import xmlrpc.client as xmlrpclib
+
 
 @implementer(IXMLRPCRequest)
 class XMLRPCRequest(HTTPRequest):
@@ -45,7 +44,7 @@ class XMLRPCRequest(HTTPRequest):
         return XMLRPCResponse()
 
     def processInputs(self):
-        'See IPublisherRequest'
+        """See IPublisherRequest."""
         # Parse the request XML structure
 
         # Using lines() does not work as Twisted's BufferedStream sends back
@@ -70,12 +69,12 @@ class TestRequest(XMLRPCRequest):
 
     def __init__(self, body_instream=None, environ=None, response=None, **kw):
 
-        _testEnv =  {
+        _testEnv = {
             'SERVER_URL':         'http://127.0.0.1',
             'HTTP_HOST':          '127.0.0.1',
             'CONTENT_LENGTH':     '0',
             'GATEWAY_INTERFACE':  'TestFooInterface/1.0',
-            }
+        }
 
         if environ:
             _testEnv.update(environ)
@@ -94,7 +93,7 @@ class XMLRPCResponse(HTTPResponse):
     """
 
     def setResult(self, result):
-        """Sets the result of the response
+        """Set the result of the response
 
         Sets the return body equal to the (string) argument "body". Also
         updates the "content-length" return header.
@@ -116,7 +115,7 @@ class XMLRPCResponse(HTTPResponse):
             try:
                 body = xmlrpclib.dumps((body,), methodresponse=True,
                                        allow_none=True)
-            except:
+            except:  # noqa: E722 do not use bare 'except'
                 # We really want to catch all exceptions at this point!
                 self.handleException(sys.exc_info())
                 return
@@ -131,7 +130,6 @@ class XMLRPCResponse(HTTPResponse):
                    ('content-length', str(len(body)))]
         self._headers.update(dict((k, [v]) for (k, v) in headers))
         super(XMLRPCResponse, self).setResult(DirectResult((body,)))
-
 
     def handleException(self, exc_info):
         """Handle Errors during publsihing and wrap it in XML-RPC XML
@@ -167,7 +165,7 @@ class XMLRPCResponse(HTTPResponse):
                 fault_text = Fault(-1, "Unexpected Zope exception: " + s)
             else:
                 fault_text = Fault(-2, "Unexpected Zope error value: " + s)
-        except:
+        except:  # noqa: E722 do not use bare 'except'
             fault_text = Fault(-3, "Unknown Zope fault type")
 
         # Do the damage.
@@ -195,6 +193,7 @@ class PreMarshallerBase(object):
     def __call__(self):
         raise Exception("Not implemented")
 
+
 @zope.component.adapter(dict)
 class DictPreMarshaller(PreMarshallerBase):
     """Pre-marshaller for dicts"""
@@ -203,6 +202,7 @@ class DictPreMarshaller(PreMarshallerBase):
         return dict([(premarshal(k), premarshal(v))
                      for (k, v) in self.data.items()])
 
+
 @zope.component.adapter(list)
 class ListPreMarshaller(PreMarshallerBase):
     """Pre-marshaller for list"""
@@ -210,9 +210,11 @@ class ListPreMarshaller(PreMarshallerBase):
     def __call__(self):
         return [premarshal(x) for x in self.data]
 
+
 @zope.component.adapter(tuple)
 class TuplePreMarshaller(ListPreMarshaller):
     pass
+
 
 @zope.component.adapter(xmlrpclib.Binary)
 class BinaryPreMarshaller(PreMarshallerBase):
@@ -220,6 +222,7 @@ class BinaryPreMarshaller(PreMarshallerBase):
 
     def __call__(self):
         return xmlrpclib.Binary(self.data.data)
+
 
 @zope.component.adapter(xmlrpclib.Fault)
 class FaultPreMarshaller(PreMarshallerBase):
@@ -229,7 +232,8 @@ class FaultPreMarshaller(PreMarshallerBase):
         return xmlrpclib.Fault(
             premarshal(self.data.faultCode),
             premarshal(self.data.faultString),
-            )
+        )
+
 
 @zope.component.adapter(xmlrpclib.DateTime)
 class DateTimePreMarshaller(PreMarshallerBase):
@@ -238,12 +242,14 @@ class DateTimePreMarshaller(PreMarshallerBase):
     def __call__(self):
         return xmlrpclib.DateTime(self.data.value)
 
+
 @zope.component.adapter(datetime.datetime)
 class PythonDateTimePreMarshaller(PreMarshallerBase):
     """Pre-marshaller for datetime.datetime"""
 
     def __call__(self):
         return xmlrpclib.DateTime(self.data.isoformat())
+
 
 def premarshal(data):
     """Premarshal data before handing it to xmlrpclib for marhalling

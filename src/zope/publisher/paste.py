@@ -19,6 +19,7 @@ import zope.publisher.publish
 
 browser_methods = set(('GET', 'HEAD', 'POST'))
 
+
 class Application:
 
     def __init__(self, global_config, publication, **options):
@@ -57,6 +58,7 @@ class Application:
         else:
             rc = zope.publisher.http.HTTPRequest
         return rc(environ['wsgi.input'], environ)
+
 
 def get_egg(name, group):
     if '#' in name:
