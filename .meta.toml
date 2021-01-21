@@ -2,7 +2,7 @@
 # https://github.com/zopefoundation/meta/tree/master/config/pure-python
 [meta]
 template = "pure-python"
-commit-id = "13207dce4ea1a51f579fedbf1b41b30fb60d4216"
+commit-id = "2f8a259d7589d70e4fa73654d5a28f174f0959a0"
 
 [python]
 with-pypy = true
@@ -15,7 +15,7 @@ with-appveyor = false
 fail-under = 90
 
 [tox]
-additional-testenv = [
+testenv-additional = [
     "setenv =",
     "    ZOPE_INTERFACE_STRICT_IRO=1",
     ]
