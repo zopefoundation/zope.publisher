@@ -63,7 +63,7 @@ def setDefaultSkin(request):
             # silently ignore skins which do not provide ISkinType
             zope.interface.directlyProvides(request, skin)
         else:
-            raise TypeError("Skin interface %s doesn't provide ISkinType" %
+            raise TypeError("Skin interface %r doesn't provide ISkinType" %
                             skin)
 
 

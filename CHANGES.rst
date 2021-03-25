@@ -5,7 +5,7 @@
 6.0.1 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Fix test compatibility with zope.interface 5.4.
 
 
 6.0.0 (2021-01-20)
