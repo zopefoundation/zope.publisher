@@ -10,8 +10,19 @@ adapters and security:
 
   >>> XMLConfig('configure.zcml', zope.publisher)()
 
-  >>> len(list(zope.component.getGlobalSiteManager().registeredUtilities()))
-  22
+The exact count of registered utilities will vary depending on which
+packages are installed because of the use of
+``zcml:condition="installed ..."`` clauses in the ZCML.
+
+  >>> try:
+  ...    import zope.annotation
+  ... except ImportError:
+  ...   expected_count = 22
+  ... else:
+  ...   expected_count = 23
+
+  >>> len(list(zope.component.getGlobalSiteManager().registeredUtilities())) == expected_count
+  True
 
   >>> len(list(zope.component.getGlobalSiteManager().registeredAdapters()))
   11
