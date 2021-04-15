@@ -2,7 +2,7 @@
  Changes
 =========
 
-6.0.1 (unreleased)
+6.0.1 (2021-04-15)
 ==================
 
 - Fix test compatibility with zope.interface 5.4.
