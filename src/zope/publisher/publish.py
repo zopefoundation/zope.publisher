@@ -164,6 +164,7 @@ def publish(request, handle_errors=True):
                                 if reraise is None or reraise():
                                     raise
                     finally:
+                        exc_info = None  # Avoid circular reference.
                         publication.endRequest(request, obj)
 
                     break  # Successful.
