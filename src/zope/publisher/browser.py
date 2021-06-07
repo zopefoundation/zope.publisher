@@ -336,6 +336,12 @@ class BrowserRequest(HTTPRequest):
             # multipart doesn't actually care beyond an initial check, so
             # just pretend everything is POST from here on.
             env['REQUEST_METHOD'] = 'POST'
+
+            # According to PEP 333 CONTENT_LENGTH may be empty or absent.
+            # An empty string here breaks multipart, because it's an invalid
+            # value according to RFC 2616 (HTTP/1.1).
+            if env.get('CONTENT_LENGTH') == '':
+                env.pop('CONTENT_LENGTH')
             forms, files = multipart.parse_form_data(
                 env, charset='ISO-8859-1', memfile_limit=0)
             items.extend(forms.iterallitems())
