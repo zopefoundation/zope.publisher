@@ -6,6 +6,7 @@
 ==================
 
 - Avoid traceback reference cycle in ``zope.publisher.publish.publish``.
+- Handle empty Content-Type environment variable gracefully.
 
 
 6.0.1 (2021-04-15)
