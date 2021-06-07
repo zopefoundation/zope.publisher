@@ -2,7 +2,7 @@
  Changes
 =========
 
-6.0.2 (unreleased)
+6.0.2 (2021-06-07)
 ==================
 
 - Avoid traceback reference cycle in ``zope.publisher.publish.publish``.
