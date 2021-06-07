@@ -40,7 +40,7 @@ tests_require = [
 
 setup(
     name='zope.publisher',
-    version='6.0.2',
+    version='6.0.3.dev0',
     url='https://github.com/zopefoundation/zope.publisher',
     license='ZPL 2.1',
     author='Zope Foundation and Contributors',
