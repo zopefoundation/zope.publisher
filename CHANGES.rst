@@ -2,10 +2,28 @@
  Changes
 =========
 
-6.0.3 (unreleased)
+6.1.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Revamp handling of query string and form decoding in ``BrowserRequest``.
+
+  The previous approach was to tell underlying libraries to decode inputs
+  using ISO-8859-1, then re-encode as ISO-8859-1 and decode using an
+  encoding deduced from the ``Accept-Charset`` request header.  However,
+  this didn't make much conceptual sense (since ``Accept-Charset`` defines
+  the preferred *response* encoding), and it made it impossible to handle
+  cases where the encoding was specified as something other than ISO-8859-1
+  in the request (which might even be on a per-item basis, in the case of
+  ``multipart/form-data`` input).
+
+  We now only perform the dubious ``Accept-Charset`` guessing for query
+  strings; in other cases we let ``multipart`` determine the encoding,
+  defaulting to UTF-8 as per the HTML specification.  For cases where
+  applications need to specify some other default form encoding,
+  ``BrowserRequest`` subclasses can now set ``default_form_charset``.
+
+  See `issue 65
+  <https://github.com/zopefoundation/zope.publisher/issues/65>`_.
 
 
 6.0.2 (2021-06-07)

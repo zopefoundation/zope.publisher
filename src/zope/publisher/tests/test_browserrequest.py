@@ -362,8 +362,8 @@ class BrowserTests(HTTPTests):
     def testFormMultipartFilenameLatin7(self):
         extra = {
             'REQUEST_METHOD': 'POST',
-            'CONTENT_TYPE': 'multipart/form_data; boundary=-123',
-            'HTTP_ACCEPT_CHARSET': 'ISO-8859-13',
+            'CONTENT_TYPE': (
+                'multipart/form_data; boundary=-123; charset=ISO-8859-13'),
         }
         body = b'\n'.join([
             b'---123',
@@ -381,10 +381,45 @@ class BrowserTests(HTTPTests):
         self.assertEqual(request.form['upload'].filename, u'Ąžuolyno')
         self.assertEqual(request.form['upload'].read(), b'Some data')
 
+    def testFormMultipartFilenameLatin7DefaultCharset(self):
+        extra = {
+            'REQUEST_METHOD': 'POST',
+            'CONTENT_TYPE': 'multipart/form_data; boundary=-123',
+        }
+        body = b'\n'.join([
+            b'---123',
+            b'Content-Disposition: form-data; name="upload";'
+            b' filename="\xc0\xfeuolyno"',
+            b'Content-Type: application/octet-stream',
+            b'',
+            b'Some data',
+            b'---123--',
+            b'',
+        ])
+        request = self._createRequest(extra, body)
+        request.default_form_charset = 'ISO-8859-13'
+        self.addCleanup(request.close)
+        request.processInputs()
+        self.assertEqual(request.form['upload'].filename, u'Ąžuolyno')
+        self.assertEqual(request.form['upload'].read(), b'Some data')
+
     def testFormURLEncodedUTF8(self):
         extra = {
             'REQUEST_METHOD': 'POST',
             'CONTENT_TYPE': 'application/x-www-form-urlencoded',
+        }
+        body = (
+            b'a=5&b:int=6'
+            b'&street=\xe6\xb1\x89\xe8\xaf\xad/\xe6\xbc\xa2\xe8\xaa\x9e')
+        request = self._createRequest(extra, body)
+        publish(request)
+        self.assertTrue(isinstance(request.form[u"street"], unicode))
+        self.assertEqual(u"汉语/漢語", request.form['street'])
+
+    def testFormURLEncodedUTF8ContentType(self):
+        extra = {
+            'REQUEST_METHOD': 'POST',
+            'CONTENT_TYPE': 'application/x-www-form-urlencoded; charset=UTF-8',
         }
         body = (
             b'a=5&b:int=6'
@@ -407,8 +442,8 @@ class BrowserTests(HTTPTests):
     def testFormURLEncodedLatin1(self):
         extra = {
             'REQUEST_METHOD': 'POST',
-            'CONTENT_TYPE': 'application/x-www-form-urlencoded',
-            'HTTP_ACCEPT_CHARSET': 'ISO-8859-1',
+            'CONTENT_TYPE': (
+                'application/x-www-form-urlencoded; charset=ISO-8859-1'),
         }
         body = b'a=5&b:int=6&street=K\xf6hlerstra\xdfe'
         request = self._createRequest(extra, body)
@@ -419,8 +454,8 @@ class BrowserTests(HTTPTests):
     def testFormURLEncodedLatin7(self):
         extra = {
             'REQUEST_METHOD': 'POST',
-            'CONTENT_TYPE': 'application/x-www-form-urlencoded',
-            'HTTP_ACCEPT_CHARSET': 'ISO-8859-13',
+            'CONTENT_TYPE': (
+                'application/x-www-form-urlencoded; charset=ISO-8859-13'),
         }
         body = u'a=5&b:int=6&street=Ąžuolyno'.encode('iso-8859-13')
         request = self._createRequest(extra, body)
