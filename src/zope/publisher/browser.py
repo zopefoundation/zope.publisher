@@ -255,6 +255,8 @@ class BrowserRequest(HTTPRequest):
     # effective and actual URLs differ.
     use_redirect = False
 
+    default_form_charset = 'UTF-8'
+
     def __init__(self, body_instream, environ, response=None):
         self.form = {}
         self.charsets = None
@@ -265,28 +267,22 @@ class BrowserRequest(HTTPRequest):
 
     def _decode(self, text):
         """Try to decode the text using one of the available charsets."""
-        # All text comes from parse_qsl or multipart.parse_form_data, and
-        # has already been decoded into Unicode using WSGI's privileged
-        # encoding (ISO-8859-1).
         if self.charsets is None:
             envadapter = IUserPreferredCharsets(self)
             self.charsets = envadapter.getPreferredCharsets() or ['utf-8']
             self.charsets = [c for c in self.charsets if c != '*']
-        if not isinstance(text, bytes):
-            if self.charsets and self.charsets[0] == 'iso-8859-1':
-                # optimization: we are trying to decode something already
-                # decoded for us, let's just return it rather than waste
-                # time decoding...
-                return text
-            # undo what parse_qsl/multipart.parse_form_data did and maintain
-            # backwards compat
-            text = text.encode('latin-1')
-        for charset in self.charsets:
-            try:
-                text = text.decode(charset)
-                break
-            except UnicodeError:
-                pass
+        # All text comes from parse_qsl or multipart.parse_form_data, and
+        # has normally already been decoded into Unicode according to a
+        # request-specified encoding.  However, in the case of query strings
+        # for GET/HEAD requests we may not be sure of the encoding and must
+        # guess.
+        if isinstance(text, bytes):
+            for charset in self.charsets:
+                try:
+                    text = text.decode(charset)
+                    break
+                except UnicodeError:
+                    pass
         # XXX so when none of the provided charsets works we just return bytes
         # and let the application crash???
         return text
@@ -301,15 +297,20 @@ class BrowserRequest(HTTPRequest):
         self._environ.setdefault('QUERY_STRING', '')
 
         if self.method in _get_or_head:
-            # PEP-3333 specifies that strings must only contain codepoints
-            # representable in ISO-8859-1.
             kwargs = {}
             if not PYTHON2:
+                # For now, use an encoding that can decode any byte
+                # sequence.  We'll do some guesswork later.
                 kwargs['encoding'] = 'ISO-8859-1'
                 kwargs['errors'] = 'replace'
-            items.extend(parse_qsl(
+            query_items = parse_qsl(
                 self._environ['QUERY_STRING'], keep_blank_values=True,
-                **kwargs))
+                **kwargs)
+            for key, value in query_items:
+                if not PYTHON2:
+                    # Encode back to bytes for later guessing.
+                    value = value.encode('ISO-8859-1')
+                items.append((key, value))
         elif self.method not in _get_or_head:
             env = self._environ.copy()
             env['wsgi.input'] = self._body_instream
@@ -343,7 +344,7 @@ class BrowserRequest(HTTPRequest):
             if env.get('CONTENT_LENGTH') == '':
                 env.pop('CONTENT_LENGTH')
             forms, files = multipart.parse_form_data(
-                env, charset='ISO-8859-1', memfile_limit=0)
+                env, charset=self.default_form_charset, memfile_limit=0)
             items.extend(forms.iterallitems())
             for key, item in files.iterallitems():
                 # multipart puts fields in 'files' even if no upload was
