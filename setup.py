@@ -40,7 +40,7 @@ tests_require = [
 
 setup(
     name='zope.publisher',
-    version='6.0.3.dev0',
+    version='6.1.0.dev0',
     url='https://github.com/zopefoundation/zope.publisher',
     license='ZPL 2.1',
     author='Zope Foundation and Contributors',
@@ -60,6 +60,7 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
         'Natural Language :: English',

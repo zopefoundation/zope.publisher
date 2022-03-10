@@ -25,6 +25,8 @@
   See `issue 65
   <https://github.com/zopefoundation/zope.publisher/issues/65>`_.
 
+- Add support for Python 3.10.
+
 
 6.0.2 (2021-06-07)
 ==================
