@@ -2,7 +2,7 @@
  Changes
 =========
 
-6.1.0 (unreleased)
+6.1.0 (2022-03-15)
 ==================
 
 - Revamp handling of query string and form decoding in ``BrowserRequest``.
