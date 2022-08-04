@@ -17,35 +17,40 @@
 import sys
 import tempfile
 import unittest
+from doctest import DocFileSuite
+from doctest import DocTestSuite
 from io import BytesIO
-from doctest import DocFileSuite, DocTestSuite
 
 import zope.event
 from zope.component import provideAdapter
 from zope.i18n.interfaces.locales import ILocale
+from zope.interface import implementer
 from zope.interface.verify import verifyObject
 from zope.security.checker import ProxyFactory
 from zope.security.proxy import removeSecurityProxy
 
-from zope.interface import implementer
-from zope.publisher.interfaces.logginginfo import ILoggingInfo
-from zope.publisher.http import HTTPRequest, HTTPResponse
-from zope.publisher.http import HTTPInputStream, DirectResult, HTTPCharsets
-from zope.publisher.publish import publish
 from zope.publisher.base import DefaultPublication
-from zope.publisher.interfaces import NotFound
-from zope.publisher.interfaces.http import IHTTPRequest, IHTTPResponse
-from zope.publisher.interfaces.http import IHTTPApplicationResponse
+from zope.publisher.http import DirectResult
+from zope.publisher.http import HTTPCharsets
+from zope.publisher.http import HTTPInputStream
+from zope.publisher.http import HTTPRequest
+from zope.publisher.http import HTTPResponse
 from zope.publisher.interfaces import IResponse
+from zope.publisher.interfaces import NotFound
+from zope.publisher.interfaces.http import IHTTPApplicationResponse
+from zope.publisher.interfaces.http import IHTTPRequest
+from zope.publisher.interfaces.http import IHTTPResponse
+from zope.publisher.interfaces.logginginfo import ILoggingInfo
+from zope.publisher.publish import publish
+from zope.publisher.testing import output_checker
+from zope.publisher.tests.basetestiapplicationrequest import \
+    BaseTestIApplicationRequest
+from zope.publisher.tests.basetestipublicationrequest import \
+    BaseTestIPublicationRequest
+from zope.publisher.tests.basetestipublisherrequest import \
+    BaseTestIPublisherRequest
 from zope.publisher.tests.publication import TestPublication
 
-from zope.publisher.tests.basetestipublicationrequest \
-    import BaseTestIPublicationRequest
-from zope.publisher.tests.basetestipublisherrequest \
-    import BaseTestIPublisherRequest
-from zope.publisher.tests.basetestiapplicationrequest \
-    import BaseTestIApplicationRequest
-from zope.publisher.testing import output_checker
 
 if sys.version_info[0] > 2:
     from http.cookies import CookieError
@@ -397,9 +402,10 @@ class HTTPTests(unittest.TestCase):
         eq = self.assertEqual
         unless = self.assertTrue
 
+        from zope.i18n.interfaces import IUserPreferredLanguages
+
         from zope.publisher.browser import BrowserLanguages
         from zope.publisher.interfaces.http import IHTTPRequest
-        from zope.i18n.interfaces import IUserPreferredLanguages
         provideAdapter(BrowserLanguages, [IHTTPRequest],
                        IUserPreferredLanguages)
 
@@ -529,8 +535,9 @@ class HTTPTests(unittest.TestCase):
                          'another')
 
     def testBasicAuth(self):
-        from zope.publisher.interfaces.http import IHTTPCredentials
         import base64
+
+        from zope.publisher.interfaces.http import IHTTPCredentials
         req = self._createRequest()
         verifyObject(IHTTPCredentials, req)
         lpq = req._authUserPW()
@@ -654,8 +661,8 @@ class HTTPTests(unittest.TestCase):
         self.assertEqual(len(hooks), 3)
 
     def testInterface(self):
-        from zope.publisher.interfaces.http import IHTTPCredentials
         from zope.publisher.interfaces.http import IHTTPApplicationRequest
+        from zope.publisher.interfaces.http import IHTTPCredentials
         rq = self._createRequest()
         verifyObject(IHTTPRequest, rq)
         verifyObject(IHTTPCredentials, rq)
@@ -760,8 +767,9 @@ class ConcreteHTTPTests(HTTPTests):
                 call_log.append(None)
                 return ['utf-8q=0']
 
-        from zope.publisher.interfaces.http import IHTTPRequest
         from zope.i18n.interfaces import IUserPreferredCharsets
+
+        from zope.publisher.interfaces.http import IHTTPRequest
         provideAdapter(MyCharsets, [IHTTPRequest],
                        IUserPreferredCharsets)
 
@@ -798,7 +806,7 @@ class TestHTTPResponse(unittest.TestCase):
 
     def _getResultFromResponse(self, body, charset='utf-8', headers=None):
         response = self._createResponse()
-        assert(charset == 'utf-8')
+        assert charset == 'utf-8'
         if headers is not None:
             for hdr, val in headers.items():
                 response.setHeader(hdr, val)

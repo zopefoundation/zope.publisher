@@ -14,8 +14,9 @@
 """Publication test
 """
 
-from zope.publisher.interfaces import IPublication
 from zope.interface import implementer
+
+from zope.publisher.interfaces import IPublication
 
 
 @implementer(IPublication)

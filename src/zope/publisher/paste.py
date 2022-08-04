@@ -13,9 +13,11 @@
 ##############################################################################
 
 import pkg_resources
+
 import zope.publisher.browser
 import zope.publisher.http
 import zope.publisher.publish
+
 
 browser_methods = set(('GET', 'HEAD', 'POST'))
 

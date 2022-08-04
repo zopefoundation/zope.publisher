@@ -17,8 +17,12 @@ import doctest
 import unittest
 
 import zope.component.testing
+from zope.security.checker import Checker
+from zope.security.checker import CheckerPublic
+from zope.security.checker import defineChecker
+
 from zope.publisher import xmlrpc
-from zope.security.checker import defineChecker, Checker, CheckerPublic
+
 
 try:
     import xmlrpclib

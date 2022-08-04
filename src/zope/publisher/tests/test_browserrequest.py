@@ -20,26 +20,24 @@ from io import BytesIO
 from zope.interface import implementer
 from zope.interface.verify import verifyObject
 
-from zope.publisher.publish import publish as publish_
-from zope.publisher.http import HTTPCharsets
-from zope.publisher.browser import BrowserRequest
-from zope.publisher.interfaces import NotFound
-from zope.publisher.interfaces import ISkinnable
-from zope.publisher.interfaces.browser import IBrowserApplicationRequest
-from zope.publisher.interfaces.browser import IBrowserRequest
-from zope.publisher.interfaces.browser import IBrowserPublication
-from zope.publisher.base import DefaultPublication
-
 from zope.publisher._compat import PYTHON2
-from zope.publisher.tests.test_http import HTTPTests
+from zope.publisher.base import DefaultPublication
+from zope.publisher.browser import BrowserRequest
+from zope.publisher.http import HTTPCharsets
+from zope.publisher.interfaces import ISkinnable
+from zope.publisher.interfaces import NotFound
+from zope.publisher.interfaces.browser import IBrowserApplicationRequest
+from zope.publisher.interfaces.browser import IBrowserPublication
+from zope.publisher.interfaces.browser import IBrowserRequest
+from zope.publisher.publish import publish as publish_
+from zope.publisher.tests.basetestiapplicationrequest import \
+    BaseTestIApplicationRequest
+from zope.publisher.tests.basetestipublicationrequest import \
+    BaseTestIPublicationRequest
+from zope.publisher.tests.basetestipublisherrequest import \
+    BaseTestIPublisherRequest
 from zope.publisher.tests.publication import TestPublication
-
-from zope.publisher.tests.basetestipublicationrequest \
-    import BaseTestIPublicationRequest
-from zope.publisher.tests.basetestipublisherrequest \
-    import BaseTestIPublisherRequest
-from zope.publisher.tests.basetestiapplicationrequest \
-    import BaseTestIApplicationRequest
+from zope.publisher.tests.test_http import HTTPTests
 
 
 EMPTY_FILE_BODY = b"""-----------------------------1

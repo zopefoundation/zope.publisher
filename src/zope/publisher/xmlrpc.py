@@ -15,18 +15,22 @@
 
 This module contains the XMLRPCRequest and XMLRPCResponse
 """
-import sys
 import datetime
+import sys
 from io import BytesIO
 
 import zope.component
 import zope.interface
 from zope.interface import implementer
-from zope.publisher.interfaces.xmlrpc import \
-    IXMLRPCRequest, IXMLRPCPremarshaller, IXMLRPCView
-
-from zope.publisher.http import HTTPRequest, HTTPResponse, DirectResult
 from zope.security.proxy import isinstance
+
+from zope.publisher.http import DirectResult
+from zope.publisher.http import HTTPRequest
+from zope.publisher.http import HTTPResponse
+from zope.publisher.interfaces.xmlrpc import IXMLRPCPremarshaller
+from zope.publisher.interfaces.xmlrpc import IXMLRPCRequest
+from zope.publisher.interfaces.xmlrpc import IXMLRPCView
+
 
 if sys.version_info[0] == 2:
     import xmlrpclib

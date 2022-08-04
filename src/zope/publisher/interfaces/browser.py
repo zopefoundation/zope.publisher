@@ -13,21 +13,20 @@
 ##############################################################################
 """Browser Interfaces
 """
+from zope.browser.interfaces import IBrowserView  # BBB import
 from zope.interface import Attribute
 from zope.interface import alsoProvides
-from zope.browser.interfaces import IBrowserView  # BBB import
-
-from zope.publisher.interfaces import IPublication
-from zope.publisher.interfaces import IPublishTraverse
-from zope.publisher.interfaces import ISkinType
-from zope.publisher.interfaces import ISkinnable
-from zope.publisher.interfaces.http import IHTTPApplicationRequest
-from zope.publisher.interfaces.http import IHTTPRequest
 
 # BBB moved to zope.publisher.interfaces since not only browser request
 # can use the skin pattern
-from zope.publisher.interfaces import IDefaultSkin   # noqa: F401 import unused
-from zope.publisher.interfaces import ISkinChangedEvent   # noqa: F401
+from zope.publisher.interfaces import IDefaultSkin  # noqa: F401 import unused
+from zope.publisher.interfaces import IPublication
+from zope.publisher.interfaces import IPublishTraverse
+from zope.publisher.interfaces import ISkinChangedEvent  # noqa: F401
+from zope.publisher.interfaces import ISkinnable
+from zope.publisher.interfaces import ISkinType
+from zope.publisher.interfaces.http import IHTTPApplicationRequest
+from zope.publisher.interfaces.http import IHTTPRequest
 
 
 class IBrowserApplicationRequest(IHTTPApplicationRequest):

@@ -13,12 +13,11 @@
 ##############################################################################
 """IApplicationRequest Base Test
 """
-from zope.interface.verify import verifyObject
-from zope.publisher.interfaces import IApplicationRequest
-
 from zope.interface.common.tests.basemapping import BaseTestIEnumerableMapping
-
 from zope.interface.common.tests.basemapping import testIReadMapping
+from zope.interface.verify import verifyObject
+
+from zope.publisher.interfaces import IApplicationRequest
 
 
 class BaseTestIApplicationRequest(BaseTestIEnumerableMapping):

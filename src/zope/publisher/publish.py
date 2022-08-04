@@ -18,10 +18,14 @@ Provide an apply-like facility that works with any mapping object
 import sys
 
 import six
-from zope import component
+
 from zope.interface import implementer
-from zope.publisher.interfaces import Retry, IReRaiseException
 from zope.proxy import removeAllProxies
+
+from zope import component
+from zope.publisher.interfaces import IReRaiseException
+from zope.publisher.interfaces import Retry
+
 
 _marker = object()  # Create a new marker object.
 

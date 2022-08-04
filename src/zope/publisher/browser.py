@@ -18,40 +18,41 @@ big improvement of the 'BrowserRequest' to 'HTTPRequest' is that is can handle
 HTML form data and convert them into a Python-native format. Even file data is
 packaged into a nice, Python-friendly 'FileUpload' object.
 """
-from email.message import Message
 import re
+from email.message import Message
 
-import multipart
 import six
 from six.moves.urllib.parse import parse_qsl
+
+import multipart
 import zope.component
 import zope.interface
-from zope.interface import implementer, directlyProvides
-from zope.i18n.interfaces import IUserPreferredLanguages
-from zope.i18n.interfaces import IUserPreferredCharsets
 from zope.i18n.interfaces import IModifiableUserPreferredLanguages
+from zope.i18n.interfaces import IUserPreferredCharsets
+from zope.i18n.interfaces import IUserPreferredLanguages
+from zope.interface import directlyProvides
+from zope.interface import implementer
 from zope.location import Location
 
-from zope.publisher.interfaces import IHeld, NotFound
-from zope.publisher.interfaces.browser import IBrowserRequest
-from zope.publisher.interfaces.browser import IDefaultBrowserLayer
-from zope.publisher.interfaces.browser import IBrowserApplicationRequest
-from zope.publisher.interfaces.browser import IBrowserView
-from zope.publisher.interfaces.browser import IBrowserPage
-from zope.publisher.interfaces.http import IHTTPRequest
+from zope.publisher._compat import PYTHON2
 from zope.publisher.http import HTTPRequest
 from zope.publisher.http import HTTPResponse
 from zope.publisher.http import getCharsetUsingRequest
-
 # BBB imports, these components got moved from this module
-from zope.publisher.interfaces import ISkinType  # noqa: F401 import unused
+from zope.publisher.interfaces import IHeld
 from zope.publisher.interfaces import ISkinChangedEvent  # noqa: F401
+from zope.publisher.interfaces import ISkinType  # noqa: F401 import unused
+from zope.publisher.interfaces import NotFound
+from zope.publisher.interfaces.browser import IBrowserApplicationRequest
+from zope.publisher.interfaces.browser import IBrowserPage
+from zope.publisher.interfaces.browser import IBrowserRequest
+from zope.publisher.interfaces.browser import IBrowserView
+from zope.publisher.interfaces.browser import IDefaultBrowserLayer
+from zope.publisher.interfaces.http import IHTTPRequest
+from zope.publisher.skinnable import SkinChangedEvent  # noqa: F401
+from zope.publisher.skinnable import applySkin  # noqa: F401
 from zope.publisher.skinnable import getDefaultSkin  # noqa: F401
 from zope.publisher.skinnable import setDefaultSkin  # noqa: F401
-from zope.publisher.skinnable import applySkin  # noqa: F401
-from zope.publisher.skinnable import SkinChangedEvent  # noqa: F401
-
-from zope.publisher._compat import PYTHON2
 
 
 __ArrayTypes = (list, tuple)

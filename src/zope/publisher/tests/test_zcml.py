@@ -13,21 +13,26 @@
 ##############################################################################
 """Tests for browser:defaultSkin and browser:defaultView directives
 """
-from io import BytesIO
 import doctest
 import unittest
+from io import BytesIO
 
+from zope.configuration.xmlconfig import XMLConfig
+from zope.configuration.xmlconfig import xmlconfig
+from zope.interface import Interface
+from zope.interface import directlyProvides
+from zope.interface import implementer
+from zope.interface import providedBy
 from zope.testing import cleanup
-from zope import component
-
-from zope.configuration.xmlconfig import XMLConfig, xmlconfig
-from zope.publisher.browser import TestRequest, BrowserView
-from zope.publisher.defaultview import getDefaultViewName
-from zope.publisher.interfaces import IDefaultViewName, IDefaultSkin
-from zope.publisher.interfaces.browser import IBrowserRequest
-from zope.interface import Interface, implementer, providedBy, directlyProvides
 
 import zope.publisher
+from zope import component
+from zope.publisher.browser import BrowserView
+from zope.publisher.browser import TestRequest
+from zope.publisher.defaultview import getDefaultViewName
+from zope.publisher.interfaces import IDefaultSkin
+from zope.publisher.interfaces import IDefaultViewName
+from zope.publisher.interfaces.browser import IBrowserRequest
 
 
 class IOb(Interface):

@@ -14,10 +14,14 @@
 """Tests for BaseResponse
 """
 
-from unittest import TestCase, TestSuite, makeSuite
+from unittest import TestCase
+from unittest import TestSuite
+from unittest import makeSuite
+
+from zope.interface.verify import verifyObject
+
 from zope.publisher.base import BaseResponse
 from zope.publisher.interfaces import IResponse
-from zope.interface.verify import verifyObject
 
 
 class TestBaseResponse(TestCase):

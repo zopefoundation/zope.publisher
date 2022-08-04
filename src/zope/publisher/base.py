@@ -16,19 +16,26 @@
 Specifically, 'BaseRequest', 'BaseResponse', and 'DefaultPublication' are
 specified here.
 """
-from io import BytesIO, StringIO
+from io import BytesIO
+from io import StringIO
 
-from zope.interface import implementer
-from zope.interface.common.mapping import IReadMapping, IEnumerableMapping
 from zope.exceptions.exceptionformatter import print_exception
+from zope.interface import implementer
+from zope.interface.common.mapping import IEnumerableMapping
+from zope.interface.common.mapping import IReadMapping
 from zope.security.proxy import removeSecurityProxy
 
-from zope.publisher.interfaces import IPublication, IHeld
-from zope.publisher.interfaces import NotFound, DebugError, Unauthorized
-from zope.publisher.interfaces import IRequest, IResponse, IDebugFlags
+from zope.publisher._compat import PYTHON2
+from zope.publisher.interfaces import DebugError
+from zope.publisher.interfaces import IDebugFlags
+from zope.publisher.interfaces import IHeld
+from zope.publisher.interfaces import IPublication
+from zope.publisher.interfaces import IRequest
+from zope.publisher.interfaces import IResponse
+from zope.publisher.interfaces import NotFound
+from zope.publisher.interfaces import Unauthorized
 from zope.publisher.publish import mapply
 
-from zope.publisher._compat import PYTHON2
 
 _marker = object()
 

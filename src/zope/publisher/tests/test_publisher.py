@@ -14,19 +14,22 @@
 """Test Publisher
 """
 import unittest
+from io import BytesIO
+
+from zope.interface import implementedBy
+from zope.interface.verify import verifyClass
 
 from zope import component
-from zope.publisher.publish import publish, DoNotReRaiseException
-from zope.publisher.base import TestRequest
 from zope.publisher.base import DefaultPublication
-from zope.publisher.interfaces import Unauthorized, NotFound, DebugError
-from zope.publisher.interfaces import IPublication, IReRaiseException, \
-    Retry
-
-from zope.interface.verify import verifyClass
-from zope.interface import implementedBy
-
-from io import BytesIO
+from zope.publisher.base import TestRequest
+from zope.publisher.interfaces import DebugError
+from zope.publisher.interfaces import IPublication
+from zope.publisher.interfaces import IReRaiseException
+from zope.publisher.interfaces import NotFound
+from zope.publisher.interfaces import Retry
+from zope.publisher.interfaces import Unauthorized
+from zope.publisher.publish import DoNotReRaiseException
+from zope.publisher.publish import publish
 
 
 class ErrorToRetry(Exception):

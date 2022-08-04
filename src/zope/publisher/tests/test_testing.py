@@ -13,9 +13,12 @@
 ##############################################################################
 
 from __future__ import with_statement
+
 import unittest
-import zope.publisher.testing
+
 import zope.security.management
+
+import zope.publisher.testing
 
 
 class InteractionHelperTest(unittest.TestCase):

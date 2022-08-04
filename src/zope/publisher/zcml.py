@@ -13,16 +13,18 @@
 ##############################################################################
 """Default view and default skin ZCML configuration feature.
 """
-from zope import component
 from zope.component.interface import provideInterface
 from zope.component.zcml import handler
-from zope.configuration.fields import GlobalObject, GlobalInterface
+from zope.configuration.fields import GlobalInterface
+from zope.configuration.fields import GlobalObject
 from zope.interface import Interface
+from zope.schema import TextLine
+
+from zope import component
 from zope.publisher.interfaces import IDefaultViewName
 from zope.publisher.interfaces.browser import IBrowserRequest
 from zope.publisher.interfaces.browser import IBrowserSkinType
 from zope.publisher.interfaces.browser import IDefaultSkin
-from zope.schema import TextLine
 
 
 class IDefaultSkinDirective(Interface):

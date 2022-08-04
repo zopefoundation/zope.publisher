@@ -14,16 +14,16 @@
 """Interfaces for the publisher.
 """
 # BBB
-from zope.browser.interfaces import IView   # noqa: F401 import unused
-from zope.interface import Interface
+from zope.browser.interfaces import IView  # noqa: F401 import unused
 from zope.interface import Attribute
+from zope.interface import Interface
 from zope.interface import implementer
-from zope.interface.interfaces import IInterface
-from zope.interface.common.mapping import IEnumerableMapping
 from zope.interface.common.interfaces import IException
 from zope.interface.common.interfaces import ILookupError
-from zope.security.interfaces import IParticipation
+from zope.interface.common.mapping import IEnumerableMapping
+from zope.interface.interfaces import IInterface
 # BBB:
+from zope.security.interfaces import IParticipation
 from zope.security.interfaces import Unauthorized  # noqa: F401 import unused
 
 

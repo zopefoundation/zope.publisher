@@ -14,9 +14,13 @@
 """FTP Publisher
 """
 import six
+
 from zope.interface import implementer
-from zope.publisher.interfaces.ftp import IFTPCredentials, IFTPRequest
-from zope.publisher.base import BaseResponse, BaseRequest
+
+from zope.publisher.base import BaseRequest
+from zope.publisher.base import BaseResponse
+from zope.publisher.interfaces.ftp import IFTPCredentials
+from zope.publisher.interfaces.ftp import IFTPRequest
 
 
 class FTPResponse(BaseResponse):
