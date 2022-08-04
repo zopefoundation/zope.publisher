@@ -15,7 +15,10 @@
 """
 import sys
 from io import BytesIO
-from unittest import TestCase, TestSuite, makeSuite
+from unittest import TestCase
+from unittest import TestSuite
+from unittest import makeSuite
+
 import zope.publisher.ftp
 
 

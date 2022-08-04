@@ -18,8 +18,9 @@ zope.publisher.interfaces.logginginfo.ILoggingInfo.
 """
 from zope.component import adapter
 from zope.interface import implementer
-from zope.publisher.interfaces.logginginfo import ILoggingInfo
 from zope.security.interfaces import IPrincipal
+
+from zope.publisher.interfaces.logginginfo import ILoggingInfo
 
 
 @adapter(IPrincipal)

@@ -19,14 +19,17 @@ python-3.x (became xmlrpc.client).
 The intention is to let xmlrpclib names to be importable from zcml.
 """
 import sys
+
+
 PYTHON2 = sys.version_info[0] == 2
 PYTHON3 = sys.version_info[0] == 3
 
 if PYTHON2:
     def to_unicode(s):
         return unicode(s, 'unicode_escape')  # noqa: F405 may be undefined
-    from xmlrpclib import *  # noqa: F403 unable to detect undefined names
     import types
+
+    from xmlrpclib import *  # noqa: F403 unable to detect undefined names
     CLASS_TYPES = (type, types.ClassType)
 else:
     def to_unicode(s):

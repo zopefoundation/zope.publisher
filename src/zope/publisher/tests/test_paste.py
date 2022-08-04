@@ -11,8 +11,8 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-import unittest
 import doctest
+import unittest
 
 
 class SamplePublication(object):

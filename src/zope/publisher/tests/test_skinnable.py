@@ -14,9 +14,9 @@
 ##############################################################################
 """HTTP Publisher Tests
 """
+import doctest
 import re
 import unittest
-import doctest
 
 import zope.testing
 from zope.testing.renormalizing import RENormalizing

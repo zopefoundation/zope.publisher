@@ -18,6 +18,6 @@ quoted-string values as defined in RFC 822.
 
 """
 # BBB
+from zope.contenttype.parse import join  # noqa: F401 import unused
 from zope.contenttype.parse import parse  # noqa: F401 import unused
 from zope.contenttype.parse import parseOrdered  # noqa: F401 import unused
-from zope.contenttype.parse import join  # noqa: F401 import unused

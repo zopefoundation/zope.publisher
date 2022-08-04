@@ -12,14 +12,16 @@
 #
 ##############################################################################
 
-import re
 import contextlib
-import zope.publisher.browser
+import re
+
 import zope.security.management
 import zope.security.testing
 from zope.testing import renormalizing
 
+import zope.publisher.browser
 from zope.publisher._compat import PYTHON2
+
 
 if PYTHON2:
     rules = [(re.compile("b('.*?')"), r"\1"),

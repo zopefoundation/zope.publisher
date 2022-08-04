@@ -15,8 +15,8 @@
 """
 import unittest
 
-from zope.publisher.publish import mapply
 from zope.publisher._compat import PYTHON2
+from zope.publisher.publish import mapply
 
 
 class AncientMethodCode(object):

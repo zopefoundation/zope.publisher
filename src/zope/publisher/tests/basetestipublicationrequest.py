@@ -15,9 +15,13 @@
 """
 import sys
 
-from zope.interface import Interface, directlyProvides, implementer
+from zope.interface import Interface
+from zope.interface import directlyProvides
+from zope.interface import implementer
 from zope.interface.verify import verifyObject
-from zope.publisher.interfaces import IPublicationRequest, IHeld
+
+from zope.publisher.interfaces import IHeld
+from zope.publisher.interfaces import IPublicationRequest
 from zope.publisher.interfaces.browser import IBrowserSkinType
 
 

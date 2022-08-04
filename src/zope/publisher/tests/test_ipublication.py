@@ -15,8 +15,10 @@
 """
 
 import sys
-from unittest import TestCase, makeSuite
 from io import BytesIO
+from unittest import TestCase
+from unittest import makeSuite
+
 from zope.interface.verify import verifyObject
 
 from zope.publisher.interfaces import IPublication

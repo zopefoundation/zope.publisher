@@ -13,7 +13,9 @@
 ##############################################################################
 """XML-RPC Views test objects
 """
-from zope.interface import Interface, implementer
+from zope.interface import Interface
+from zope.interface import implementer
+
 from zope.publisher.interfaces.xmlrpc import IXMLRPCPublisher
 
 

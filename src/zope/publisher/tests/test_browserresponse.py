@@ -15,13 +15,16 @@
 """
 
 import sys
-from unittest import TestCase, TestSuite, makeSuite
-from zope.publisher.browser import BrowserResponse
+from unittest import TestCase
+from unittest import TestSuite
+from unittest import makeSuite
+
 from zope.interface.verify import verifyObject
 
-from zope.publisher.interfaces.http import IHTTPResponse
-from zope.publisher.interfaces.http import IHTTPApplicationResponse
+from zope.publisher.browser import BrowserResponse
 from zope.publisher.interfaces import IResponse
+from zope.publisher.interfaces.http import IHTTPApplicationResponse
+from zope.publisher.interfaces.http import IHTTPResponse
 
 
 # TODO: Waaa need more tests

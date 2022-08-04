@@ -19,6 +19,7 @@ from doctest import DocTestSuite
 
 from zope.testing.renormalizing import RENormalizing
 
+
 __docformat__ = "reStructuredText"
 
 

@@ -13,20 +13,20 @@
 ##############################################################################
 """baserequest tests
 """
-from unittest import TestCase, makeSuite
-
-from zope.publisher.tests.basetestipublicationrequest \
-    import BaseTestIPublicationRequest
-
-from zope.publisher.tests.basetestipublisherrequest \
-    import BaseTestIPublisherRequest
-
-from zope.publisher.tests.basetestiapplicationrequest \
-    import BaseTestIApplicationRequest
-
 from io import BytesIO
-from zope.interface import Interface, alsoProvides
+from unittest import TestCase
+from unittest import makeSuite
+
 from zope.component import provideAdapter
+from zope.interface import Interface
+from zope.interface import alsoProvides
+
+from zope.publisher.tests.basetestiapplicationrequest import \
+    BaseTestIApplicationRequest
+from zope.publisher.tests.basetestipublicationrequest import \
+    BaseTestIPublicationRequest
+from zope.publisher.tests.basetestipublisherrequest import \
+    BaseTestIPublisherRequest
 
 
 class TestBaseRequest(BaseTestIPublicationRequest,
@@ -96,10 +96,11 @@ class TestBaseRequest(BaseTestIPublicationRequest,
     def test_retry_keeps_everything(self):
         """lowlevel test for retry (see #98440)"""
         from zope.publisher.browser import TestRequest
-        from zope.publisher.skinnable import setDefaultSkin
         from zope.publisher.interfaces import IDefaultSkin
         from zope.publisher.interfaces.browser import IBrowserRequest
         from zope.publisher.interfaces.browser import IBrowserSkinType
+        from zope.publisher.skinnable import setDefaultSkin
+
         # create a retryable request
         request = TestRequest()
         self.assertTrue(request.supportsRetry())

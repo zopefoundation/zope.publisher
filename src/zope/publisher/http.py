@@ -13,15 +13,29 @@
 ##############################################################################
 """HTTP Publisher
 """
-import re
 import base64
+import logging
+import re
+import tempfile
 from io import BytesIO
+
+import zope.component
+import zope.contenttype.parse
+import zope.event
+import zope.interface
 from zope.i18n.interfaces import IUserPreferredCharsets
 from zope.i18n.interfaces import IUserPreferredLanguages
-from zope.i18n.locales import locales, LoadLocaleError
-from zope.publisher.base import BaseRequest, BaseResponse
+from zope.i18n.locales import LoadLocaleError
+from zope.i18n.locales import locales
+
+from zope.publisher._compat import CLASS_TYPES
+from zope.publisher._compat import PYTHON2
+from zope.publisher._compat import to_unicode
+from zope.publisher.base import BaseRequest
+from zope.publisher.base import BaseResponse
 from zope.publisher.base import RequestDataGetter
-from zope.publisher.base import RequestDataProperty, RequestDataMapper
+from zope.publisher.base import RequestDataMapper
+from zope.publisher.base import RequestDataProperty
 from zope.publisher.interfaces import ISkinnable
 from zope.publisher.interfaces import Redirect
 from zope.publisher.interfaces.http import IHTTPApplicationRequest
@@ -33,24 +47,19 @@ from zope.publisher.interfaces.http import IHTTPVirtualHostChangedEvent
 from zope.publisher.interfaces.http import IResult
 from zope.publisher.interfaces.logginginfo import ILoggingInfo
 from zope.publisher.skinnable import setDefaultSkin
-import logging
-import tempfile
-import zope.component
-import zope.contenttype.parse
-import zope.event
-import zope.interface
 
-from zope.publisher._compat import PYTHON2, CLASS_TYPES, to_unicode
 
 if PYTHON2:
-    import Cookie as cookies
-    from urllib import quote
-    from urlparse import urlsplit
     from cgi import escape
+    from urllib import quote
+
+    import Cookie as cookies
+    from urlparse import urlsplit
 else:
     import http.cookies as cookies
-    from urllib.parse import quote, urlsplit
     from html import escape
+    from urllib.parse import quote
+    from urllib.parse import urlsplit
     unicode = str
     basestring = (str, bytes)
 

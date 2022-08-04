@@ -13,13 +13,15 @@
 ##############################################################################
 """Request Data-Property Tests
 """
-from unittest import TestCase, makeSuite
+from unittest import TestCase
+from unittest import makeSuite
 
-from zope.interface.common.tests.basemapping \
-    import testIEnumerableMapping, testIReadMapping
+from zope.interface.common.tests.basemapping import testIEnumerableMapping
+from zope.interface.common.tests.basemapping import testIReadMapping
 
-from zope.publisher.base \
-    import RequestDataProperty, RequestDataGetter, RequestDataMapper
+from zope.publisher.base import RequestDataGetter
+from zope.publisher.base import RequestDataMapper
+from zope.publisher.base import RequestDataProperty
 
 
 class TestDataGettr(RequestDataGetter):

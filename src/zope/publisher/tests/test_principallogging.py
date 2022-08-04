@@ -14,6 +14,7 @@
 """Test for PrincipalLogging adapter.
 """
 import unittest
+
 from zope.interface.verify import verifyObject
 
 
