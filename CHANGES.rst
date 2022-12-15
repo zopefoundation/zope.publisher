@@ -5,7 +5,7 @@
 6.1.1 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Add support for Python 3.11.
 
 
 6.1.0 (2022-03-15)
