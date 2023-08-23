@@ -15,8 +15,6 @@
 """
 
 from unittest import TestCase
-from unittest import TestSuite
-from unittest import makeSuite
 
 from zope.interface.verify import verifyObject
 
@@ -28,9 +26,3 @@ class TestBaseResponse(TestCase):
 
     def test_interface(self):
         verifyObject(IResponse, BaseResponse())
-
-
-def test_suite():
-    return TestSuite((
-        makeSuite(TestBaseResponse),
-    ))

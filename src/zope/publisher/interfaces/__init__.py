@@ -86,7 +86,7 @@ class NotFound(LookupError, TraversalException):
             ob = repr(self.ob)
         except:   # noqa: E722 do not use bare 'except'
             ob = 'unprintable object'
-        return 'Object: %s, name: %s' % (ob, repr(self.name))
+        return 'Object: {}, name: {}'.format(ob, repr(self.name))
 
 
 class IDebugError(ITraversalException):
@@ -549,7 +549,7 @@ class IStartRequestEvent(IRequestEvent):
     """An event which gets sent before publication of a request."""
 
 
-class RequestEvent(object):
+class RequestEvent:
     """Events for requests.
 
     :param request: The request the event is for.
@@ -564,7 +564,7 @@ class EndRequestEvent(RequestEvent):
     """An event which gets sent when the publication is ended"""
 
     def __init__(self, ob, request):
-        super(EndRequestEvent, self).__init__(request)
+        super().__init__(request)
         self.object = ob
 
 

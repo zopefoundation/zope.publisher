@@ -38,18 +38,10 @@ But we can strip the proxies using premarshal:
 
 So xmlrpclib will be happy. :)
 
-Import xmlrpclib depending on current python interpreter version
-
-  >>> import sys
-  >>> if sys.version_info[0] == 2:
-  ...     import xmlrpclib
-  ... else:
-  ...     import xmlrpc.client as xmlrpclib
-
-
 We can also use premarshal to strip proxies off of Fault objects.
 We have to make a security declaration first though:
 
+  >>> import xmlrpc.client as xmlrpclib
   >>> fault = xmlrpclib.Fault(1, 'waaa')
   >>> proxied_fault = ProxyFactory(fault)
   >>> stripped_fault = premarshal(proxied_fault)

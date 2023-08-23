@@ -15,6 +15,7 @@
 """
 import doctest
 import unittest
+import xmlrpc.client as xmlrpclib
 
 import zope.component.testing
 from zope.security.checker import Checker
@@ -22,12 +23,6 @@ from zope.security.checker import CheckerPublic
 from zope.security.checker import defineChecker
 
 from zope.publisher import xmlrpc
-
-
-try:
-    import xmlrpclib
-except ImportError:
-    import xmlrpc.client as xmlrpclib
 
 
 class TestXMLRPCResponse(unittest.TestCase):

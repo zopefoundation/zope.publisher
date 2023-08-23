@@ -15,7 +15,6 @@
 """
 from io import BytesIO
 from unittest import TestCase
-from unittest import makeSuite
 
 from zope.component import provideAdapter
 from zope.interface import Interface
@@ -121,7 +120,3 @@ class TestBaseRequest(BaseTestIPublicationRequest,
         # the requests both provide the default skin
         self.assertTrue(ISomeSkin.providedBy(request))
         self.assertTrue(ISomeSkin.providedBy(retried))
-
-
-def test_suite():
-    return makeSuite(TestBaseRequest)

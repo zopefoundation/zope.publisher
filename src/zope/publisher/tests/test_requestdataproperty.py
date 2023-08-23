@@ -14,7 +14,6 @@
 """Request Data-Property Tests
 """
 from unittest import TestCase
-from unittest import makeSuite
 
 from zope.interface.common.tests.basemapping import testIEnumerableMapping
 from zope.interface.common.tests.basemapping import testIReadMapping
@@ -35,7 +34,7 @@ class TestDataMapper(RequestDataMapper):
 _marker = object()
 
 
-class Data(object):
+class Data:
 
     def getSomething(self, name, default=_marker):
         if name.startswith('Z'):
@@ -79,7 +78,3 @@ class Test(TestCase):
             pass
         else:
             raise AssertionError("Shouldn't be able to assign")
-
-
-def test_suite():
-    return makeSuite(Test)

@@ -14,10 +14,14 @@
 """HTTP Publisher
 """
 import base64
+import http.cookies as cookies
 import logging
 import re
 import tempfile
+from html import escape
 from io import BytesIO
+from urllib.parse import quote
+from urllib.parse import urlsplit
 
 import zope.component
 import zope.contenttype.parse
@@ -28,9 +32,6 @@ from zope.i18n.interfaces import IUserPreferredLanguages
 from zope.i18n.locales import LoadLocaleError
 from zope.i18n.locales import locales
 
-from zope.publisher._compat import CLASS_TYPES
-from zope.publisher._compat import PYTHON2
-from zope.publisher._compat import to_unicode
 from zope.publisher.base import BaseRequest
 from zope.publisher.base import BaseResponse
 from zope.publisher.base import RequestDataGetter
@@ -48,20 +49,6 @@ from zope.publisher.interfaces.http import IResult
 from zope.publisher.interfaces.logginginfo import ILoggingInfo
 from zope.publisher.skinnable import setDefaultSkin
 
-
-if PYTHON2:
-    from cgi import escape
-    from urllib import quote
-
-    import Cookie as cookies
-    from urlparse import urlsplit
-else:
-    import http.cookies as cookies
-    from html import escape
-    from urllib.parse import quote
-    from urllib.parse import urlsplit
-    unicode = str
-    basestring = (str, bytes)
 
 # Default Encoding
 ENCODING = 'UTF-8'
@@ -116,7 +103,7 @@ def sane_environment(env):
     # return an environment mapping which has been cleaned of
     # funny business such as REDIRECT_ prefixes added by Apache
     # or HTTP_CGI_AUTHORIZATION hacks.
-    # It also makes sure PATH_INFO is a unicode string.
+    # It also makes sure PATH_INFO is a string.
     dict = {}
     for key, val in env.items():
         while key.startswith('REDIRECT_'):
@@ -133,7 +120,7 @@ def sane_environment(env):
 
 
 @zope.interface.implementer(IHTTPVirtualHostChangedEvent)
-class HTTPVirtualHostChangedEvent(object):
+class HTTPVirtualHostChangedEvent:
 
     request = None
 
@@ -212,7 +199,7 @@ def init_status_codes():
 init_status_codes()
 
 
-class URLGetter(object):
+class URLGetter:
 
     __slots__ = "__request"
 
@@ -242,7 +229,7 @@ class URLGetter(object):
             raise
 
 
-class HTTPInputStream(object):
+class HTTPInputStream:
     """Special stream that supports caching the read data.
 
     This is important, so that we can retry requests.
@@ -361,7 +348,7 @@ class HTTPRequest(BaseRequest):
 
     def __init__(self, body_instream, environ, response=None):
 
-        super(HTTPRequest, self).__init__(
+        super().__init__(
             HTTPInputStream(body_instream, environ), environ, response)
 
         self._orig_env = environ
@@ -453,7 +440,7 @@ class HTTPRequest(BaseRequest):
         else:
             host = hostname
 
-        return '%s://%s' % (protocol, host)
+        return '{}://{}'.format(protocol, host)
 
     def _parseCookies(self, text, result=None):
         """Parse 'text' and return found cookies as 'result' dictionary."""
@@ -490,7 +477,7 @@ class HTTPRequest(BaseRequest):
             self._parseCookies(cookie_header, self._cookies)
 
     def __setupPath(self):
-        # PATH_INFO is unicode here, so setupPath_helper sets up the
+        # PATH_INFO is str here, so setupPath_helper sets up the
         # traversal stack correctly.
         self._setupPath_helper("PATH_INFO")
 
@@ -522,10 +509,10 @@ class HTTPRequest(BaseRequest):
 
     def traverse(self, obj):
         """See IPublisherRequest"""
-        ob = super(HTTPRequest, self).traverse(obj)
+        ob = super().traverse(obj)
         if self._path_suffix:
             self._traversal_stack = self._path_suffix
-            ob = super(HTTPRequest, self).traverse(ob)
+            ob = super().traverse(ob)
 
         return ob
 
@@ -570,7 +557,7 @@ class HTTPRequest(BaseRequest):
 
     def setPrincipal(self, principal):
         """See IPublicationRequest"""
-        super(HTTPRequest, self).setPrincipal(principal)
+        super().setPrincipal(principal)
         logging_info = ILoggingInfo(principal, None)
         if logging_info is None:
             message = '-'
@@ -598,7 +585,7 @@ class HTTPRequest(BaseRequest):
         else:
             if not names:
                 return self._app_server
-            return "%s/%s" % (self._app_server, '/'.join(names))
+            return "{}/{}".format(self._app_server, '/'.join(names))
 
     def getApplicationURL(self, depth=0, path_only=False):
         """See IHTTPApplicationRequest"""
@@ -616,13 +603,14 @@ class HTTPRequest(BaseRequest):
         if path_only:
             return names and ('/' + '/'.join(names)) or '/'
         else:
-            return (names and ("%s/%s" % (self._app_server, '/'.join(names)))
+            return (names
+                    and ("{}/{}".format(self._app_server, '/'.join(names)))
                     or self._app_server)
 
     def setApplicationServer(self, host, proto='http', port=None):
         if port and str(port) != DEFAULT_PORTS.get(proto):
-            host = '%s:%s' % (host, port)
-        self._app_server = '%s://%s' % (proto, host)
+            host = '{}:{}'.format(host, port)
+        self._app_server = '{}://{}'.format(proto, host)
         zope.event.notify(HTTPVirtualHostChangedEvent(self))
 
     def shiftNameToApplication(self):
@@ -653,7 +641,7 @@ class HTTPRequest(BaseRequest):
 
     def __repr__(self):
         # Returns a *short* string.
-        return '<%s.%s instance URL=%s>' % (
+        return '<{}.{} instance URL={}>'.format(
             self.__class__.__module__, self.__class__.__name__, str(self.URL))
 
     def get(self, key, default=None):
@@ -663,7 +651,7 @@ class HTTPRequest(BaseRequest):
         if result is not marker:
             return result
 
-        return super(HTTPRequest, self).get(key, default)
+        return super().get(key, default)
 
     def keys(self):
         """See Interface.Common.Mapping.IEnumerableMapping"""
@@ -687,12 +675,12 @@ class HTTPResponse(BaseResponse):
     )
 
     def __init__(self):
-        super(HTTPResponse, self).__init__()
+        super().__init__()
         self.reset()
 
     def reset(self):
         """See IResponse"""
-        super(HTTPResponse, self).reset()
+        super().reset()
         self._headers = {}
         self._cookies = {}
         self._status = 599
@@ -708,7 +696,7 @@ class HTTPResponse(BaseResponse):
         try:
             status = int(status)
         except ValueError:
-            if isinstance(status, basestring):
+            if isinstance(status, (str, bytes)):
                 status = status.lower()
             # Use a standard status code, falling back to 500 for
             # nonstandard values (such as "valueerror")
@@ -780,7 +768,7 @@ class HTTPResponse(BaseResponse):
         else:
             cookie = cookies[name] = {}
         if 'value' in cookie:
-            cookie['value'] = '%s:%s' % (cookie['value'], value)
+            cookie['value'] = '{}:{}'.format(cookie['value'], value)
         else:
             cookie['value'] = value
 
@@ -819,19 +807,19 @@ class HTTPResponse(BaseResponse):
             r = zope.component.queryMultiAdapter(
                 (result, self._request), IResult)
             if r is None:
-                if isinstance(result, basestring):
+                if isinstance(result, (str, bytes)):
                     r = result
                 elif result is None:
-                    # Default to bytes because unicode results require a
+                    # Default to bytes because str results require a
                     # corresponding Content-Type header.
                     r = b''
                 else:
                     raise TypeError(
                         'The result should be None, a string, or adaptable to '
                         'IResult.')
-            if isinstance(r, basestring):
+            if isinstance(r, (str, bytes)):
                 r, headers = self._implicitResult(r)
-                self._headers.update(dict((k, [v]) for (k, v) in headers))
+                self._headers.update({k: [v] for (k, v) in headers})
                 r = (r,)  # chunking should be much larger than per character
 
         self._result = r
@@ -850,11 +838,11 @@ class HTTPResponse(BaseResponse):
         encoding = getCharsetUsingRequest(self._request) or 'utf-8'
         content_type = self.getHeader('content-type') or ''
 
-        if isinstance(body, unicode):
+        if isinstance(body, str):
             ct = content_type
             if not unicode_mimetypes_re.match(ct):
                 raise ValueError(
-                    'Unicode results must have a text, RFC 3023, RFC 4627,'
+                    'str results must have a text, RFC 3023, RFC 4627,'
                     ' or +xml content type.')
 
             major, minor, params = zope.contenttype.parse.parse(ct)
@@ -874,7 +862,7 @@ class HTTPResponse(BaseResponse):
             if (major, minor) != ('application', 'json'):
                 # The RFC says this is UTF-8, and the type has no params.
                 params['charset'] = encoding
-            content_type = "%s/%s" % (major, minor)
+            content_type = "{}/{}".format(major, minor)
             if params:
                 content_type += ";"
                 content_type += ";".join(k + "=" + v
@@ -893,13 +881,13 @@ class HTTPResponse(BaseResponse):
         Calls self.setBody() with an error response.
         """
         t, v = exc_info[:2]
-        if isinstance(t, CLASS_TYPES):
+        if isinstance(t, type):
             if issubclass(t, Redirect):
                 self.redirect(v.getLocation(), trusted=v.getTrusted())
                 return
             title = tname = t.__name__
         else:
-            title = tname = to_unicode(t)
+            title = tname = t
 
         # Throwing non-protocol-specific exceptions is a good way
         # for apps to control the status code.
@@ -911,15 +899,15 @@ class HTTPResponse(BaseResponse):
 
     def internalError(self):
         'See IPublisherResponse'
-        self.setStatus(500, u"The engines can't take any more, Jim!")
+        self.setStatus(500, "The engines can't take any more, Jim!")
 
     def _html(self, title, content):
         t = escape(title)
         return (
-            u"<html><head><title>%s</title></head>\n"
-            u"<body><h2>%s</h2>\n"
-            u"%s\n"
-            u"</body></html>\n"
+            "<html><head><title>%s</title></head>\n"
+            "<body><h2>%s</h2>\n"
+            "%s\n"
+            "</body></html>\n"
         ) % (t, t, content)
 
     def retry(self):
@@ -968,14 +956,9 @@ class HTTPResponse(BaseResponse):
         for name, attrs in self._cookies.items():
             name = str(name)
 
-            # In python-2.x, Cookie module expects plain bytes (not unicode).
-            # However, in python-3.x, latin-1 unicode string is expected (not
-            # bytes).  We make this distinction clear here.
+            # The Cookie module expects latin-1 unicode string.
             cookieval = attrs['value'].encode(ENCODING)
-            if PYTHON2:
-                c[name] = cookieval
-            else:
-                c[name] = cookieval.decode('latin-1')
+            c[name] = cookieval.decode('latin-1')
 
             for k, v in attrs.items():
                 if k == 'value':
@@ -1013,13 +996,13 @@ def extract_host(url):
     if ':' not in host:
         port = DEFAULT_PORTS.get(scheme)
         if port:
-            host = '%s:%s' % (host, port)
+            host = '{}:{}'.format(host, port)
     return host
 
 
 @zope.interface.implementer(IUserPreferredCharsets)
 @zope.component.adapter(IHTTPRequest)
-class HTTPCharsets(object):
+class HTTPCharsets:
 
     def __init__(self, request):
         self.request = request
@@ -1063,7 +1046,7 @@ class HTTPCharsets(object):
         if not sawstar and not sawiso88591 and header_present:
             charsets.append((1.0, 'iso-8859-1'))
         # UTF-8 is **always** preferred over anything else.
-        # Reason: UTF-8 is not specific and can encode the entire unicode
+        # Reason: UTF-8 is not specific and can encode the entire str
         # range , unlike many other encodings. Since Zope can easily use very
         # different ranges, like providing a French-Chinese dictionary, it is
         # always good to use UTF-8.
@@ -1093,7 +1076,7 @@ def getCharsetUsingRequest(request):
 
 
 @zope.interface.implementer(IResult)
-class DirectResult(object):
+class DirectResult:
     """A generic result object.
 
     The result's body can be any iterable. It is the responsibility of the

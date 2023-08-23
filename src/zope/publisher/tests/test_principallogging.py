@@ -18,9 +18,9 @@ import unittest
 from zope.interface.verify import verifyObject
 
 
-class PrincipalStub(object):
+class PrincipalStub:
 
-    id = u'\xfc principal'
+    id = '\xfc principal'
 
 
 class TestPrincipalLogging(unittest.TestCase):
@@ -37,9 +37,3 @@ class TestPrincipalLogging(unittest.TestCase):
         principal = PrincipalStub()
         pl = PrincipalLogging(principal)
         self.assertEqual(pl.getLogMessage(), b'\\xfc principal')
-
-
-def test_suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(TestPrincipalLogging))
-    return suite

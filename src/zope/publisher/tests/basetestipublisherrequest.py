@@ -19,7 +19,7 @@ from zope.interface.verify import verifyObject
 from zope.publisher.interfaces import IPublisherRequest
 
 
-class BaseTestIPublisherRequest(object):
+class BaseTestIPublisherRequest:
     def testVerifyIPublisherRequest(self):
         verifyObject(IPublisherRequest, self._Test__new())
 

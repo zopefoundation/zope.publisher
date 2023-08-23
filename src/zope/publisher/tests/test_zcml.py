@@ -40,7 +40,7 @@ class IOb(Interface):
 
 
 @implementer(IOb)
-class Ob(object):
+class Ob:
     pass
 
 
@@ -79,7 +79,7 @@ def templated(contents):
 class Test(cleanup.CleanUp, unittest.TestCase):
 
     def setUp(self):
-        super(Test, self).setUp()
+        super().setUp()
         XMLConfig('meta.zcml', zope.publisher)()
 
     def testDefaultView(self):
@@ -186,6 +186,6 @@ class Test(cleanup.CleanUp, unittest.TestCase):
 
 def test_suite():
     return unittest.TestSuite((
-        unittest.makeSuite(Test),
+        unittest.defaultTestLoader.loadTestsFromTestCase(Test),
         doctest.DocFileSuite('../configure.txt'),
     ))

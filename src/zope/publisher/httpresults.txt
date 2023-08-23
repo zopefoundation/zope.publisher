@@ -66,36 +66,26 @@ different options possible.
 
 To close, we'll build a quick example so you can see it working.
 
-(To make the code work in both python-2.x and python-3.x, define ``unicode`` name for
-python-3.x:
-
-    >>> import sys
-    >>> if sys.version_info[0] > 2:
-    ...     unicode = str
-
     >>> import zope.interface
     >>> import zope.component
     >>> from zope.publisher.browser import TestRequest
     >>> from zope.publisher.interfaces.http import IResult, IHTTPRequest
-    >>> try:
-    ...     from html import escape
-    ... except ImportError:
-    ...     from cgi import escape
+    >>> from html import escape
     >>> @zope.interface.implementer(IResult)
-    ... @zope.component.adapter(unicode, IHTTPRequest)
-    ... def do_something_silly_to_unicode_results(val, request):
+    ... @zope.component.adapter(str, IHTTPRequest)
+    ... def do_something_silly_to_str_results(val, request):
     ...     request.response.setHeader('X-Silly', 'Yes')
-    ...     return (unicode('<html>\n<head>\n<title>raw</title>\n</head>\n<body>\n') +
+    ...     return ('<html>\n<head>\n<title>raw</title>\n</head>\n<body>\n' +
     ...             escape(val) + '\n</body>\n</html>')
     ...
-    >>> zope.component.provideAdapter(do_something_silly_to_unicode_results)
+    >>> zope.component.provideAdapter(do_something_silly_to_str_results)
 
-That's returning a unicode string, which is special cased to (1) make an
+That's returning a str, which is special cased to (1) make an
 iterable that is chunked, (2) encode, and (3) set content-length.
 
     >>> request = TestRequest()
     >>> request.response.setHeader('content-type', 'text/html')
-    >>> request.response.setResult(unicode('<h1>Foo!</h1>'))
+    >>> request.response.setResult('<h1>Foo!</h1>')
     >>> request.response.getHeader('x-silly')
     'Yes'
     >>> request.response.getHeader('content-type')

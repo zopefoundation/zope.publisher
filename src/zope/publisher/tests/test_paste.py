@@ -15,7 +15,7 @@ import doctest
 import unittest
 
 
-class SamplePublication(object):
+class SamplePublication:
 
     def __init__(self, global_config, **options):
         self.args = global_config, options
@@ -37,10 +37,10 @@ class SamplePublication(object):
 
     def callObject(self, request, ob):
         return (
-            u'<html><body>Thanks for your request:<br />\n'
-            u'<h1>%s</h1>\n<pre>\n%s\n</pre>\n'
-            u'<h1>Publication arguments:</h1>\n'
-            u'Globals: %r<br />\nOptions: %r\n</body></html>'
+            '<html><body>Thanks for your request:<br />\n'
+            '<h1>%s</h1>\n<pre>\n%s\n</pre>\n'
+            '<h1>Publication arguments:</h1>\n'
+            'Globals: %r<br />\nOptions: %r\n</body></html>'
         ) % (request.__class__.__name__, request, self.args[0], self.args[1])
 
     def afterCall(self, request, ob):
