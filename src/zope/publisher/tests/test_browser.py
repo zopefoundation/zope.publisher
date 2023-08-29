@@ -13,23 +13,11 @@
 ##############################################################################
 """Test zope.publisher.browser doctests
 """
-import re
 import unittest
 from doctest import DocTestSuite
 
-from zope.testing.renormalizing import RENormalizing
-
-
-__docformat__ = "reStructuredText"
-
 
 def test_suite():
-
-    checker = RENormalizing([
-        # Python 3 includes module name in exceptions
-        (re.compile(r"zope.publisher.interfaces.NotFound"), "NotFound"),
-    ])
-
     return unittest.TestSuite((
-        DocTestSuite('zope.publisher.browser', checker=checker),
+        DocTestSuite('zope.publisher.browser'),
     ))

@@ -25,7 +25,6 @@ from zope.interface.common.mapping import IEnumerableMapping
 from zope.interface.common.mapping import IReadMapping
 from zope.security.proxy import removeSecurityProxy
 
-from zope.publisher._compat import PYTHON2
 from zope.publisher.interfaces import DebugError
 from zope.publisher.interfaces import IDebugFlags
 from zope.publisher.interfaces import IHeld
@@ -41,7 +40,7 @@ _marker = object()
 
 
 @implementer(IResponse)
-class BaseResponse(object):
+class BaseResponse:
     """Base Response Class
     """
 
@@ -59,11 +58,8 @@ class BaseResponse(object):
 
     def handleException(self, exc_info):
         'See IPublisherResponse'
-        # We want exception to be formatted to native strings. Pick
-        # respective io class depending on python version.
-        f = BytesIO() if PYTHON2 else StringIO()
-        print_exception(
-            exc_info[0], exc_info[1], exc_info[2], 100, f)
+        f = StringIO()
+        print_exception(exc_info[0], exc_info[1], exc_info[2], 100, f)
         self.setResult(f.getvalue())
 
     def internalError(self):
@@ -80,7 +76,7 @@ class BaseResponse(object):
 
 
 @implementer(IReadMapping)
-class RequestDataGetter(object):
+class RequestDataGetter:
 
     def __init__(self, request):
         self.__get = getattr(request, self._gettrname)
@@ -99,7 +95,7 @@ class RequestDataGetter(object):
 
 
 @implementer(IEnumerableMapping)
-class RequestDataMapper(object):
+class RequestDataMapper:
 
     def __init__(self, request):
         self.__map = getattr(request, self._mapname)
@@ -132,7 +128,7 @@ class RequestDataMapper(object):
         return len(self.__map)
 
 
-class RequestDataProperty(object):
+class RequestDataProperty:
 
     def __init__(self, gettr_class):
         self.__gettr_class = gettr_class
@@ -150,7 +146,7 @@ class RequestEnvironment(RequestDataMapper):
 
 
 @implementer(IDebugFlags)
-class DebugFlags(object):
+class DebugFlags:
     """Debugging flags."""
 
     sourceAnnotations = False
@@ -158,7 +154,7 @@ class DebugFlags(object):
 
 
 @implementer(IRequest)
-class BaseRequest(object):
+class BaseRequest:
     """Represents a publishing request.
 
     This object provides access to request data. Request data may
@@ -366,8 +362,6 @@ class BaseRequest(object):
         # This is here to avoid calling __len__ for boolean tests
         return True
 
-    __nonzero__ = __bool__  # Python 2
-
     def __str__(self):
         L1 = self.items()
         L1.sort()
@@ -416,11 +410,11 @@ class TestRequest(BaseRequest):
         if body_instream is None:
             body_instream = BytesIO(b'')
 
-        super(TestRequest, self).__init__(body_instream, environ)
+        super().__init__(body_instream, environ)
 
 
 @implementer(IPublication)
-class DefaultPublication(object):
+class DefaultPublication:
     """A stub publication.
 
     This works just like Zope2's ZPublisher. It rejects any name

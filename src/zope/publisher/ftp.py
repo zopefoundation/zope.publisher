@@ -13,8 +13,6 @@
 ##############################################################################
 """FTP Publisher
 """
-import six
-
 from zope.interface import implementer
 
 from zope.publisher.base import BaseRequest
@@ -32,7 +30,7 @@ class FTPResponse(BaseResponse):
 
     def getResult(self):
         if getattr(self, '_exc', None) is not None:
-            six.reraise(self._exc[0], self._exc[1], self._exc[2])
+            raise self._exc[1].with_traceback(self._exc[2])
         return self._result
 
     def handleException(self, exc_info):
@@ -49,7 +47,7 @@ class FTPRequest(BaseRequest):
 
         del environ['credentials']
 
-        super(FTPRequest, self).__init__(body_instream, environ, response)
+        super().__init__(body_instream, environ, response)
 
         path = environ['path']
         if path.startswith('/'):

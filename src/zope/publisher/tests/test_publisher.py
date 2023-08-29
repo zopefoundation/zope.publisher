@@ -38,13 +38,13 @@ class ErrorToRetry(Exception):
 
 class PublisherTests(unittest.TestCase):
     def setUp(self):
-        class AppRoot(object):
+        class AppRoot:
             """Required docstring for the publisher."""
 
-        class Folder(object):
+        class Folder:
             """Required docstring for the publisher."""
 
-        class Item(object):
+        class Item:
             """Required docstring for the publisher."""
 
             def __call__(self):

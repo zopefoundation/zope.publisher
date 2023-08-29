@@ -16,8 +16,6 @@
 import sys
 from io import BytesIO
 from unittest import TestCase
-from unittest import TestSuite
-from unittest import makeSuite
 
 import zope.publisher.ftp
 
@@ -53,9 +51,3 @@ class Test(TestCase):
                          ['c', 'b', 'a'])
         self.assertEqual(self.__request._authUserPW(),
                          ('bob', '123'))
-
-
-def test_suite():
-    return TestSuite((
-        makeSuite(Test),
-    ))

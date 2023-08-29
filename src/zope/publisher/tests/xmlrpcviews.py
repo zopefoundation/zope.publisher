@@ -24,7 +24,7 @@ class IC(Interface):
 
 
 @implementer(IXMLRPCPublisher)
-class V1(object):
+class V1:
 
     def __init__(self, context, request):
         self.context = context
@@ -36,7 +36,7 @@ class VZMI(V1):
 
 
 @implementer(IXMLRPCPublisher)
-class R1(object):
+class R1:
     def __init__(self, request):
         self.request = request
 

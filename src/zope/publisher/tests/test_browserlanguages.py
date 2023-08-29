@@ -93,11 +93,3 @@ class ModifiableBrowserLanguagesTests(CacheableBrowserLanguagesTests):
         self.assertRaises(
             NotCompatibleAdapterError,
             browser_languages.setPreferredLanguages, ["ru", "en"])
-
-
-def test_suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(BrowserLanguagesTest))
-    suite.addTest(unittest.makeSuite(CacheableBrowserLanguagesTests))
-    suite.addTest(unittest.makeSuite(ModifiableBrowserLanguagesTests))
-    return suite

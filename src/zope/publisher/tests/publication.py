@@ -20,7 +20,7 @@ from zope.publisher.interfaces import IPublication
 
 
 @implementer(IPublication)
-class TestPublication(object):
+class TestPublication:
 
     def afterCall(self, request, ob):
         '''See interface IPublication'''
@@ -62,7 +62,7 @@ class TestPublication(object):
         self._callTraversalHooks = getattr(self, '_callTraversalHooks', 0) + 1
 
 
-class App(object):
+class App:
 
     def __init__(self, name):
         self.name = name

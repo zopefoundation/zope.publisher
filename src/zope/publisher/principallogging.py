@@ -25,7 +25,7 @@ from zope.publisher.interfaces.logginginfo import ILoggingInfo
 
 @adapter(IPrincipal)
 @implementer(ILoggingInfo)
-class PrincipalLogging(object):
+class PrincipalLogging:
     """Adapts zope.security.interfaces.IPrincipal to
     zope.publisher.interfaces.logginginfo.ILoggingInfo."""
 

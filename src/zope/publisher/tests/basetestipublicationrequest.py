@@ -39,7 +39,7 @@ def getrefcount(o, default=0):
     return sys.getrefcount(o) if hasattr(sys, 'getrefcount') else default
 
 
-class BaseTestIPublicationRequest(object):
+class BaseTestIPublicationRequest:
     def testVerifyIPublicationRequest(self):
         verifyObject(IPublicationRequest, self._Test__new())
 

@@ -1,4 +1,4 @@
-<configure 
+<configure
     xmlns="http://namespaces.zope.org/zope"
     xmlns:apidoc="http://namespaces.zope.org/apidoc"
     xmlns:zcml="http://namespaces.zope.org/zcml"
@@ -60,16 +60,16 @@
     for="zope.publisher.interfaces.http.IHTTPRequest"
     provides="zope.i18n.interfaces.IModifiableUserPreferredLanguages"
     />
-  
-  <class class="._compat.Binary">
+
+  <class class="xmlrpc.client.Binary">
     <allow attributes="data encode decode" />
   </class>
 
-  <class class="._compat.Fault">
+  <class class="xmlrpc.client.Fault">
     <allow attributes="faultCode faultString" />
   </class>
 
-  <class class="._compat.DateTime">
+  <class class="xmlrpc.client.DateTime">
     <allow attributes="value" />
   </class>
 

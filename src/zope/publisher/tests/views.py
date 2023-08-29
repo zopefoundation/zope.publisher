@@ -31,7 +31,7 @@ class VZMI(V1):
     pass
 
 
-class R1(object):
+class R1:
     def __init__(self, request):
         self.request = request
 

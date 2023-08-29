@@ -200,7 +200,7 @@ the setDefaultSkin will raise a TypeError:
   >>> setDefaultSkin(request)
   Traceback (most recent call last):
   ...
-  TypeError: Skin interface <InterfaceClass __builtin__.IMySkin> doesn't provide ISkinType
+  TypeError: Skin interface <InterfaceClass builtins.IMySkin> doesn't provide ISkinType
 
 The default skin must provide ISkinType:
 
@@ -268,16 +268,16 @@ Now we can apply the SkinA:
   >>> from zope.publisher.skinnable import applySkin
   >>> applySkin(request, ISkinA)
   >>> pprint.pprint(list(zope.interface.providedBy(request).interfaces()))
-  [<InterfaceClass __builtin__.ISkinA>,
-   <InterfaceClass __builtin__.IJSONRequest>,
+  [<InterfaceClass builtins.ISkinA>,
+   <InterfaceClass builtins.IJSONRequest>,
    <InterfaceClass zope.publisher.interfaces.IRequest>]
 
 And if we apply ISkinB, ISkinA get removed at the same time ISkinB get applied:
 
   >>> applySkin(request, ISkinB)
   >>> pprint.pprint(list(zope.interface.providedBy(request).interfaces()))
-  [<InterfaceClass __builtin__.ISkinB>,
-   <InterfaceClass __builtin__.IJSONRequest>,
+  [<InterfaceClass builtins.ISkinB>,
+   <InterfaceClass builtins.IJSONRequest>,
    <InterfaceClass zope.publisher.interfaces.IRequest>]
 
 
@@ -296,7 +296,7 @@ by lookup an IDefaultSkin interface for our request:
   >>> default = adapters.lookup((zope.interface.providedBy(request),),
   ...     IDefaultSkin, '')
   >>> default
-  <InterfaceClass __builtin__.IMySkin>
+  <InterfaceClass builtins.IMySkin>
 
   >>> setDefaultSkin(request)
   >>> IMySkin.providedBy(request)

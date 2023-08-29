@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 ##############################################################################
 #
 # Copyright (c) 2001, 2002 Zope Foundation and Contributors.
@@ -20,7 +19,6 @@ from io import BytesIO
 from zope.interface import implementer
 from zope.interface.verify import verifyObject
 
-from zope.publisher._compat import PYTHON2
 from zope.publisher.base import DefaultPublication
 from zope.publisher.browser import BrowserRequest
 from zope.publisher.http import HTTPCharsets
@@ -70,9 +68,6 @@ Some data
 -----------------------------1--
 """  # noqa: E501 line too long
 
-if not PYTHON2:
-    unicode = str
-
 
 def publish(request):
     publish_(request, handle_errors=0)
@@ -110,27 +105,27 @@ class BrowserTests(HTTPTests):
     }
 
     def setUp(self):
-        super(BrowserTests, self).setUp()
+        super().setUp()
 
-        class AppRoot(object):
+        class AppRoot:
             """Required docstring for the publisher."""
 
-        class Folder(object):
+        class Folder:
             """Required docstring for the publisher."""
 
-        class Item(object):
+        class Item:
             """Required docstring for the publisher."""
 
             def __call__(self, a, b):
-                return u"%s, %s" % (repr(a).lstrip('u'), repr(b).lstrip('u'))
+                return f"{a!r}, {b!r}"
 
-        class Item3(object):
+        class Item3:
             """Required docstring for the publisher."""
 
             def __call__(self, *args):
-                return u"..."
+                return "..."
 
-        class View(object):
+        class View:
             """Required docstring for the publisher."""
 
             def browserDefault(self, request):
@@ -138,9 +133,9 @@ class BrowserTests(HTTPTests):
 
             def index(self, a, b):
                 """Required docstring for the publisher."""
-                return u"%s, %s" % (repr(a).lstrip('u'), repr(b).lstrip('u'))
+                return f"{a!r}, {b!r}"
 
-        class Item2(object):
+        class Item2:
             """Required docstring for the publisher."""
 
             view = View()
@@ -205,7 +200,7 @@ class BrowserTests(HTTPTests):
         should be catched"""
 
         extra = {'REQUEST_METHOD': 'POST',
-                 'PATH_INFO': u"/",
+                 'PATH_INFO': "/",
                  'CONTENT_TYPE': 'multipart/form-data;\
                  boundary=---------------------------1'}
 
@@ -223,7 +218,7 @@ class BrowserTests(HTTPTests):
         its filename."""
 
         extra = {'REQUEST_METHOD': 'POST',
-                 'PATH_INFO': u"/",
+                 'PATH_INFO': "/",
                  'CONTENT_TYPE': 'multipart/form-data;\
                  boundary=---------------------------1'}
 
@@ -240,14 +235,11 @@ class BrowserTests(HTTPTests):
         request.processInputs()
         self.assertEqual(request.form['upload'].filename, 'notepad.exe')
         self.assertEqual(request.form['upload'].read(), b'Some data')
-
-        if not PYTHON2:
-            # File objects on Python 3 have a seekable() method
-            self.assertTrue(request.form['upload'].seekable())
+        self.assertTrue(request.form['upload'].seekable())
 
     def testEmptyFilePost(self):
         extra = {'REQUEST_METHOD': 'POST',
-                 'PATH_INFO': u"/",
+                 'PATH_INFO': "/",
                  'CONTENT_TYPE': 'multipart/form-data;\
                  boundary=---------------------------1'}
 
@@ -256,7 +248,7 @@ class BrowserTests(HTTPTests):
 
     def testLargePostValue(self):
         extra = {'REQUEST_METHOD': 'POST',
-                 'PATH_INFO': u"/",
+                 'PATH_INFO': "/",
                  'CONTENT_TYPE': 'multipart/form-data;\
                  boundary=---------------------------1'}
 
@@ -308,7 +300,7 @@ class BrowserTests(HTTPTests):
         request = self._createRequest()
         publish(request)
         self.assertEqual(request.form,
-                         {u"a": u"5", u"b": 6})
+                         {"a": "5", "b": 6})
 
     def testFormMultipartUTF8(self):
         extra = {
@@ -333,8 +325,8 @@ class BrowserTests(HTTPTests):
         ])
         request = self._createRequest(extra, body)
         publish(request)
-        self.assertTrue(isinstance(request.form[u"street"], unicode))
-        self.assertEqual(u"汉语/漢語", request.form['street'])
+        self.assertTrue(isinstance(request.form["street"], str))
+        self.assertEqual("汉语/漢語", request.form['street'])
 
     def testFormMultipartFilenameUTF8(self):
         extra = {
@@ -354,7 +346,7 @@ class BrowserTests(HTTPTests):
         request = self._createRequest(extra, body)
         self.addCleanup(request.close)
         request.processInputs()
-        self.assertEqual(request.form['upload'].filename, u'☃')
+        self.assertEqual(request.form['upload'].filename, '☃')
         self.assertEqual(request.form['upload'].read(), b'Some data')
 
     def testFormMultipartFilenameLatin7(self):
@@ -376,7 +368,7 @@ class BrowserTests(HTTPTests):
         request = self._createRequest(extra, body)
         self.addCleanup(request.close)
         request.processInputs()
-        self.assertEqual(request.form['upload'].filename, u'Ąžuolyno')
+        self.assertEqual(request.form['upload'].filename, 'Ąžuolyno')
         self.assertEqual(request.form['upload'].read(), b'Some data')
 
     def testFormMultipartFilenameLatin7DefaultCharset(self):
@@ -398,7 +390,7 @@ class BrowserTests(HTTPTests):
         request.default_form_charset = 'ISO-8859-13'
         self.addCleanup(request.close)
         request.processInputs()
-        self.assertEqual(request.form['upload'].filename, u'Ąžuolyno')
+        self.assertEqual(request.form['upload'].filename, 'Ąžuolyno')
         self.assertEqual(request.form['upload'].read(), b'Some data')
 
     def testFormURLEncodedUTF8(self):
@@ -411,8 +403,8 @@ class BrowserTests(HTTPTests):
             b'&street=\xe6\xb1\x89\xe8\xaf\xad/\xe6\xbc\xa2\xe8\xaa\x9e')
         request = self._createRequest(extra, body)
         publish(request)
-        self.assertTrue(isinstance(request.form[u"street"], unicode))
-        self.assertEqual(u"汉语/漢語", request.form['street'])
+        self.assertTrue(isinstance(request.form["street"], str))
+        self.assertEqual("汉语/漢語", request.form['street'])
 
     def testFormURLEncodedUTF8ContentType(self):
         extra = {
@@ -424,8 +416,8 @@ class BrowserTests(HTTPTests):
             b'&street=\xe6\xb1\x89\xe8\xaf\xad/\xe6\xbc\xa2\xe8\xaa\x9e')
         request = self._createRequest(extra, body)
         publish(request)
-        self.assertTrue(isinstance(request.form[u"street"], unicode))
-        self.assertEqual(u"汉语/漢語", request.form['street'])
+        self.assertTrue(isinstance(request.form["street"], str))
+        self.assertEqual("汉语/漢語", request.form['street'])
 
     def testFormQueryStringUTF8(self):
         query_string = (
@@ -434,8 +426,8 @@ class BrowserTests(HTTPTests):
         extra = {'QUERY_STRING': query_string}
         request = self._createRequest(extra)
         publish(request)
-        self.assertTrue(isinstance(request.form[u"street"], unicode))
-        self.assertEqual(u"汉语/漢語", request.form['street'])
+        self.assertTrue(isinstance(request.form["street"], str))
+        self.assertEqual("汉语/漢語", request.form['street'])
 
     def testFormURLEncodedLatin1(self):
         extra = {
@@ -446,8 +438,8 @@ class BrowserTests(HTTPTests):
         body = b'a=5&b:int=6&street=K\xf6hlerstra\xdfe'
         request = self._createRequest(extra, body)
         publish(request)
-        self.assertTrue(isinstance(request.form[u"street"], unicode))
-        self.assertEqual(u"K\xf6hlerstra\xdfe", request.form['street'])
+        self.assertTrue(isinstance(request.form["street"], str))
+        self.assertEqual("K\xf6hlerstra\xdfe", request.form['street'])
 
     def testFormURLEncodedLatin7(self):
         extra = {
@@ -455,11 +447,11 @@ class BrowserTests(HTTPTests):
             'CONTENT_TYPE': (
                 'application/x-www-form-urlencoded; charset=ISO-8859-13'),
         }
-        body = u'a=5&b:int=6&street=Ąžuolyno'.encode('iso-8859-13')
+        body = 'a=5&b:int=6&street=Ąžuolyno'.encode('iso-8859-13')
         request = self._createRequest(extra, body)
         publish(request)
-        self.assertTrue(isinstance(request.form[u"street"], unicode))
-        self.assertEqual(u"Ąžuolyno", request.form['street'])
+        self.assertTrue(isinstance(request.form["street"], str))
+        self.assertEqual("Ąžuolyno", request.form['street'])
 
     def testFormNoEncodingUsesUTF8(self):
         encoded = 'K\xc3\xb6hlerstra\xc3\x9fe'
@@ -472,8 +464,8 @@ class BrowserTests(HTTPTests):
         # many mainstream browsers do not send HTTP_ACCEPT_CHARSET
         del request._environ['HTTP_ACCEPT_CHARSET']
         publish(request)
-        self.assertTrue(isinstance(request.form[u"street"], unicode))
-        self.assertEqual(u"K\xf6hlerstra\xdfe", request.form['street'])
+        self.assertTrue(isinstance(request.form["street"], str))
+        self.assertEqual("K\xf6hlerstra\xdfe", request.form['street'])
 
     def testFormAcceptsStarButNotUTF8(self):
         extra = {
@@ -488,35 +480,35 @@ class BrowserTests(HTTPTests):
         extra = {'QUERY_STRING': 'a:list=5&a:list=6&b=1'}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {u"a": [u"5", u"6"], u"b": u"1"})
+        self.assertEqual(request.form, {"a": ["5", "6"], "b": "1"})
 
     def testQueryStringIgnoredForPOST(self):
         request = self._createRequest(
             {"REQUEST_METHOD": "POST",
              'PATH_INFO': '/folder/item3'}, body=b'c=5&d:int=6')
         publish(request)
-        self.assertEqual(request.form, {u"c": u"5", u"d": 6})
+        self.assertEqual(request.form, {"c": "5", "d": 6})
         self.assertEqual(request.get('QUERY_STRING'), 'a=5&b:int=6')
 
     def testFormTupleTypes(self):
         extra = {'QUERY_STRING': 'a:tuple=5&a:tuple=6&b=1'}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {u"a": (u"5", u"6"), u"b": u"1"})
+        self.assertEqual(request.form, {"a": ("5", "6"), "b": "1"})
 
     def testFormTupleRecordTypes(self):
         extra = {'QUERY_STRING': 'a.x:tuple:record=5&a.x:tuple:record=6&b=1'}
         request = self._createRequest(extra)
         publish(request)
         keys = sorted(request.form.keys())
-        self.assertEqual(keys, [u"a", u"b"])
-        self.assertEqual(request.form[u"b"], u"1")
-        self.assertEqual(list(request.form[u"a"].keys()), [u"x"])
-        self.assertEqual(request.form[u"a"][u"x"], (u"5", u"6"))
-        self.assertEqual(request.form[u"a"].x, (u"5", u"6"))
-        self.assertEqual(str(request.form[u"a"]).replace("u'", "'"),
+        self.assertEqual(keys, ["a", "b"])
+        self.assertEqual(request.form["b"], "1")
+        self.assertEqual(list(request.form["a"].keys()), ["x"])
+        self.assertEqual(request.form["a"]["x"], ("5", "6"))
+        self.assertEqual(request.form["a"].x, ("5", "6"))
+        self.assertEqual(str(request.form["a"]),
                          "{x: ('5', '6')}")
-        self.assertEqual(repr(request.form[u"a"]).replace("u'", "'"),
+        self.assertEqual(repr(request.form["a"]),
                          "{x: ('5', '6')}")
 
     def testFormRecordsTypes(self):
@@ -524,16 +516,16 @@ class BrowserTests(HTTPTests):
         request = self._createRequest(extra)
         publish(request)
         keys = sorted(request.form.keys())
-        self.assertEqual(keys, [u"a", u"b"])
-        self.assertEqual(request.form[u"b"], u"1")
-        self.assertEqual(len(request.form[u"a"]), 2)
-        self.assertEqual(request.form[u"a"][0][u"x"], u"5")
-        self.assertEqual(request.form[u"a"][0].x, u"5")
-        self.assertEqual(request.form[u"a"][1][u"x"], u"6")
-        self.assertEqual(request.form[u"a"][1].x, u"6")
-        self.assertEqual(str(request.form[u"a"]).replace("u'", "'"),
+        self.assertEqual(keys, ["a", "b"])
+        self.assertEqual(request.form["b"], "1")
+        self.assertEqual(len(request.form["a"]), 2)
+        self.assertEqual(request.form["a"][0]["x"], "5")
+        self.assertEqual(request.form["a"][0].x, "5")
+        self.assertEqual(request.form["a"][1]["x"], "6")
+        self.assertEqual(request.form["a"][1].x, "6")
+        self.assertEqual(str(request.form["a"]),
                          "[{x: '5'}, {x: '6'}]")
-        self.assertEqual(repr(request.form[u"a"]).replace("u'", "'"),
+        self.assertEqual(repr(request.form["a"]),
                          "[{x: '5'}, {x: '6'}]")
 
     def testFormMultipleRecordsTypes(self):
@@ -542,20 +534,20 @@ class BrowserTests(HTTPTests):
         request = self._createRequest(extra)
         publish(request)
         keys = sorted(request.form.keys())
-        self.assertEqual(keys, [u"a", u"b"])
-        self.assertEqual(request.form[u"b"], u"1")
-        self.assertEqual(len(request.form[u"a"]), 2)
-        self.assertEqual(request.form[u"a"][0][u"x"], 5)
-        self.assertEqual(request.form[u"a"][0].x, 5)
-        self.assertEqual(request.form[u"a"][0][u"y"], 51)
-        self.assertEqual(request.form[u"a"][0].y, 51)
-        self.assertEqual(request.form[u"a"][1][u"x"], 6)
-        self.assertEqual(request.form[u"a"][1].x, 6)
-        self.assertEqual(request.form[u"a"][1][u"y"], 61)
-        self.assertEqual(request.form[u"a"][1].y, 61)
-        self.assertEqual(str(request.form[u"a"]),
+        self.assertEqual(keys, ["a", "b"])
+        self.assertEqual(request.form["b"], "1")
+        self.assertEqual(len(request.form["a"]), 2)
+        self.assertEqual(request.form["a"][0]["x"], 5)
+        self.assertEqual(request.form["a"][0].x, 5)
+        self.assertEqual(request.form["a"][0]["y"], 51)
+        self.assertEqual(request.form["a"][0].y, 51)
+        self.assertEqual(request.form["a"][1]["x"], 6)
+        self.assertEqual(request.form["a"][1].x, 6)
+        self.assertEqual(request.form["a"][1]["y"], 61)
+        self.assertEqual(request.form["a"][1].y, 61)
+        self.assertEqual(str(request.form["a"]),
                          "[{x: 5, y: 51}, {x: 6, y: 61}]")
-        self.assertEqual(repr(request.form[u"a"]),
+        self.assertEqual(repr(request.form["a"]),
                          "[{x: 5, y: 51}, {x: 6, y: 61}]")
 
     def testFormListRecordTypes(self):
@@ -563,27 +555,27 @@ class BrowserTests(HTTPTests):
         request = self._createRequest(extra)
         publish(request)
         keys = sorted(request.form.keys())
-        self.assertEqual(keys, [u"a", u"b"])
-        self.assertEqual(request.form[u"b"], u"1")
-        self.assertEqual(list(request.form[u"a"].keys()), [u"x"])
-        self.assertEqual(request.form[u"a"][u"x"], [u"5", u"6"])
-        self.assertEqual(request.form[u"a"].x, [u"5", u"6"])
-        self.assertEqual(str(request.form[u"a"]).replace("u'", "'"),
+        self.assertEqual(keys, ["a", "b"])
+        self.assertEqual(request.form["b"], "1")
+        self.assertEqual(list(request.form["a"].keys()), ["x"])
+        self.assertEqual(request.form["a"]["x"], ["5", "6"])
+        self.assertEqual(request.form["a"].x, ["5", "6"])
+        self.assertEqual(str(request.form["a"]),
                          "{x: ['5', '6']}")
-        self.assertEqual(repr(request.form[u"a"]).replace("u'", "'"),
+        self.assertEqual(repr(request.form["a"]),
                          "{x: ['5', '6']}")
 
     def testFormListTypes2(self):
         extra = {'QUERY_STRING': 'a=5&a=6&b=1'}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {u"a": [u"5", u"6"], u"b": u"1"})
+        self.assertEqual(request.form, {"a": ["5", "6"], "b": "1"})
 
     def testFormIntTypes(self):
         extra = {'QUERY_STRING': 'a:int=5&b:int=-5&c:int=0&d:int=-0'}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {u"a": 5, u"b": -5, u"c": 0, u"d": 0})
+        self.assertEqual(request.form, {"a": 5, "b": -5, "c": 0, "d": 0})
 
         extra = {'QUERY_STRING': 'a:int='}
         request = self._createRequest(extra)
@@ -597,7 +589,7 @@ class BrowserTests(HTTPTests):
         extra = {'QUERY_STRING': 'a:float=5&b:float=-5.01&c:float=0'}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {u"a": 5.0, u"b": -5.01, u"c": 0.0})
+        self.assertEqual(request.form, {"a": 5.0, "b": -5.01, "c": 0.0})
 
         extra = {'QUERY_STRING': 'a:float='}
         request = self._createRequest(extra)
@@ -611,7 +603,7 @@ class BrowserTests(HTTPTests):
         extra = {'QUERY_STRING': 'a:long=99999999999999&b:long=0L'}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {u"a": 99999999999999, u"b": 0})
+        self.assertEqual(request.form, {"a": 99999999999999, "b": 0})
 
         extra = {'QUERY_STRING': 'a:long='}
         request = self._createRequest(extra)
@@ -625,27 +617,27 @@ class BrowserTests(HTTPTests):
         extra = {'QUERY_STRING': 'a:tokens=a%20b%20c%20d&b:tokens='}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {u"a": [u"a", u"b", u"c", u"d"],
-                                        u"b": []})
+        self.assertEqual(request.form, {"a": ["a", "b", "c", "d"],
+                                        "b": []})
 
     def testFormStringTypes(self):
         extra = {'QUERY_STRING': 'a:string=test&b:string='}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {u"a": u"test", u"b": u""})
+        self.assertEqual(request.form, {"a": "test", "b": ""})
 
     def testFormLinesTypes(self):
         extra = {'QUERY_STRING': 'a:lines=a%0ab%0ac%0ad&b:lines='}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {u"a": [u"a", u"b", u"c", u"d"],
-                                        u"b": []})
+        self.assertEqual(request.form, {"a": ["a", "b", "c", "d"],
+                                        "b": []})
 
     def testFormTextTypes(self):
         extra = {'QUERY_STRING': 'a:text=a%0a%0db%0d%0ac%0dd%0ae&b:text='}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {u"a": u"a\nb\nc\nd\ne", u"b": u""})
+        self.assertEqual(request.form, {"a": "a\nb\nc\nd\ne", "b": ""})
 
     def testFormRequiredTypes(self):
         extra = {'QUERY_STRING': 'a:required=%20'}
@@ -656,33 +648,33 @@ class BrowserTests(HTTPTests):
         extra = {'QUERY_STRING': 'a:boolean=&b:boolean=1&c:boolean=%20'}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {u"a": False, u"b": True, u"c": True})
+        self.assertEqual(request.form, {"a": False, "b": True, "c": True})
 
     def testFormDefaults(self):
         extra = {'QUERY_STRING': 'a:default=10&a=6&b=1'}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {u"a": u"6", u"b": u"1"})
+        self.assertEqual(request.form, {"a": "6", "b": "1"})
 
     def testFormDefaults2(self):
         extra = {'QUERY_STRING': 'a:default=10&b=1'}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {u"a": u"10", u"b": u"1"})
+        self.assertEqual(request.form, {"a": "10", "b": "1"})
 
     def testFormFieldName(self):
         extra = {'QUERY_STRING': 'c+%2B%2F%3D%26c%3Aint=6',
                  'PATH_INFO': '/folder/item3/'}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {u"c +/=&c": 6})
+        self.assertEqual(request.form, {"c +/=&c": 6})
 
     def testFormFieldValue(self):
         extra = {'QUERY_STRING': 'a=b+%2B%2F%3D%26b%3Aint',
                  'PATH_INFO': '/folder/item3/'}
         request = self._createRequest(extra)
         publish(request)
-        self.assertEqual(request.form, {u"a": u"b +/=&b:int"})
+        self.assertEqual(request.form, {"a": "b +/=&b:int"})
 
     def testFormMultipartDuplicateFieldNames(self):
         extra = {
@@ -731,7 +723,7 @@ class BrowserTests(HTTPTests):
         publish(request)
         self.assertEqual(request.headers.get(
             'HTTP_REFERER'), 'http://localhost/')
-        self.assertEqual(request.form, {u"HTTP_REFERER": u"peter"})
+        self.assertEqual(request.form, {"HTTP_REFERER": "peter"})
 
     def test_post_body_not_consumed_unnecessarily(self):
         request = self._createRequest(
@@ -829,10 +821,3 @@ class APITests(BaseTestIPublicationRequest,
 
     def testVerifyISkinnable(self):
         verifyObject(ISkinnable, self._Test__new())
-
-
-def test_suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(BrowserTests))
-    suite.addTest(unittest.makeSuite(APITests))
-    return suite

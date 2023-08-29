@@ -17,8 +17,6 @@ Provide an apply-like facility that works with any mapping object
 """
 import sys
 
-import six
-
 from zope.interface import implementer
 from zope.proxy import removeAllProxies
 
@@ -47,9 +45,6 @@ def unwrapMethod(obj):
             raise TypeError("mapply() can not call class constructors")
 
         im_func = getattr(unwrapped, '__func__', None)
-        if im_func is None:
-            # Backwards compatibility with objects aimed at Python 2
-            im_func = getattr(unwrapped, 'im_func', None)
         if im_func is not None:
             unwrapped = im_func
             wrapperCount += 1
@@ -111,7 +106,7 @@ def mapply(obj, positional=(), request={}):
             if name == 'REQUEST':
                 v = request
             elif index < nrequired:
-                raise TypeError('Missing argument to %s(): %s' % (
+                raise TypeError('Missing argument to {}(): {}'.format(
                     getattr(unwrapped, '__name__', repr(obj)), name))
             else:
                 v = defaults[index - nrequired]
@@ -206,7 +201,7 @@ def publish(request, handle_errors=True):
 
         response = request.response
         if to_raise is not None:
-            six.reraise(to_raise[0], to_raise[1], to_raise[2])
+            raise to_raise[1].with_traceback(to_raise[2])
 
     finally:
         to_raise = None  # Avoid circ. ref.
@@ -218,7 +213,7 @@ def publish(request, handle_errors=True):
 
 
 @implementer(IReRaiseException)
-class DoNotReRaiseException(object):
+class DoNotReRaiseException:
     """Marker adapter for exceptions that should not be re-raised"""
 
     def __init__(self, exc):

@@ -31,8 +31,8 @@ class IDefaultSkinDirective(Interface):
     """Sets the default browser skin"""
 
     name = TextLine(
-        title=u"Default skin name",
-        description=u"Default skin name",
+        title="Default skin name",
+        description="Default skin name",
         required=True
     )
 
@@ -47,16 +47,16 @@ class IDefaultViewDirective(Interface):
     """
 
     name = TextLine(
-        title=u"The name of the view that should be the default.",
-        description=u"""
+        title="The name of the view that should be the default.",
+        description="""
         This name refers to view that should be the view used by
         default (if no view name is supplied explicitly).""",
         required=True
     )
 
     for_ = GlobalObject(
-        title=u"The interface this view is the default for.",
-        description=u"""
+        title="The interface this view is the default for.",
+        description="""
         Specifies the interface for which the view is registered.
 
         All objects implementing this interface can make use of
@@ -66,9 +66,9 @@ class IDefaultViewDirective(Interface):
     )
 
     layer = GlobalInterface(
-        title=u"The layer the default view is declared for",
-        description=u"The default layer for which the default view is "
-                    u"applicable. By default it is applied to all layers.",
+        title="The layer the default view is declared for",
+        description="The default layer for which the default view is "
+                    "applicable. By default it is applied to all layers.",
         required=False
     )
 

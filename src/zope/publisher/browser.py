@@ -20,9 +20,7 @@ packaged into a nice, Python-friendly 'FileUpload' object.
 """
 import re
 from email.message import Message
-
-import six
-from six.moves.urllib.parse import parse_qsl
+from urllib.parse import parse_qsl
 
 import multipart
 import zope.component
@@ -34,7 +32,6 @@ from zope.interface import directlyProvides
 from zope.interface import implementer
 from zope.location import Location
 
-from zope.publisher._compat import PYTHON2
 from zope.publisher.http import HTTPRequest
 from zope.publisher.http import HTTPResponse
 from zope.publisher.http import getCharsetUsingRequest
@@ -210,7 +207,7 @@ def hide_key(key):
     }
 
 
-class Record(object):
+class Record:
 
     _attrs = frozenset(('get', 'keys', 'items', 'values', 'copy',
                         'has_key', '__contains__'))
@@ -232,7 +229,7 @@ class Record(object):
         items = list(self.__dict__.items())
         items.sort()
         return ("{"
-                + ", ".join(["%s: %s" % (key, repr(value))
+                + ", ".join(["{}: {!r}".format(key, value)
                              for key, value in items]) + "}")
 
 
@@ -261,7 +258,7 @@ class BrowserRequest(HTTPRequest):
     def __init__(self, body_instream, environ, response=None):
         self.form = {}
         self.charsets = None
-        super(BrowserRequest, self).__init__(body_instream, environ, response)
+        super().__init__(body_instream, environ, response)
 
     def _createResponse(self):
         return BrowserResponse()
@@ -299,18 +296,16 @@ class BrowserRequest(HTTPRequest):
 
         if self.method in _get_or_head:
             kwargs = {}
-            if not PYTHON2:
-                # For now, use an encoding that can decode any byte
-                # sequence.  We'll do some guesswork later.
-                kwargs['encoding'] = 'ISO-8859-1'
-                kwargs['errors'] = 'replace'
+            # For now, use an encoding that can decode any byte
+            # sequence.  We'll do some guesswork later.
+            kwargs['encoding'] = 'ISO-8859-1'
+            kwargs['errors'] = 'replace'
             query_items = parse_qsl(
                 self._environ['QUERY_STRING'], keep_blank_values=True,
                 **kwargs)
             for key, value in query_items:
-                if not PYTHON2:
-                    # Encode back to bytes for later guessing.
-                    value = value.encode('ISO-8859-1')
+                # Encode back to bytes for later guessing.
+                value = value.encode('ISO-8859-1')
                 items.append((key, value))
         elif self.method not in _get_or_head:
             env = self._environ.copy()
@@ -452,7 +447,7 @@ class BrowserRequest(HTTPRequest):
         if key is not None:
             key = self._decode(key)
 
-        if isinstance(item, (six.text_type, bytes)):
+        if isinstance(item, (str, bytes)):
             item = self._decode(item)
 
         if flags:
@@ -596,7 +591,7 @@ class BrowserRequest(HTTPRequest):
 
     def traverse(self, obj):
         """See IPublisherRequest."""
-        ob = super(BrowserRequest, self).traverse(obj)
+        ob = super().traverse(obj)
         method = self.method
 
         base_needed = 0
@@ -616,7 +611,7 @@ class BrowserRequest(HTTPRequest):
                 add_steps = list(add_steps)
                 add_steps.reverse()
                 self.setTraversalStack(add_steps)
-                ob = super(BrowserRequest, self).traverse(ob)
+                ob = super().traverse(ob)
                 ob, add_steps = publication.getDefaultTraversal(self, ob)
 
             if nsteps != self._endswithslash:
@@ -649,11 +644,11 @@ class BrowserRequest(HTTPRequest):
         if result is not marker:
             return result
 
-        return super(BrowserRequest, self).get(key, default)
+        return super().get(key, default)
 
 
 @implementer(IHeld)
-class FileUpload(object):
+class FileUpload:
     '''File upload objects
 
     File upload objects are used to represent file-uploaded data.
@@ -724,7 +719,7 @@ class TestRequest(BrowserRequest):
             from io import BytesIO
             body_instream = BytesIO()
 
-        super(TestRequest, self).__init__(body_instream, _testEnv)
+        super().__init__(body_instream, _testEnv)
         if form:
             self.form.update(form)
 
@@ -761,7 +756,7 @@ class BrowserResponse(HTTPResponse):
             self.setHeader('x-content-type-warning', 'guessed from content')
             self.setHeader('content-type', content_type)
 
-        body, headers = super(BrowserResponse, self)._implicitResult(body)
+        body, headers = super()._implicitResult(body)
         body = self.__insertBase(body)
         # Update the Content-Length header to account for the inserted
         # <base> tag.
@@ -823,16 +818,16 @@ class BrowserResponse(HTTPResponse):
         # if isRelative(str(location)):
         #     raise AssertionError('Cannot determine absolute location')
 
-        return super(BrowserResponse, self).redirect(location, status, trusted)
+        return super().redirect(location, status, trusted)
 
     def reset(self):
-        super(BrowserResponse, self).reset()
+        super().reset()
         self._base = ''
 
 
 def isHTML(str):
     """Try to determine whether str is HTML or not."""
-    if isinstance(str, six.binary_type):
+    if isinstance(str, bytes):
         try:
             str = str.decode()
         except UnicodeDecodeError:
@@ -858,7 +853,7 @@ def normalize_lang(lang):
 
 @zope.component.adapter(IHTTPRequest)
 @implementer(IUserPreferredLanguages)
-class BrowserLanguages(object):
+class BrowserLanguages:
 
     def __init__(self, request):
         self.request = request
@@ -925,8 +920,7 @@ class CacheableBrowserLanguages(BrowserLanguages):
         if "overridden" in languages_data:
             return languages_data["overridden"]
         elif "cached" not in languages_data:
-            languages_data["cached"] = super(
-                CacheableBrowserLanguages, self).getPreferredLanguages()
+            languages_data["cached"] = super().getPreferredLanguages()
         return languages_data["cached"]
 
     def _getLanguagesData(self):
@@ -1018,7 +1012,7 @@ class BrowserPage(BrowserView):
       >>> page.publishTraverse(request, 'bob') # doctest: +ELLIPSIS
       Traceback (most recent call last):
       ...
-      NotFound: Object: <zope.publisher.browser.MyPage object at ...>, name: 'bob'
+      zope.publisher.interfaces.NotFound: Object: <zope.publisher.browser.MyPage object at ...>, name: 'bob'
 
       >>> page.request is request
       True

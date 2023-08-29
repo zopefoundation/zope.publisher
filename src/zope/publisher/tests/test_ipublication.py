@@ -17,14 +17,13 @@
 import sys
 from io import BytesIO
 from unittest import TestCase
-from unittest import makeSuite
 
 from zope.interface.verify import verifyObject
 
 from zope.publisher.interfaces import IPublication
 
 
-class BaseIPublicationTest(object):
+class BaseIPublicationTest:
 
     # This test isn't as interesting as we'd like it to be because we
     # know too little about the semantics if a particular publication
@@ -102,7 +101,3 @@ class Test(BaseIPublicationTest, TestCase):
     def test_callTraversalHooks(self):
         self._publication.callTraversalHooks(self._request, None)
         self.assertEqual(self._publication._callTraversalHooks, 1)
-
-
-def test_suite():
-    return makeSuite(Test)

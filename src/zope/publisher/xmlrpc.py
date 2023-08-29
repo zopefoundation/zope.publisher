@@ -17,6 +17,7 @@ This module contains the XMLRPCRequest and XMLRPCResponse
 """
 import datetime
 import sys
+import xmlrpc.client as xmlrpclib
 from io import BytesIO
 
 import zope.component
@@ -30,12 +31,6 @@ from zope.publisher.http import HTTPResponse
 from zope.publisher.interfaces.xmlrpc import IXMLRPCPremarshaller
 from zope.publisher.interfaces.xmlrpc import IXMLRPCRequest
 from zope.publisher.interfaces.xmlrpc import IXMLRPCView
-
-
-if sys.version_info[0] == 2:
-    import xmlrpclib
-else:
-    import xmlrpc.client as xmlrpclib
 
 
 @implementer(IXMLRPCRequest)
@@ -87,7 +82,7 @@ class TestRequest(XMLRPCRequest):
         if body_instream is None:
             body_instream = BytesIO(b'')
 
-        super(TestRequest, self).__init__(body_instream, _testEnv, response)
+        super().__init__(body_instream, _testEnv, response)
 
 
 class XMLRPCResponse(HTTPResponse):
@@ -126,14 +121,14 @@ class XMLRPCResponse(HTTPResponse):
 
         # HTTP response payloads are byte strings, and methods like
         # consumeBody rely on that, but xmlrpc.client.dumps produces
-        # native strings, which is incorrect on Python 3.
+        # str, which is incorrect.
         if not isinstance(body, bytes):
             body = body.encode('utf-8')
 
         headers = [('content-type', 'text/xml;charset=utf-8'),
                    ('content-length', str(len(body)))]
-        self._headers.update(dict((k, [v]) for (k, v) in headers))
-        super(XMLRPCResponse, self).setResult(DirectResult((body,)))
+        self._headers.update({k: [v] for (k, v) in headers})
+        super().setResult(DirectResult((body,)))
 
     def handleException(self, exc_info):
         """Handle Errors during publsihing and wrap it in XML-RPC XML
@@ -155,7 +150,7 @@ class XMLRPCResponse(HTTPResponse):
         True
         """
         t, value = exc_info[:2]
-        s = '%s: %s' % (getattr(t, '__name__', t), value)
+        s = '{}: {}'.format(getattr(t, '__name__', t), value)
 
         # Create an appropriate Fault object. Unfortunately, we throw away
         # most of the debugging information. More useful error reporting is
@@ -179,7 +174,7 @@ class XMLRPCResponse(HTTPResponse):
 
 
 @implementer(IXMLRPCView)
-class XMLRPCView(object):
+class XMLRPCView:
     """A base XML-RPC view that can be used as mix-in for XML-RPC views."""
 
     def __init__(self, context, request):
@@ -188,7 +183,7 @@ class XMLRPCView(object):
 
 
 @implementer(IXMLRPCPremarshaller)
-class PreMarshallerBase(object):
+class PreMarshallerBase:
     """Abstract base class for pre-marshallers."""
 
     def __init__(self, data):
@@ -203,8 +198,8 @@ class DictPreMarshaller(PreMarshallerBase):
     """Pre-marshaller for dicts"""
 
     def __call__(self):
-        return dict([(premarshal(k), premarshal(v))
-                     for (k, v) in self.data.items()])
+        return {premarshal(k): premarshal(v)
+                for (k, v) in self.data.items()}
 
 
 @zope.component.adapter(list)

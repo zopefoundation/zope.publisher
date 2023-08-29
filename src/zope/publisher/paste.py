@@ -19,7 +19,7 @@ import zope.publisher.http
 import zope.publisher.publish
 
 
-browser_methods = set(('GET', 'HEAD', 'POST'))
+browser_methods = {'GET', 'HEAD', 'POST'}
 
 
 class Application:

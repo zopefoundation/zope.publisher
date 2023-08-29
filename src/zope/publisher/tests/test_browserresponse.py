@@ -16,8 +16,6 @@
 
 import sys
 from unittest import TestCase
-from unittest import TestSuite
-from unittest import makeSuite
 
 from zope.interface.verify import verifyObject
 
@@ -130,7 +128,7 @@ class TestBrowserResponse(TestCase):
             insertBase(b'<html><head></head><body>Page</body></html>'))
 
         # Ensure that unicode bases work as well
-        response.setBase(u'http://localhost/folder/')
+        response.setBase('http://localhost/folder/')
         body = insertBase(b'<html><head></head><body>Page</body></html>')
         self.assertIsInstance(body, bytes)
         self.assertIn(b'<base href="http://localhost/folder/" />', body)
@@ -189,9 +187,3 @@ class TestBrowserResponse(TestCase):
              b"A server error occurred.\n"
              b"</body></html>\n"]
         )
-
-
-def test_suite():
-    return TestSuite((
-        makeSuite(TestBrowserResponse),
-    ))

@@ -1,4 +1,3 @@
-# -*- coding: latin-1 -*-
 ##############################################################################
 #
 # Copyright (c) 2001, 2002 Zope Foundation and Contributors.
@@ -19,6 +18,7 @@ import tempfile
 import unittest
 from doctest import DocFileSuite
 from doctest import DocTestSuite
+from http.cookies import CookieError
 from io import BytesIO
 
 import zope.event
@@ -42,7 +42,6 @@ from zope.publisher.interfaces.http import IHTTPRequest
 from zope.publisher.interfaces.http import IHTTPResponse
 from zope.publisher.interfaces.logginginfo import ILoggingInfo
 from zope.publisher.publish import publish
-from zope.publisher.testing import output_checker
 from zope.publisher.tests.basetestiapplicationrequest import \
     BaseTestIApplicationRequest
 from zope.publisher.tests.basetestipublicationrequest import \
@@ -52,14 +51,8 @@ from zope.publisher.tests.basetestipublisherrequest import \
 from zope.publisher.tests.publication import TestPublication
 
 
-if sys.version_info[0] > 2:
-    from http.cookies import CookieError
-else:
-    from Cookie import CookieError
-
-
 @implementer(ILoggingInfo)
-class UserStub(object):
+class UserStub:
 
     def __init__(self, id):
         self._id = id
@@ -177,7 +170,7 @@ class HTTPInputStreamTests(unittest.TestCase):
         class ServerHung(Exception):
             pass
 
-        class NonClosingStream(object):
+        class NonClosingStream:
             def read(self, size=-1):
                 if size == -1:
                     raise ServerHung
@@ -205,17 +198,17 @@ class HTTPTests(unittest.TestCase):
     }
 
     def setUp(self):
-        class AppRoot(object):
+        class AppRoot:
             """Required docstring for the publisher."""
 
-        class Folder(object):
+        class Folder:
             """Required docstring for the publisher."""
 
-        class Item(object):
+        class Item:
             """Required docstring for the publisher."""
 
             def __call__(self, a, b):
-                return ("%s, %s" % (repr(a), repr(b))).encode('latin1')
+                return ("{!r}, {!r}".format(a, b)).encode('latin1')
 
         self.app = AppRoot()
         self.app.folder = Folder()
@@ -271,7 +264,7 @@ class HTTPTests(unittest.TestCase):
 
     def test_repr(self):
         request = self._createRequest()
-        expect = '<%s.%s instance URL=http://foobar.com>' % (
+        expect = '<{}.{} instance URL=http://foobar.com>'.format(
             request.__class__.__module__, request.__class__.__name__)
         self.assertEqual(repr(request), expect)
 
@@ -471,14 +464,14 @@ class HTTPTests(unittest.TestCase):
         }
         req = self._createRequest(extra_env=cookies)
 
-        self.assertEqual(req.cookies[u'foo'], u'bar')
-        self.assertEqual(req[u'foo'], u'bar')
+        self.assertEqual(req.cookies['foo'], 'bar')
+        self.assertEqual(req['foo'], 'bar')
 
-        self.assertEqual(req.cookies[u'spam'], u'eggs')
-        self.assertEqual(req[u'spam'], u'eggs')
+        self.assertEqual(req.cookies['spam'], 'eggs')
+        self.assertEqual(req['spam'], 'eggs')
 
-        self.assertEqual(req.cookies[u'this'], u'Should be accepted')
-        self.assertEqual(req[u'this'], u'Should be accepted')
+        self.assertEqual(req.cookies['this'], 'Should be accepted')
+        self.assertEqual(req['this'], 'Should be accepted')
 
         # Reserved key
         self.assertNotIn('path', req.cookies)
@@ -517,7 +510,7 @@ class HTTPTests(unittest.TestCase):
         # Cookie values are assumed to be UTF-8 encoded
         cookies = {'HTTP_COOKIE': r'key="\342\230\243";'}
         req = self._createRequest(extra_env=cookies)
-        self.assertEqual(req.cookies[u'key'], u'\N{BIOHAZARD SIGN}')
+        self.assertEqual(req.cookies['key'], '\N{BIOHAZARD SIGN}')
 
     def testHeaders(self):
         headers = {
@@ -525,10 +518,10 @@ class HTTPTests(unittest.TestCase):
             'Another-Test': 'another',
         }
         req = self._createRequest(extra_env=headers)
-        self.assertEqual(req.headers[u'TEST_HEADER'], u'test')
-        self.assertEqual(req.headers[u'TEST-HEADER'], u'test')
-        self.assertEqual(req.headers[u'test_header'], u'test')
-        self.assertEqual(req.getHeader('TEST_HEADER', literal=True), u'test')
+        self.assertEqual(req.headers['TEST_HEADER'], 'test')
+        self.assertEqual(req.headers['TEST-HEADER'], 'test')
+        self.assertEqual(req.headers['test_header'], 'test')
+        self.assertEqual(req.getHeader('TEST_HEADER', literal=True), 'test')
         self.assertEqual(req.getHeader('TEST-HEADER', literal=True), None)
         self.assertEqual(req.getHeader('test_header', literal=True), None)
         self.assertEqual(req.getHeader('Another-Test', literal=True),
@@ -650,7 +643,7 @@ class HTTPTests(unittest.TestCase):
                 # Fake the virtual host
                 if name == "vh":
                     return ProxyFactory(ob)
-                return super(HookPublication, self).traverseName(
+                return super().traverseName(
                     request, removeSecurityProxy(ob), name, check_auth=1)
 
         publication = HookPublication(self.app)
@@ -694,10 +687,10 @@ class HTTPTests(unittest.TestCase):
             {'PATH_INFO': '/\xc3\xa4\xc3\xb6/\xc3\xbc\xc3\x9f/foo/bar.html'})
         self.assertEqual(
             req._traversal_stack,
-            [u'bar.html', u'foo', u'\u00fc\u00df', u'\u00e4\u00f6'])
+            ['bar.html', 'foo', '\u00fc\u00df', '\u00e4\u00f6'])
         # the request should have converted PATH_INFO to unicode
         self.assertEqual(req['PATH_INFO'],
-                         u'/\u00e4\u00f6/\u00fc\u00df/foo/bar.html')
+                         '/\u00e4\u00f6/\u00fc\u00df/foo/bar.html')
 
     def testResponseWriteFaile(self):
         self.assertRaises(TypeError,
@@ -712,7 +705,7 @@ class HTTPTests(unittest.TestCase):
     def test_unacceptable_charset(self):
         # Regression test for https://bugs.launchpad.net/zope3/+bug/98337
         request = self._createRequest({'HTTP_ACCEPT_CHARSET': 'ISO-8859-1'})
-        result = u"Latin a with ogonek\u0105 Cyrillic ya \u044f"
+        result = "Latin a with ogonek\u0105 Cyrillic ya \u044f"
         provideAdapter(HTTPCharsets)
         request.response.setHeader('Content-Type', 'text/plain')
 
@@ -758,7 +751,7 @@ class ConcreteHTTPTests(HTTPTests):
         # Mock charset adapter to inject fake charset
         call_log = []
 
-        class MyCharsets(object):
+        class MyCharsets:
 
             def __init__(self, request):
                 self.request = request
@@ -776,7 +769,7 @@ class ConcreteHTTPTests(HTTPTests):
         # set the response on a result
         request = self._createRequest()
         request.response.setHeader('Content-Type', 'text/plain')
-        result = u"Latin a with ogonek\u0105 Cyrillic ya \u044f"
+        result = "Latin a with ogonek\u0105 Cyrillic ya \u044f"
         request.response.setResult(result)
 
         body = request.response.consumeBody()
@@ -842,7 +835,7 @@ class TestHTTPResponse(unittest.TestCase):
         eq(b"test", body)
 
         headers, body = self._getResultFromResponse(
-            u'\u0442\u0435\u0441\u0442', "utf-8",
+            '\u0442\u0435\u0441\u0442', "utf-8",
             {"content-type": "text/plain"})
         eq("8", headers["Content-Length"])
         eq(b'\xd1\x82\xd0\xb5\xd1\x81\xd1\x82', body)
@@ -855,17 +848,17 @@ class TestHTTPResponse(unittest.TestCase):
         eq(b"test", body)
 
         headers, body = self._getResultFromResponse(
-            u"test", headers={"content-type": "text/plain"})
+            "test", headers={"content-type": "text/plain"})
         eq("text/plain;charset=utf-8", headers["Content-Type"])
         eq(b"test", body)
 
         headers, body = self._getResultFromResponse(
-            u"test", "utf-8", {"content-type": "text/html"})
+            "test", "utf-8", {"content-type": "text/html"})
         eq("text/html;charset=utf-8", headers["Content-Type"])
         eq(b"test", body)
 
         headers, body = self._getResultFromResponse(
-            u"test", "utf-8", {"content-type": "text/plain;charset=cp1251"})
+            "test", "utf-8", {"content-type": "text/plain;charset=cp1251"})
         eq("text/plain;charset=cp1251", headers["Content-Type"])
         eq(b"test", body)
 
@@ -873,24 +866,24 @@ class TestHTTPResponse(unittest.TestCase):
         # RFC 3023 types and */*+xml output as unicode
 
         headers, body = self._getResultFromResponse(
-            u"test", "utf-8", {"content-type": "text/xml"})
+            "test", "utf-8", {"content-type": "text/xml"})
         eq("text/xml;charset=utf-8", headers["Content-Type"])
         eq(b"test", body)
 
         headers, body = self._getResultFromResponse(
-            u"test", "utf-8", {"content-type": "application/xml"})
+            "test", "utf-8", {"content-type": "application/xml"})
         eq("application/xml;charset=utf-8", headers["Content-Type"])
         eq(b"test", body)
 
         headers, body = self._getResultFromResponse(
-            u"test", "utf-8",
+            "test", "utf-8",
             {"content-type": "text/xml-external-parsed-entity"})
         eq("text/xml-external-parsed-entity;charset=utf-8",
            headers["Content-Type"])
         eq(b"test", body)
 
         headers, body = self._getResultFromResponse(
-            u"test", "utf-8",
+            "test", "utf-8",
             {"content-type": "application/xml-external-parsed-entity"})
         eq("application/xml-external-parsed-entity;charset=utf-8",
            headers["Content-Type"])
@@ -898,7 +891,7 @@ class TestHTTPResponse(unittest.TestCase):
 
         # Mozilla XUL
         headers, body = self._getResultFromResponse(
-            u"test", "utf-8", {"content-type": "application/vnd+xml"})
+            "test", "utf-8", {"content-type": "application/vnd+xml"})
         eq("application/vnd+xml;charset=utf-8", headers["Content-Type"])
         eq(b"test", body)
 
@@ -910,7 +903,7 @@ class TestHTTPResponse(unittest.TestCase):
         eq(b"test", body)
 
         headers, body = self._getResultFromResponse(
-            u"test", "utf-8", {"content-type": "application/json"})
+            "test", "utf-8", {"content-type": "application/json"})
         eq("application/json", headers["Content-Type"])
         eq(b"test", body)
 
@@ -926,11 +919,11 @@ class TestHTTPResponse(unittest.TestCase):
         eq(b"", response.consumeBody())
 
         response = HTTPResponse()
-        self.assertRaises(ValueError, response.setResult, u'')
+        self.assertRaises(ValueError, response.setResult, '')
 
         response = HTTPResponse()
         response.setHeader('Content-Type', 'text/plain')
-        response.setResult(u'')
+        response.setResult('')
         eq(b"", response.consumeBody())
 
     def _getCookieFromResponse(self, cookies):
@@ -959,7 +952,7 @@ class TestHTTPResponse(unittest.TestCase):
         self.assertTrue('alpha=beta;' in c or 'alpha=beta' in c)
 
         c = self._getCookieFromResponse([
-            ('sign', u'\N{BIOHAZARD SIGN}', {}),
+            ('sign', '\N{BIOHAZARD SIGN}', {}),
         ])
         self.assertTrue((r'sign="\342\230\243";' in c) or
                         (r'sign="\342\230\243"' in c))
@@ -976,7 +969,7 @@ class TestHTTPResponse(unittest.TestCase):
                     'domain': 'example.com',
                     'pAth': '/froboz',
                     'max_age': 3600,
-                    'comment': u'blah;\N{BIOHAZARD SIGN}?',
+                    'comment': 'blah;\N{BIOHAZARD SIGN}?',
                     'seCure': True,
             }),
         ])[0]
@@ -1077,13 +1070,12 @@ def cleanUp(test):
 
 def test_suite():
     return unittest.TestSuite((
-        unittest.makeSuite(ConcreteHTTPTests),
-        unittest.makeSuite(TestHTTPResponse),
-        unittest.makeSuite(HTTPInputStreamTests),
+        unittest.defaultTestLoader.loadTestsFromTestCase(ConcreteHTTPTests),
+        unittest.defaultTestLoader.loadTestsFromTestCase(TestHTTPResponse),
+        unittest.defaultTestLoader.loadTestsFromTestCase(HTTPInputStreamTests),
         DocTestSuite('zope.publisher.http'),
         DocFileSuite('../httpresults.txt',
                      setUp=cleanUp,
-                     tearDown=cleanUp,
-                     checker=output_checker),
-        unittest.makeSuite(APITests),
+                     tearDown=cleanUp),
+        unittest.defaultTestLoader.loadTestsFromTestCase(APITests),
     ))
