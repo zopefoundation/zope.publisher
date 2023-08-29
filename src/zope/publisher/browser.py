@@ -229,7 +229,7 @@ class Record:
         items = list(self.__dict__.items())
         items.sort()
         return ("{"
-                + ", ".join(["{}: {}".format(key, repr(value))
+                + ", ".join(["{}: {!r}".format(key, value)
                              for key, value in items]) + "}")
 
 

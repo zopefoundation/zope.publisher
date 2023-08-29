@@ -82,7 +82,7 @@ class XMLRPCTests(unittest.TestCase):
         class Item:
 
             def __call__(self, a, b):
-                return "{}, {}".format(repr(a), repr(b))
+                return "{!r}, {!r}".format(a, b)
 
             def doit(self, a, b):
                 return 'do something {} {}'.format(a, b)

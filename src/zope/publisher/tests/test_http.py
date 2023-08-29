@@ -208,7 +208,7 @@ class HTTPTests(unittest.TestCase):
             """Required docstring for the publisher."""
 
             def __call__(self, a, b):
-                return ("{}, {}".format(repr(a), repr(b))).encode('latin1')
+                return ("{!r}, {!r}".format(a, b)).encode('latin1')
 
         self.app = AppRoot()
         self.app.folder = Folder()
