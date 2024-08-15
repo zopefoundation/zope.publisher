@@ -194,8 +194,6 @@
 4.0.0 (2014-12-22)
 ==================
 
-- Enable testing on Travis.
-
 - Add ``__traceback_info__`` to ``response.redirect()`` to ease debugging
   untrusted redirects.
 
@@ -205,8 +203,6 @@
 ====================
 
 - Support UTF-8-encoding application/json responses returned as Unicode.
-
-- Add YAML for travis-ci.
 
 4.0.0a3 (2013-02-28)
 ====================
