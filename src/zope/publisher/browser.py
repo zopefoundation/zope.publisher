@@ -19,6 +19,7 @@ HTML form data and convert them into a Python-native format. Even file data is
 packaged into a nice, Python-friendly 'FileUpload' object.
 """
 import re
+import tempfile
 from email.message import Message
 from urllib.parse import parse_qsl
 
@@ -675,6 +676,12 @@ class FileUpload:
         for m in methods:
             if hasattr(file, m):
                 d[m] = getattr(file, m)
+
+        if 'seekable' not in d and isinstance(
+            file, tempfile.SpooledTemporaryFile
+        ):
+            # NB: can't assing file._file.seekable, file._file might roll over
+            d['seekable'] = lambda: file._file.seekable()
 
         self.headers = aFieldStorage.headers
         filename = aFieldStorage.filename
