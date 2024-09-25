@@ -5,7 +5,15 @@
 7.1 (unreleased)
 ================
 
-- Nothing changed yet.
+- Fix test suite to use proper line endings (\r\n) in raw multipart/form-data
+  HTTP requests, because multipart 1.0.0 is stricter about line endings.
+  Fixes `issue <https://github.com/zopefoundation/zope.publisher/issues/74>`_.
+
+- ``FileUpload`` objects now implement a fallback ``seekable()`` method on
+  Python 3.7 through 3.10, where tempfile.SpooledTemporaryFile lacks it.
+  Fixes `issue 44 <https://github.com/zopefoundation/zope.publisher/issues/44>`_
+  again, which had regressed due to certain assumptions that were no longer
+  true after the multipart 1.0.0 release.
 
 
 7.0 (2023-08-29)

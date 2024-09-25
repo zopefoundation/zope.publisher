@@ -43,7 +43,7 @@ Content-Disposition: form-data; name="upload"; filename=""
 Content-Type: application/octet-stream
 
 -----------------------------1--
-"""
+""".replace(b'\n', b'\r\n')
 
 LARGE_FILE_BODY = b''.join([b"""-----------------------------1
 Content-Disposition: form-data; name="upload"; filename="test"
@@ -51,14 +51,14 @@ Content-Type: text/plain
 
 Here comes some text! """, (b'test' * 1000), b"""
 -----------------------------1--
-"""])
+"""]).replace(b'\n', b'\r\n')
 
 LARGE_POSTED_VALUE = b''.join([b"""-----------------------------1
 Content-Disposition: form-data; name="upload"
 
 Here comes some text! """, (b'test' * 1000), b"""
 -----------------------------1--
-"""])
+"""]).replace(b'\n', b'\r\n')
 
 IE_FILE_BODY = b"""-----------------------------1
 Content-Disposition: form-data; name="upload"; filename="C:\\Windows\\notepad.exe"
@@ -66,7 +66,7 @@ Content-Type: text/plain
 
 Some data
 -----------------------------1--
-"""  # noqa: E501 line too long
+""".replace(b'\n', b'\r\n')  # noqa: E501 line too long
 
 
 def publish(request):
@@ -307,7 +307,7 @@ class BrowserTests(HTTPTests):
             'REQUEST_METHOD': 'POST',
             'CONTENT_TYPE': 'multipart/form_data; boundary=-123',
         }
-        body = b'\n'.join([
+        body = b'\r\n'.join([
             b'---123',
             b'Content-Disposition: form-data; name="a"',
             b'',
@@ -333,7 +333,7 @@ class BrowserTests(HTTPTests):
             'REQUEST_METHOD': 'POST',
             'CONTENT_TYPE': 'multipart/form_data; boundary=-123',
         }
-        body = b'\n'.join([
+        body = b'\r\n'.join([
             b'---123',
             b'Content-Disposition: form-data; name="upload";'
             b' filename="\xe2\x98\x83"',
@@ -355,7 +355,7 @@ class BrowserTests(HTTPTests):
             'CONTENT_TYPE': (
                 'multipart/form_data; boundary=-123; charset=ISO-8859-13'),
         }
-        body = b'\n'.join([
+        body = b'\r\n'.join([
             b'---123',
             b'Content-Disposition: form-data; name="upload";'
             b' filename="\xc0\xfeuolyno"',
@@ -376,7 +376,7 @@ class BrowserTests(HTTPTests):
             'REQUEST_METHOD': 'POST',
             'CONTENT_TYPE': 'multipart/form_data; boundary=-123',
         }
-        body = b'\n'.join([
+        body = b'\r\n'.join([
             b'---123',
             b'Content-Disposition: form-data; name="upload";'
             b' filename="\xc0\xfeuolyno"',
@@ -681,7 +681,7 @@ class BrowserTests(HTTPTests):
             'REQUEST_METHOD': 'POST',
             'CONTENT_TYPE': 'multipart/form_data; boundary=-123',
         }
-        body = b'\n'.join([
+        body = b'\r\n'.join([
             b'---123',
             b'Content-Disposition: form-data; name="a"',
             b'',
