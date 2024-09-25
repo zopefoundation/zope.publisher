@@ -679,7 +679,7 @@ class FileUpload:
 
         if 'seekable' not in d and isinstance(
             file, tempfile.SpooledTemporaryFile
-        ):
+        ):  # Python 3.7 to 3.10
             # NB: can't assign file._file.seekable, file._file might roll over
             d['seekable'] = lambda: file._file.seekable()
 
