@@ -116,7 +116,7 @@ class TestBaseRequest(BaseTestIPublicationRequest,
         retried = request.retry()
 
         # the requests are not the same
-        self.assertTrue(request is not retried)
+        self.assertIsNot(request, retried)
         # the requests both provide the default skin
         self.assertTrue(ISomeSkin.providedBy(request))
         self.assertTrue(ISomeSkin.providedBy(retried))

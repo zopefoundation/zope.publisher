@@ -68,15 +68,15 @@ class BaseTestIPublicationRequest:
         rcresource2 = getrefcount(resource2)
         request.hold(resource2)
 
-        self.assertTrue(getrefcount(resource, 1) > rcresource)
-        self.assertTrue(getrefcount(resource2, 1) > rcresource2)
+        self.assertGreater(getrefcount(resource, 1), rcresource)
+        self.assertGreater(getrefcount(resource2, 1), rcresource2)
         self.assertFalse(resource2.released)
 
         request.close()
 
         self.assertTrue(resource2.released)
         # Responses are not unreferenced during close()
-        self.assertTrue(getrefcount(response) >= rcresponse)
+        self.assertGreaterEqual(getrefcount(response), rcresponse)
         self.assertEqual(getrefcount(resource), rcresource)
         self.assertEqual(getrefcount(resource2), rcresource2)
 

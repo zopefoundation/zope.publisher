@@ -5,6 +5,10 @@
 7.1 (unreleased)
 ================
 
+- Drop support for Python 3.7.
+
+- Add support for Python 3.12.
+
 - Fix test suite to use proper line endings (\r\n) in raw multipart/form-data
   HTTP requests, because multipart 1.0.0 is stricter about line endings.
   Fixes `issue <https://github.com/zopefoundation/zope.publisher/issues/74>`_.

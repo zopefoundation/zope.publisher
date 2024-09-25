@@ -149,15 +149,15 @@ def field2boolean(v):
 
 
 type_converters = {
-    'float':    field2float,
-    'int':      field2int,
-    'long':     field2long,
-    'string':   field2string,
+    'float': field2float,
+    'int': field2int,
+    'long': field2long,
+    'string': field2string,
     'required': field2required,
-    'tokens':   field2tokens,
-    'lines':    field2lines,
-    'text':     field2text,
-    'boolean':  field2boolean,
+    'tokens': field2tokens,
+    'lines': field2lines,
+    'text': field2text,
+    'boolean': field2boolean,
 }
 
 get_converter = type_converters.get
@@ -230,7 +230,7 @@ class Record:
         items = list(self.__dict__.items())
         items.sort()
         return ("{"
-                + ", ".join(["{}: {!r}".format(key, value)
+                + ", ".join([f"{key}: {value!r}"
                              for key, value in items]) + "}")
 
 
@@ -689,7 +689,7 @@ class FileUpload:
             if isinstance(filename, bytes):
                 filename = filename.decode('UTF-8')
             # fix for IE full paths
-            filename = filename[filename.rfind('\\')+1:].strip()
+            filename = filename[filename.rfind('\\') + 1:].strip()
         self.filename = filename
 
     def release(self):
@@ -711,10 +711,10 @@ class TestRequest(BrowserRequest):
                  skin=None, **kw):
 
         _testEnv = {
-            'SERVER_URL':         'http://127.0.0.1',
-            'HTTP_HOST':          '127.0.0.1',
-            'CONTENT_LENGTH':     '0',
-            'GATEWAY_INTERFACE':  'TestFooInterface/1.0',
+            'SERVER_URL': 'http://127.0.0.1',
+            'HTTP_HOST': '127.0.0.1',
+            'CONTENT_LENGTH': '0',
+            'GATEWAY_INTERFACE': 'TestFooInterface/1.0',
         }
 
         if environ is not None:
@@ -846,7 +846,7 @@ def isHTML(str):
         return True
     if s.startswith('<!--'):
         idx = s.find('<html')
-        return idx > 0 and (s[idx+5:idx+6] in ' >')
+        return idx > 0 and (s[idx + 5:idx + 6] in ' >')
     else:
         return False
 

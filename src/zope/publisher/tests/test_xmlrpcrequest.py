@@ -58,15 +58,15 @@ class XMLRPCTests(unittest.TestCase):
     """
 
     _testEnv = {
-        'PATH_INFO':          '/folder/item2/view/',
-        'QUERY_STRING':       '',
-        'SERVER_URL':         'http://foobar.com',
-        'HTTP_HOST':          'foobar.com',
-        'CONTENT_LENGTH':     '0',
-        'REQUEST_METHOD':     'POST',
+        'PATH_INFO': '/folder/item2/view/',
+        'QUERY_STRING': '',
+        'SERVER_URL': 'http://foobar.com',
+        'HTTP_HOST': 'foobar.com',
+        'CONTENT_LENGTH': '0',
+        'REQUEST_METHOD': 'POST',
         'HTTP_AUTHORIZATION': 'Should be in accessible',
-        'GATEWAY_INTERFACE':  'TestFooInterface/1.0',
-        'HTTP_OFF_THE_WALL':  "Spam 'n eggs",
+        'GATEWAY_INTERFACE': 'TestFooInterface/1.0',
+        'HTTP_OFF_THE_WALL': "Spam 'n eggs",
         'HTTP_ACCEPT_CHARSET': 'ISO-8859-1, UTF-8;q=0.66, UTF-16;q=0.33',
     }
 
@@ -82,10 +82,10 @@ class XMLRPCTests(unittest.TestCase):
         class Item:
 
             def __call__(self, a, b):
-                return "{!r}, {!r}".format(a, b)
+                return f"{a!r}, {b!r}"
 
             def doit(self, a, b):
-                return 'do something {} {}'.format(a, b)
+                return f'do something {a} {b}'
 
         class View:
 

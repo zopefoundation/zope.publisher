@@ -86,7 +86,7 @@ class NotFound(LookupError, TraversalException):
             ob = repr(self.ob)
         except:   # noqa: E722 do not use bare 'except'
             ob = 'unprintable object'
-        return 'Object: {}, name: {!r}'.format(ob, self.name)
+        return f'Object: {ob}, name: {self.name!r}'
 
 
 class IDebugError(ITraversalException):

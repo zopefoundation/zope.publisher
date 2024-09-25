@@ -181,7 +181,7 @@ class Test(cleanup.CleanUp, unittest.TestCase):
         directlyProvides(request, skin)
 
         v = component.queryMultiAdapter((ob, request), name='test')
-        self.assertTrue(isinstance(v, V2))
+        self.assertIsInstance(v, V2)
 
 
 def test_suite():

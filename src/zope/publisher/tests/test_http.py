@@ -132,7 +132,7 @@ class HTTPInputStreamTests(unittest.TestCase):
         # HTTPInputStream understands both CONTENT_LENGTH...
         stream1 = HTTPInputStream(BytesIO(data), {'CONTENT_LENGTH': '100000'})
         try:
-            self.assertTrue(isinstance(stream1.getCacheStream(), TempFileType))
+            self.assertIsInstance(stream1.getCacheStream(), TempFileType)
         finally:
             stream1.cacheStream.close()
 
@@ -140,7 +140,7 @@ class HTTPInputStreamTests(unittest.TestCase):
         stream2 = HTTPInputStream(BytesIO(data), {'HTTP_CONTENT_LENGTH':
                                                   '100000'})
         try:
-            self.assertTrue(isinstance(stream2.getCacheStream(), TempFileType))
+            self.assertIsInstance(stream2.getCacheStream(), TempFileType)
         finally:
             stream2.cacheStream.close()
 
@@ -150,7 +150,7 @@ class HTTPInputStreamTests(unittest.TestCase):
                                   {'CONTENT_LENGTH': '',
                                    'HTTP_CONTENT_LENGTH': '100000'})
         try:
-            self.assertTrue(isinstance(stream3.getCacheStream(), TempFileType))
+            self.assertIsInstance(stream3.getCacheStream(), TempFileType)
         finally:
             stream3.cacheStream.close()
 
@@ -174,7 +174,7 @@ class HTTPInputStreamTests(unittest.TestCase):
             def read(self, size=-1):
                 if size == -1:
                     raise ServerHung
-                return b'a'*size
+                return b'a' * size
 
         stream = HTTPInputStream(NonClosingStream(), {'CONTENT_LENGTH': '10'})
         self.assertEqual(stream.getCacheStream().read(), b'aaaaaaaaaa')
@@ -185,15 +185,15 @@ class HTTPInputStreamTests(unittest.TestCase):
 class HTTPTests(unittest.TestCase):
 
     _testEnv = {
-        'PATH_INFO':           '/folder/item',
-        'a':                   '5',
-        'b':                   6,
-        'SERVER_URL':          'http://foobar.com',
-        'HTTP_HOST':           'foobar.com',
-        'CONTENT_LENGTH':      '0',
-        'HTTP_AUTHORIZATION':  'Should be in accessible',
-        'GATEWAY_INTERFACE':   'TestFooInterface/1.0',
-        'HTTP_OFF_THE_WALL':   "Spam 'n eggs",
+        'PATH_INFO': '/folder/item',
+        'a': '5',
+        'b': 6,
+        'SERVER_URL': 'http://foobar.com',
+        'HTTP_HOST': 'foobar.com',
+        'CONTENT_LENGTH': '0',
+        'HTTP_AUTHORIZATION': 'Should be in accessible',
+        'GATEWAY_INTERFACE': 'TestFooInterface/1.0',
+        'HTTP_OFF_THE_WALL': "Spam 'n eggs",
         'HTTP_ACCEPT_CHARSET': 'ISO-8859-1, UTF-8;q=0.66, UTF-16;q=0.33',
     }
 
@@ -208,7 +208,7 @@ class HTTPTests(unittest.TestCase):
             """Required docstring for the publisher."""
 
             def __call__(self, a, b):
-                return ("{!r}, {!r}".format(a, b)).encode('latin1')
+                return (f"{a!r}, {b!r}").encode('latin1')
 
         self.app = AppRoot()
         self.app.folder = Folder()
@@ -737,7 +737,7 @@ class ConcreteHTTPTests(HTTPTests):
         r = self._createRequest(extra_env={"PATH_INFO": "/xxx"})
         publish(r, handle_errors=0)
         r.shiftNameToApplication()
-        self.assertEqual(r.getApplicationURL(), appurl+"/xxx")
+        self.assertEqual(r.getApplicationURL(), appurl + "/xxx")
 
         # Verify that we can only shift if we've traversed only a single name
         r = self._createRequest(extra_env={"PATH_INFO": "/folder/item"})
@@ -813,7 +813,7 @@ class TestHTTPResponse(unittest.TestCase):
         response.setHeader('Content-Type', 'text/plain;charset=us-ascii')
 
         # Output the data
-        data = b'a'*10
+        data = b'a' * 10
         response.setResult(DirectResult(data))
 
         headers, body = self._parseResult(response)
@@ -824,7 +824,7 @@ class TestHTTPResponse(unittest.TestCase):
         self.assertEqual(body, data)
 
         # Make sure that no Content-Length header was added
-        self.assertTrue('Content-Length' not in headers)
+        self.assertNotIn('Content-Length', headers)
 
     def testContentLength(self):
         eq = self.assertEqual
@@ -974,10 +974,10 @@ class TestHTTPResponse(unittest.TestCase):
             }),
         ])[0]
         self.assertTrue('foo=bar;' in c or 'foo=bar' in c)
-        self.assertTrue('expires=Sat, 12 Jul 2014 23:26:28 GMT;' in c, repr(c))
-        self.assertTrue('Domain=example.com;' in c)
-        self.assertTrue('Path=/froboz;' in c)
-        self.assertTrue('Max-Age=3600;' in c)
+        self.assertIn('expires=Sat, 12 Jul 2014 23:26:28 GMT;', c, repr(c))
+        self.assertIn('Domain=example.com;', c)
+        self.assertIn('Path=/froboz;', c)
+        self.assertIn('Max-Age=3600;', c)
         # The first variant is the more modern one,
         # see https://bugs.python.org/issue991266:
         self.assertTrue('Comment="blah%3B%E2%98%A3?";' in c
@@ -986,7 +986,7 @@ class TestHTTPResponse(unittest.TestCase):
 
         c = self._getCookieFromResponse([('foo', 'bar', {'secure': False})])[0]
         self.assertTrue('foo=bar;' in c or 'foo=bar' in c)
-        self.assertFalse('secure' in c)
+        self.assertNotIn('secure', c)
 
     def test_handleException(self):
         response = HTTPResponse()
