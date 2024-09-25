@@ -680,7 +680,7 @@ class FileUpload:
         if 'seekable' not in d and isinstance(
             file, tempfile.SpooledTemporaryFile
         ):
-            # NB: can't assing file._file.seekable, file._file might roll over
+            # NB: can't assign file._file.seekable, file._file might roll over
             d['seekable'] = lambda: file._file.seekable()
 
         self.headers = aFieldStorage.headers
