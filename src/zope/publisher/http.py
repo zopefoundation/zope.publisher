@@ -440,7 +440,7 @@ class HTTPRequest(BaseRequest):
         else:
             host = hostname
 
-        return '{}://{}'.format(protocol, host)
+        return f'{protocol}://{host}'
 
     def _parseCookies(self, text, result=None):
         """Parse 'text' and return found cookies as 'result' dictionary."""
@@ -609,8 +609,8 @@ class HTTPRequest(BaseRequest):
 
     def setApplicationServer(self, host, proto='http', port=None):
         if port and str(port) != DEFAULT_PORTS.get(proto):
-            host = '{}:{}'.format(host, port)
-        self._app_server = '{}://{}'.format(proto, host)
+            host = f'{host}:{port}'
+        self._app_server = f'{proto}://{host}'
         zope.event.notify(HTTPVirtualHostChangedEvent(self))
 
     def shiftNameToApplication(self):
@@ -862,7 +862,7 @@ class HTTPResponse(BaseResponse):
             if (major, minor) != ('application', 'json'):
                 # The RFC says this is UTF-8, and the type has no params.
                 params['charset'] = encoding
-            content_type = "{}/{}".format(major, minor)
+            content_type = f"{major}/{minor}"
             if params:
                 content_type += ";"
                 content_type += ";".join(k + "=" + v
@@ -996,7 +996,7 @@ def extract_host(url):
     if ':' not in host:
         port = DEFAULT_PORTS.get(scheme)
         if port:
-            host = '{}:{}'.format(host, port)
+            host = f'{host}:{port}'
     return host
 
 

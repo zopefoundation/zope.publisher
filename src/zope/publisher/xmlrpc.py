@@ -69,10 +69,10 @@ class TestRequest(XMLRPCRequest):
     def __init__(self, body_instream=None, environ=None, response=None, **kw):
 
         _testEnv = {
-            'SERVER_URL':         'http://127.0.0.1',
-            'HTTP_HOST':          '127.0.0.1',
-            'CONTENT_LENGTH':     '0',
-            'GATEWAY_INTERFACE':  'TestFooInterface/1.0',
+            'SERVER_URL': 'http://127.0.0.1',
+            'HTTP_HOST': '127.0.0.1',
+            'CONTENT_LENGTH': '0',
+            'GATEWAY_INTERFACE': 'TestFooInterface/1.0',
         }
 
         if environ:

@@ -93,14 +93,14 @@ class TestBrowserRequest(BrowserRequest, HTTPCharsets):
 class BrowserTests(HTTPTests):
 
     _testEnv = {
-        'PATH_INFO':           '/folder/item',
-        'QUERY_STRING':        'a=5&b:int=6',
-        'SERVER_URL':          'http://foobar.com',
-        'HTTP_HOST':           'foobar.com',
-        'CONTENT_LENGTH':      '0',
-        'HTTP_AUTHORIZATION':  'Should be in accessible',
-        'GATEWAY_INTERFACE':   'TestFooInterface/1.0',
-        'HTTP_OFF_THE_WALL':   "Spam 'n eggs",
+        'PATH_INFO': '/folder/item',
+        'QUERY_STRING': 'a=5&b:int=6',
+        'SERVER_URL': 'http://foobar.com',
+        'HTTP_HOST': 'foobar.com',
+        'CONTENT_LENGTH': '0',
+        'HTTP_AUTHORIZATION': 'Should be in accessible',
+        'GATEWAY_INTERFACE': 'TestFooInterface/1.0',
+        'HTTP_OFF_THE_WALL': "Spam 'n eggs",
         'HTTP_ACCEPT_CHARSET': 'ISO-8859-1, UTF-8;q=0.66, UTF-16;q=0.33',
     }
 
@@ -325,7 +325,7 @@ class BrowserTests(HTTPTests):
         ])
         request = self._createRequest(extra, body)
         publish(request)
-        self.assertTrue(isinstance(request.form["street"], str))
+        self.assertIsInstance(request.form["street"], str)
         self.assertEqual("汉语/漢語", request.form['street'])
 
     def testFormMultipartFilenameUTF8(self):
@@ -403,7 +403,7 @@ class BrowserTests(HTTPTests):
             b'&street=\xe6\xb1\x89\xe8\xaf\xad/\xe6\xbc\xa2\xe8\xaa\x9e')
         request = self._createRequest(extra, body)
         publish(request)
-        self.assertTrue(isinstance(request.form["street"], str))
+        self.assertIsInstance(request.form["street"], str)
         self.assertEqual("汉语/漢語", request.form['street'])
 
     def testFormURLEncodedUTF8ContentType(self):
@@ -416,7 +416,7 @@ class BrowserTests(HTTPTests):
             b'&street=\xe6\xb1\x89\xe8\xaf\xad/\xe6\xbc\xa2\xe8\xaa\x9e')
         request = self._createRequest(extra, body)
         publish(request)
-        self.assertTrue(isinstance(request.form["street"], str))
+        self.assertIsInstance(request.form["street"], str)
         self.assertEqual("汉语/漢語", request.form['street'])
 
     def testFormQueryStringUTF8(self):
@@ -426,7 +426,7 @@ class BrowserTests(HTTPTests):
         extra = {'QUERY_STRING': query_string}
         request = self._createRequest(extra)
         publish(request)
-        self.assertTrue(isinstance(request.form["street"], str))
+        self.assertIsInstance(request.form["street"], str)
         self.assertEqual("汉语/漢語", request.form['street'])
 
     def testFormURLEncodedLatin1(self):
@@ -438,7 +438,7 @@ class BrowserTests(HTTPTests):
         body = b'a=5&b:int=6&street=K\xf6hlerstra\xdfe'
         request = self._createRequest(extra, body)
         publish(request)
-        self.assertTrue(isinstance(request.form["street"], str))
+        self.assertIsInstance(request.form["street"], str)
         self.assertEqual("K\xf6hlerstra\xdfe", request.form['street'])
 
     def testFormURLEncodedLatin7(self):
@@ -450,7 +450,7 @@ class BrowserTests(HTTPTests):
         body = 'a=5&b:int=6&street=Ąžuolyno'.encode('iso-8859-13')
         request = self._createRequest(extra, body)
         publish(request)
-        self.assertTrue(isinstance(request.form["street"], str))
+        self.assertIsInstance(request.form["street"], str)
         self.assertEqual("Ąžuolyno", request.form['street'])
 
     def testFormNoEncodingUsesUTF8(self):
@@ -464,7 +464,7 @@ class BrowserTests(HTTPTests):
         # many mainstream browsers do not send HTTP_ACCEPT_CHARSET
         del request._environ['HTTP_ACCEPT_CHARSET']
         publish(request)
-        self.assertTrue(isinstance(request.form["street"], str))
+        self.assertIsInstance(request.form["street"], str)
         self.assertEqual("K\xf6hlerstra\xdfe", request.form['street'])
 
     def testFormAcceptsStarButNotUTF8(self):

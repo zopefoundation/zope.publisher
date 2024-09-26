@@ -504,4 +504,4 @@ class MethodNotAllowed(Exception):
         self.request = request
 
     def __str__(self):
-        return "{!r}, {!r}".format(self.object, self.request)
+        return f"{self.object!r}, {self.request!r}"
