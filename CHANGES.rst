@@ -7,7 +7,7 @@
 
 - Drop support for Python 3.7.
 
-- Add support for Python 3.12.
+- Add support for Python 3.12, 3.13.
 
 - Fix test suite to use proper line endings (``\r\n``) in raw multipart/form-data
   HTTP requests, because multipart 1.0.0 is stricter about line endings.
