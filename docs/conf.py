@@ -48,10 +48,7 @@ extensions = [
 templates_path = ['_templates']
 
 # The suffix(es) of source filenames.
-# You can specify multiple suffix as a list of string:
-#
-# source_suffix = ['.rst', '.md']
-source_suffix = '.rst'
+source_suffix = {'.rst': 'restructuredtext'}
 
 # The encoding of source files.
 #
@@ -62,7 +59,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'zope.publisher'
-copyright = '2017, Zope Community'
+copyright = '2017-2024, Zope Community'
 author = 'Zope Community'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -79,7 +76,7 @@ release = rqmt.version
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+# language = None
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
@@ -353,13 +350,13 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
-    'https://docs.python.org/': None,
-    'https://zopeinterface.readthedocs.io/en/latest': None,
-    'https://zopeevent.readthedocs.io/en/latest/': None,
-    'https://zopecomponent.readthedocs.io/en/latest/': None,
-    'https://zopelocation.readthedocs.io/en/latest/': None,
-    'https://zopecontainer.readthedocs.io/en/latest/': None,
-    'https://zopesite.readthedocs.io/en/latest/': None,
+    'python': ('https://docs.python.org/', None),
+    'zopeinterface': ('https://zopeinterface.readthedocs.io/en/latest', None),
+    'zopeevent': ('https://zopeevent.readthedocs.io/en/latest/', None),
+    'zopecomponent': ('https://zopecomponent.readthedocs.io/en/latest/', None),
+    'zopelocation': ('https://zopelocation.readthedocs.io/en/latest/', None),
+    'zopecontainer': ('https://zopecontainer.readthedocs.io/en/latest/', None),
+    'zopesite': ('https://zopesite.readthedocs.io/en/latest/', None),
 }
 
 extlinks = {
