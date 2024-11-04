@@ -5,7 +5,7 @@
 7.2 (unreleased)
 ================
 
-- Nothing changed yet.
+- Replace deprecated multipart argument ``memfile_limit`` with ``spool_limit``
 
 
 7.1 (2024-09-27)

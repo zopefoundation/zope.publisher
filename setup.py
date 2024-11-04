@@ -71,7 +71,7 @@ setup(
     package_dir={'': 'src'},
     namespace_packages=['zope'],
     install_requires=[
-        'multipart',
+        'multipart>=1.1.0',
         'setuptools',
         'zope.browser',
         'zope.component',
