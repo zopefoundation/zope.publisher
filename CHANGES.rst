@@ -7,6 +7,8 @@
 
 - Replace deprecated multipart argument ``memfile_limit`` with ``spool_limit``
 
+- The multipart default value of ``part_limit`` is 128. We have forms with
+  more than 128 fields - choosing 1024 as a safe upper limit.
 
 7.1 (2024-09-27)
 ================
