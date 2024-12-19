@@ -2,7 +2,7 @@
  Changes
 =========
 
-7.2 (unreleased)
+7.2 (2024-12-19)
 ================
 
 - Drop support for Python 3.8.
