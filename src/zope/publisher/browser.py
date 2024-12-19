@@ -60,6 +60,8 @@ base_re_search = re.compile(b'(<base.*?>)', re.I).search
 isRelative = re.compile("[-_.!~*a-zA-z0-9'()@&=+$,]+(/|$)").match
 newlines = re.compile('\r\n|\n\r|\r')
 
+MULIPART_PART_LIMIT = 1024
+
 
 def is_text_html(content_type):
     return content_type.startswith('text/html')
@@ -341,8 +343,8 @@ class BrowserRequest(HTTPRequest):
             if env.get('CONTENT_LENGTH') == '':
                 env.pop('CONTENT_LENGTH')
             forms, files = multipart.parse_form_data(
-                env, charset=self.default_form_charset, part_limit=1024,
-                spool_limit=0)
+                env, charset=self.default_form_charset,
+                part_limit=MULIPART_PART_LIMIT, spool_limit=0)
             items.extend(forms.iterallitems())
             for key, item in files.iterallitems():
                 # multipart puts fields in 'files' even if no upload was
