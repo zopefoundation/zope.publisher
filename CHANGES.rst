@@ -7,6 +7,8 @@
 
 - Replace deprecated multipart argument ``memfile_limit`` with ``spool_limit``
 
+- Increase the default value of ``part_limit`` for ``multipart`` to 1024 as 128
+  is too low for some use cases.
 
 7.1 (2024-09-27)
 ================
