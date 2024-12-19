@@ -16,7 +16,7 @@ packages are installed because of the use of
 
   >>> try:
   ...    import zope.annotation
-  ... except ImportError:
+  ... except ModuleNotFoundError:
   ...   expected_count = 22
   ... else:
   ...   expected_count = 23

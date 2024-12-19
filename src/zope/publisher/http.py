@@ -1096,5 +1096,5 @@ class DirectResult:
 # BBB
 try:
     from zope.login.http import BasicAuthAdapter  # noqa: F401 import unused
-except ImportError:
+except ModuleNotFoundError:
     pass
