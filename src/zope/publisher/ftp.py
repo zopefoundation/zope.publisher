@@ -72,5 +72,5 @@ class FTPRequest(BaseRequest):
 # BBB
 try:
     from zope.login.ftp import FTPAuth  # noqa: F401 import unused
-except ImportError:
+except ModuleNotFoundError:
     pass

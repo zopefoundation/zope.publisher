@@ -5,6 +5,8 @@
 7.2 (unreleased)
 ================
 
+- Drop support for Python 3.8.
+
 - Replace deprecated multipart argument ``memfile_limit`` with ``spool_limit``
 
 - Increase the default value of ``part_limit`` for ``multipart`` to 1024 as 128
