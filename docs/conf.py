@@ -20,12 +20,11 @@
 # sys.path.insert(0, os.path.abspath('.'))
 import os
 import sys
-
-import pkg_resources
+from importlib.metadata import distribution
 
 
 sys.path.append(os.path.abspath('../src'))
-rqmt = pkg_resources.require('zope.publisher')[0]
+rqmt = distribution("zope.publisher")
 
 # -- General configuration ------------------------------------------------
 

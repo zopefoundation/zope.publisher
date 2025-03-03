@@ -12,12 +12,14 @@
 #
 ##############################################################################
 
-import pkg_resources
+import sys
 
 import zope.publisher.browser
 import zope.publisher.http
 import zope.publisher.publish
 
+
+PY3_10 = sys.version_info[0:2] >= (3, 10)
 
 browser_methods = {'GET', 'HEAD', 'POST'}
 
@@ -68,4 +70,13 @@ def get_egg(name, group):
     else:
         egg, entry_point = name, 'default'
 
-    return pkg_resources.load_entry_point(egg, group, entry_point)
+    if PY3_10:
+        from importlib.metadata import entry_points
+
+        (entry_point,) = entry_points().select(group=group, name=entry_point)
+    else:
+        import pkg_resources
+
+        return pkg_resources.load_entry_point(egg, group, entry_point)
+
+    return entry_point.load()
