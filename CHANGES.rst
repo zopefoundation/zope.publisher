@@ -2,7 +2,7 @@
  Changes
 =========
 
-7.3 (unreleased)
+7.3 (2025-03-05)
 ================
 
 - Replace `pkg_resources` with `importlib.metadata`.
