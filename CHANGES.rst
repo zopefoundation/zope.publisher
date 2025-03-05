@@ -5,8 +5,7 @@
 7.3 (unreleased)
 ================
 
-- Nothing changed yet.
-
+- Replace `pkg_resources` with `importlib.metadata`.
 
 7.2 (2024-12-19)
 ================
