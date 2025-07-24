@@ -18,7 +18,6 @@
 ##############################################################################
 import os
 
-from setuptools import find_packages
 from setuptools import setup
 
 
@@ -37,12 +36,12 @@ sample = zope.publisher.tests.test_paste:SamplePublication
 
 tests_require = [
     'zope.testing',
-    'zope.testrunner',
+    'zope.testrunner >= 6.4',
 ]
 
 setup(
     name='zope.publisher',
-    version='7.4.dev0',
+    version='8.0.dev0',
     url='https://github.com/zopefoundation/zope.publisher',
     license='ZPL 2.1',
     author='Zope Foundation and Contributors',
@@ -66,9 +65,6 @@ setup(
         'Operating System :: OS Independent',
         'Topic :: Internet :: WWW/HTTP',
     ],
-    packages=find_packages('src'),
-    package_dir={'': 'src'},
-    namespace_packages=['zope'],
     install_requires=[
         'multipart>=1.1.0',
         'setuptools',
