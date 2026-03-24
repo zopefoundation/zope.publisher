@@ -26,13 +26,14 @@ def read(*rnames):
         return f.read()
 
 
-entry_points = '''
-[paste.app_factory]
-main = zope.publisher.paste:Application
-
-[zope.publisher.publication_factory]
-sample = zope.publisher.tests.test_paste:SamplePublication
-'''
+entry_points = {
+    'paste.app_factory': [
+        'main = zope.publisher.paste:Application',
+    ],
+    'zope.publisher.publication_factory': [
+        'sample = zope.publisher.tests.test_paste:SamplePublication',
+    ],
+}
 
 tests_require = [
     'zope.testing',
