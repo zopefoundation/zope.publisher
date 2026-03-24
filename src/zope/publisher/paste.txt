@@ -39,17 +39,17 @@ zope.publisher.tests.test_paste.SamplePublication. It is a class that
 takes a global_config positional argument and arbitrary keyword
 arguments. It prints out this information as well as request data.
 It's registered as the "sample" entry point in the
-"zope.publisher.publication_factory" group.  
+"zope.publisher.publication_factory" group.
 
 We can create a WSGI application for this sample publication by
 calling the zope.publisher.paste.Application factory.  We'll get this
 by looking it up with package resources:
 
-    >>> import pkg_resources
-    >>> app_factory = pkg_resources.load_entry_point(
-    ...     'zope.publisher', 'paste.app_factory', 'main')
-    
-    >>> app = app_factory(dict(global_option=42), 
+    >>> from importlib.metadata import entry_points
+    >>> [ep] = entry_points(group='paste.app_factory', name='main')
+    >>> app_factory = ep.load()
+
+    >>> app = app_factory(dict(global_option=42),
     ...                   publication='egg:zope.publisher#sample',
     ...                   app_option=1)
 
@@ -73,7 +73,7 @@ environment dictionary and a start-response function:
     <pre>
     CONTENT_TYPE:	text/plain
     PATH_INFO:	/a/b
-    QUERY_STRING:	
+    QUERY_STRING:
     REQUEST_METHOD:	GET
     wsgi.input:	<...io.BytesIO object at ...>
     </pre>

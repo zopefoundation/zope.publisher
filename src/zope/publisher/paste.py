@@ -12,14 +12,12 @@
 #
 ##############################################################################
 
-import sys
+import importlib.metadata
 
 import zope.publisher.browser
 import zope.publisher.http
 import zope.publisher.publish
 
-
-PY39 = sys.version_info[0:2] < (3, 10)
 
 browser_methods = {'GET', 'HEAD', 'POST'}
 
@@ -66,17 +64,10 @@ class Application:
 
 def get_egg(name, group):
     if '#' in name:
-        egg, entry_point = name.split('#', 1)
+        _, entry_point = name.split('#', 1)
     else:
-        egg, entry_point = name, 'default'
+        _, entry_point = name, 'default'
 
-    if PY39:
-        import pkg_resources
-
-        return pkg_resources.load_entry_point(egg, group, entry_point)
-    else:
-        from importlib.metadata import entry_points
-
-        (entry_point,) = entry_points().select(group=group, name=entry_point)
-
+    (entry_point,) = importlib.metadata.entry_points(
+        group=group, name=entry_point)
     return entry_point.load()
