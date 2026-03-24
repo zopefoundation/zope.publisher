@@ -1,15 +1,79 @@
 # Generated with zope.meta (https://zopemeta.readthedocs.io/) from:
 # https://github.com/zopefoundation/meta/tree/master/src/zope/meta/pure-python
-# 
-# Generated from:
-# https://github.com/zopefoundation/meta/tree/master/config/pure-python
-
 [build-system]
 requires = [
     "setuptools >= 78.1.1,< 81",
     "wheel",
 ]
 build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "zope.publisher"
+version = "8.1.dev0"
+description = "The Zope publisher publishes Python objects on the web."
+license = "ZPL-2.1"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Topic :: Internet :: WWW/HTTP",
+]
+dynamic = ["readme"]
+requires-python = ">=3.10"
+authors = [
+    {name = "Zope Foundation and contributors",email = "zope-dev@zope.dev"},
+]
+maintainers = [
+    {name = "Plone Foundation and contributors",email = "zope-dev@zope.dev"},
+]
+dependencies = [
+    "multipart>=1.1.0",
+    "zope.browser",
+    "zope.component",
+    "zope.configuration",
+    "zope.contenttype>=4.0.0",
+    "zope.event",
+    "zope.exceptions",
+    "zope.i18n>=4.0.0",
+    "zope.interface>=4.0.1",
+    "zope.location",
+    "zope.proxy",
+    "zope.security>=4.0.0",
+]
+
+[project.entry-points."paste.app_factory"]
+main = "zope.publisher.paste:Application"
+
+[project.entry-points."zope.publisher.publication_factory"]
+sample = "zope.publisher.tests.test_paste:SamplePublication"
+
+[project.optional-dependencies]
+test = [
+    "zope.testing",
+    "zope.testrunner >= 6.4",
+]
+docs = [
+    "Sphinx",
+    "repoze.sphinx.autointerface",
+    "sphinx_rtd_theme",
+]
+
+[project.urls]
+Documentation = "https://zopepublisher.readthedocs.io/"
+Source = "https://github.com/zopefoundation/zope.publisher"
+Issues = "https://github.com/zopefoundation/zope.publisher/issues"
+Changelog = "https://raw.githubusercontent.com/zopefoundation/zope.publisher/master/CHANGES.rst"
 
 [tool.coverage.run]
 branch = true
@@ -33,3 +97,7 @@ exclude_lines = [
 
 [tool.coverage.html]
 directory = "parts/htmlcov"
+
+[tool.setuptools.dynamic]
+readme = {file = ["README.rst", "CHANGES.rst"]}
+
