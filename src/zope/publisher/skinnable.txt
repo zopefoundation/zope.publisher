@@ -248,7 +248,6 @@ applySkin
 The applySkin method is able to apply any given skin. Let's define some custom
 skins:
 
-  >>> import pprint
   >>> from zope.interface import Interface
   >>> class ISkinA(Interface):
   ...     pass
@@ -267,18 +266,20 @@ Now we can apply the SkinA:
 
   >>> from zope.publisher.skinnable import applySkin
   >>> applySkin(request, ISkinA)
-  >>> pprint.pprint(list(zope.interface.providedBy(request).interfaces()))
-  [<InterfaceClass builtins.ISkinA>,
-   <InterfaceClass builtins.IJSONRequest>,
-   <InterfaceClass zope.publisher.interfaces.IRequest>]
+  >>> for iface in zope.interface.providedBy(request).interfaces():
+  ...     print(repr(iface))
+  <InterfaceClass builtins.ISkinA>
+  <InterfaceClass builtins.IJSONRequest>
+  <InterfaceClass zope.publisher.interfaces.IRequest>
 
 And if we apply ISkinB, ISkinA get removed at the same time ISkinB get applied:
 
   >>> applySkin(request, ISkinB)
-  >>> pprint.pprint(list(zope.interface.providedBy(request).interfaces()))
-  [<InterfaceClass builtins.ISkinB>,
-   <InterfaceClass builtins.IJSONRequest>,
-   <InterfaceClass zope.publisher.interfaces.IRequest>]
+  >>> for iface in zope.interface.providedBy(request).interfaces():
+  ...     print(repr(iface))
+  <InterfaceClass builtins.ISkinB>
+  <InterfaceClass builtins.IJSONRequest>
+  <InterfaceClass zope.publisher.interfaces.IRequest>
 
 
 setDefaultSkin and applySkin

@@ -11,6 +11,9 @@
 
 - Drop support for Python 3.9.
 
+- Fix ``skinnable.txt`` doctest failures on Python 3.15 by avoiding the changed
+  ``pprint`` output format.
+
 
 8.0 (2025-09-12)
 ================
