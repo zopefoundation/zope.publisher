@@ -5,14 +5,14 @@
 8.1 (unreleased)
 ================
 
-- Move package metadata from setup.py to pyproject.toml.
+- Drop support for Python 3.9.
 
 - Add support for Python 3.14.
 
-- Drop support for Python 3.9.
-
 - Fix ``skinnable.txt`` doctest failures on Python 3.15 by avoiding the changed
   ``pprint`` output format.
+
+- Move package metadata from setup.py to pyproject.toml.
 
 
 8.0 (2025-09-12)
