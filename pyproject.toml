@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "zope.publisher"
-version = "8.1.dev0"
+version = "8.1"
 description = "The Zope publisher publishes Python objects on the web."
 license = "ZPL-2.1"
 classifiers = [
