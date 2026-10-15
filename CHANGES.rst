@@ -5,7 +5,7 @@
 8.2 (unreleased)
 ================
 
-- Nothing changed yet.
+- Drop support for Python 3.10.
 
 
 8.1 (2026-06-24)
