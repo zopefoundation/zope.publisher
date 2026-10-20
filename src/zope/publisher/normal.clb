@@ -105,4 +105,3 @@ Publisher framework base collaboration
         response.outputBody()
 
         request.close()
-
